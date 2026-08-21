@@ -117,11 +117,12 @@
   .card{background:var(--surface);border:1px solid var(--line);border-radius:4px;padding:22px;box-shadow:0 1px 2px rgba(0,0,0,.03);}
   .card + .card{margin-top:18px;}
 
-  /* ================= INICIO ================= */
-  .stat-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(200px,1fr));gap:16px;margin-bottom:22px;}
-  .stat-card{background:var(--surface);border:1px solid var(--line);border-radius:4px;padding:18px 20px;border-left:4px solid var(--rojo-600);box-shadow:0 1px 2px rgba(0,0,0,.03);}
-  .stat-card .num{font-family:var(--font-display);font-size:2rem;font-weight:700;}
-  .stat-card .label{font-size:.8rem;color:var(--text-muted);margin-top:3px;}
+  /* ================= INICIO — sin cards, todo en filas ================= */
+  .stat-strip{display:flex;flex-wrap:wrap;gap:0;border:1px solid var(--line);border-radius:4px;margin-bottom:22px;overflow:hidden;}
+  .stat-strip .stat-cell{flex:1 1 200px;padding:16px 20px;border-right:1px solid var(--line);}
+  .stat-strip .stat-cell:last-child{border-right:none;}
+  .stat-strip .num{font-family:var(--font-display);font-size:1.7rem;font-weight:700;color:var(--rojo-600);}
+  .stat-strip .label{font-size:.8rem;color:var(--text-muted);margin-top:2px;}
 
   #panel-inicio .hero-panel{background:var(--surface-2);border:1px solid var(--line);border-left:6px solid var(--rojo-600);padding:34px clamp(22px,4.5vw,46px);text-align:center;}
   #panel-inicio .hero-panel h1{font-family:var(--font-display);font-weight:700;font-size:clamp(1.6rem,3.2vw,2.3rem);letter-spacing:.01em;}
@@ -140,7 +141,6 @@
   .section-title-row .link-mono{font-size:.76rem;color:var(--rojo-600);font-weight:600;}
   .empty-note{padding:22px;text-align:center;color:var(--text-muted);font-size:.85rem;border:1px dashed var(--line);border-radius:4px;}
 
-  /* filas (Inicio: recientes) */
   .design-rows{display:flex;flex-direction:column;gap:8px;}
   .design-row{display:flex;align-items:center;gap:16px;padding:13px 16px;border:1px solid var(--line);border-radius:4px;background:var(--surface);}
   .design-row .drow-thumb{width:4px;align-self:stretch;background:var(--rojo-600);border-radius:2px;flex-shrink:0;}
@@ -160,10 +160,6 @@
   .form-row{display:flex;gap:12px;flex-wrap:wrap;margin-bottom:16px;}
   .form-row input,.form-row select{padding:11px 13px;border-radius:3px;border:1.5px solid var(--line);font-size:.87rem;flex:1;min-width:150px;background:var(--surface);color:var(--text);}
   .form-row input:focus,.form-row select:focus{outline:none;border-color:var(--rojo-600);}
-
-  .field-auto-wrap{position:relative;flex:1;min-width:150px;}
-  .field-auto{width:100%;padding:11px 60px 11px 13px;border-radius:3px;border:1.5px solid var(--rojo-300);background:var(--surface-2);color:var(--rojo-600);font-family:var(--font-mono);font-weight:600;font-size:.87rem;}
-  .field-auto-badge{position:absolute;right:8px;top:50%;transform:translateY(-50%);font-size:.6rem;letter-spacing:.04em;color:#fff;background:var(--rojo-600);padding:3px 7px;border-radius:3px;text-transform:uppercase;}
 
   .field-mini{display:flex;flex-direction:column;gap:5px;}
   .field-mini label{font-size:.68rem;letter-spacing:.02em;color:var(--text-muted);text-transform:uppercase;font-weight:600;}
@@ -185,7 +181,6 @@
   thead th{text-align:left;font-size:.68rem;text-transform:uppercase;letter-spacing:.04em;color:var(--text-muted);padding:10px 12px;border-bottom:2px solid var(--line-strong);white-space:nowrap;font-weight:600;}
   tbody td{padding:12px;font-size:.85rem;border-bottom:1px solid var(--line);white-space:nowrap;color:var(--text);}
   tbody tr:hover{background:var(--surface-2);}
-  tfoot td{padding:12px;font-size:.85rem;font-weight:700;border-top:2px solid var(--line-strong);}
   .mono{font-family:var(--font-mono);font-size:.82rem;}
   .row-actions{display:flex;gap:6px;}
 
@@ -213,6 +208,11 @@
   .design-body .tags{display:flex;gap:6px;flex-wrap:wrap;}
   .design-actions{display:flex;gap:6px;margin-top:12px;padding-top:12px;border-top:1px solid var(--line);flex-wrap:wrap;}
 
+  .stat-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(200px,1fr));gap:16px;margin-bottom:24px;}
+  .stat-card{background:var(--surface);border:1px solid var(--line);border-radius:4px;padding:18px 20px;border-left:4px solid var(--rojo-600);box-shadow:0 1px 2px rgba(0,0,0,.03);}
+  .stat-card .num{font-family:var(--font-display);font-size:2rem;font-weight:700;}
+  .stat-card .label{font-size:.8rem;color:var(--text-muted);margin-top:3px;}
+
   .bar-row{margin-bottom:16px;}
   .bar-row .bar-label{display:flex;justify-content:space-between;font-size:.85rem;margin-bottom:7px;}
   .bar-row .bar-label span:last-child{color:var(--rojo-600);font-weight:600;}
@@ -233,16 +233,53 @@
   .settings-actions{margin-top:20px;}
   select.lang-select{padding:9px 12px;border-radius:3px;border:1.5px solid var(--line);background:var(--surface);color:var(--text);}
 
-  /* ---- Calcular Diseño ---- */
-  .calc-section{margin-bottom:26px;}
-  .calc-section-title{font-family:var(--font-display);font-size:1rem;font-weight:700;margin-bottom:4px;}
-  .calc-section-sub{font-size:.8rem;color:var(--text-muted);margin-bottom:14px;}
-  .calc-note{font-size:.78rem;color:var(--text-muted);margin-top:8px;line-height:1.5;}
-  .nombre-preview-wrap{margin-bottom:22px;}
-  .nombre-preview{font-family:var(--font-mono);font-weight:700;font-size:1.1rem;color:var(--rojo-600);background:var(--surface-2);border:1.5px dashed var(--rojo-300);border-radius:4px;padding:14px 18px;}
-  .nombre-preview .lbl{display:block;font-family:var(--font-body);font-weight:600;font-size:.66rem;letter-spacing:.04em;text-transform:uppercase;color:var(--text-muted);margin-bottom:6px;}
+  /* ================= CALCULAR DISEÑO — réplica de la hoja ================= */
+  .hoja{border:1px solid var(--line);border-radius:4px;overflow:hidden;background:var(--surface);margin-bottom:22px;}
+  .hoja-top{display:grid;grid-template-columns:1.4fr 2.4fr 1.3fr;border-bottom:2px solid var(--rojo-600);}
+  @media(max-width:760px){.hoja-top{grid-template-columns:1fr;}}
+  .hoja-brand{background:var(--surface-2);padding:12px 16px;font-size:.7rem;font-weight:600;border-right:1px solid var(--line);display:flex;flex-direction:column;justify-content:center;gap:4px;line-height:1.3;}
+  .hoja-title{display:flex;align-items:center;justify-content:center;font-family:var(--font-display);font-weight:700;font-size:1.05rem;text-transform:uppercase;text-align:center;padding:12px;border-right:1px solid var(--line);}
+  .hoja-code{padding:10px 16px;font-size:.68rem;line-height:1.7;color:var(--text-muted);}
+  .hoja-code b{color:var(--text);}
+  .hoja-nombre{text-align:center;padding:14px;font-family:var(--font-display);font-weight:700;font-size:1.4rem;background:var(--surface-2);border-bottom:1px solid var(--line);color:var(--rojo-600);}
+  .hoja-meta{display:grid;grid-template-columns:repeat(auto-fit,minmax(170px,1fr));}
+  .hoja-meta-cell{padding:10px 16px;border-right:1px solid var(--line);border-bottom:1px solid var(--line);}
+  .hoja-meta-cell label{display:block;font-size:.64rem;text-transform:uppercase;color:var(--text-muted);font-weight:600;margin-bottom:4px;}
+  .hoja-meta-cell select,.hoja-meta-cell input{width:100%;border:none;background:transparent;font-size:.84rem;font-weight:600;color:var(--text);padding:1px 0;}
+  .hoja-meta-cell select:focus,.hoja-meta-cell input:focus{outline:none;}
+  .hoja-cvd{display:flex;gap:14px;}
+  .hoja-cvd span{font-size:.68rem;color:var(--text-muted);}
+  .hoja-cvd b{display:block;font-family:var(--font-mono);color:var(--rojo-600);}
 
-  /* ---- Vista de diseño (formato de la hoja real) — modal e impresión ---- */
+  .section-num{font-family:var(--font-display);font-weight:700;font-size:.98rem;color:var(--rojo-600);margin-bottom:4px;text-transform:uppercase;}
+  .section-hint{font-size:.78rem;color:var(--text-muted);margin-bottom:12px;}
+
+  table.hoja-table{width:100%;border-collapse:collapse;font-size:.76rem;}
+  table.hoja-table th{background:#6f6f6f;color:#fff;padding:6px 8px;text-align:center;font-size:.64rem;text-transform:uppercase;white-space:nowrap;}
+  table.hoja-table td{padding:6px 8px;border-bottom:1px solid var(--line);text-align:center;white-space:nowrap;}
+  table.hoja-table td.hoja-nombre-mat{text-align:left;font-weight:600;color:#1f4e8c;}
+
+  .params-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:14px;}
+  @media(max-width:1000px){.params-grid{grid-template-columns:1fr;}}
+  .params-col{border:1px solid var(--line);border-radius:4px;overflow:hidden;}
+  .params-col-head{background:#6f6f6f;color:#fff;padding:8px 12px;font-family:var(--font-display);font-size:.76rem;text-transform:uppercase;text-align:center;font-weight:600;}
+  .params-col-body{padding:12px;display:flex;flex-direction:column;gap:9px;background:var(--surface);}
+  .params-field label{display:block;font-size:.6rem;text-transform:uppercase;color:var(--text-muted);font-weight:600;margin-bottom:2px;}
+  .params-field input,.params-field select{width:100%;padding:6px 7px;font-size:.76rem;border:1px solid var(--line);border-radius:3px;background:var(--surface);color:var(--text);}
+  .params-field input[readonly]{background:var(--surface-2);color:var(--rojo-600);font-weight:600;font-family:var(--font-mono);}
+
+  .mezcla-head-row{display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:10px;margin-bottom:12px;}
+  .mezcla-head-row input[type="date"]{padding:8px 10px;border-radius:3px;border:1.5px solid var(--line);background:var(--surface);color:var(--text);font-size:.82rem;}
+  table.mezcla-table{width:100%;border-collapse:collapse;font-size:.78rem;}
+  table.mezcla-table th{background:#6f6f6f;color:#fff;padding:7px 8px;text-align:center;font-size:.65rem;text-transform:uppercase;white-space:nowrap;}
+  table.mezcla-table td{padding:6px 8px;border-bottom:1px solid var(--line);text-align:center;}
+  table.mezcla-table td.mezcla-select-cell{text-align:left;min-width:190px;}
+  table.mezcla-table select.mix-row-select{width:100%;border:none;background:transparent;color:#1f4e8c;font-weight:600;font-size:.8rem;}
+  table.mezcla-table input.mix-peso{width:80px;padding:5px 6px;border:1px solid var(--line);border-radius:3px;background:var(--surface);color:var(--text);text-align:center;}
+  table.mezcla-table td.mezcla-dosis{background:#fdf3d3;}
+  table.mezcla-table tr.mezcla-total td{background:#6f6f6f;color:#fff;font-weight:700;}
+
+  /* ---- Vista de diseño (modal + impresión) ---- */
   #design-modal{position:fixed;inset:0;background:rgba(20,19,20,.55);z-index:200;display:none;align-items:flex-start;justify-content:center;padding:40px 18px;overflow-y:auto;}
   #design-modal.show{display:flex;}
   .modal-card{background:#fff;color:#161616;border-radius:6px;max-width:960px;width:100%;box-shadow:0 30px 60px rgba(0,0,0,.35);}
@@ -252,15 +289,9 @@
   .modal-close:hover{background:var(--rojo-600);color:#fff;}
   .modal-body{padding:20px 22px;}
   .modal-actions{display:flex;gap:10px;padding:16px 22px;border-top:1px solid #e7e2e1;flex-wrap:wrap;}
-
   .mezcla-title-row{display:flex;justify-content:space-between;align-items:baseline;flex-wrap:wrap;gap:8px;margin-bottom:12px;}
   .mezcla-title-row h4{color:var(--rojo-600);font-family:var(--font-display);font-size:1rem;text-transform:uppercase;}
   .mezcla-title-row .mono{color:#6c6c70;}
-  table.mezcla-table{width:100%;border-collapse:collapse;font-size:.8rem;}
-  table.mezcla-table th{background:#6f6f6f;color:#fff;padding:8px 9px;text-align:center;font-size:.68rem;text-transform:uppercase;letter-spacing:.02em;}
-  table.mezcla-table td{padding:7px 9px;border-bottom:1px solid #e2ddda;text-align:center;}
-  table.mezcla-table td.mezcla-nombre{text-align:left;font-weight:600;color:#1f4e8c;}
-  table.mezcla-table tr.mezcla-total td{background:#6f6f6f;color:#fff;font-weight:700;}
   .mezcla-specs{display:grid;grid-template-columns:repeat(auto-fill,minmax(160px,1fr));gap:10px;margin-bottom:18px;font-size:.8rem;}
   .mezcla-specs div{padding:8px 10px;background:#faf4f4;border-radius:3px;}
   .mezcla-specs b{display:block;font-size:.66rem;text-transform:uppercase;color:#6c6c70;margin-bottom:2px;}
@@ -273,7 +304,7 @@
     @page{size:A4;margin:14mm;}
   }
 
-  /* ---- Componentes / Reporte RR ---- */
+  /* ---- Reporte RR ---- */
   .rr-layout{display:grid;grid-template-columns:240px 1fr;gap:18px;align-items:start;}
   @media(max-width:1000px){.rr-layout{grid-template-columns:1fr;}}
   .rr-study-card{background:var(--surface);border:1px solid var(--line);border-radius:3px;padding:12px 14px;margin-bottom:8px;cursor:pointer;}
@@ -397,12 +428,12 @@
 
   <main class="content">
 
-    <!-- INICIO -->
+    <!-- INICIO — sin cards -->
     <section id="panel-inicio" class="panel active">
-      <div class="stat-grid">
-        <div class="stat-card"><div class="num" id="home-stat-componentes">0</div><div class="label">Componentes registrados</div></div>
-        <div class="stat-card"><div class="num" id="home-stat-disenos">0</div><div class="label">En espera de resultados</div></div>
-        <div class="stat-card"><div class="num" id="home-stat-estudios">0</div><div class="label">Estudios RR</div></div>
+      <div class="stat-strip">
+        <div class="stat-cell"><div class="num" id="home-stat-componentes">0</div><div class="label">Componentes registrados</div></div>
+        <div class="stat-cell"><div class="num" id="home-stat-disenos">0</div><div class="label">En espera de resultados</div></div>
+        <div class="stat-cell"><div class="num" id="home-stat-estudios">0</div><div class="label">Estudios RR</div></div>
       </div>
 
       <div class="hero-panel">
@@ -423,7 +454,7 @@
       <div class="section-title-row">
         <h3>Favoritos</h3>
       </div>
-      <div class="gallery" id="favoritos-grid"></div>
+      <div class="design-rows" id="favoritos-rows"></div>
     </section>
 
     <!-- COMPONENTES -->
@@ -432,9 +463,7 @@
         <div><h2 id="comp-title">Componentes</h2><p id="comp-desc">Elegí una categoría en el menú lateral.</p></div>
         <span class="badge-pill" id="comp-count">0 registros</span>
       </div>
-
       <div id="comp-empty" class="card empty-note">Elegí una categoría (Cemento, Adición, Agua, Pigmento, Piedra, Arena o Aditivo) desde el menú lateral para ver o registrar componentes.</div>
-
       <div id="comp-body" style="display:none;">
         <div class="card">
           <div class="form-row">
@@ -447,12 +476,8 @@
             <a class="link-cancel" id="comp-cancel" style="display:none;">Cancelar edición</a>
           </div>
         </div>
-
         <div class="card table-scroll">
-          <table>
-            <thead><tr id="comp-thead-row"></tr></thead>
-            <tbody id="comp-tbody"></tbody>
-          </table>
+          <table><thead><tr id="comp-thead-row"></tr></thead><tbody id="comp-tbody"></tbody></table>
         </div>
       </div>
     </section>
@@ -469,81 +494,120 @@
         <button class="subtab" data-sub="historico">Histórico</button>
       </div>
 
-      <!-- ===== CALCULAR DISEÑO ===== -->
+      <!-- ===== CALCULAR DISEÑO — réplica de la hoja real ===== -->
       <div class="sub-panel" id="sub-calcular">
 
-        <div class="nombre-preview-wrap">
-          <div class="nombre-preview"><span class="lbl">Nombre técnico (generado)</span><span id="nombre-preview-text">CL0MPa(0d)-·-H0-A1</span></div>
-        </div>
-
-        <div class="calc-section card">
-          <div class="calc-section-title">Datos generales</div>
-          <div class="calc-section-sub">Al elegir la planta se completa automáticamente el código de laboratorio correspondiente.</div>
-          <div class="field-grid">
-            <div class="field-mini"><label>Planta de producción</label>
-              <select id="dis-planta"><option value="Trujillo">Trujillo</option><option value="Pacasmayo">Pacasmayo</option><option value="Cajamarca">Cajamarca</option><option value="Moche">Moche</option></select>
+        <!-- ENCABEZADO -->
+        <div class="hoja">
+          <div class="hoja-top">
+            <div class="hoja-brand">Cementos Pacasmayo<br>y Subsidiarias<br><span style="font-weight:400;color:var(--text-muted);">Gestión de Calidad e I+D</span></div>
+            <div class="hoja-title">Dosificación de mezclas de concreto</div>
+            <div class="hoja-code"><b>Código:</b> D-CC-F-148 &nbsp; <b>Versión:</b> 01<br><b>Sistema:</b> I+D digital &nbsp; <b>Página:</b> 1/1</div>
+          </div>
+          <div class="hoja-nombre" id="nombre-preview-text">CL0MPa(0d)-·-H0-A1</div>
+          <div class="hoja-meta">
+            <div class="hoja-meta-cell"><label>Planta de producción</label>
+              <select id="dis-planta"></select>
             </div>
-            <div class="field-mini"><label>Laboratorio (auto)</label><input type="text" id="dis-laboratorio" readonly></div>
-            <div class="field-mini"><label>Uso / aplicación</label><input type="text" id="dis-uso" placeholder="Específico / autoconstrucción"></div>
-            <div class="field-mini"><label>N° Diseño</label><input type="text" id="dis-ndiseno" placeholder="70"></div>
-            <div class="field-mini"><label>Código SAP</label><input type="text" id="dis-sap" placeholder="004-01685"></div>
-            <div class="field-mini"><label>Estado</label>
-              <select id="dis-estado"><option value="Espera de resultados">Espera de resultados</option><option value="Completado">Completado</option></select>
+            <div class="hoja-meta-cell"><label>Laboratorio (auto)</label><input type="text" id="dis-laboratorio" readonly></div>
+            <div class="hoja-meta-cell"><label>Uso / aplicación</label>
+              <select id="dis-uso">
+                <option>General / Radio local</option>
+                <option>General / larga distancia</option>
+                <option>Específico / Pavimentos y losas</option>
+                <option>Específico / E. esbeltos</option>
+                <option>Específico / Tremie</option>
+                <option>Específico / autoconstrucción</option>
+              </select>
+            </div>
+            <div class="hoja-meta-cell"><label>N° Diseño</label><input type="text" id="dis-ndiseno" placeholder="70"></div>
+            <div class="hoja-meta-cell"><label>Código SAP</label><input type="text" id="dis-sap" placeholder="004-01685"></div>
+            <div class="hoja-meta-cell">
+              <div class="hoja-cvd">
+                <span>Base<b id="cvd-base-view">S/. 0.00</b></span>
+                <span>Diseño<b id="cvd-diseno-view">S/. 0.00</b></span>
+              </div>
             </div>
           </div>
         </div>
 
-        <div class="calc-section card">
-          <div class="calc-section-title">Especificaciones</div>
-          <div class="calc-section-sub">Campos ajustables — igual que la sección "2. Parámetros de diseño" de la ficha de dosificación.</div>
-          <div class="field-grid">
-            <div class="field-mini"><label>Negocio</label><input type="text" id="dis-negocio" placeholder="Pacasmayo Profesional"></div>
-            <div class="field-mini"><label>Tipo de concreto</label><input type="text" id="dis-tipo-concreto" placeholder="Concreto ligero"></div>
-            <div class="field-mini"><label>f'c (kg/cm²)</label><input type="number" id="dis-fc" placeholder="280"></div>
-            <div class="field-mini"><label>f'c (MPa, auto)</label><input type="text" id="dis-fc-mpa" readonly></div>
-            <div class="field-mini"><label>f't — flexión (kg/cm²)</label><input type="text" id="dis-ft" placeholder="37"></div>
-            <div class="field-mini"><label>Edad del f'c (días)</label><input type="number" id="dis-edad" placeholder="3"></div>
-            <div class="field-mini"><label>Tipo de cemento</label><input type="text" id="dis-cemento-tipo" placeholder="I"></div>
-            <div class="field-mini"><label>Huso granul. TMN (AG)</label><input type="text" id="dis-tmn" placeholder="67"></div>
-            <div class="field-mini"><label>Consistencia (slump, pulg)</label><input type="text" id="dis-slump" placeholder="3"></div>
-            <div class="field-mini"><label>Exposición</label><input type="text" id="dis-exposicion" placeholder="Ambiente"></div>
-            <div class="field-mini"><label>Aire incorporado (%)</label><input type="text" id="dis-aire" placeholder="1.5"></div>
-            <div class="field-mini"><label>Destino</label><input type="text" id="dis-destino" placeholder="Radio local"></div>
-            <div class="field-mini"><label>Tipo de colocación</label><input type="text" id="dis-colocacion" placeholder="Bombeado"></div>
-            <div class="field-mini"><label>Otras especificaciones</label><input type="text" id="dis-otras-esp" placeholder="-"></div>
+        <!-- 1. PROPIEDADES DE LAS MATERIAS PRIMAS (en vivo, según lo elegido abajo en Composición) -->
+        <div class="card">
+          <div class="section-num">1. Propiedades de las materias primas</div>
+          <div class="section-hint">Se actualiza automáticamente según los materiales que elijas en "3. Composición de mezcla".</div>
+          <div class="table-scroll">
+            <table class="hoja-table">
+              <thead><tr><th style="text-align:left;">Materiales</th><th>Norma</th><th>Tipo</th><th>Cód. SAP</th><th>ρ Bseca</th><th>Absorción%</th><th>Humedad%</th><th>M. Finura</th><th>TMN A.G.</th><th>Pasa200</th><th>Pasa100</th><th>PUS</th><th>WR</th><th>Costo</th><th>Procedencia</th></tr></thead>
+              <tbody id="propiedades-tbody"><tr><td colspan="15" style="color:var(--text-muted);">Agregá materiales en la sección 3 para verlos acá.</td></tr></tbody>
+            </table>
           </div>
         </div>
 
-        <div class="calc-section card">
-          <div class="calc-section-title">Cálculos relacionados</div>
-          <div class="calc-section-sub">f'cr se calcula automáticamente (ACI 318: f'cr = f'c + 1.34 × Desv. Estándar). La relación a/mc y el consumo de agua salen de tu curva/tabla de laboratorio — completalos vos; una vez cargados, el peso seco del cemento se puede autocompletar en la mezcla.</div>
-          <div class="field-grid">
-            <div class="field-mini"><label>Desviación estándar (kg/cm²)</label><input type="number" id="dis-desv-std" placeholder="20"></div>
-            <div class="field-mini"><label>f'cr — resistencia promedio objetivo (auto)</label><input type="text" id="dis-fcr" readonly></div>
-            <div class="field-mini"><label>a/mc efectiva</label><input type="text" id="dis-amc-efectiva" placeholder="0.37"></div>
-            <div class="field-mini"><label>Agua efectiva de diseño (L)</label><input type="text" id="dis-agua-req" placeholder="202"></div>
-            <div class="field-mini"><label>% Agregado fino</label><input type="text" id="dis-pct-fino" placeholder="41"></div>
-            <div class="field-mini"><label>% Agregado grueso</label><input type="text" id="dis-pct-grueso" placeholder="59"></div>
-            <div class="field-mini"><label>Volumen de diseño (m3)</label><input type="text" id="dis-vol-diseno" placeholder="1.00"></div>
-            <div class="field-mini"><label>Sufijo del nombre técnico</label><input type="text" id="dis-sufijo" placeholder="A1"></div>
+        <!-- 2. PARÁMETROS DE DISEÑO -->
+        <div class="card">
+          <div class="section-num">2. Parámetros de diseño</div>
+          <div class="params-grid">
+            <div class="params-col">
+              <div class="params-col-head">Especificaciones</div>
+              <div class="params-col-body">
+                <div class="params-field"><label>Negocio</label><input type="text" id="dis-negocio" placeholder="Pacasmayo Profesional"></div>
+                <div class="params-field"><label>Tipo de concreto</label><input type="text" id="dis-tipo-concreto" placeholder="Concreto ligero"></div>
+                <div class="params-field"><label>f'c (kg/cm²)</label><input type="number" id="dis-fc" placeholder="280"></div>
+                <div class="params-field"><label>f'c (MPa, auto)</label><input type="text" id="dis-fc-mpa" readonly></div>
+                <div class="params-field"><label>f't — flexión (kg/cm²)</label><input type="text" id="dis-ft" placeholder="37"></div>
+                <div class="params-field"><label>Edad del f'c (días)</label><input type="number" id="dis-edad" placeholder="3"></div>
+                <div class="params-field"><label>Tipo de cemento</label><input type="text" id="dis-cemento-tipo" placeholder="I"></div>
+                <div class="params-field"><label>Huso granul. TMN (AG)</label><input type="text" id="dis-tmn" placeholder="67"></div>
+                <div class="params-field"><label>Consistencia (slump, pulg)</label><input type="text" id="dis-slump" placeholder="3"></div>
+                <div class="params-field"><label>Exposición</label><input type="text" id="dis-exposicion" placeholder="Ambiente"></div>
+                <div class="params-field"><label>Aire incorporado (%)</label><input type="text" id="dis-aire" placeholder="1.5"></div>
+                <div class="params-field"><label>Destino</label><input type="text" id="dis-destino" placeholder="Radio local"></div>
+                <div class="params-field"><label>Tipo de colocación</label><input type="text" id="dis-colocacion" placeholder="Bombeado"></div>
+                <div class="params-field"><label>Otras especificaciones</label><input type="text" id="dis-otras-esp" placeholder="-"></div>
+              </div>
+            </div>
+            <div class="params-col">
+              <div class="params-col-head">Cálculos relacionados</div>
+              <div class="params-col-body">
+                <div class="params-field"><label>Desviación estándar (kg/cm²)</label><input type="number" id="dis-desv-std" placeholder="20"></div>
+                <div class="params-field"><label>f'cr — objetivo (auto)</label><input type="text" id="dis-fcr" readonly></div>
+                <div class="params-field"><label>a/mc efectiva</label><input type="text" id="dis-amc-efectiva" placeholder="0.37"></div>
+                <div class="params-field"><label>Agua efectiva de diseño (L)</label><input type="text" id="dis-agua-req" placeholder="202"></div>
+                <div class="params-field"><label>Volumen de diseño (m3)</label><input type="text" id="dis-vol-diseno" placeholder="1.00"></div>
+                <div class="params-field"><label>CVD Base (referencial, S/.)</label><input type="text" id="dis-cvd-base" placeholder="288.07"></div>
+                <div class="params-field"><label>Sufijo del nombre técnico</label><input type="text" id="dis-sufijo" placeholder="A1"></div>
+              </div>
+            </div>
+            <div class="params-col">
+              <div class="params-col-head">Proporcionamiento de agregados</div>
+              <div class="params-col-body">
+                <div class="params-field"><label>Límite de gradación</label><input type="text" id="dis-lim-gradacion" placeholder="DIN 1045"></div>
+                <div class="params-field"><label>% Agregado fino</label><input type="text" id="dis-pct-fino" placeholder="41"></div>
+                <div class="params-field"><label>% Agregado grueso</label><input type="text" id="dis-pct-grueso" placeholder="59"></div>
+                <div class="params-field"><label>Batch de prueba (L)</label><input type="number" id="dis-batch-vol" value="30"></div>
+                <div class="params-field"><label>Estado del diseño</label>
+                  <select id="dis-estado"><option value="Espera de resultados">Espera de resultados</option><option value="Completado">Completado</option></select>
+                </div>
+              </div>
+            </div>
           </div>
         </div>
 
-        <div class="calc-section card">
-          <div class="calc-section-title">Composición de mezcla</div>
-          <div class="calc-section-sub">Elegí los componentes e ingresá el peso seco (kg/m3). Vol. Absoluto, Peso SSS, Peso Húmedo, Batch de prueba y CVD se calculan automáticamente desde la ficha técnica de cada componente. Si agregás un cemento con Agua efectiva y a/mc efectiva ya cargados arriba, su peso seco se sugiere solo.</div>
-          <div class="form-row" style="max-width:260px;">
-            <div class="field-mini" style="flex:1;"><label>Batch de prueba (L)</label><input type="number" id="dis-batch-vol" value="30"></div>
+        <!-- 3. COMPOSICIÓN DE MEZCLA -->
+        <div class="card">
+          <div class="mezcla-head-row">
+            <div><div class="section-num" style="margin-bottom:0;">3. Composición de mezcla</div><span class="mono" style="color:var(--text-muted);" id="mezcla-nombre-echo"></span></div>
+            <input type="date" id="dis-fecha-mezcla">
           </div>
           <div class="table-scroll">
-            <table>
-              <thead><tr><th>Material</th><th>Peso Seco (kg/m3)</th><th>Vol. Abs. (m3)</th><th>Peso SSS (kg/m3)</th><th>Peso Húmedo (kg/m3)</th><th>Batch (kg)</th><th>CVD (S/.)</th><th></th></tr></thead>
+            <table class="mezcla-table">
+              <thead><tr><th style="text-align:left;">Materiales</th><th>D</th><th>Peso Seco<br>(kg/m3)</th><th>Vol. Abs.<br>(m3)</th><th>Peso SSS<br>(kg/m3)</th><th>Peso Húmedo<br>(kg/m3)</th><th>Batch<br>(kg)</th><th>CVD<br>(S/.)</th><th></th></tr></thead>
               <tbody id="mix-tbody"></tbody>
-              <tfoot><tr><td>Total</td><td class="mono" id="mix-total-peso">0.00</td><td class="mono" id="mix-total-vol">0.000</td><td class="mono" id="mix-total-sss">0.00</td><td class="mono" id="mix-total-humedo">0.00</td><td class="mono" id="mix-total-batch">0.00</td><td class="mono" id="mix-total-cvd">S/. 0.00</td><td></td></tr></tfoot>
+              <tfoot><tr class="mezcla-total"><td style="text-align:left;">Total</td><td></td><td id="mix-total-peso">0.00</td><td id="mix-total-vol">0.000</td><td id="mix-total-sss">0.00</td><td id="mix-total-humedo">0.00</td><td id="mix-total-batch">0.00</td><td id="mix-total-cvd">0.00</td><td></td></tr></tfoot>
             </table>
           </div>
           <button class="btn-add ghost" id="mix-add-row" style="margin-top:14px;">+ Agregar material a la mezcla</button>
-          <p class="calc-note">Si el material que necesitás no aparece, registralo primero en <strong>Componentes</strong>.</p>
+          <p class="section-hint" style="margin-top:8px;margin-bottom:0;">Si el material que necesitás no aparece, registralo primero en <strong>Componentes</strong>.</p>
         </div>
 
         <button class="btn-add" id="dis-add" style="font-size:.92rem;padding:14px 26px;">Registrar Diseño</button>
@@ -562,7 +626,6 @@
         <div><h2>Reporte RR</h2><p>Comparación de resultados por estudio: relación a/c, dosis de aditivo y parámetros de diseño.</p></div>
         <span class="badge-pill" id="rr-count">0 estudios</span>
       </div>
-
       <div class="rr-layout">
         <div>
           <div id="rr-study-list"></div>
@@ -571,14 +634,12 @@
             <button id="rr-new-btn">+ Crear</button>
           </div>
         </div>
-
         <div>
           <div class="rr-toolbar">
             <h4 id="rr-current-title">—</h4>
             <button class="btn-add ghost rr-add-tipo-btn" id="rr-add-tipo" style="display:none;">+ Agregar tipo</button>
           </div>
           <div class="rr-table-wrap" id="rr-table-holder"></div>
-
           <div class="section-title-row" style="margin-top:20px;">
             <h3>Edad / Resistencia</h3>
             <button class="link-mono" id="rr-add-edad">+ Agregar edad</button>
@@ -610,9 +671,7 @@
 
     <!-- AJUSTES -->
     <section id="panel-ajustes" class="panel">
-      <div class="content-header">
-        <div><h2>Ajustes</h2><p>Preferencias generales del sistema.</p></div>
-      </div>
+      <div class="content-header"><div><h2>Ajustes</h2><p>Preferencias generales del sistema.</p></div></div>
       <div class="card">
         <div class="settings-list">
           <div class="setting-row"><div><h4>Modo oscuro</h4><p>Cambia el panel completo a una paleta oscura.</p></div><label class="switch"><input type="checkbox" id="set-darkmode"><span class="slider"></span></label></div>
@@ -627,13 +686,10 @@
   </main>
 </div>
 
-<!-- ============ MODAL: Vista de diseño (imprimir / Excel) ============ -->
+<!-- ============ MODAL: Vista de diseño ============ -->
 <div id="design-modal">
   <div class="modal-card">
-    <div class="modal-header">
-      <h3>Vista del diseño</h3>
-      <button class="modal-close" id="design-modal-close">×</button>
-    </div>
+    <div class="modal-header"><h3>Vista del diseño</h3><button class="modal-close" id="design-modal-close">×</button></div>
     <div class="modal-body" id="design-modal-body"></div>
     <div class="modal-actions">
       <button class="btn-add" id="design-modal-print">Imprimir / Descargar PDF</button>
@@ -665,7 +721,7 @@
 
   /* ================= THEME ================= */
   function applyTheme(t){ document.documentElement.setAttribute('data-theme', t); }
-  var currentTheme = load('sid9_theme', 'light');
+  var currentTheme = load('sid10_theme', 'light');
   applyTheme(currentTheme);
 
   /* ================= LOADER ================= */
@@ -703,11 +759,11 @@
   function setSidebar(hidden){
     appShell.classList.toggle('sidebar-hidden', hidden);
     floatingToggle.classList.toggle('show', hidden);
-    save('sid9_sidebar_hidden', hidden);
+    save('sid10_sidebar_hidden', hidden);
   }
   sidebarToggle.addEventListener('click', function(){ setSidebar(true); });
   floatingToggle.addEventListener('click', function(){ setSidebar(false); });
-  setSidebar(load('sid9_sidebar_hidden', false));
+  setSidebar(load('sid10_sidebar_hidden', false));
 
   /* ================= NAV ================= */
   var navItems = document.querySelectorAll('.sidebar .nav-item[data-panel]');
@@ -722,16 +778,29 @@
   document.getElementById('btn-calcular').addEventListener('click', function(){ showPanel('disenos'); showSubTab('calcular'); });
   document.getElementById('btn-historico').addEventListener('click', function(){ showPanel('disenos'); showSubTab('historico'); });
 
-  /* ================= PLANTA -> LABORATORIO (vínculo automático) ================= */
-  var PLANTA_LAB = {
-    'Trujillo':   {codigo:'1213', lab:'1213-TRU'},
-    'Pacasmayo':  {codigo:'0512', lab:'0512-PAC'},
-    'Cajamarca':  {codigo:'0734', lab:'0734-CAJ'},
-    'Moche':      {codigo:'0899', lab:'0899-MOC'}
-  };
+  /* ================= PLANTA -> LABORATORIO (tabla real de 13 plantas) ================= */
+  var PLANTA_LAB = [
+    {nombre:'1203 Concreto Piura', codigo:'1203', lab:'1203-PIU'},
+    {nombre:'1211 Industrial Pacasmayo', codigo:'1211', lab:'1211-PAC'},
+    {nombre:'1213 Industrial Trujillo', codigo:'1213', lab:'1213-TRU'},
+    {nombre:'1217 Concreto Chimbote', codigo:'1217', lab:'1217-CHI'},
+    {nombre:'1209 Concreto Chiclayo', codigo:'1209', lab:'1209-CIX'},
+    {nombre:'1207 Industrial Cajamarca', codigo:'1207', lab:'1207-CAX'},
+    {nombre:'1219 Industrial Moche', codigo:'1219', lab:'1219-MCH'},
+    {nombre:'1502 Concreto Rioja', codigo:'1502', lab:'1502-RIO'},
+    {nombre:'5202 Concreto Tarapoto', codigo:'5202', lab:'5202-TAR'},
+    {nombre:'5212 Concreto Moyobamba', codigo:'5212', lab:'5212-MOY'},
+    {nombre:'5206 Concreto Iquitos', codigo:'5206', lab:'5206-IQT'},
+    {nombre:'KAM-Coam', codigo:'KAM', lab:'KAM-Coa'},
+    {nombre:'KAM-Salaverry', codigo:'KAM', lab:'KAM-Sal'}
+  ];
+  function buildPlantaSelect(){
+    var sel = document.getElementById('dis-planta');
+    sel.innerHTML = PLANTA_LAB.map(function(p){ return '<option value="'+esc(p.nombre)+'">'+esc(p.nombre)+'</option>'; }).join('');
+  }
   function syncLaboratorio(){
     var planta = document.getElementById('dis-planta').value;
-    var info = PLANTA_LAB[planta];
+    var info = PLANTA_LAB.filter(function(p){ return p.nombre === planta; })[0];
     document.getElementById('dis-laboratorio').value = info ? info.lab : '';
   }
   document.getElementById('dis-planta').addEventListener('change', syncLaboratorio);
@@ -754,7 +823,7 @@
   ];
   function catDef(id){ return CAT_DEFS.filter(function(c){ return c.id === id; })[0]; }
 
-  var componentes = load('sid9_componentes', [
+  var componentes = load('sid10_componentes', [
     {categoria:'Cemento', nombre:'MS(MH)-PAC', peso:'1500', norma:'NTP 334.088', tipo:'Performance', sap:'002-00066', rho:'2910', pus:'1500', costo:'0.49363', procedencia:'Fabricante: CPSSA'},
     {categoria:'Adición', nombre:'AMNA Filler', peso:'1300', norma:'-', sap:'002-01218', rho:'2700', pus:'1300', costo:'0.15289', procedencia:'-'},
     {categoria:'Agua', nombre:'Agua', peso:'1000', sap:'Código', rho:'1000', pus:'1000', costo:'0.00', procedencia:'Red pública'},
@@ -765,7 +834,7 @@
     {categoria:'Aditivo', nombre:'Master Rheobuild 1201', peso:'3.28', norma:'C494', tipo:'F', sap:'902-00940', rho:'1230', dosis:'0.60', funcion:'Reductor de agua', costo:'3.30', procedencia:'Fabricante: BASF-Perú'},
     {categoria:'Aditivo', nombre:'Master Rheobuild 2025', peso:'4.91', norma:'C494', tipo:'D', sap:'902-00989', rho:'1250', dosis:'0.90', funcion:'Superplastificante', costo:'3.30', procedencia:'Fabricante: BASF-Perú'}
   ]);
-  var activeCompCat = load('sid9_comp_active_cat', null);
+  var activeCompCat = load('sid10_comp_active_cat', null);
   var compEditingIndex = null;
 
   function renderNavSub(){
@@ -777,7 +846,7 @@
   function setCompSubOpen(open){
     document.getElementById('nav-componentes-sub').classList.toggle('open', open);
     document.getElementById('nav-componentes-toggle').classList.toggle('expanded', open);
-    save('sid9_comp_sub_open', open);
+    save('sid10_comp_sub_open', open);
   }
   document.getElementById('nav-componentes-toggle').addEventListener('click', function(){
     var isOpen = document.getElementById('nav-componentes-sub').classList.contains('open');
@@ -787,7 +856,7 @@
     var btn = e.target.closest('.nav-subitem');
     if(!btn) return;
     activeCompCat = btn.dataset.cat;
-    save('sid9_comp_active_cat', activeCompCat);
+    save('sid10_comp_active_cat', activeCompCat);
     compEditingIndex = null;
     renderNavSub();
     showPanel('componentes');
@@ -869,7 +938,7 @@
     } else if(delBtn){
       var idx = Number(delBtn.dataset.i);
       componentes.splice(idx, 1);
-      save('sid9_componentes', componentes);
+      save('sid10_componentes', componentes);
       if(compEditingIndex === idx) resetCompForm();
       renderComponentesPanel();
       rebuildMixSelectOptions();
@@ -898,14 +967,13 @@
       componentes[compEditingIndex] = data;
       toast('Componente actualizado');
     }
-    save('sid9_componentes', componentes);
+    save('sid10_componentes', componentes);
     resetCompForm();
     renderComponentesPanel();
     rebuildMixSelectOptions();
   });
 
   /* ================= DISEÑOS — CALCULADORA ================= */
-  var ESTADOS = ['Espera de resultados','Completado'];
   var subTabs = document.querySelectorAll('.subtab');
   function showSubTab(name){
     subTabs.forEach(function(t){ t.classList.toggle('active', t.dataset.sub === name); });
@@ -916,12 +984,12 @@
   subTabs.forEach(function(t){ t.addEventListener('click', function(){ showSubTab(t.dataset.sub); }); });
 
   var DAY = 24*3600*1000;
-  var disenos = load('sid9_disenos', [
-    {codigo:'DM-0001', nombreTecnico:'CL24MPa(28d)-I-H67-A1', planta:'Cajamarca', laboratorio:'0734-CAJ', tipo:'Mezcla ligera', resistencia:'24', estado:'Completado', fecha:'02/05/2026', ts:Date.now()-40*DAY, favorito:false, cvdTotal:210.00, mix:[]},
-    {codigo:'DM-0002', nombreTecnico:'CL28MPa(3d)-I-H67-A1', planta:'Trujillo', laboratorio:'1213-TRU', tipo:'Mezcla estructural', resistencia:'28', estado:'Completado', fecha:'', ts:Date.now()-5*DAY, favorito:true, cvdTotal:269.52, mix:[]},
-    {codigo:'DM-0003', nombreTecnico:'CL35MPa(7d)-HE-H67-A1', planta:'Pacasmayo', laboratorio:'0512-PAC', tipo:'Mezcla autocompactante', resistencia:'35', estado:'Espera de resultados', fecha:'', ts:Date.now()-3*DAY, favorito:true, cvdTotal:198.70, mix:[]},
-    {codigo:'DM-0004', nombreTecnico:'CL42MPa(3d)-HE-H67-A1', planta:'Moche', laboratorio:'0899-MOC', tipo:'Mezcla de alta resistencia', resistencia:'42', estado:'Espera de resultados', fecha:'', ts:Date.now()-1*DAY, favorito:false, cvdTotal:305.10, mix:[]},
-    {codigo:'DM-0005', nombreTecnico:'CL24MPa(3d)-I-H67-A2', planta:'Trujillo', laboratorio:'1213-TRU', tipo:'Mezcla estándar', resistencia:'24', estado:'Espera de resultados', fecha:'', ts:Date.now()-6*3600*1000, favorito:false, cvdTotal:245.30, mix:[]}
+  var disenos = load('sid10_disenos', [
+    {codigo:'DM-0001', nombreTecnico:'CL24MPa(28d)-I-H67-A1', planta:'1207 Industrial Cajamarca', laboratorio:'1207-CAX', tipo:'Mezcla ligera', resistencia:'24', estado:'Completado', fecha:'', ts:Date.now()-40*DAY, favorito:false, cvdTotal:210.00, mix:[]},
+    {codigo:'DM-0002', nombreTecnico:'CL28MPa(3d)-I-H67-A1', planta:'1213 Industrial Trujillo', laboratorio:'1213-TRU', tipo:'Mezcla estructural', resistencia:'28', estado:'Completado', fecha:'', ts:Date.now()-5*DAY, favorito:true, cvdTotal:269.52, mix:[]},
+    {codigo:'DM-0003', nombreTecnico:'CL35MPa(7d)-HE-H67-A1', planta:'1211 Industrial Pacasmayo', laboratorio:'1211-PAC', tipo:'Mezcla autocompactante', resistencia:'35', estado:'Espera de resultados', fecha:'', ts:Date.now()-3*DAY, favorito:true, cvdTotal:198.70, mix:[]},
+    {codigo:'DM-0004', nombreTecnico:'CL42MPa(3d)-HE-H67-A1', planta:'1219 Industrial Moche', laboratorio:'1219-MCH', tipo:'Mezcla de alta resistencia', resistencia:'42', estado:'Espera de resultados', fecha:'', ts:Date.now()-1*DAY, favorito:false, cvdTotal:305.10, mix:[]},
+    {codigo:'DM-0005', nombreTecnico:'CL24MPa(3d)-I-H67-A2', planta:'1213 Industrial Trujillo', laboratorio:'1213-TRU', tipo:'Mezcla estándar', resistencia:'24', estado:'Espera de resultados', fecha:'', ts:Date.now()-6*3600*1000, favorito:false, cvdTotal:245.30, mix:[]}
   ].map(function(d){
     if(!d.fecha){ var f = new Date(d.ts); d.fecha = String(f.getDate()).padStart(2,'0')+'/'+String(f.getMonth()+1).padStart(2,'0')+'/'+f.getFullYear(); }
     return d;
@@ -982,7 +1050,7 @@
     }
   }
 
-  /* ---- Vista de diseño: formato "3. Composición de mezcla" (modal + impresión + Excel) ---- */
+  /* ---- Vista de diseño: modal + impresión + Excel ---- */
   var modalEl = document.getElementById('design-modal');
   var currentModalDesign = null;
   function mezclaTableHtml(d){
@@ -1010,9 +1078,9 @@
         '<div><b>% Fino / Grueso</b>'+esc(d.pctFino||'-')+'% / '+esc(d.pctGrueso||'-')+'%</div>' +
         '<div><b>Estado</b>'+esc(d.estado||'-')+'</div>' +
       '</div>' +
-      '<table class="mezcla-table"><thead><tr><th>Materiales</th><th>D</th><th>Peso Seco (kg/m3)</th><th>Vol. Abs. (m3)</th><th>Peso SSS (kg/m3)</th><th>Peso Húmedo (kg/m3)</th><th>Batch (kg)</th><th>CVD (S/.)</th></tr></thead>' +
+      '<table class="mezcla-table"><thead><tr><th style="text-align:left;">Materiales</th><th>D</th><th>Peso Seco (kg/m3)</th><th>Vol. Abs. (m3)</th><th>Peso SSS (kg/m3)</th><th>Peso Húmedo (kg/m3)</th><th>Batch (kg)</th><th>CVD (S/.)</th></tr></thead>' +
       '<tbody>'+(rows || '<tr><td colspan="8" style="color:#6c6c70;">Este diseño no tiene materiales de mezcla guardados.</td></tr>')+'</tbody>' +
-      '<tfoot><tr class="mezcla-total"><td>Total</td><td></td><td>'+totals.peso.toFixed(2)+'</td><td>'+totals.vol.toFixed(3)+'</td><td>'+totals.sss.toFixed(2)+'</td><td>'+totals.hum.toFixed(2)+'</td><td>'+totals.batch.toFixed(3)+'</td><td>'+totals.cvd.toFixed(2)+'</td></tr></tfoot></table>';
+      '<tfoot><tr class="mezcla-total"><td style="text-align:left;">Total</td><td></td><td>'+totals.peso.toFixed(2)+'</td><td>'+totals.vol.toFixed(3)+'</td><td>'+totals.sss.toFixed(2)+'</td><td>'+totals.hum.toFixed(2)+'</td><td>'+totals.batch.toFixed(3)+'</td><td>'+totals.cvd.toFixed(2)+'</td></tr></tfoot></table>';
   }
   function openDesignModal(d){
     currentModalDesign = d;
@@ -1053,21 +1121,21 @@
       openDesignModal(disenos[i]);
     } else if(act === 'fav'){
       disenos[i].favorito = !disenos[i].favorito;
-      save('sid9_disenos', disenos);
+      save('sid10_disenos', disenos);
       toast(disenos[i].favorito ? 'Agregado a favoritos' : 'Quitado de favoritos');
       renderAllDesignViews();
     } else if(act === 'copy'){
       copyDiseno(disenos[i]);
     } else if(act === 'del'){
       disenos.splice(i, 1);
-      save('sid9_disenos', disenos);
+      save('sid10_disenos', disenos);
       toast('Diseño eliminado');
       renderAllDesignViews();
     }
   }
   document.getElementById('dis-gallery').addEventListener('click', handleCardAction);
   document.getElementById('recientes-rows').addEventListener('click', handleCardAction);
-  document.getElementById('favoritos-grid').addEventListener('click', handleCardAction);
+  document.getElementById('favoritos-rows').addEventListener('click', handleCardAction);
 
   function renderDisenosHistorico(){
     var wrap = document.getElementById('dis-gallery');
@@ -1084,9 +1152,9 @@
     wrap.innerHTML = recientes.length ? recientes.map(disenoRowHtml).join('') : '<div class="empty-note">No se registraron diseños en los últimos 7 días.</div>';
   }
   function renderInicioFavoritos(){
-    var wrap = document.getElementById('favoritos-grid');
+    var wrap = document.getElementById('favoritos-rows');
     var favs = disenos.filter(function(d){ return d.favorito; }).sort(function(a,b){ return (b.ts||0)-(a.ts||0); });
-    wrap.innerHTML = favs.length ? favs.map(disenoCardHtml).join('') : '<div class="empty-note">Todavía no marcaste diseños como favoritos.</div>';
+    wrap.innerHTML = favs.length ? favs.map(disenoRowHtml).join('') : '<div class="empty-note">Todavía no marcaste diseños como favoritos.</div>';
   }
   function renderAllDesignViews(){
     renderDisenosHistorico();
@@ -1094,7 +1162,6 @@
     renderInicioFavoritos();
     updateStats();
   }
-
   function nextCodigo(){ return 'DM-' + String(disenos.length + 1).padStart(4,'0'); }
 
   /* ---- f'cr y nombre técnico ---- */
@@ -1117,11 +1184,31 @@
     var sufijo = document.getElementById('dis-sufijo').value || 'A1';
     var nombre = 'CL'+fcMpa+'MPa('+edad+'d)-'+cemento+'-H'+tmn+'-'+sufijo;
     document.getElementById('nombre-preview-text').textContent = nombre;
+    document.getElementById('mezcla-nombre-echo').textContent = nombre;
     return nombre;
   }
   ['dis-edad','dis-cemento-tipo','dis-tmn','dis-sufijo'].forEach(function(id){ document.getElementById(id).addEventListener('input', refreshNombrePreview); });
 
-  /* ---- Composición de mezcla (ligada a Componentes, con sugerencia automática de cemento) ---- */
+  /* ---- 1. Propiedades de las materias primas (en vivo) ---- */
+  function renderPropiedades(){
+    var tbody = document.getElementById('propiedades-tbody');
+    var used = mixItems.filter(function(it){ return it.compIndex !== null; }).map(function(it){ return componentes[it.compIndex]; }).filter(Boolean);
+    if(!used.length){
+      tbody.innerHTML = '<tr><td colspan="15" style="color:var(--text-muted);">Agregá materiales en la sección 3 para verlos acá.</td></tr>';
+      return;
+    }
+    tbody.innerHTML = used.map(function(c){
+      return '<tr>' +
+        '<td class="hoja-nombre-mat">'+esc(c.nombre)+'</td>' +
+        '<td>'+esc(c.norma||'-')+'</td><td>'+esc(c.tipo||'-')+'</td><td>'+esc(c.sap||'-')+'</td>' +
+        '<td>'+esc(c.rho||'-')+'</td><td>'+esc(c.absorcion||'-')+'</td><td>'+esc(c.humedad||'-')+'</td>' +
+        '<td>'+esc(c.mfinura||'-')+'</td><td>'+esc(c.tmn||'-')+'</td><td>'+esc(c.pasa200||'-')+'</td><td>'+esc(c.pasa100||'-')+'</td>' +
+        '<td>'+esc(c.pus||'-')+'</td><td>'+esc(c.wr||'-')+'</td><td>'+esc(c.costo||'-')+'</td><td style="text-align:left;">'+esc(c.procedencia||'-')+'</td>' +
+      '</tr>';
+    }).join('');
+  }
+
+  /* ---- Composición de mezcla ---- */
   var mixItems = [];
   function componenteOptionsHtml(selectedIdx){
     var byCat = {};
@@ -1155,7 +1242,7 @@
     var pesoSSS = pesoSeco * (1 + absorcion/100);
     var pesoHumedo = pesoSeco * (1 + humedad/100);
     var batch = pesoHumedo * batchVol/1000;
-    var cvd = pesoSSS * costo; /* verificado contra la hoja real: CVD = Peso SSS × Costo */
+    var cvd = pesoSSS * costo;
     return {volAbs:volAbs, pesoSSS:pesoSSS, pesoHumedo:pesoHumedo, batch:batch, cvd:cvd};
   }
   function suggestCementoPeso(item){
@@ -1166,7 +1253,7 @@
     var amc = n(document.getElementById('dis-amc-efectiva').value);
     if(agua > 0 && amc > 0){
       item.pesoSeco = String(Math.round(agua/amc));
-      toast('Peso seco de cemento sugerido: ' + item.pesoSeco + ' kg/m3 (Agua efectiva ÷ a/mc efectiva)');
+      toast('Peso seco de cemento sugerido: ' + item.pesoSeco + ' kg/m3');
     }
   }
   function renderMixTable(){
@@ -1175,9 +1262,12 @@
     tbody.innerHTML = mixItems.map(function(item, idx){
       var r = mixRowCompute(item);
       totals.peso += n(item.pesoSeco); totals.vol += r.volAbs; totals.sss += r.pesoSSS; totals.humedo += r.pesoHumedo; totals.batch += r.batch; totals.cvd += r.cvd;
+      var comp = componentes[item.compIndex];
+      var isAditivo = comp && comp.categoria === 'Aditivo';
       return '<tr>' +
-        '<td><select class="mix-row-select" data-i="'+idx+'">'+componenteOptionsHtml(item.compIndex)+'</select></td>' +
-        '<td><input type="number" class="mix-peso" data-i="'+idx+'" value="'+esc(item.pesoSeco)+'" placeholder="0" style="width:100px;padding:8px 9px;border-radius:3px;border:1.5px solid var(--line);background:var(--surface);color:var(--text);"></td>' +
+        '<td class="mezcla-select-cell"><select class="mix-row-select" data-i="'+idx+'">'+componenteOptionsHtml(item.compIndex)+'</select></td>' +
+        '<td class="'+(isAditivo?'mezcla-dosis':'')+'">'+(isAditivo && comp.dosis ? esc(comp.dosis)+'%' : '-')+'</td>' +
+        '<td><input type="number" class="mix-peso" data-i="'+idx+'" value="'+esc(item.pesoSeco)+'" placeholder="0"></td>' +
         '<td class="mono">'+r.volAbs.toFixed(3)+'</td>' +
         '<td class="mono">'+r.pesoSSS.toFixed(2)+'</td>' +
         '<td class="mono">'+r.pesoHumedo.toFixed(2)+'</td>' +
@@ -1185,13 +1275,16 @@
         '<td class="mono">'+r.cvd.toFixed(2)+'</td>' +
         '<td><button class="btn-icon" data-act="del-mix" data-i="'+idx+'" title="Quitar">×</button></td>' +
       '</tr>';
-    }).join('') || '<tr><td colspan="8" style="text-align:center;color:var(--text-muted);">Todavía no agregaste materiales a la mezcla.</td></tr>';
+    }).join('') || '<tr><td colspan="9" style="text-align:center;color:var(--text-muted);">Todavía no agregaste materiales a la mezcla.</td></tr>';
     document.getElementById('mix-total-peso').textContent = totals.peso.toFixed(2);
     document.getElementById('mix-total-vol').textContent = totals.vol.toFixed(3);
     document.getElementById('mix-total-sss').textContent = totals.sss.toFixed(2);
     document.getElementById('mix-total-humedo').textContent = totals.humedo.toFixed(2);
     document.getElementById('mix-total-batch').textContent = totals.batch.toFixed(2);
-    document.getElementById('mix-total-cvd').textContent = 'S/. ' + totals.cvd.toFixed(2);
+    document.getElementById('mix-total-cvd').textContent = totals.cvd.toFixed(2);
+    document.getElementById('cvd-diseno-view').textContent = 'S/. ' + totals.cvd.toFixed(2);
+    document.getElementById('cvd-base-view').textContent = 'S/. ' + n(document.getElementById('dis-cvd-base').value).toFixed(2);
+    renderPropiedades();
     return totals;
   }
   document.getElementById('mix-add-row').addEventListener('click', function(){
@@ -1218,14 +1311,18 @@
     renderMixTable();
   });
   document.getElementById('dis-batch-vol').addEventListener('input', renderMixTable);
+  document.getElementById('dis-cvd-base').addEventListener('input', renderMixTable);
+
+  function todayISO(){ var d = new Date(); return d.getFullYear()+'-'+String(d.getMonth()+1).padStart(2,'0')+'-'+String(d.getDate()).padStart(2,'0'); }
 
   function resetCalcForm(){
-    ['dis-uso','dis-ndiseno','dis-sap','dis-negocio','dis-tipo-concreto','dis-fc','dis-fc-mpa','dis-ft','dis-edad',
+    ['dis-ndiseno','dis-sap','dis-negocio','dis-tipo-concreto','dis-fc','dis-fc-mpa','dis-ft','dis-edad',
      'dis-cemento-tipo','dis-tmn','dis-slump','dis-exposicion','dis-aire','dis-destino',
      'dis-colocacion','dis-otras-esp','dis-desv-std','dis-fcr','dis-amc-efectiva',
-     'dis-agua-req','dis-vol-diseno','dis-pct-fino','dis-pct-grueso','dis-sufijo'
+     'dis-agua-req','dis-vol-diseno','dis-cvd-base','dis-lim-gradacion','dis-pct-fino','dis-pct-grueso','dis-sufijo'
     ].forEach(function(id){ var el = document.getElementById(id); if(el) el.value = ''; });
     document.getElementById('dis-batch-vol').value = '30';
+    document.getElementById('dis-fecha-mezcla').value = todayISO();
     mixItems = [];
     renderMixTable();
     refreshNombrePreview();
@@ -1235,9 +1332,10 @@
     var tipoConcreto = document.getElementById('dis-tipo-concreto').value.trim();
     var fc = document.getElementById('dis-fc').value.trim();
     if(!tipoConcreto || !fc){ toast('Completá al menos Tipo de concreto y f\'c'); return; }
-    var hoy = new Date();
-    var fecha = String(hoy.getDate()).padStart(2,'0') + '/' + String(hoy.getMonth()+1).padStart(2,'0') + '/' + hoy.getFullYear();
     var totals = renderMixTable();
+    var fechaISO = document.getElementById('dis-fecha-mezcla').value || todayISO();
+    var fParts = fechaISO.split('-');
+    var fecha = fParts[2]+'/'+fParts[1]+'/'+fParts[0];
     var mixSnapshot = mixItems.map(function(item){
       var comp = componentes[item.compIndex];
       var r = mixRowCompute(item);
@@ -1248,7 +1346,7 @@
       nombreTecnico: refreshNombrePreview(),
       planta: document.getElementById('dis-planta').value,
       laboratorio: document.getElementById('dis-laboratorio').value,
-      uso: document.getElementById('dis-uso').value.trim(),
+      uso: document.getElementById('dis-uso').value,
       ndiseno: document.getElementById('dis-ndiseno').value.trim(),
       sap: document.getElementById('dis-sap').value.trim(),
       negocio: document.getElementById('dis-negocio').value.trim(),
@@ -1273,10 +1371,10 @@
       mix: mixSnapshot,
       cvdTotal: Number(totals.cvd.toFixed(2)),
       estado: document.getElementById('dis-estado').value,
-      fecha: fecha, ts: hoy.getTime(), favorito:false
+      fecha: fecha, ts: new Date(fechaISO).getTime() || Date.now(), favorito:false
     };
     disenos.push(d);
-    save('sid9_disenos', disenos);
+    save('sid10_disenos', disenos);
     resetCalcForm();
     toast('Diseño registrado: ' + d.nombreTecnico);
     showSubTab('historico');
@@ -1330,7 +1428,7 @@
     {t:'row', key:'comentarios', label:'Comentarios', unit:''}
   ];
 
-  var rrEstudios = load('sid9_rr', [{
+  var rrEstudios = load('sid10_rr', [{
     id:'e1', nombre:'Estudio HE 0.70', fecha:'20/08/2026',
     tipos:[
       {id:'t1', nombre:'EST HE 0.70 TIPO I', valores:{ipac:'281',hepac:'-',agua:'194',arena_qsc:'516',arena_lvd:'501',piedra_h67:'913',mrb2025:'2.81',mrb1201:'2.1',iddnhe:'-',sika:'-',ac:'0.70',cvd:'189.39',d_mrb2025:'1.00%',d_mrb1201:'0.75%',d_iddnhe:'-',d_sika:'-',cons_0:'8 1/2',cons_30:'7 3/4',cons_60:'7 1/2',cons_90:'5 1/2',cons_120:'-',tc_0:'26',tc_30:'26',tc_60:'25.5',tc_90:'25.25',tc_120:'-',ta_0:'25.9',ta_30:'26.15',ta_60:'26.25',ta_90:'26.1',ta_120:'-',pu:'2361.5',fragua_i:'08:30',fragua_f:'10:26',aire:'2.1',cohesividad:'Conforme',apariencia:'Normal',comentarios:'-'}},
@@ -1372,7 +1470,7 @@
     var fecha = String(hoy.getDate()).padStart(2,'0') + '/' + String(hoy.getMonth()+1).padStart(2,'0') + '/' + hoy.getFullYear();
     var newId = 'e' + Date.now();
     rrEstudios.push({id:newId, nombre:'Estudio '+nombre, fecha:fecha, tipos:[{id:'t'+Date.now(), nombre:'Tipo 1', valores:{}}], obs:{}, edades:[]});
-    save('sid9_rr', rrEstudios);
+    save('sid10_rr', rrEstudios);
     rrActiveId = newId;
     input.value = '';
     renderRRStudyList();
@@ -1443,7 +1541,7 @@
     } else if(el.dataset.row){
       estudio.tipos[Number(el.dataset.ti)].valores[el.dataset.row] = el.value;
     }
-    save('sid9_rr', rrEstudios);
+    save('sid10_rr', rrEstudios);
   });
   document.getElementById('rr-table-holder').addEventListener('click', function(e){
     var btn = e.target.closest('.rr-del-col');
@@ -1451,7 +1549,7 @@
     var estudio = rrFind(rrActiveId);
     var removed = estudio.tipos.splice(Number(btn.dataset.ti), 1)[0];
     estudio.edades.forEach(function(ed){ delete ed.valores[removed.id]; });
-    save('sid9_rr', rrEstudios);
+    save('sid10_rr', rrEstudios);
     renderRRDetail();
     toast('Tipo eliminado');
   });
@@ -1460,7 +1558,7 @@
     if(!estudio) return;
     var id = 't' + Date.now();
     estudio.tipos.push({id:id, nombre:'Nuevo tipo', valores:{}});
-    save('sid9_rr', rrEstudios);
+    save('sid10_rr', rrEstudios);
     renderRRDetail();
   });
   document.getElementById('rr-edad-holder').addEventListener('input', function(e){
@@ -1470,7 +1568,7 @@
     if(el.dataset.edadLabel !== undefined){ estudio.edades[Number(el.dataset.edadLabel)].edad = el.value; }
     else if(el.dataset.edadReq !== undefined){ estudio.edades[Number(el.dataset.edadReq)].requisito = el.value; }
     else if(el.dataset.edad !== undefined){ estudio.edades[Number(el.dataset.edad)].valores[el.dataset.tid] = el.value; }
-    save('sid9_rr', rrEstudios);
+    save('sid10_rr', rrEstudios);
   });
   document.getElementById('rr-add-edad').addEventListener('click', function(){
     var estudio = rrFind(rrActiveId);
@@ -1478,7 +1576,7 @@
     var valores = {};
     estudio.tipos.forEach(function(t){ valores[t.id] = ''; });
     estudio.edades.push({edad:'Nueva edad', requisito:'', valores:valores});
-    save('sid9_rr', rrEstudios);
+    save('sid10_rr', rrEstudios);
     renderRRDetail();
   });
 
@@ -1519,7 +1617,7 @@
   var elNotif = document.getElementById('set-notif');
   var elAutosave = document.getElementById('set-autosave');
   var elLang = document.getElementById('set-lang');
-  var settings = load('sid9_settings', {notif:true, autosave:true, lang:'es'});
+  var settings = load('sid10_settings', {notif:true, autosave:true, lang:'es'});
   function applySettingsToUI(){
     elDarkMode.checked = currentTheme === 'dark';
     elNotif.checked = settings.notif;
@@ -1529,21 +1627,23 @@
   elDarkMode.addEventListener('change', function(){
     currentTheme = elDarkMode.checked ? 'dark' : 'light';
     applyTheme(currentTheme);
-    save('sid9_theme', currentTheme);
+    save('sid10_theme', currentTheme);
     toast(currentTheme === 'dark' ? 'Modo oscuro activado' : 'Modo claro activado');
   });
   document.getElementById('set-save').addEventListener('click', function(){
     settings = { notif: elNotif.checked, autosave: elAutosave.checked, lang: elLang.value };
-    save('sid9_settings', settings);
+    save('sid10_settings', settings);
     toast('Cambios guardados correctamente');
   });
 
   /* ================= INIT ================= */
+  buildPlantaSelect();
   renderNavSub();
-  setCompSubOpen(load('sid9_comp_sub_open', false));
+  setCompSubOpen(load('sid10_comp_sub_open', false));
   renderComponentesPanel();
   renderAllDesignViews();
   syncLaboratorio();
+  document.getElementById('dis-fecha-mezcla').value = todayISO();
   renderMixTable();
   refreshNombrePreview();
   renderRRStudyList();
