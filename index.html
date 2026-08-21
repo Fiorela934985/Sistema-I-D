@@ -517,7 +517,7 @@
             <div class="hoja-title">Dosificación de mezclas de concreto</div>
             <div class="hoja-code"><b>Código:</b> D-CC-F-148 &nbsp; <b>Versión:</b> 01<br><b>Sistema:</b> I+D digital &nbsp; <b>Página:</b> 1/1</div>
           </div>
-          <div class="hoja-nombre" id="nombre-preview-text">CL0MPa(0d)-·-H0-A1</div>
+          <div class="hoja-nombre" id="nombre-preview-text">—</div>
           <div class="hoja-meta">
             <div class="hoja-meta-cell"><label>Planta de producción</label>
               <select id="dis-planta"></select>
@@ -546,9 +546,14 @@
 
         <!-- 1. PROPIEDADES DE LAS MATERIAS PRIMAS (en vivo, según lo elegido abajo en Composición) -->
         <div class="card">
-          <div class="section-num">1. Propiedades de las materias primas</div>
+          <div class="section-title-row" style="margin:0 0 4px;">
+            <div class="section-num" style="margin-bottom:0;">1. Propiedades de las materias primas</div>
+            <label style="display:flex;align-items:center;gap:7px;font-size:.8rem;color:var(--text-muted);font-weight:600;cursor:pointer;">
+              <input type="checkbox" id="toggle-propiedades" checked style="width:15px;height:15px;">Ver esta sección
+            </label>
+          </div>
           <div class="section-hint">Se actualiza automáticamente según los materiales que elijas en "3. Composición de mezcla".</div>
-          <div class="table-scroll">
+          <div class="table-scroll" id="propiedades-wrap">
             <table class="hoja-table">
               <thead><tr><th style="text-align:left;">Materiales</th><th>Norma</th><th>Tipo</th><th>Cód. SAP</th><th>ρ Bseca</th><th>Absorción%</th><th>Humedad%</th><th>M. Finura</th><th>TMN A.G.</th><th>Pasa200</th><th>Pasa100</th><th>PUS</th><th>WR</th><th>Costo</th><th>Procedencia</th></tr></thead>
               <tbody id="propiedades-tbody"><tr><td colspan="15" style="color:var(--text-muted);">Agregá materiales en la sección 3 para verlos acá.</td></tr></tbody>
@@ -563,8 +568,8 @@
             <div class="params-col">
               <div class="params-col-head">Especificaciones</div>
               <div class="params-col-body">
-                <div class="params-field"><label>Negocio</label><input type="text" id="dis-negocio" placeholder="Pacasmayo Profesional"></div>
-                <div class="params-field"><label>Tipo de concreto</label><input type="text" id="dis-tipo-concreto" placeholder="Concreto ligero"></div>
+                <div class="params-field"><label>Negocio</label><input type="text" id="dis-negocio" value="Pacasmayo Profesional" readonly></div>
+                <div class="params-field"><label>Tipo de concreto</label><select id="dis-tipo-concreto"></select></div>
                 <div class="params-field"><label>f'c (kg/cm²)</label><input type="number" id="dis-fc" placeholder="280"></div>
                 <div class="params-field"><label>f'c (MPa, auto)</label><input type="text" id="dis-fc-mpa" readonly></div>
                 <div class="params-field"><label>f't — flexión (kg/cm²)</label><input type="text" id="dis-ft" placeholder="37"></div>
@@ -1149,8 +1154,8 @@
     if(d.uso) document.getElementById('dis-uso').value = d.uso;
     document.getElementById('dis-ndiseno').value = d.ndiseno || '';
     document.getElementById('dis-sap').value = d.sap || '';
-    document.getElementById('dis-negocio').value = d.negocio || '';
-    document.getElementById('dis-tipo-concreto').value = d.tipo || '';
+    var tipoIdx = selectedTipoConcretoIndexByLabel(d.tipo);
+    document.getElementById('dis-tipo-concreto').value = tipoIdx >= 0 ? tipoIdx : '';
     document.getElementById('dis-fc').value = d.fc || '';
     document.getElementById('dis-ft').value = d.ft || '';
     document.getElementById('dis-edad').value = d.edad || '';
@@ -1254,6 +1259,34 @@
   }
   function nextCodigo(){ return 'DM-' + String(disenos.length + 1).padStart(4,'0'); }
 
+  /* ---- Tipo de concreto: catálogo con código para el nombre técnico ---- */
+  var TIPO_CONCRETO_DEFS = [
+    {label:'Concreto convencional', code:'C'},
+    {label:'Especificado por resistencia a la flexión (Mr)', code:'CF'},
+    {label:'Concreto Tremie (bajo agua)', code:'CT'},
+    {label:'Concreto autocompactante', code:'CA'},
+    {label:'Concreto ligero', code:'CL'},
+    {label:'Concreto pesado', code:'CP'},
+    {label:'Grout', code:'G'},
+    {label:'Mortero', code:'M'},
+    {label:'Mortero por volumen', code:'Mv'},
+    {label:'Mortero ligero', code:'ML'},
+    {label:'Shotcrete', code:'SC'},
+    {label:'Relleno fluido', code:'RF'},
+    {label:'Concreto por relación a/mc', code:'C'},
+    {label:'Concreto de alta resistencia', code:'C'}
+  ];
+  function buildTipoConcretoSelect(){
+    var sel = document.getElementById('dis-tipo-concreto');
+    sel.innerHTML = '<option value="">Elegí un tipo…</option>' + TIPO_CONCRETO_DEFS.map(function(t,i){
+      return '<option value="'+i+'">'+esc(t.label)+' ('+t.code+')</option>';
+    }).join('');
+  }
+  function selectedTipoConcretoIndexByLabel(label){
+    for(var i=0;i<TIPO_CONCRETO_DEFS.length;i++){ if(TIPO_CONCRETO_DEFS[i].label === label) return i; }
+    return -1;
+  }
+
   /* ---- f'cr y nombre técnico ---- */
   function recalcFcr(){
     var fc = n(document.getElementById('dis-fc').value);
@@ -1267,17 +1300,30 @@
   ['dis-fc','dis-desv-std'].forEach(function(id){ document.getElementById(id).addEventListener('input', recalcFcr); });
 
   function refreshNombrePreview(){
-    var fcMpa = document.getElementById('dis-fc-mpa').value || '0';
-    var edad = document.getElementById('dis-edad').value || '0';
-    var cemento = document.getElementById('dis-cemento-tipo').value || '·';
-    var tmn = document.getElementById('dis-tmn').value || '0';
-    var sufijo = document.getElementById('dis-sufijo').value || 'A1';
-    var nombre = 'CL'+fcMpa+'MPa('+edad+'d)-'+cemento+'-H'+tmn+'-'+sufijo;
-    document.getElementById('nombre-preview-text').textContent = nombre;
+    var tipoIdx = document.getElementById('dis-tipo-concreto').value;
+    var tipoDef = tipoIdx !== '' ? TIPO_CONCRETO_DEFS[Number(tipoIdx)] : null;
+    var fcMpa = document.getElementById('dis-fc-mpa').value;
+    var edad = document.getElementById('dis-edad').value;
+    var cemento = document.getElementById('dis-cemento-tipo').value;
+    var tmn = document.getElementById('dis-tmn').value;
+    var sufijo = document.getElementById('dis-sufijo').value;
+    var nombre = '';
+    if(tipoDef && fcMpa){
+      nombre = tipoDef.code + fcMpa + 'MPa(' + (edad||'0') + 'd)-' + (cemento||'·') + '-H' + (tmn||'0') + '-' + (sufijo||'A1');
+    }
+    document.getElementById('nombre-preview-text').textContent = nombre || '—';
     document.getElementById('mezcla-nombre-echo').textContent = nombre;
     return nombre;
   }
-  ['dis-edad','dis-cemento-tipo','dis-tmn','dis-sufijo'].forEach(function(id){ document.getElementById(id).addEventListener('input', refreshNombrePreview); });
+  ['dis-tipo-concreto','dis-edad','dis-cemento-tipo','dis-tmn','dis-sufijo'].forEach(function(id){
+    var el = document.getElementById(id);
+    el.addEventListener(el.tagName === 'SELECT' ? 'change' : 'input', refreshNombrePreview);
+  });
+
+  /* ---- Mostrar/ocultar "1. Propiedades de las materias primas" ---- */
+  document.getElementById('toggle-propiedades').addEventListener('change', function(e){
+    document.getElementById('propiedades-wrap').style.display = e.target.checked ? 'block' : 'none';
+  });
 
   /* ---- 1. Propiedades de las materias primas (en vivo) ---- */
   function renderPropiedades(){
@@ -1406,11 +1452,12 @@
   function todayISO(){ var d = new Date(); return d.getFullYear()+'-'+String(d.getMonth()+1).padStart(2,'0')+'-'+String(d.getDate()).padStart(2,'0'); }
 
   function resetCalcForm(){
-    ['dis-ndiseno','dis-sap','dis-negocio','dis-tipo-concreto','dis-fc','dis-fc-mpa','dis-ft','dis-edad',
+    ['dis-ndiseno','dis-sap','dis-fc','dis-fc-mpa','dis-ft','dis-edad',
      'dis-cemento-tipo','dis-tmn','dis-slump','dis-exposicion','dis-aire','dis-destino',
      'dis-colocacion','dis-otras-esp','dis-desv-std','dis-fcr','dis-amc-efectiva',
      'dis-agua-req','dis-vol-diseno','dis-cvd-base','dis-lim-gradacion','dis-pct-fino','dis-pct-grueso','dis-sufijo'
     ].forEach(function(id){ var el = document.getElementById(id); if(el) el.value = ''; });
+    document.getElementById('dis-tipo-concreto').value = '';
     document.getElementById('dis-batch-vol').value = '30';
     document.getElementById('dis-fecha-mezcla').value = todayISO();
     mixItems = [];
@@ -1419,9 +1466,10 @@
   }
 
   document.getElementById('dis-add').addEventListener('click', function(){
-    var tipoConcreto = document.getElementById('dis-tipo-concreto').value.trim();
+    var tipoIdxSel = document.getElementById('dis-tipo-concreto').value;
+    var tipoDef = tipoIdxSel !== '' ? TIPO_CONCRETO_DEFS[Number(tipoIdxSel)] : null;
     var fc = document.getElementById('dis-fc').value.trim();
-    if(!tipoConcreto || !fc){ toast('Completá al menos Tipo de concreto y f\'c'); return; }
+    if(!tipoDef || !fc){ toast('Completá al menos Tipo de concreto y f\'c'); return; }
     var totals = renderMixTable();
     var fechaISO = document.getElementById('dis-fecha-mezcla').value || todayISO();
     var fParts = fechaISO.split('-');
@@ -1439,8 +1487,8 @@
       uso: document.getElementById('dis-uso').value,
       ndiseno: document.getElementById('dis-ndiseno').value.trim(),
       sap: document.getElementById('dis-sap').value.trim(),
-      negocio: document.getElementById('dis-negocio').value.trim(),
-      tipo: tipoConcreto,
+      negocio: document.getElementById('dis-negocio').value,
+      tipo: tipoDef.label,
       fc: fc,
       resistencia: document.getElementById('dis-fc-mpa').value || fc,
       ft: document.getElementById('dis-ft').value.trim(),
@@ -1725,6 +1773,7 @@
 
   /* ================= INIT ================= */
   buildPlantaSelect();
+  buildTipoConcretoSelect();
   renderNavSub();
   setCompSubOpen(load('sid10_comp_sub_open', false));
   renderComponentesPanel();
