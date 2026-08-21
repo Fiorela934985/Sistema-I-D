@@ -67,10 +67,11 @@
   .loader-bar-track{width:200px;height:3px;background:#2a2a2a;margin-top:18px;position:relative;overflow:hidden;}
   .loader-bar-fill{position:absolute;left:0;top:0;bottom:0;width:0;background:var(--rojo-600);transition:width .18s linear;}
 
-  /* ================= SIDEBAR TOGGLE ================= */
-  .floating-toggle{position:fixed;top:16px;left:16px;z-index:60;width:40px;height:40px;border-radius:3px;background:var(--surface);border:1.5px solid var(--line-strong);color:var(--text);display:none;align-items:center;justify-content:center;box-shadow:0 6px 16px -6px rgba(0,0,0,.25);}
+  /* ================= SIDEBAR TOGGLE (rojo, para diferenciarse como botón) ================= */
+  .floating-toggle{position:fixed;top:16px;left:16px;z-index:60;width:42px;height:42px;border-radius:4px;background:var(--rojo-600);border:none;color:#fff;display:none;align-items:center;justify-content:center;box-shadow:0 8px 18px -6px rgba(200,30,30,.5);}
+  .floating-toggle:hover{background:var(--rojo-700);}
   .floating-toggle.show{display:flex;}
-  .floating-toggle svg{width:17px;height:17px;}
+  .floating-toggle svg{width:18px;height:18px;}
 
   /* ================= APP SHELL ================= */
   #app-shell{display:flex;min-height:100vh;opacity:0;transition:opacity .4s var(--ease);}
@@ -82,8 +83,8 @@
   .sidebar .brand .mark{width:16px;height:16px;background:var(--rojo-600);flex-shrink:0;}
   .sidebar .brand-text{font-family:var(--font-display);font-weight:700;letter-spacing:.01em;font-size:1.05rem;white-space:nowrap;color:var(--text);}
   .sidebar .brand-text small{display:block;font-size:.62rem;letter-spacing:.03em;color:var(--text-muted);font-weight:400;font-family:var(--font-body);}
-  .sidebar-toggle-inline{margin-left:auto;width:26px;height:26px;border-radius:3px;display:flex;align-items:center;justify-content:center;color:var(--text-muted);flex-shrink:0;}
-  .sidebar-toggle-inline:hover{background:var(--surface-2);color:var(--text);}
+  .sidebar-toggle-inline{margin-left:auto;width:28px;height:28px;border-radius:4px;display:flex;align-items:center;justify-content:center;color:#fff;background:var(--rojo-600);flex-shrink:0;}
+  .sidebar-toggle-inline:hover{background:var(--rojo-700);}
   .sidebar-toggle-inline svg{width:15px;height:15px;}
 
   .nav-item{display:flex;align-items:center;gap:11px;width:100%;text-align:left;padding:12px 18px;color:var(--text);font-size:.87rem;font-weight:500;border-left:3px solid transparent;white-space:nowrap;transition:background .15s, border-color .15s, color .15s;}
@@ -121,35 +122,34 @@
   .stat-card .num{font-family:var(--font-display);font-size:2rem;font-weight:700;}
   .stat-card .label{font-size:.8rem;color:var(--text-muted);margin-top:3px;}
 
-  #panel-inicio .hero-panel{background:var(--surface-2);border:1px solid var(--line);border-left:6px solid var(--rojo-600);padding:36px clamp(22px,4.5vw,48px);}
-  .eyebrow{display:inline-block;font-size:.78rem;letter-spacing:.1em;color:var(--rojo-600);text-transform:uppercase;font-weight:700;margin-bottom:14px;}
-  #panel-inicio h1{font-family:var(--font-display);font-weight:700;font-size:clamp(1.5rem,3vw,2.15rem);line-height:1.2;max-width:640px;}
-  #panel-inicio h1 em{font-style:normal;color:var(--rojo-600);}
-  #panel-inicio .lead{margin-top:12px;max-width:520px;color:var(--text-muted);font-size:.92rem;line-height:1.6;}
+  #panel-inicio .hero-panel{background:var(--surface-2);border:1px solid var(--line);border-left:6px solid var(--rojo-600);padding:34px clamp(22px,4.5vw,46px);text-align:center;}
+  #panel-inicio .hero-panel h1{font-family:var(--font-display);font-weight:700;font-size:clamp(1.6rem,3.2vw,2.3rem);letter-spacing:.01em;}
+  #panel-inicio .hero-panel h1 em{font-style:normal;color:var(--rojo-600);}
+  #panel-inicio .hero-panel .lead{margin-top:8px;color:var(--text-muted);font-size:.94rem;}
 
-  .cta-row{margin-top:28px;display:flex;gap:18px;flex-wrap:wrap;}
-  .cta-card{flex:1 1 300px;padding:30px 28px;border-radius:8px;text-align:left;transition:transform .15s var(--ease), box-shadow .15s var(--ease);}
-  .cta-card:hover{transform:translateY(-3px);}
-  .cta-primary{background:var(--rojo-600);color:#fff;box-shadow:0 16px 32px -14px rgba(200,30,30,.55);}
-  .cta-primary:hover{background:var(--rojo-700);box-shadow:0 20px 38px -14px rgba(200,30,30,.6);}
-  .cta-secondary{background:var(--surface);border:2px solid var(--line-strong);color:var(--text);}
-  .cta-secondary:hover{border-color:var(--rojo-600);color:var(--rojo-600);}
-  .cta-icon-circle{width:50px;height:50px;border-radius:50%;display:flex;align-items:center;justify-content:center;margin-bottom:16px;}
-  .cta-primary .cta-icon-circle{background:rgba(255,255,255,.22);color:#fff;}
-  .cta-secondary .cta-icon-circle{background:var(--surface-2);color:var(--rojo-600);}
-  .cta-icon-circle svg{width:24px;height:24px;}
-  .cta-card h3{font-family:var(--font-display);font-size:1.42rem;font-weight:700;margin-bottom:8px;}
-  .cta-card p{font-size:.87rem;line-height:1.5;}
-  .cta-primary p{color:rgba(255,255,255,.88);}
-  .cta-secondary p{color:var(--text-muted);}
-  .cta-card .go{display:inline-flex;align-items:center;gap:8px;margin-top:18px;font-weight:700;font-size:.85rem;}
-  .cta-card .go svg{width:16px;height:16px;transition:transform .2s var(--ease);}
-  .cta-card:hover .go svg{transform:translateX(4px);}
+  .cta-row{margin-top:24px;display:flex;gap:14px;flex-wrap:wrap;justify-content:center;}
+  .btn-solid{background:var(--rojo-600);color:#fff;padding:15px 26px;border-radius:4px;font-weight:600;font-size:.92rem;display:inline-flex;align-items:center;gap:9px;transition:background .15s;}
+  .btn-solid:hover{background:var(--rojo-700);}
+  .btn-outline{background:transparent;color:var(--text);border:1.5px solid var(--line-strong);padding:15px 26px;border-radius:4px;font-weight:600;font-size:.92rem;display:inline-flex;align-items:center;gap:9px;transition:border-color .15s, color .15s;}
+  .btn-outline:hover{border-color:var(--rojo-600);color:var(--rojo-600);}
+  .cta-row svg{width:16px;height:16px;}
 
   .section-title-row{display:flex;justify-content:space-between;align-items:center;margin:30px 0 14px;}
   .section-title-row h3{font-family:var(--font-display);font-size:1.08rem;font-weight:700;}
   .section-title-row .link-mono{font-size:.76rem;color:var(--rojo-600);font-weight:600;}
   .empty-note{padding:22px;text-align:center;color:var(--text-muted);font-size:.85rem;border:1px dashed var(--line);border-radius:4px;}
+
+  /* filas de diseño (Inicio: recientes / favoritos) */
+  .design-rows{display:flex;flex-direction:column;gap:8px;}
+  .design-row{display:flex;align-items:center;gap:16px;padding:13px 16px;border:1px solid var(--line);border-radius:4px;background:var(--surface);}
+  .design-row .drow-thumb{width:4px;align-self:stretch;background:var(--rojo-600);border-radius:2px;flex-shrink:0;}
+  .design-row .drow-code{font-family:var(--font-mono);font-size:.74rem;color:var(--text-muted);min-width:70px;flex-shrink:0;}
+  .design-row .drow-main{flex:1;min-width:0;}
+  .design-row .drow-main h5{font-size:.9rem;font-weight:600;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;}
+  .design-row .drow-main span{font-size:.75rem;color:var(--text-muted);}
+  .design-row .drow-tags{display:flex;gap:6px;flex-shrink:0;}
+  .design-row .drow-actions{display:flex;gap:6px;flex-shrink:0;}
+  @media(max-width:700px){.design-row{flex-wrap:wrap;}}
 
   /* ---- shared form / table ---- */
   .subtabs{display:flex;gap:0;margin-bottom:22px;border-bottom:1px solid var(--line);}
@@ -166,8 +166,8 @@
 
   .field-mini{display:flex;flex-direction:column;gap:5px;}
   .field-mini label{font-size:.68rem;letter-spacing:.02em;color:var(--text-muted);text-transform:uppercase;font-weight:600;}
-  .field-mini input{padding:9px 11px;border-radius:3px;border:1.5px solid var(--line);font-size:.83rem;background:var(--surface);color:var(--text);}
-  .field-mini input:focus{outline:none;border-color:var(--rojo-600);}
+  .field-mini input,.field-mini select{padding:9px 11px;border-radius:3px;border:1.5px solid var(--line);font-size:.83rem;background:var(--surface);color:var(--text);}
+  .field-mini input:focus,.field-mini select:focus{outline:none;border-color:var(--rojo-600);}
   .field-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(150px,1fr));gap:12px;margin-bottom:16px;}
 
   .btn-add{background:var(--rojo-600);color:#fff;padding:11px 20px;border-radius:3px;font-weight:600;font-size:.82rem;white-space:nowrap;transition:background .15s;}
@@ -183,6 +183,7 @@
   thead th{text-align:left;font-size:.68rem;text-transform:uppercase;letter-spacing:.04em;color:var(--text-muted);padding:10px 12px;border-bottom:2px solid var(--line-strong);white-space:nowrap;font-weight:600;}
   tbody td{padding:12px;font-size:.85rem;border-bottom:1px solid var(--line);white-space:nowrap;color:var(--text);}
   tbody tr:hover{background:var(--surface-2);}
+  tfoot td{padding:12px;font-size:.85rem;font-weight:700;border-top:2px solid var(--line-strong);}
   .mono{font-family:var(--font-mono);font-size:.82rem;}
   .row-actions{display:flex;gap:6px;}
 
@@ -231,10 +232,20 @@
   .settings-actions{margin-top:20px;}
   select.lang-select{padding:9px 12px;border-radius:3px;border:1.5px solid var(--line);background:var(--surface);color:var(--text);}
 
-  /* ---- Componentes por subcategoría ---- */
-  /* (usa .form-row, .field-grid, .table-scroll, .btn-icon ya definidos) */
+  /* ---- Calcular Diseño (calculadora real) ---- */
+  .calc-section{margin-bottom:26px;}
+  .calc-section-title{font-family:var(--font-display);font-size:1rem;font-weight:700;margin-bottom:4px;}
+  .calc-section-sub{font-size:.8rem;color:var(--text-muted);margin-bottom:14px;}
+  .calc-note{font-size:.78rem;color:var(--text-muted);margin-top:8px;line-height:1.5;}
+  .nombre-preview-wrap{margin-bottom:22px;}
+  .nombre-preview{font-family:var(--font-mono);font-weight:700;font-size:1.1rem;color:var(--rojo-600);background:var(--surface-2);border:1.5px dashed var(--rojo-300);border-radius:4px;padding:14px 18px;}
+  .nombre-preview .lbl{display:block;font-family:var(--font-body);font-weight:600;font-size:.66rem;letter-spacing:.04em;text-transform:uppercase;color:var(--text-muted);margin-bottom:6px;}
 
-  /* ---- Reporte RR ---- */
+  .mix-row-select{min-width:220px;}
+  .mix-readout{font-family:var(--font-mono);font-size:.8rem;color:var(--text-muted);}
+  .mix-readout strong{color:var(--text);}
+
+  /* ---- Componentes por subcategoría / Reporte RR (usa clases arriba) ---- */
   .rr-layout{display:grid;grid-template-columns:240px 1fr;gap:18px;align-items:start;}
   @media(max-width:1000px){.rr-layout{grid-template-columns:1fr;}}
   .rr-study-card{background:var(--surface);border:1px solid var(--line);border-radius:3px;padding:12px 14px;margin-bottom:8px;cursor:pointer;}
@@ -369,23 +380,11 @@
       </div>
 
       <div class="hero-panel">
-        <span class="eyebrow">Laboratorio de Aplicaciones I+D</span>
-        <h1>Diseño de mezclas, <em>controlado</em> de punta a punta</h1>
-        <p class="lead">Calculá un nuevo diseño o revisá el histórico completo de mezclas registradas en el laboratorio.</p>
-
+        <h1>Laboratorio de <em>I+D</em></h1>
+        <p class="lead">Realiza un diseño y controla los resultados.</p>
         <div class="cta-row">
-          <button class="cta-card cta-primary" id="btn-calcular">
-            <span class="cta-icon-circle"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="4" y="2" width="16" height="20" rx="2"/><line x1="8" y1="7" x2="16" y2="7"/><line x1="8" y1="11" x2="8" y2="11.01"/><line x1="12" y1="11" x2="12" y2="11.01"/><line x1="16" y1="11" x2="16" y2="11.01"/><line x1="8" y1="15" x2="8" y2="15.01"/><line x1="12" y1="15" x2="12" y2="15.01"/><line x1="16" y1="15" x2="16" y2="15.01"/></svg></span>
-            <h3>Calcular Diseño</h3>
-            <p>Registrá un nuevo diseño de mezcla: planta, tipo y resistencia objetivo.</p>
-            <span class="go">Empezar <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h14"/><path d="M13 6l6 6-6 6"/></svg></span>
-          </button>
-          <button class="cta-card cta-secondary" id="btn-historico">
-            <span class="cta-icon-circle"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 3v5h5"/><path d="M3.05 13A9 9 0 1 0 6 5.3L3 8"/><path d="M12 7v5l4 2"/></svg></span>
-            <h3>Histórico de Diseños</h3>
-            <p>Consultá todos los diseños registrados, sus estados y su avance.</p>
-            <span class="go">Ver histórico <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h14"/><path d="M13 6l6 6-6 6"/></svg></span>
-          </button>
+          <button class="btn-solid" id="btn-calcular">Calcular Diseño <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h14"/><path d="M13 6l6 6-6 6"/></svg></button>
+          <button class="btn-outline" id="btn-historico">Histórico de Diseños <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h14"/><path d="M13 6l6 6-6 6"/></svg></button>
         </div>
       </div>
 
@@ -393,12 +392,12 @@
         <h3>Más recientes</h3>
         <span class="link-mono">Últimos 7 días</span>
       </div>
-      <div class="gallery" id="recientes-grid"></div>
+      <div class="design-rows" id="recientes-rows"></div>
 
       <div class="section-title-row">
         <h3>Favoritos</h3>
       </div>
-      <div class="gallery" id="favoritos-grid"></div>
+      <div class="design-rows" id="favoritos-rows"></div>
     </section>
 
     <!-- COMPONENTES (por categoría) -->
@@ -444,35 +443,94 @@
         <button class="subtab" data-sub="historico">Histórico</button>
       </div>
 
-      <div class="card sub-panel" id="sub-calcular">
-        <div class="form-row">
-          <div class="field-auto-wrap">
-            <input type="text" id="dis-codigo-preview" class="field-auto" disabled>
-            <span class="field-auto-badge">Auto</span>
+      <!-- ===== CALCULAR DISEÑO — calculadora ===== -->
+      <div class="sub-panel" id="sub-calcular">
+
+        <div class="nombre-preview-wrap">
+          <div class="nombre-preview"><span class="lbl">Nombre técnico (generado)</span><span id="nombre-preview-text">CL0MPa(0d)-·-H0-A1</span></div>
+        </div>
+
+        <div class="calc-section card">
+          <div class="calc-section-title">Datos generales</div>
+          <div class="field-grid">
+            <div class="field-mini"><label>Planta de producción</label>
+              <select id="dis-planta"><option value="Trujillo">Trujillo</option><option value="Pacasmayo">Pacasmayo</option><option value="Cajamarca">Cajamarca</option><option value="Moche">Moche</option></select>
+            </div>
+            <div class="field-mini"><label>Laboratorio</label><input type="text" id="dis-laboratorio" placeholder="1213-TRU"></div>
+            <div class="field-mini"><label>Uso / aplicación</label><input type="text" id="dis-uso" placeholder="Específico / autoconstrucción"></div>
+            <div class="field-mini"><label>N° Diseño</label><input type="text" id="dis-ndiseno" placeholder="70"></div>
+            <div class="field-mini"><label>Código SAP</label><input type="text" id="dis-sap" placeholder="004-01685"></div>
+            <div class="field-mini"><label>Prioridad</label>
+              <select id="dis-prioridad"><option value="Media">Media</option><option value="Alta">Alta</option><option value="Baja">Baja</option></select>
+            </div>
+            <div class="field-mini"><label>Estado</label>
+              <select id="dis-estado"><option value="En proceso">En proceso</option><option value="Completado">Completado</option></select>
+            </div>
           </div>
-          <select id="dis-planta">
-            <option value="Trujillo">Planta Trujillo</option>
-            <option value="Pacasmayo">Planta Pacasmayo</option>
-            <option value="Cajamarca">Planta Cajamarca</option>
-            <option value="Moche">Planta Moche</option>
-          </select>
-          <input type="text" id="dis-tipo" placeholder="Tipo de mezcla">
-          <input type="text" id="dis-resistencia" placeholder="Resistencia objetivo (MPa)">
         </div>
-        <div class="form-row">
-          <select id="dis-prioridad">
-            <option value="Media">Prioridad: Media</option>
-            <option value="Alta">Prioridad: Alta</option>
-            <option value="Baja">Prioridad: Baja</option>
-          </select>
-          <select id="dis-estado">
-            <option value="En proceso">En proceso</option>
-            <option value="Completado">Completado</option>
-          </select>
-          <button class="btn-add" id="dis-add">Registrar Diseño</button>
+
+        <div class="calc-section card">
+          <div class="calc-section-title">Especificaciones</div>
+          <div class="calc-section-sub">Campos ajustables — igual que la sección "2. Parámetros de diseño" de la ficha de dosificación.</div>
+          <div class="field-grid">
+            <div class="field-mini"><label>Negocio</label><input type="text" id="dis-negocio" placeholder="Pacasmayo Profesional"></div>
+            <div class="field-mini"><label>Tipo de concreto</label><input type="text" id="dis-tipo-concreto" placeholder="Concreto ligero"></div>
+            <div class="field-mini"><label>f'c (kg/cm²)</label><input type="number" id="dis-fc" placeholder="280"></div>
+            <div class="field-mini"><label>f'c (MPa, auto)</label><input type="text" id="dis-fc-mpa" disabled placeholder="0"></div>
+            <div class="field-mini"><label>f't — flexión (kg/cm²)</label><input type="text" id="dis-ft" placeholder="37"></div>
+            <div class="field-mini"><label>Edad del f'c (días)</label><input type="number" id="dis-edad" placeholder="3"></div>
+            <div class="field-mini"><label>Tipo de cemento</label><input type="text" id="dis-cemento-tipo" placeholder="I"></div>
+            <div class="field-mini"><label>Huso granul. TMN (AG)</label><input type="text" id="dis-tmn" placeholder="67"></div>
+            <div class="field-mini"><label>TMN (mm)</label><input type="text" id="dis-tmn-mm" placeholder="19.05"></div>
+            <div class="field-mini"><label>Consistencia (slump, pulg)</label><input type="text" id="dis-slump" placeholder="3"></div>
+            <div class="field-mini"><label>Viscosidad T50</label><input type="text" id="dis-t50" placeholder="-"></div>
+            <div class="field-mini"><label>Exposición</label><input type="text" id="dis-exposicion" placeholder="Ambiente"></div>
+            <div class="field-mini"><label>Relación a/mc máxima</label><input type="text" id="dis-amc-max" placeholder="-"></div>
+            <div class="field-mini"><label>Aire incorporado (%)</label><input type="text" id="dis-aire" placeholder="1.5"></div>
+            <div class="field-mini"><label>Destino</label><input type="text" id="dis-destino" placeholder="Radio local"></div>
+            <div class="field-mini"><label>Tipo de colocación</label><input type="text" id="dis-colocacion" placeholder="Bombeado"></div>
+            <div class="field-mini"><label>Finos &lt;0.15mm (kg/m3)</label><input type="text" id="dis-finos" placeholder="-"></div>
+            <div class="field-mini"><label>Otras especificaciones</label><input type="text" id="dis-otras-esp" placeholder="-"></div>
+          </div>
         </div>
+
+        <div class="calc-section card">
+          <div class="calc-section-title">Cálculos relacionados</div>
+          <div class="calc-section-sub">f'cr se calcula automáticamente (ACI 318: f'cr = f'c + 1.34 × Desv. Estándar). El resto son de referencia — completalos con el valor de tu curva/tabla de laboratorio.</div>
+          <div class="field-grid">
+            <div class="field-mini"><label>Desviación estándar (kg/cm²)</label><input type="number" id="dis-desv-std" placeholder="20"></div>
+            <div class="field-mini"><label>f'cr — resistencia promedio objetivo (auto)</label><input type="text" id="dis-fcr" disabled></div>
+            <div class="field-mini"><label>Relación a/mc calculada</label><input type="text" id="dis-amc-calc" placeholder="-"></div>
+            <div class="field-mini"><label>a/mc efectiva</label><input type="text" id="dis-amc-efectiva" placeholder="-"></div>
+            <div class="field-mini"><label>Consumo de agua calculada (L)</label><input type="text" id="dis-agua-calc" placeholder="-"></div>
+            <div class="field-mini"><label>Agua efectiva de diseño (L)</label><input type="text" id="dis-agua-req" placeholder="-"></div>
+            <div class="field-mini"><label>PUCF (kg/m3)</label><input type="text" id="dis-pucf" placeholder="-"></div>
+            <div class="field-mini"><label>Volumen de diseño (m3)</label><input type="text" id="dis-vol-diseno" placeholder="1.00"></div>
+            <div class="field-mini"><label>Límite de gradación</label><input type="text" id="dis-lim-gradacion" placeholder="DIN 1045"></div>
+            <div class="field-mini"><label>% Agregado fino</label><input type="text" id="dis-pct-fino" placeholder="41"></div>
+            <div class="field-mini"><label>% Agregado grueso</label><input type="text" id="dis-pct-grueso" placeholder="59"></div>
+            <div class="field-mini"><label>Sufijo del nombre técnico</label><input type="text" id="dis-sufijo" placeholder="A1"></div>
+          </div>
+        </div>
+
+        <div class="calc-section card">
+          <div class="calc-section-title">Composición de mezcla</div>
+          <div class="calc-section-sub">Elegí los componentes de la mezcla e ingresá el peso seco (kg/m3) de cada uno. Volumen absoluto, peso SSS, peso húmedo y CVD se calculan automáticamente a partir de la ficha técnica de cada componente.</div>
+          <div class="table-scroll">
+            <table>
+              <thead><tr><th>Material</th><th>Peso Seco (kg/m3)</th><th>Vol. Abs. (m3)</th><th>Peso SSS (kg/m3)</th><th>Peso Húmedo (kg/m3)</th><th>CVD (S/.)</th><th></th></tr></thead>
+              <tbody id="mix-tbody"></tbody>
+              <tfoot><tr><td>Total</td><td class="mono" id="mix-total-peso">0.00</td><td class="mono" id="mix-total-vol">0.000</td><td class="mono" id="mix-total-sss">0.00</td><td class="mono" id="mix-total-humedo">0.00</td><td class="mono" id="mix-total-cvd">S/. 0.00</td><td></td></tr></tfoot>
+            </table>
+          </div>
+          <button class="btn-add ghost" id="mix-add-row" style="margin-top:14px;">+ Agregar material a la mezcla</button>
+          <p class="calc-note">Si el material que necesitás no aparece, registralo primero en <strong>Componentes</strong>.</p>
+        </div>
+
+        <button class="btn-add" id="dis-add" style="font-size:.92rem;padding:14px 26px;">Registrar Diseño</button>
       </div>
 
+      <!-- ===== HISTÓRICO ===== -->
       <div class="card sub-panel" id="sub-historico" style="display:none;">
         <p style="font-size:.85rem;color:var(--text-muted);margin-bottom:16px;">Lista completa de todos los diseños registrados, con sus especificaciones. Marcá favoritos o copiá los datos de cualquiera.</p>
         <div class="gallery" id="dis-gallery"></div>
@@ -559,6 +617,7 @@
   function load(key, fallback){ try{ var raw = localStorage.getItem(key); return raw ? JSON.parse(raw) : fallback; }catch(e){ return fallback; } }
   function save(key, value){ try{ localStorage.setItem(key, JSON.stringify(value)); }catch(e){} }
   function esc(s){ return (s===undefined||s===null) ? '' : String(s).replace(/"/g,'&quot;'); }
+  function n(v){ var x = parseFloat(v); return isNaN(x) ? 0 : x; }
 
   var toastEl = document.getElementById('toast');
   var toastMsg = document.getElementById('toast-msg');
@@ -572,7 +631,7 @@
 
   /* ================= THEME ================= */
   function applyTheme(t){ document.documentElement.setAttribute('data-theme', t); }
-  var currentTheme = load('sid7_theme', 'light');
+  var currentTheme = load('sid8_theme', 'light');
   applyTheme(currentTheme);
 
   /* ================= LOADER ================= */
@@ -610,11 +669,11 @@
   function setSidebar(hidden){
     appShell.classList.toggle('sidebar-hidden', hidden);
     floatingToggle.classList.toggle('show', hidden);
-    save('sid7_sidebar_hidden', hidden);
+    save('sid8_sidebar_hidden', hidden);
   }
   sidebarToggle.addEventListener('click', function(){ setSidebar(true); });
   floatingToggle.addEventListener('click', function(){ setSidebar(false); });
-  setSidebar(load('sid7_sidebar_hidden', false));
+  setSidebar(load('sid8_sidebar_hidden', false));
 
   /* ================= NAV ================= */
   var navItems = document.querySelectorAll('.sidebar .nav-item[data-panel]');
@@ -637,26 +696,28 @@
     costo:'Costo (S./kg)', procedencia:'Procedencia', dosis:'Dosis (%)', funcion:'Función'
   };
   var CAT_DEFS = [
-    {id:'Cemento', desc:'Cementos y precursores cementantes usados como base del diseño.', fields:['norma','tipo','sap','pus','costo','procedencia']},
-    {id:'Adición', desc:'Adiciones minerales y puzolánicas.', fields:['norma','sap','rho','costo','procedencia']},
-    {id:'Agua', desc:'Agua de mezcla y hielo.', fields:['sap','pus','costo','procedencia']},
-    {id:'Pigmento', desc:'Pigmentos para concreto decorativo.', fields:['sap','rho','costo','procedencia']},
+    {id:'Cemento', desc:'Cementos y precursores cementantes usados como base del diseño.', fields:['norma','tipo','sap','rho','pus','costo','procedencia']},
+    {id:'Adición', desc:'Adiciones minerales y puzolánicas.', fields:['norma','sap','rho','pus','costo','procedencia']},
+    {id:'Agua', desc:'Agua de mezcla y hielo.', fields:['sap','rho','pus','costo','procedencia']},
+    {id:'Pigmento', desc:'Pigmentos para concreto decorativo.', fields:['sap','rho','pus','costo','procedencia']},
     {id:'Piedra', desc:'Agregado grueso: piedra chancada y grava.', fields:['norma','tipo','sap','rho','absorcion','humedad','mfinura','tmn','pasa200','pasa100','pus','wr','costo','procedencia']},
     {id:'Arena', desc:'Agregado fino: arenas naturales y combinadas.', fields:['norma','tipo','sap','rho','absorcion','humedad','mfinura','tmn','pasa200','pasa100','pus','wr','costo','procedencia']},
     {id:'Aditivo', desc:'Aditivos químicos: plastificantes, reductores y modificadores.', fields:['norma','tipo','sap','rho','dosis','funcion','costo','procedencia']}
   ];
   function catDef(id){ return CAT_DEFS.filter(function(c){ return c.id === id; })[0]; }
 
-  var componentes = load('sid7_componentes', [
-    {categoria:'Cemento', nombre:'M8(MH)-PAC', peso:'1500', norma:'NTP 334.088', tipo:'Performance', sap:'002-00066', pus:'1500', costo:'0.49363', procedencia:'Fabricante: CPSSA'},
-    {categoria:'Adición', nombre:'AMA Puzolana', peso:'1300', norma:'-', sap:'002-01218', rho:'2700', costo:'-', procedencia:'-'},
-    {categoria:'Agua', nombre:'Agua', peso:'1000', sap:'Código', pus:'1000', costo:'0.00', procedencia:'Red pública'},
-    {categoria:'Pigmento', nombre:'Pigmento Amarillo', peso:'25', sap:'238-00041', rho:'2000', costo:'4.01000', procedencia:'-'},
-    {categoria:'Piedra', nombre:'VI-H67-MQLE-(E)-V', peso:'913', norma:'NTP 400.037', tipo:'Z', sap:'002-00449', rho:'2660', absorcion:'0.75', humedad:'0.16', mfinura:'6.84', tmn:'1"', pasa200:'0.51', pasa100:'0.30', pus:'1400', wr:'22.0', costo:'0.033', procedencia:'Cantera La Portada'},
-    {categoria:'Arena', nombre:'VI-ARENA(0/4.75)-R-QSC-(J)-V', peso:'516', norma:'NTP 400.037', tipo:'Z', sap:'002-00573', rho:'2650', absorcion:'0.70', humedad:'0.80', mfinura:'2.27', tmn:'4.75mm', pasa200:'2.60', pasa100:'21.78', pus:'1601', wr:'25.58', costo:'0.017', procedencia:'Cantera Quebrada San Carlos'},
-    {categoria:'Aditivo', nombre:'Master Rheobuild 2025', peso:'2.81', norma:'-', tipo:'F', sap:'000-90989', rho:'1250', dosis:'1.00', funcion:'Superplastificante', costo:'-', procedencia:'Fabricante: BASF-Perú'}
+  var componentes = load('sid8_componentes', [
+    {categoria:'Cemento', nombre:'MS(MH)-PAC', peso:'1500', norma:'NTP 334.088', tipo:'Performance', sap:'002-00066', rho:'2910', pus:'1500', costo:'0.49363', procedencia:'Fabricante: CPSSA'},
+    {categoria:'Adición', nombre:'AMNA Filler', peso:'1300', norma:'-', sap:'002-01218', rho:'2700', pus:'1300', costo:'0.15289', procedencia:'-'},
+    {categoria:'Agua', nombre:'Agua', peso:'1000', sap:'Código', rho:'1000', pus:'1000', costo:'0.00', procedencia:'Red pública'},
+    {categoria:'Agua', nombre:'Hielo', peso:'1000', sap:'Código', rho:'1000', pus:'1000', costo:'0.40', procedencia:'Fábrica'},
+    {categoria:'Pigmento', nombre:'Pigmento Amarillo', peso:'25', sap:'238-00041', rho:'2000', pus:'-', costo:'4.01', procedencia:'-'},
+    {categoria:'Piedra', nombre:'VI-H67-M-QLE-(E)-V', peso:'913', norma:'NTP 400.037', tipo:'Z', sap:'002-00622', rho:'2690', absorcion:'1.00', humedad:'0.38', mfinura:'6.93', tmn:'0.75', pasa200:'0.60', pasa100:'-8.33', pus:'1450', wr:'-', costo:'0.03251', procedencia:'Cantera Quebrada León'},
+    {categoria:'Arena', nombre:'VI-ARENA(0/4.75)-R-QSC-(J)-V', peso:'656', norma:'NTP 400.037', tipo:'Z', sap:'002-00573', rho:'2650', absorcion:'0.70', humedad:'0.80', mfinura:'2.27', tmn:'4.75', pasa200:'2.60', pasa100:'21.78', pus:'1486', wr:'-', costo:'0.0171', procedencia:'Cantera Quebrada San Carlos'},
+    {categoria:'Aditivo', nombre:'Master Rheobuild 1201', peso:'3.28', norma:'C494', tipo:'F', sap:'902-00940', rho:'1230', dosis:'0.60', funcion:'Reductor de agua', costo:'3.30', procedencia:'Fabricante: BASF-Perú'},
+    {categoria:'Aditivo', nombre:'Master Rheobuild 2025', peso:'4.91', norma:'C494', tipo:'D', sap:'902-00989', rho:'1250', dosis:'0.90', funcion:'Superplastificante', costo:'3.30', procedencia:'Fabricante: BASF-Perú'}
   ]);
-  var activeCompCat = load('sid7_comp_active_cat', null);
+  var activeCompCat = load('sid8_comp_active_cat', null);
   var compEditingIndex = null;
 
   function renderNavSub(){
@@ -668,7 +729,7 @@
   function setCompSubOpen(open){
     document.getElementById('nav-componentes-sub').classList.toggle('open', open);
     document.getElementById('nav-componentes-toggle').classList.toggle('expanded', open);
-    save('sid7_comp_sub_open', open);
+    save('sid8_comp_sub_open', open);
   }
   document.getElementById('nav-componentes-toggle').addEventListener('click', function(){
     var isOpen = document.getElementById('nav-componentes-sub').classList.contains('open');
@@ -678,7 +739,7 @@
     var btn = e.target.closest('.nav-subitem');
     if(!btn) return;
     activeCompCat = btn.dataset.cat;
-    save('sid7_comp_active_cat', activeCompCat);
+    save('sid8_comp_active_cat', activeCompCat);
     compEditingIndex = null;
     renderNavSub();
     showPanel('componentes');
@@ -760,9 +821,10 @@
     } else if(delBtn){
       var idx = Number(delBtn.dataset.i);
       componentes.splice(idx, 1);
-      save('sid7_componentes', componentes);
+      save('sid8_componentes', componentes);
       if(compEditingIndex === idx) resetCompForm();
       renderComponentesPanel();
+      rebuildMixSelectOptions();
       toast('Componente eliminado');
     }
   });
@@ -788,12 +850,13 @@
       componentes[compEditingIndex] = data;
       toast('Componente actualizado');
     }
-    save('sid7_componentes', componentes);
+    save('sid8_componentes', componentes);
     resetCompForm();
     renderComponentesPanel();
+    rebuildMixSelectOptions();
   });
 
-  /* ================= DISEÑOS ================= */
+  /* ================= DISEÑOS — CALCULADORA ================= */
   var subTabs = document.querySelectorAll('.subtab');
   function showSubTab(name){
     subTabs.forEach(function(t){ t.classList.toggle('active', t.dataset.sub === name); });
@@ -804,12 +867,12 @@
   }
   subTabs.forEach(function(t){ t.addEventListener('click', function(){ showSubTab(t.dataset.sub); }); });
 
-  var disenos = load('sid7_disenos', [
-    {codigo:'DM-0001', planta:'Trujillo', tipo:'Mezcla estructural', resistencia:'280', prioridad:'Media', estado:'Completado', fecha:'12/03/2026', ts:Date.parse('2026-03-12'), favorito:false},
-    {codigo:'DM-0002', planta:'Pacasmayo', tipo:'Mezcla autocompactante', resistencia:'350', prioridad:'Alta', estado:'En proceso', fecha:'18/04/2026', ts:Date.parse('2026-04-18'), favorito:true},
-    {codigo:'DM-0003', planta:'Cajamarca', tipo:'Mezcla ligera', resistencia:'210', prioridad:'Baja', estado:'Completado', fecha:'02/05/2026', ts:Date.parse('2026-05-02'), favorito:false},
-    {codigo:'DM-0004', planta:'Moche', tipo:'Mezcla de alta resistencia', resistencia:'420', prioridad:'Alta', estado:'En proceso', fecha:'27/06/2026', ts:Date.parse('2026-06-27'), favorito:true},
-    {codigo:'DM-0005', planta:'Trujillo', tipo:'Mezcla estándar', resistencia:'245', prioridad:'Media', estado:'En proceso', fecha:'09/07/2026', ts:Date.parse('2026-07-09'), favorito:false}
+  var disenos = load('sid8_disenos', [
+    {codigo:'DM-0001', nombreTecnico:'CL28MPa(3d)-I-H67-A1', planta:'Trujillo', tipo:'Mezcla estructural', resistencia:'28', prioridad:'Media', estado:'Completado', fecha:'12/03/2026', ts:Date.parse('2026-03-12'), favorito:false, cvdTotal:269.52},
+    {codigo:'DM-0002', nombreTecnico:'CL35MPa(7d)-HE-H67-A1', planta:'Pacasmayo', tipo:'Mezcla autocompactante', resistencia:'35', prioridad:'Alta', estado:'En proceso', fecha:'18/04/2026', ts:Date.parse('2026-04-18'), favorito:true, cvdTotal:198.70},
+    {codigo:'DM-0003', nombreTecnico:'CL21MPa(28d)-I-H67-A1', planta:'Cajamarca', tipo:'Mezcla ligera', resistencia:'21', prioridad:'Baja', estado:'Completado', fecha:'02/05/2026', ts:Date.parse('2026-05-02'), favorito:false, cvdTotal:210.00},
+    {codigo:'DM-0004', nombreTecnico:'CL42MPa(3d)-HE-H67-A1', planta:'Moche', tipo:'Mezcla de alta resistencia', resistencia:'42', prioridad:'Alta', estado:'En proceso', fecha:'27/06/2026', ts:Date.parse('2026-06-27'), favorito:true, cvdTotal:305.10},
+    {codigo:'DM-0005', nombreTecnico:'CL24MPa(3d)-I-H67-A1', planta:'Trujillo', tipo:'Mezcla estándar', resistencia:'24', prioridad:'Media', estado:'En proceso', fecha:'09/07/2026', ts:Date.parse('2026-07-09'), favorito:false, cvdTotal:245.30}
   ]);
 
   function tagClassPrioridad(p){ return p === 'Alta' ? 'tag-alta' : (p === 'Baja' ? 'tag-baja' : 'tag-media'); }
@@ -818,6 +881,12 @@
   var STAR_FILLED = '<svg viewBox="0 0 24 24" width="14" height="14" fill="currentColor" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polygon points="12 2 15 8.5 22 9.5 17 14.5 18.5 21.5 12 18 5.5 21.5 7 14.5 2 9.5 9 8.5 12 2"/></svg>';
   var COPY_ICON = '<svg viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="9" y="9" width="13" height="13" rx="2"/><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"/></svg>';
 
+  function diseñoTitulo(d){ return d.nombreTecnico || d.tipo; }
+  function disenoActionsHtml(d,i){
+    return '<button class="btn-icon fav'+(d.favorito?' active':'')+'" data-act="fav" data-i="'+i+'" title="Favorito">'+(d.favorito?STAR_FILLED:STAR_OUTLINE)+'</button>' +
+      '<button class="btn-icon copy" data-act="copy" data-i="'+i+'" title="Copiar datos">'+COPY_ICON+'</button>' +
+      '<button class="btn-icon del" data-act="del" data-i="'+i+'" title="Eliminar">×</button>';
+  }
   function disenoCardHtml(d){
     var i = disenos.indexOf(d);
     var tagEstado = d.estado === 'Completado' ? 'tag-verde' : 'tag-rojo';
@@ -825,22 +894,32 @@
       '<div class="design-thumb"></div>' +
       '<div class="design-body">' +
         '<span class="mono">'+d.codigo+' · '+d.fecha+'</span>' +
-        '<h4>'+d.tipo+'</h4>' +
-        '<span class="mono" style="display:block;margin-bottom:8px;color:var(--text-muted);">'+d.planta+' · '+d.resistencia+' MPa</span>' +
+        '<h4>'+diseñoTitulo(d)+'</h4>' +
+        '<span class="mono" style="display:block;margin-bottom:8px;color:var(--text-muted);">'+d.planta+' · '+d.resistencia+' MPa'+(d.cvdTotal?(' · CVD S/.'+Number(d.cvdTotal).toFixed(2)):'')+'</span>' +
         '<div class="tags">' +
           '<span class="tag-pill '+tagEstado+'">'+d.estado+'</span>' +
           '<span class="tag-pill '+tagClassPrioridad(d.prioridad)+'">'+d.prioridad+'</span>' +
         '</div>' +
-        '<div class="design-actions">' +
-          '<button class="btn-icon fav'+(d.favorito?' active':'')+'" data-act="fav" data-i="'+i+'" title="Favorito">'+(d.favorito?STAR_FILLED:STAR_OUTLINE)+'</button>' +
-          '<button class="btn-icon copy" data-act="copy" data-i="'+i+'" title="Copiar datos">'+COPY_ICON+'</button>' +
-          '<button class="btn-icon del" data-act="del" data-i="'+i+'" title="Eliminar">×</button>' +
-        '</div>' +
+        '<div class="design-actions">'+disenoActionsHtml(d,i)+'</div>' +
       '</div>' +
     '</div>';
   }
+  function disenoRowHtml(d){
+    var i = disenos.indexOf(d);
+    var tagEstado = d.estado === 'Completado' ? 'tag-verde' : 'tag-rojo';
+    return '<div class="design-row">' +
+      '<div class="drow-thumb"></div>' +
+      '<span class="drow-code mono">'+d.codigo+'</span>' +
+      '<div class="drow-main"><h5>'+diseñoTitulo(d)+'</h5><span>'+d.planta+' · '+d.fecha+' · '+d.resistencia+' MPa</span></div>' +
+      '<div class="drow-tags">' +
+        '<span class="tag-pill '+tagClassPrioridad(d.prioridad)+'">'+d.prioridad+'</span>' +
+        '<span class="tag-pill '+tagEstado+'">'+d.estado+'</span>' +
+      '</div>' +
+      '<div class="drow-actions">'+disenoActionsHtml(d,i)+'</div>' +
+    '</div>';
+  }
   function copyDiseno(d){
-    var text = 'Código: '+d.codigo+'\nTipo: '+d.tipo+'\nPlanta: '+d.planta+'\nResistencia objetivo: '+d.resistencia+' MPa\nPrioridad: '+d.prioridad+'\nEstado: '+d.estado+'\nFecha: '+d.fecha;
+    var text = 'Nombre técnico: '+diseñoTitulo(d)+'\nCódigo: '+d.codigo+'\nPlanta: '+d.planta+'\nResistencia: '+d.resistencia+' MPa\nPrioridad: '+d.prioridad+'\nEstado: '+d.estado+'\nFecha: '+d.fecha+(d.cvdTotal?('\nCVD: S/. '+Number(d.cvdTotal).toFixed(2)):'');
     function ok(){ toast('Datos del diseño copiados'); }
     function fail(){ toast('No se pudo copiar'); }
     if(navigator.clipboard && navigator.clipboard.writeText){
@@ -863,21 +942,21 @@
     var act = btn.dataset.act;
     if(act === 'fav'){
       disenos[i].favorito = !disenos[i].favorito;
-      save('sid7_disenos', disenos);
+      save('sid8_disenos', disenos);
       toast(disenos[i].favorito ? 'Agregado a favoritos' : 'Quitado de favoritos');
       renderAllDesignViews();
     } else if(act === 'copy'){
       copyDiseno(disenos[i]);
     } else if(act === 'del'){
       disenos.splice(i, 1);
-      save('sid7_disenos', disenos);
+      save('sid8_disenos', disenos);
       toast('Diseño eliminado');
       renderAllDesignViews();
     }
   }
   document.getElementById('dis-gallery').addEventListener('click', handleCardAction);
-  document.getElementById('recientes-grid').addEventListener('click', handleCardAction);
-  document.getElementById('favoritos-grid').addEventListener('click', handleCardAction);
+  document.getElementById('recientes-rows').addEventListener('click', handleCardAction);
+  document.getElementById('favoritos-rows').addEventListener('click', handleCardAction);
 
   function renderDisenosHistorico(){
     var wrap = document.getElementById('dis-gallery');
@@ -888,15 +967,15 @@
     updateStats();
   }
   function renderInicioRecientes(){
-    var wrap = document.getElementById('recientes-grid');
+    var wrap = document.getElementById('recientes-rows');
     var limite = Date.now() - 7*24*3600*1000;
     var recientes = disenos.filter(function(d){ return (d.ts||0) >= limite; }).sort(function(a,b){ return (b.ts||0)-(a.ts||0); });
-    wrap.innerHTML = recientes.length ? recientes.map(disenoCardHtml).join('') : '<div class="empty-note">No se registraron diseños en los últimos 7 días.</div>';
+    wrap.innerHTML = recientes.length ? recientes.map(disenoRowHtml).join('') : '<div class="empty-note">No se registraron diseños en los últimos 7 días.</div>';
   }
   function renderInicioFavoritos(){
-    var wrap = document.getElementById('favoritos-grid');
+    var wrap = document.getElementById('favoritos-rows');
     var favs = disenos.filter(function(d){ return d.favorito; }).sort(function(a,b){ return (b.ts||0)-(a.ts||0); });
-    wrap.innerHTML = favs.length ? favs.map(disenoCardHtml).join('') : '<div class="empty-note">Todavía no marcaste diseños como favoritos.</div>';
+    wrap.innerHTML = favs.length ? favs.map(disenoRowHtml).join('') : '<div class="empty-note">Todavía no marcaste diseños como favoritos.</div>';
   }
   function renderAllDesignViews(){
     renderDisenosHistorico();
@@ -906,23 +985,166 @@
   }
 
   function nextCodigo(){ return 'DM-' + String(disenos.length + 1).padStart(4,'0'); }
-  function refreshCodigoPreview(){ document.getElementById('dis-codigo-preview').value = nextCodigo(); }
+  function refreshCodigoPreview(){ /* el código interno se asigna al registrar */ }
+
+  /* ---- Cálculos automáticos: f'cr y nombre técnico ---- */
+  function recalcFcr(){
+    var fc = n(document.getElementById('dis-fc').value);
+    var s = n(document.getElementById('dis-desv-std').value);
+    var fcMpa = fc ? (fc/10.1972).toFixed(1) : '';
+    document.getElementById('dis-fc-mpa').value = fcMpa;
+    var fcr = fc ? (fc + 1.34*s).toFixed(1) : '';
+    document.getElementById('dis-fcr').value = fcr;
+    refreshNombrePreview();
+  }
+  ['dis-fc','dis-desv-std'].forEach(function(id){ document.getElementById(id).addEventListener('input', recalcFcr); });
+
+  function refreshNombrePreview(){
+    var fcMpa = document.getElementById('dis-fc-mpa').value || '0';
+    var edad = document.getElementById('dis-edad').value || '0';
+    var cemento = document.getElementById('dis-cemento-tipo').value || '·';
+    var tmn = document.getElementById('dis-tmn').value || '0';
+    var sufijo = document.getElementById('dis-sufijo').value || 'A1';
+    var nombre = 'CL'+fcMpa+'MPa('+edad+'d)-'+cemento+'-H'+tmn+'-'+sufijo;
+    document.getElementById('nombre-preview-text').textContent = nombre;
+    return nombre;
+  }
+  ['dis-edad','dis-cemento-tipo','dis-tmn','dis-sufijo'].forEach(function(id){ document.getElementById(id).addEventListener('input', refreshNombrePreview); });
+
+  /* ---- Composición de mezcla (línea de materiales ligada a Componentes) ---- */
+  var mixItems = [];
+  function componenteOptionsHtml(selectedIdx){
+    var byCat = {};
+    componentes.forEach(function(c,i){ (byCat[c.categoria] = byCat[c.categoria]||[]).push(i); });
+    var html = '<option value="">Elegí un material…</option>';
+    Object.keys(byCat).forEach(function(cat){
+      html += '<optgroup label="'+cat+'">';
+      byCat[cat].forEach(function(i){
+        html += '<option value="'+i+'"'+(i===selectedIdx?' selected':'')+'>'+esc(componentes[i].nombre)+'</option>';
+      });
+      html += '</optgroup>';
+    });
+    return html;
+  }
+  function rebuildMixSelectOptions(){
+    document.querySelectorAll('.mix-row-select').forEach(function(sel){
+      var current = sel.value === '' ? null : Number(sel.value);
+      sel.innerHTML = componenteOptionsHtml(current);
+    });
+  }
+  function mixRowCompute(item){
+    var comp = componentes[item.compIndex];
+    if(!comp) return {volAbs:0,pesoSSS:0,pesoHumedo:0,cvd:0};
+    var rho = n(comp.rho) || n(comp.pus) || 1000;
+    var absorcion = n(comp.absorcion);
+    var humedad = n(comp.humedad);
+    var costo = n(comp.costo);
+    var pesoSeco = n(item.pesoSeco);
+    var volAbs = rho ? pesoSeco/rho : 0;
+    var pesoSSS = pesoSeco * (1 + absorcion/100);
+    var pesoHumedo = pesoSSS + pesoSeco*(humedad-absorcion)/100;
+    var cvd = pesoSeco * costo;
+    return {volAbs:volAbs, pesoSSS:pesoSSS, pesoHumedo:pesoHumedo, cvd:cvd};
+  }
+  function renderMixTable(){
+    var tbody = document.getElementById('mix-tbody');
+    var totals = {peso:0, vol:0, sss:0, humedo:0, cvd:0};
+    tbody.innerHTML = mixItems.map(function(item, idx){
+      var r = mixRowCompute(item);
+      totals.peso += n(item.pesoSeco); totals.vol += r.volAbs; totals.sss += r.pesoSSS; totals.humedo += r.pesoHumedo; totals.cvd += r.cvd;
+      return '<tr>' +
+        '<td><select class="mix-row-select" data-i="'+idx+'">'+componenteOptionsHtml(item.compIndex)+'</select></td>' +
+        '<td><input type="number" class="mix-peso" data-i="'+idx+'" value="'+esc(item.pesoSeco)+'" placeholder="0" style="width:100px;padding:8px 9px;border-radius:3px;border:1.5px solid var(--line);background:var(--surface);color:var(--text);"></td>' +
+        '<td class="mono">'+r.volAbs.toFixed(3)+'</td>' +
+        '<td class="mono">'+r.pesoSSS.toFixed(2)+'</td>' +
+        '<td class="mono">'+r.pesoHumedo.toFixed(2)+'</td>' +
+        '<td class="mono">'+r.cvd.toFixed(2)+'</td>' +
+        '<td><button class="btn-icon" data-act="del-mix" data-i="'+idx+'" title="Quitar">×</button></td>' +
+      '</tr>';
+    }).join('') || '<tr><td colspan="7" style="text-align:center;color:var(--text-muted);">Todavía no agregaste materiales a la mezcla.</td></tr>';
+    document.getElementById('mix-total-peso').textContent = totals.peso.toFixed(2);
+    document.getElementById('mix-total-vol').textContent = totals.vol.toFixed(3);
+    document.getElementById('mix-total-sss').textContent = totals.sss.toFixed(2);
+    document.getElementById('mix-total-humedo').textContent = totals.humedo.toFixed(2);
+    document.getElementById('mix-total-cvd').textContent = 'S/. ' + totals.cvd.toFixed(2);
+    return totals;
+  }
+  document.getElementById('mix-add-row').addEventListener('click', function(){
+    mixItems.push({compIndex:null, pesoSeco:''});
+    renderMixTable();
+  });
+  document.getElementById('mix-tbody').addEventListener('change', function(e){
+    if(!e.target.classList.contains('mix-row-select')) return;
+    var i = Number(e.target.dataset.i);
+    mixItems[i].compIndex = e.target.value === '' ? null : Number(e.target.value);
+    renderMixTable();
+  });
+  document.getElementById('mix-tbody').addEventListener('input', function(e){
+    if(!e.target.classList.contains('mix-peso')) return;
+    var i = Number(e.target.dataset.i);
+    mixItems[i].pesoSeco = e.target.value;
+    renderMixTable();
+  });
+  document.getElementById('mix-tbody').addEventListener('click', function(e){
+    var btn = e.target.closest('[data-act="del-mix"]');
+    if(!btn) return;
+    mixItems.splice(Number(btn.dataset.i), 1);
+    renderMixTable();
+  });
+
+  function resetCalcForm(){
+    ['dis-laboratorio','dis-uso','dis-ndiseno','dis-sap','dis-negocio','dis-tipo-concreto','dis-fc','dis-fc-mpa','dis-ft','dis-edad',
+     'dis-cemento-tipo','dis-tmn','dis-tmn-mm','dis-slump','dis-t50','dis-exposicion','dis-amc-max','dis-aire','dis-destino',
+     'dis-colocacion','dis-finos','dis-otras-esp','dis-desv-std','dis-fcr','dis-amc-calc','dis-amc-efectiva','dis-agua-calc',
+     'dis-agua-req','dis-pucf','dis-vol-diseno','dis-lim-gradacion','dis-pct-fino','dis-pct-grueso','dis-sufijo'
+    ].forEach(function(id){ var el = document.getElementById(id); if(el) el.value = ''; });
+    mixItems = [];
+    renderMixTable();
+    refreshNombrePreview();
+  }
 
   document.getElementById('dis-add').addEventListener('click', function(){
-    var planta = document.getElementById('dis-planta').value;
-    var tipo = document.getElementById('dis-tipo').value.trim();
-    var resistencia = document.getElementById('dis-resistencia').value.trim();
-    var prioridad = document.getElementById('dis-prioridad').value;
-    var estado = document.getElementById('dis-estado').value;
-    if(!tipo || !resistencia){ toast('Completá tipo y resistencia'); return; }
+    var tipoConcreto = document.getElementById('dis-tipo-concreto').value.trim();
+    var fc = document.getElementById('dis-fc').value.trim();
+    if(!tipoConcreto || !fc){ toast('Completá al menos Tipo de concreto y f\'c'); return; }
     var hoy = new Date();
     var fecha = String(hoy.getDate()).padStart(2,'0') + '/' + String(hoy.getMonth()+1).padStart(2,'0') + '/' + hoy.getFullYear();
-    disenos.push({codigo:nextCodigo(), planta:planta, tipo:tipo, resistencia:resistencia, prioridad:prioridad, estado:estado, fecha:fecha, ts:hoy.getTime(), favorito:false});
-    save('sid7_disenos', disenos);
-    document.getElementById('dis-tipo').value = '';
-    document.getElementById('dis-resistencia').value = '';
-    refreshCodigoPreview();
-    toast('Diseño registrado');
+    var totals = renderMixTable();
+    var d = {
+      codigo: nextCodigo(),
+      nombreTecnico: refreshNombrePreview(),
+      planta: document.getElementById('dis-planta').value,
+      laboratorio: document.getElementById('dis-laboratorio').value.trim(),
+      uso: document.getElementById('dis-uso').value.trim(),
+      ndiseno: document.getElementById('dis-ndiseno').value.trim(),
+      sap: document.getElementById('dis-sap').value.trim(),
+      negocio: document.getElementById('dis-negocio').value.trim(),
+      tipo: tipoConcreto,
+      fc: fc,
+      resistencia: document.getElementById('dis-fc-mpa').value || fc,
+      ft: document.getElementById('dis-ft').value.trim(),
+      edad: document.getElementById('dis-edad').value.trim(),
+      cementoTipo: document.getElementById('dis-cemento-tipo').value.trim(),
+      tmn: document.getElementById('dis-tmn').value.trim(),
+      slump: document.getElementById('dis-slump').value.trim(),
+      exposicion: document.getElementById('dis-exposicion').value.trim(),
+      aire: document.getElementById('dis-aire').value.trim(),
+      destino: document.getElementById('dis-destino').value.trim(),
+      colocacion: document.getElementById('dis-colocacion').value.trim(),
+      desvStd: document.getElementById('dis-desv-std').value.trim(),
+      fcr: document.getElementById('dis-fcr').value.trim(),
+      pctFino: document.getElementById('dis-pct-fino').value.trim(),
+      pctGrueso: document.getElementById('dis-pct-grueso').value.trim(),
+      mix: mixItems.map(function(item){ var comp = componentes[item.compIndex]; return {nombre: comp?comp.nombre:'-', pesoSeco:item.pesoSeco}; }),
+      cvdTotal: Number(totals.cvd.toFixed(2)),
+      prioridad: document.getElementById('dis-prioridad').value,
+      estado: document.getElementById('dis-estado').value,
+      fecha: fecha, ts: hoy.getTime(), favorito:false
+    };
+    disenos.push(d);
+    save('sid8_disenos', disenos);
+    resetCalcForm();
+    toast('Diseño registrado: ' + d.nombreTecnico);
     showSubTab('historico');
     renderAllDesignViews();
   });
@@ -974,7 +1196,7 @@
     {t:'row', key:'comentarios', label:'Comentarios', unit:''}
   ];
 
-  var rrEstudios = load('sid7_rr', [{
+  var rrEstudios = load('sid8_rr', [{
     id:'e1', nombre:'Estudio HE 0.70', fecha:'20/08/2026',
     tipos:[
       {id:'t1', nombre:'EST HE 0.70 TIPO I', valores:{ipac:'281',hepac:'-',agua:'194',arena_qsc:'516',arena_lvd:'501',piedra_h67:'913',mrb2025:'2.81',mrb1201:'2.1',iddnhe:'-',sika:'-',ac:'0.70',cvd:'189.39',d_mrb2025:'1.00%',d_mrb1201:'0.75%',d_iddnhe:'-',d_sika:'-',cons_0:'8 1/2',cons_30:'7 3/4',cons_60:'7 1/2',cons_90:'5 1/2',cons_120:'-',tc_0:'26',tc_30:'26',tc_60:'25.5',tc_90:'25.25',tc_120:'-',ta_0:'25.9',ta_30:'26.15',ta_60:'26.25',ta_90:'26.1',ta_120:'-',pu:'2361.5',fragua_i:'08:30',fragua_f:'10:26',aire:'2.1',cohesividad:'Conforme',apariencia:'Normal',comentarios:'-'}},
@@ -1016,7 +1238,7 @@
     var fecha = String(hoy.getDate()).padStart(2,'0') + '/' + String(hoy.getMonth()+1).padStart(2,'0') + '/' + hoy.getFullYear();
     var newId = 'e' + Date.now();
     rrEstudios.push({id:newId, nombre:'Estudio '+nombre, fecha:fecha, tipos:[{id:'t'+Date.now(), nombre:'Tipo 1', valores:{}}], obs:{}, edades:[]});
-    save('sid7_rr', rrEstudios);
+    save('sid8_rr', rrEstudios);
     rrActiveId = newId;
     input.value = '';
     renderRRStudyList();
@@ -1087,7 +1309,7 @@
     } else if(el.dataset.row){
       estudio.tipos[Number(el.dataset.ti)].valores[el.dataset.row] = el.value;
     }
-    save('sid7_rr', rrEstudios);
+    save('sid8_rr', rrEstudios);
   });
   document.getElementById('rr-table-holder').addEventListener('click', function(e){
     var btn = e.target.closest('.rr-del-col');
@@ -1095,7 +1317,7 @@
     var estudio = rrFind(rrActiveId);
     var removed = estudio.tipos.splice(Number(btn.dataset.ti), 1)[0];
     estudio.edades.forEach(function(ed){ delete ed.valores[removed.id]; });
-    save('sid7_rr', rrEstudios);
+    save('sid8_rr', rrEstudios);
     renderRRDetail();
     toast('Tipo eliminado');
   });
@@ -1104,7 +1326,7 @@
     if(!estudio) return;
     var id = 't' + Date.now();
     estudio.tipos.push({id:id, nombre:'Nuevo tipo', valores:{}});
-    save('sid7_rr', rrEstudios);
+    save('sid8_rr', rrEstudios);
     renderRRDetail();
   });
   document.getElementById('rr-edad-holder').addEventListener('input', function(e){
@@ -1114,7 +1336,7 @@
     if(el.dataset.edadLabel !== undefined){ estudio.edades[Number(el.dataset.edadLabel)].edad = el.value; }
     else if(el.dataset.edadReq !== undefined){ estudio.edades[Number(el.dataset.edadReq)].requisito = el.value; }
     else if(el.dataset.edad !== undefined){ estudio.edades[Number(el.dataset.edad)].valores[el.dataset.tid] = el.value; }
-    save('sid7_rr', rrEstudios);
+    save('sid8_rr', rrEstudios);
   });
   document.getElementById('rr-add-edad').addEventListener('click', function(){
     var estudio = rrFind(rrActiveId);
@@ -1122,7 +1344,7 @@
     var valores = {};
     estudio.tipos.forEach(function(t){ valores[t.id] = ''; });
     estudio.edades.push({edad:'Nueva edad', requisito:'', valores:valores});
-    save('sid7_rr', rrEstudios);
+    save('sid8_rr', rrEstudios);
     renderRRDetail();
   });
 
@@ -1163,7 +1385,7 @@
   var elNotif = document.getElementById('set-notif');
   var elAutosave = document.getElementById('set-autosave');
   var elLang = document.getElementById('set-lang');
-  var settings = load('sid7_settings', {notif:true, autosave:true, lang:'es'});
+  var settings = load('sid8_settings', {notif:true, autosave:true, lang:'es'});
   function applySettingsToUI(){
     elDarkMode.checked = currentTheme === 'dark';
     elNotif.checked = settings.notif;
@@ -1173,24 +1395,25 @@
   elDarkMode.addEventListener('change', function(){
     currentTheme = elDarkMode.checked ? 'dark' : 'light';
     applyTheme(currentTheme);
-    save('sid7_theme', currentTheme);
+    save('sid8_theme', currentTheme);
     toast(currentTheme === 'dark' ? 'Modo oscuro activado' : 'Modo claro activado');
   });
   document.getElementById('set-save').addEventListener('click', function(){
     settings = { notif: elNotif.checked, autosave: elAutosave.checked, lang: elLang.value };
-    save('sid7_settings', settings);
+    save('sid8_settings', settings);
     toast('Cambios guardados correctamente');
   });
 
   /* ================= INIT ================= */
   renderNavSub();
-  setCompSubOpen(load('sid7_comp_sub_open', false));
+  setCompSubOpen(load('sid8_comp_sub_open', false));
   renderComponentesPanel();
   renderAllDesignViews();
+  renderMixTable();
+  refreshNombrePreview();
   renderRRStudyList();
   renderRRDetail();
   applySettingsToUI();
-  refreshCodigoPreview();
   showSubTab('calcular');
 })();
 </script>
