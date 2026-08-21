@@ -7,6 +7,7 @@
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Oswald:wght@500;600;700&family=Inter:wght@400;500;600;700&family=Roboto+Mono:wght@400;500&display=swap" rel="stylesheet">
+<script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
 <style>
   :root{
     --rojo-300:#f0a8a8;
@@ -67,7 +68,7 @@
   .loader-bar-track{width:200px;height:3px;background:#2a2a2a;margin-top:18px;position:relative;overflow:hidden;}
   .loader-bar-fill{position:absolute;left:0;top:0;bottom:0;width:0;background:var(--rojo-600);transition:width .18s linear;}
 
-  /* ================= SIDEBAR TOGGLE (rojo, para diferenciarse como botón) ================= */
+  /* ================= SIDEBAR TOGGLE (rojo) ================= */
   .floating-toggle{position:fixed;top:16px;left:16px;z-index:60;width:42px;height:42px;border-radius:4px;background:var(--rojo-600);border:none;color:#fff;display:none;align-items:center;justify-content:center;box-shadow:0 8px 18px -6px rgba(200,30,30,.5);}
   .floating-toggle:hover{background:var(--rojo-700);}
   .floating-toggle.show{display:flex;}
@@ -139,7 +140,7 @@
   .section-title-row .link-mono{font-size:.76rem;color:var(--rojo-600);font-weight:600;}
   .empty-note{padding:22px;text-align:center;color:var(--text-muted);font-size:.85rem;border:1px dashed var(--line);border-radius:4px;}
 
-  /* filas de diseño (Inicio: recientes / favoritos) */
+  /* filas (Inicio: recientes) */
   .design-rows{display:flex;flex-direction:column;gap:8px;}
   .design-row{display:flex;align-items:center;gap:16px;padding:13px 16px;border:1px solid var(--line);border-radius:4px;background:var(--surface);}
   .design-row .drow-thumb{width:4px;align-self:stretch;background:var(--rojo-600);border-radius:2px;flex-shrink:0;}
@@ -168,6 +169,7 @@
   .field-mini label{font-size:.68rem;letter-spacing:.02em;color:var(--text-muted);text-transform:uppercase;font-weight:600;}
   .field-mini input,.field-mini select{padding:9px 11px;border-radius:3px;border:1.5px solid var(--line);font-size:.83rem;background:var(--surface);color:var(--text);}
   .field-mini input:focus,.field-mini select:focus{outline:none;border-color:var(--rojo-600);}
+  .field-mini input[readonly]{background:var(--surface-2);color:var(--rojo-600);font-family:var(--font-mono);font-weight:600;}
   .field-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(150px,1fr));gap:12px;margin-bottom:16px;}
 
   .btn-add{background:var(--rojo-600);color:#fff;padding:11px 20px;border-radius:3px;font-weight:600;font-size:.82rem;white-space:nowrap;transition:background .15s;}
@@ -190,9 +192,6 @@
   .tag-pill{padding:4px 10px;border-radius:3px;font-size:.68rem;font-weight:700;text-transform:uppercase;letter-spacing:.02em;white-space:nowrap;}
   .tag-rojo{background:var(--surface-2);color:var(--rojo-600);border:1px solid var(--rojo-300);}
   .tag-verde{background:#eaf6ee;color:#1a7a3d;border:1px solid #bfe4cb;}
-  .tag-alta{background:var(--rojo-600);color:#fff;}
-  .tag-media{background:var(--surface-2);color:var(--rojo-600);border:1px solid var(--rojo-300);}
-  .tag-baja{background:var(--surface-2);color:var(--text-muted);border:1px solid var(--line);}
 
   .btn-icon{width:28px;height:28px;border-radius:3px;display:inline-flex;align-items:center;justify-content:center;background:var(--surface-2);color:var(--rojo-600);border:1px solid var(--line);flex-shrink:0;}
   .btn-icon:hover{background:var(--rojo-600);color:#fff;border-color:var(--rojo-600);}
@@ -202,6 +201,8 @@
   .btn-icon.fav.active{background:var(--rojo-600);color:#fff;border-color:var(--rojo-600);}
   .btn-icon.copy{color:var(--text-muted);}
   .btn-icon.copy:hover{background:var(--text);color:#fff;border-color:var(--text);}
+  .btn-icon.view{color:var(--text-muted);}
+  .btn-icon.view:hover{background:var(--text);color:#fff;border-color:var(--text);}
 
   .gallery{display:grid;grid-template-columns:repeat(auto-fill,minmax(240px,1fr));gap:14px;}
   .design-card{border-radius:4px;overflow:hidden;background:var(--surface);border:1px solid var(--line);position:relative;box-shadow:0 1px 3px rgba(0,0,0,.04);}
@@ -210,7 +211,7 @@
   .design-body .mono{color:var(--text-muted);display:block;margin-bottom:4px;}
   .design-body h4{font-size:.95rem;margin-bottom:8px;font-weight:600;}
   .design-body .tags{display:flex;gap:6px;flex-wrap:wrap;}
-  .design-actions{display:flex;gap:6px;margin-top:12px;padding-top:12px;border-top:1px solid var(--line);}
+  .design-actions{display:flex;gap:6px;margin-top:12px;padding-top:12px;border-top:1px solid var(--line);flex-wrap:wrap;}
 
   .bar-row{margin-bottom:16px;}
   .bar-row .bar-label{display:flex;justify-content:space-between;font-size:.85rem;margin-bottom:7px;}
@@ -232,7 +233,7 @@
   .settings-actions{margin-top:20px;}
   select.lang-select{padding:9px 12px;border-radius:3px;border:1.5px solid var(--line);background:var(--surface);color:var(--text);}
 
-  /* ---- Calcular Diseño (calculadora real) ---- */
+  /* ---- Calcular Diseño ---- */
   .calc-section{margin-bottom:26px;}
   .calc-section-title{font-family:var(--font-display);font-size:1rem;font-weight:700;margin-bottom:4px;}
   .calc-section-sub{font-size:.8rem;color:var(--text-muted);margin-bottom:14px;}
@@ -241,11 +242,38 @@
   .nombre-preview{font-family:var(--font-mono);font-weight:700;font-size:1.1rem;color:var(--rojo-600);background:var(--surface-2);border:1.5px dashed var(--rojo-300);border-radius:4px;padding:14px 18px;}
   .nombre-preview .lbl{display:block;font-family:var(--font-body);font-weight:600;font-size:.66rem;letter-spacing:.04em;text-transform:uppercase;color:var(--text-muted);margin-bottom:6px;}
 
-  .mix-row-select{min-width:220px;}
-  .mix-readout{font-family:var(--font-mono);font-size:.8rem;color:var(--text-muted);}
-  .mix-readout strong{color:var(--text);}
+  /* ---- Vista de diseño (formato de la hoja real) — modal e impresión ---- */
+  #design-modal{position:fixed;inset:0;background:rgba(20,19,20,.55);z-index:200;display:none;align-items:flex-start;justify-content:center;padding:40px 18px;overflow-y:auto;}
+  #design-modal.show{display:flex;}
+  .modal-card{background:#fff;color:#161616;border-radius:6px;max-width:960px;width:100%;box-shadow:0 30px 60px rgba(0,0,0,.35);}
+  .modal-header{display:flex;justify-content:space-between;align-items:center;padding:16px 22px;border-bottom:1px solid #e7e2e1;}
+  .modal-header h3{font-family:var(--font-display);font-size:1.05rem;}
+  .modal-close{width:30px;height:30px;border-radius:4px;display:flex;align-items:center;justify-content:center;background:#f4f0ef;color:#161616;}
+  .modal-close:hover{background:var(--rojo-600);color:#fff;}
+  .modal-body{padding:20px 22px;}
+  .modal-actions{display:flex;gap:10px;padding:16px 22px;border-top:1px solid #e7e2e1;flex-wrap:wrap;}
 
-  /* ---- Componentes por subcategoría / Reporte RR (usa clases arriba) ---- */
+  .mezcla-title-row{display:flex;justify-content:space-between;align-items:baseline;flex-wrap:wrap;gap:8px;margin-bottom:12px;}
+  .mezcla-title-row h4{color:var(--rojo-600);font-family:var(--font-display);font-size:1rem;text-transform:uppercase;}
+  .mezcla-title-row .mono{color:#6c6c70;}
+  table.mezcla-table{width:100%;border-collapse:collapse;font-size:.8rem;}
+  table.mezcla-table th{background:#6f6f6f;color:#fff;padding:8px 9px;text-align:center;font-size:.68rem;text-transform:uppercase;letter-spacing:.02em;}
+  table.mezcla-table td{padding:7px 9px;border-bottom:1px solid #e2ddda;text-align:center;}
+  table.mezcla-table td.mezcla-nombre{text-align:left;font-weight:600;color:#1f4e8c;}
+  table.mezcla-table tr.mezcla-total td{background:#6f6f6f;color:#fff;font-weight:700;}
+  .mezcla-specs{display:grid;grid-template-columns:repeat(auto-fill,minmax(160px,1fr));gap:10px;margin-bottom:18px;font-size:.8rem;}
+  .mezcla-specs div{padding:8px 10px;background:#faf4f4;border-radius:3px;}
+  .mezcla-specs b{display:block;font-size:.66rem;text-transform:uppercase;color:#6c6c70;margin-bottom:2px;}
+
+  @media print{
+    #app-shell, #loading-view, .floating-toggle, #toast, .modal-actions, .modal-close, .modal-header{display:none !important;}
+    #design-modal{position:static !important;background:none !important;padding:0 !important;display:block !important;}
+    #design-modal .modal-card{box-shadow:none !important;max-width:none !important;}
+    #design-modal .modal-body{padding:0 !important;}
+    @page{size:A4;margin:14mm;}
+  }
+
+  /* ---- Componentes / Reporte RR ---- */
   .rr-layout{display:grid;grid-template-columns:240px 1fr;gap:18px;align-items:start;}
   @media(max-width:1000px){.rr-layout{grid-template-columns:1fr;}}
   .rr-study-card{background:var(--surface);border:1px solid var(--line);border-radius:3px;padding:12px 14px;margin-bottom:8px;cursor:pointer;}
@@ -257,10 +285,8 @@
   .rr-new-study input{flex:1;min-width:0;padding:9px 11px;border-radius:3px;border:1.5px solid var(--line);font-size:.82rem;background:var(--surface);color:var(--text);}
   .rr-new-study button{background:var(--rojo-600);color:#fff;padding:9px 12px;border-radius:3px;font-size:.78rem;font-weight:600;}
   .rr-new-study button:hover{background:var(--rojo-700);}
-
   .rr-toolbar{display:flex;justify-content:space-between;align-items:center;margin-bottom:14px;flex-wrap:wrap;gap:10px;}
   .rr-toolbar h4{font-family:var(--font-display);font-size:1.05rem;font-weight:700;}
-
   .rr-table-wrap{overflow-x:auto;background:var(--surface);border:1px solid var(--line);border-radius:4px;}
   table.rr-table{border-collapse:collapse;width:100%;min-width:600px;}
   table.rr-table th, table.rr-table td{padding:8px 12px;font-size:.82rem;border-bottom:1px solid var(--line);}
@@ -375,7 +401,7 @@
     <section id="panel-inicio" class="panel active">
       <div class="stat-grid">
         <div class="stat-card"><div class="num" id="home-stat-componentes">0</div><div class="label">Componentes registrados</div></div>
-        <div class="stat-card"><div class="num" id="home-stat-disenos">0</div><div class="label">Diseños en proceso</div></div>
+        <div class="stat-card"><div class="num" id="home-stat-disenos">0</div><div class="label">En espera de resultados</div></div>
         <div class="stat-card"><div class="num" id="home-stat-estudios">0</div><div class="label">Estudios RR</div></div>
       </div>
 
@@ -397,10 +423,10 @@
       <div class="section-title-row">
         <h3>Favoritos</h3>
       </div>
-      <div class="design-rows" id="favoritos-rows"></div>
+      <div class="gallery" id="favoritos-grid"></div>
     </section>
 
-    <!-- COMPONENTES (por categoría) -->
+    <!-- COMPONENTES -->
     <section id="panel-componentes" class="panel">
       <div class="content-header">
         <div><h2 id="comp-title">Componentes</h2><p id="comp-desc">Elegí una categoría en el menú lateral.</p></div>
@@ -443,7 +469,7 @@
         <button class="subtab" data-sub="historico">Histórico</button>
       </div>
 
-      <!-- ===== CALCULAR DISEÑO — calculadora ===== -->
+      <!-- ===== CALCULAR DISEÑO ===== -->
       <div class="sub-panel" id="sub-calcular">
 
         <div class="nombre-preview-wrap">
@@ -452,19 +478,17 @@
 
         <div class="calc-section card">
           <div class="calc-section-title">Datos generales</div>
+          <div class="calc-section-sub">Al elegir la planta se completa automáticamente el código de laboratorio correspondiente.</div>
           <div class="field-grid">
             <div class="field-mini"><label>Planta de producción</label>
               <select id="dis-planta"><option value="Trujillo">Trujillo</option><option value="Pacasmayo">Pacasmayo</option><option value="Cajamarca">Cajamarca</option><option value="Moche">Moche</option></select>
             </div>
-            <div class="field-mini"><label>Laboratorio</label><input type="text" id="dis-laboratorio" placeholder="1213-TRU"></div>
+            <div class="field-mini"><label>Laboratorio (auto)</label><input type="text" id="dis-laboratorio" readonly></div>
             <div class="field-mini"><label>Uso / aplicación</label><input type="text" id="dis-uso" placeholder="Específico / autoconstrucción"></div>
             <div class="field-mini"><label>N° Diseño</label><input type="text" id="dis-ndiseno" placeholder="70"></div>
             <div class="field-mini"><label>Código SAP</label><input type="text" id="dis-sap" placeholder="004-01685"></div>
-            <div class="field-mini"><label>Prioridad</label>
-              <select id="dis-prioridad"><option value="Media">Media</option><option value="Alta">Alta</option><option value="Baja">Baja</option></select>
-            </div>
             <div class="field-mini"><label>Estado</label>
-              <select id="dis-estado"><option value="En proceso">En proceso</option><option value="Completado">Completado</option></select>
+              <select id="dis-estado"><option value="Espera de resultados">Espera de resultados</option><option value="Completado">Completado</option></select>
             </div>
           </div>
         </div>
@@ -476,51 +500,46 @@
             <div class="field-mini"><label>Negocio</label><input type="text" id="dis-negocio" placeholder="Pacasmayo Profesional"></div>
             <div class="field-mini"><label>Tipo de concreto</label><input type="text" id="dis-tipo-concreto" placeholder="Concreto ligero"></div>
             <div class="field-mini"><label>f'c (kg/cm²)</label><input type="number" id="dis-fc" placeholder="280"></div>
-            <div class="field-mini"><label>f'c (MPa, auto)</label><input type="text" id="dis-fc-mpa" disabled placeholder="0"></div>
+            <div class="field-mini"><label>f'c (MPa, auto)</label><input type="text" id="dis-fc-mpa" readonly></div>
             <div class="field-mini"><label>f't — flexión (kg/cm²)</label><input type="text" id="dis-ft" placeholder="37"></div>
             <div class="field-mini"><label>Edad del f'c (días)</label><input type="number" id="dis-edad" placeholder="3"></div>
             <div class="field-mini"><label>Tipo de cemento</label><input type="text" id="dis-cemento-tipo" placeholder="I"></div>
             <div class="field-mini"><label>Huso granul. TMN (AG)</label><input type="text" id="dis-tmn" placeholder="67"></div>
-            <div class="field-mini"><label>TMN (mm)</label><input type="text" id="dis-tmn-mm" placeholder="19.05"></div>
             <div class="field-mini"><label>Consistencia (slump, pulg)</label><input type="text" id="dis-slump" placeholder="3"></div>
-            <div class="field-mini"><label>Viscosidad T50</label><input type="text" id="dis-t50" placeholder="-"></div>
             <div class="field-mini"><label>Exposición</label><input type="text" id="dis-exposicion" placeholder="Ambiente"></div>
-            <div class="field-mini"><label>Relación a/mc máxima</label><input type="text" id="dis-amc-max" placeholder="-"></div>
             <div class="field-mini"><label>Aire incorporado (%)</label><input type="text" id="dis-aire" placeholder="1.5"></div>
             <div class="field-mini"><label>Destino</label><input type="text" id="dis-destino" placeholder="Radio local"></div>
             <div class="field-mini"><label>Tipo de colocación</label><input type="text" id="dis-colocacion" placeholder="Bombeado"></div>
-            <div class="field-mini"><label>Finos &lt;0.15mm (kg/m3)</label><input type="text" id="dis-finos" placeholder="-"></div>
             <div class="field-mini"><label>Otras especificaciones</label><input type="text" id="dis-otras-esp" placeholder="-"></div>
           </div>
         </div>
 
         <div class="calc-section card">
           <div class="calc-section-title">Cálculos relacionados</div>
-          <div class="calc-section-sub">f'cr se calcula automáticamente (ACI 318: f'cr = f'c + 1.34 × Desv. Estándar). El resto son de referencia — completalos con el valor de tu curva/tabla de laboratorio.</div>
+          <div class="calc-section-sub">f'cr se calcula automáticamente (ACI 318: f'cr = f'c + 1.34 × Desv. Estándar). La relación a/mc y el consumo de agua salen de tu curva/tabla de laboratorio — completalos vos; una vez cargados, el peso seco del cemento se puede autocompletar en la mezcla.</div>
           <div class="field-grid">
             <div class="field-mini"><label>Desviación estándar (kg/cm²)</label><input type="number" id="dis-desv-std" placeholder="20"></div>
-            <div class="field-mini"><label>f'cr — resistencia promedio objetivo (auto)</label><input type="text" id="dis-fcr" disabled></div>
-            <div class="field-mini"><label>Relación a/mc calculada</label><input type="text" id="dis-amc-calc" placeholder="-"></div>
-            <div class="field-mini"><label>a/mc efectiva</label><input type="text" id="dis-amc-efectiva" placeholder="-"></div>
-            <div class="field-mini"><label>Consumo de agua calculada (L)</label><input type="text" id="dis-agua-calc" placeholder="-"></div>
-            <div class="field-mini"><label>Agua efectiva de diseño (L)</label><input type="text" id="dis-agua-req" placeholder="-"></div>
-            <div class="field-mini"><label>PUCF (kg/m3)</label><input type="text" id="dis-pucf" placeholder="-"></div>
-            <div class="field-mini"><label>Volumen de diseño (m3)</label><input type="text" id="dis-vol-diseno" placeholder="1.00"></div>
-            <div class="field-mini"><label>Límite de gradación</label><input type="text" id="dis-lim-gradacion" placeholder="DIN 1045"></div>
+            <div class="field-mini"><label>f'cr — resistencia promedio objetivo (auto)</label><input type="text" id="dis-fcr" readonly></div>
+            <div class="field-mini"><label>a/mc efectiva</label><input type="text" id="dis-amc-efectiva" placeholder="0.37"></div>
+            <div class="field-mini"><label>Agua efectiva de diseño (L)</label><input type="text" id="dis-agua-req" placeholder="202"></div>
             <div class="field-mini"><label>% Agregado fino</label><input type="text" id="dis-pct-fino" placeholder="41"></div>
             <div class="field-mini"><label>% Agregado grueso</label><input type="text" id="dis-pct-grueso" placeholder="59"></div>
+            <div class="field-mini"><label>Volumen de diseño (m3)</label><input type="text" id="dis-vol-diseno" placeholder="1.00"></div>
             <div class="field-mini"><label>Sufijo del nombre técnico</label><input type="text" id="dis-sufijo" placeholder="A1"></div>
           </div>
         </div>
 
         <div class="calc-section card">
           <div class="calc-section-title">Composición de mezcla</div>
-          <div class="calc-section-sub">Elegí los componentes de la mezcla e ingresá el peso seco (kg/m3) de cada uno. Volumen absoluto, peso SSS, peso húmedo y CVD se calculan automáticamente a partir de la ficha técnica de cada componente.</div>
+          <div class="calc-section-sub">Elegí los componentes e ingresá el peso seco (kg/m3). Vol. Absoluto, Peso SSS, Peso Húmedo, Batch de prueba y CVD se calculan automáticamente desde la ficha técnica de cada componente. Si agregás un cemento con Agua efectiva y a/mc efectiva ya cargados arriba, su peso seco se sugiere solo.</div>
+          <div class="form-row" style="max-width:260px;">
+            <div class="field-mini" style="flex:1;"><label>Batch de prueba (L)</label><input type="number" id="dis-batch-vol" value="30"></div>
+          </div>
           <div class="table-scroll">
             <table>
-              <thead><tr><th>Material</th><th>Peso Seco (kg/m3)</th><th>Vol. Abs. (m3)</th><th>Peso SSS (kg/m3)</th><th>Peso Húmedo (kg/m3)</th><th>CVD (S/.)</th><th></th></tr></thead>
+              <thead><tr><th>Material</th><th>Peso Seco (kg/m3)</th><th>Vol. Abs. (m3)</th><th>Peso SSS (kg/m3)</th><th>Peso Húmedo (kg/m3)</th><th>Batch (kg)</th><th>CVD (S/.)</th><th></th></tr></thead>
               <tbody id="mix-tbody"></tbody>
-              <tfoot><tr><td>Total</td><td class="mono" id="mix-total-peso">0.00</td><td class="mono" id="mix-total-vol">0.000</td><td class="mono" id="mix-total-sss">0.00</td><td class="mono" id="mix-total-humedo">0.00</td><td class="mono" id="mix-total-cvd">S/. 0.00</td><td></td></tr></tfoot>
+              <tfoot><tr><td>Total</td><td class="mono" id="mix-total-peso">0.00</td><td class="mono" id="mix-total-vol">0.000</td><td class="mono" id="mix-total-sss">0.00</td><td class="mono" id="mix-total-humedo">0.00</td><td class="mono" id="mix-total-batch">0.00</td><td class="mono" id="mix-total-cvd">S/. 0.00</td><td></td></tr></tfoot>
             </table>
           </div>
           <button class="btn-add ghost" id="mix-add-row" style="margin-top:14px;">+ Agregar material a la mezcla</button>
@@ -532,7 +551,7 @@
 
       <!-- ===== HISTÓRICO ===== -->
       <div class="card sub-panel" id="sub-historico" style="display:none;">
-        <p style="font-size:.85rem;color:var(--text-muted);margin-bottom:16px;">Lista completa de todos los diseños registrados, con sus especificaciones. Marcá favoritos o copiá los datos de cualquiera.</p>
+        <p style="font-size:.85rem;color:var(--text-muted);margin-bottom:16px;">Lista completa de todos los diseños registrados. Marcá favoritos, copiá los datos o abrí la vista imprimible / exportable a Excel de cualquiera.</p>
         <div class="gallery" id="dis-gallery"></div>
       </div>
     </section>
@@ -577,7 +596,7 @@
       </div>
       <div class="stat-grid">
         <div class="stat-card"><div class="num" id="stat-componentes">0</div><div class="label">Componentes registrados</div></div>
-        <div class="stat-card"><div class="num" id="stat-disenos">0</div><div class="label">Diseños en proceso</div></div>
+        <div class="stat-card"><div class="num" id="stat-disenos">0</div><div class="label">En espera de resultados</div></div>
         <div class="stat-card"><div class="num" id="stat-estudios">0</div><div class="label">Estudios RR</div></div>
         <div class="stat-card"><div class="num" id="stat-avance">0%</div><div class="label">Avance promedio</div></div>
       </div>
@@ -608,6 +627,21 @@
   </main>
 </div>
 
+<!-- ============ MODAL: Vista de diseño (imprimir / Excel) ============ -->
+<div id="design-modal">
+  <div class="modal-card">
+    <div class="modal-header">
+      <h3>Vista del diseño</h3>
+      <button class="modal-close" id="design-modal-close">×</button>
+    </div>
+    <div class="modal-body" id="design-modal-body"></div>
+    <div class="modal-actions">
+      <button class="btn-add" id="design-modal-print">Imprimir / Descargar PDF</button>
+      <button class="btn-add ghost" id="design-modal-excel">Descargar Excel</button>
+    </div>
+  </div>
+</div>
+
 <div id="toast"><span class="dot"></span><span id="toast-msg"></span></div>
 
 <script>
@@ -631,7 +665,7 @@
 
   /* ================= THEME ================= */
   function applyTheme(t){ document.documentElement.setAttribute('data-theme', t); }
-  var currentTheme = load('sid8_theme', 'light');
+  var currentTheme = load('sid9_theme', 'light');
   applyTheme(currentTheme);
 
   /* ================= LOADER ================= */
@@ -669,11 +703,11 @@
   function setSidebar(hidden){
     appShell.classList.toggle('sidebar-hidden', hidden);
     floatingToggle.classList.toggle('show', hidden);
-    save('sid8_sidebar_hidden', hidden);
+    save('sid9_sidebar_hidden', hidden);
   }
   sidebarToggle.addEventListener('click', function(){ setSidebar(true); });
   floatingToggle.addEventListener('click', function(){ setSidebar(false); });
-  setSidebar(load('sid8_sidebar_hidden', false));
+  setSidebar(load('sid9_sidebar_hidden', false));
 
   /* ================= NAV ================= */
   var navItems = document.querySelectorAll('.sidebar .nav-item[data-panel]');
@@ -688,7 +722,21 @@
   document.getElementById('btn-calcular').addEventListener('click', function(){ showPanel('disenos'); showSubTab('calcular'); });
   document.getElementById('btn-historico').addEventListener('click', function(){ showPanel('disenos'); showSubTab('historico'); });
 
-  /* ================= COMPONENTES (por subcategoría, CRUD completo) ================= */
+  /* ================= PLANTA -> LABORATORIO (vínculo automático) ================= */
+  var PLANTA_LAB = {
+    'Trujillo':   {codigo:'1213', lab:'1213-TRU'},
+    'Pacasmayo':  {codigo:'0512', lab:'0512-PAC'},
+    'Cajamarca':  {codigo:'0734', lab:'0734-CAJ'},
+    'Moche':      {codigo:'0899', lab:'0899-MOC'}
+  };
+  function syncLaboratorio(){
+    var planta = document.getElementById('dis-planta').value;
+    var info = PLANTA_LAB[planta];
+    document.getElementById('dis-laboratorio').value = info ? info.lab : '';
+  }
+  document.getElementById('dis-planta').addEventListener('change', syncLaboratorio);
+
+  /* ================= COMPONENTES ================= */
   var FIELD_LABELS = {
     norma:'Norma', tipo:'Tipo', sap:'Código SAP', rho:'ρ Bseca (kg/m³)',
     absorcion:'Absorción (%)', humedad:'Humedad (%)', mfinura:'Módulo de Finura', tmn:'TMN A.G.',
@@ -706,7 +754,7 @@
   ];
   function catDef(id){ return CAT_DEFS.filter(function(c){ return c.id === id; })[0]; }
 
-  var componentes = load('sid8_componentes', [
+  var componentes = load('sid9_componentes', [
     {categoria:'Cemento', nombre:'MS(MH)-PAC', peso:'1500', norma:'NTP 334.088', tipo:'Performance', sap:'002-00066', rho:'2910', pus:'1500', costo:'0.49363', procedencia:'Fabricante: CPSSA'},
     {categoria:'Adición', nombre:'AMNA Filler', peso:'1300', norma:'-', sap:'002-01218', rho:'2700', pus:'1300', costo:'0.15289', procedencia:'-'},
     {categoria:'Agua', nombre:'Agua', peso:'1000', sap:'Código', rho:'1000', pus:'1000', costo:'0.00', procedencia:'Red pública'},
@@ -717,7 +765,7 @@
     {categoria:'Aditivo', nombre:'Master Rheobuild 1201', peso:'3.28', norma:'C494', tipo:'F', sap:'902-00940', rho:'1230', dosis:'0.60', funcion:'Reductor de agua', costo:'3.30', procedencia:'Fabricante: BASF-Perú'},
     {categoria:'Aditivo', nombre:'Master Rheobuild 2025', peso:'4.91', norma:'C494', tipo:'D', sap:'902-00989', rho:'1250', dosis:'0.90', funcion:'Superplastificante', costo:'3.30', procedencia:'Fabricante: BASF-Perú'}
   ]);
-  var activeCompCat = load('sid8_comp_active_cat', null);
+  var activeCompCat = load('sid9_comp_active_cat', null);
   var compEditingIndex = null;
 
   function renderNavSub(){
@@ -729,7 +777,7 @@
   function setCompSubOpen(open){
     document.getElementById('nav-componentes-sub').classList.toggle('open', open);
     document.getElementById('nav-componentes-toggle').classList.toggle('expanded', open);
-    save('sid8_comp_sub_open', open);
+    save('sid9_comp_sub_open', open);
   }
   document.getElementById('nav-componentes-toggle').addEventListener('click', function(){
     var isOpen = document.getElementById('nav-componentes-sub').classList.contains('open');
@@ -739,7 +787,7 @@
     var btn = e.target.closest('.nav-subitem');
     if(!btn) return;
     activeCompCat = btn.dataset.cat;
-    save('sid8_comp_active_cat', activeCompCat);
+    save('sid9_comp_active_cat', activeCompCat);
     compEditingIndex = null;
     renderNavSub();
     showPanel('componentes');
@@ -821,7 +869,7 @@
     } else if(delBtn){
       var idx = Number(delBtn.dataset.i);
       componentes.splice(idx, 1);
-      save('sid8_componentes', componentes);
+      save('sid9_componentes', componentes);
       if(compEditingIndex === idx) resetCompForm();
       renderComponentesPanel();
       rebuildMixSelectOptions();
@@ -850,40 +898,44 @@
       componentes[compEditingIndex] = data;
       toast('Componente actualizado');
     }
-    save('sid8_componentes', componentes);
+    save('sid9_componentes', componentes);
     resetCompForm();
     renderComponentesPanel();
     rebuildMixSelectOptions();
   });
 
   /* ================= DISEÑOS — CALCULADORA ================= */
+  var ESTADOS = ['Espera de resultados','Completado'];
   var subTabs = document.querySelectorAll('.subtab');
   function showSubTab(name){
     subTabs.forEach(function(t){ t.classList.toggle('active', t.dataset.sub === name); });
     document.getElementById('sub-calcular').style.display = name === 'calcular' ? 'block' : 'none';
     document.getElementById('sub-historico').style.display = name === 'historico' ? 'block' : 'none';
-    if(name === 'calcular') refreshCodigoPreview();
     if(name === 'historico') renderDisenosHistorico();
   }
   subTabs.forEach(function(t){ t.addEventListener('click', function(){ showSubTab(t.dataset.sub); }); });
 
-  var disenos = load('sid8_disenos', [
-    {codigo:'DM-0001', nombreTecnico:'CL28MPa(3d)-I-H67-A1', planta:'Trujillo', tipo:'Mezcla estructural', resistencia:'28', prioridad:'Media', estado:'Completado', fecha:'12/03/2026', ts:Date.parse('2026-03-12'), favorito:false, cvdTotal:269.52},
-    {codigo:'DM-0002', nombreTecnico:'CL35MPa(7d)-HE-H67-A1', planta:'Pacasmayo', tipo:'Mezcla autocompactante', resistencia:'35', prioridad:'Alta', estado:'En proceso', fecha:'18/04/2026', ts:Date.parse('2026-04-18'), favorito:true, cvdTotal:198.70},
-    {codigo:'DM-0003', nombreTecnico:'CL21MPa(28d)-I-H67-A1', planta:'Cajamarca', tipo:'Mezcla ligera', resistencia:'21', prioridad:'Baja', estado:'Completado', fecha:'02/05/2026', ts:Date.parse('2026-05-02'), favorito:false, cvdTotal:210.00},
-    {codigo:'DM-0004', nombreTecnico:'CL42MPa(3d)-HE-H67-A1', planta:'Moche', tipo:'Mezcla de alta resistencia', resistencia:'42', prioridad:'Alta', estado:'En proceso', fecha:'27/06/2026', ts:Date.parse('2026-06-27'), favorito:true, cvdTotal:305.10},
-    {codigo:'DM-0005', nombreTecnico:'CL24MPa(3d)-I-H67-A1', planta:'Trujillo', tipo:'Mezcla estándar', resistencia:'24', prioridad:'Media', estado:'En proceso', fecha:'09/07/2026', ts:Date.parse('2026-07-09'), favorito:false, cvdTotal:245.30}
-  ]);
-
-  function tagClassPrioridad(p){ return p === 'Alta' ? 'tag-alta' : (p === 'Baja' ? 'tag-baja' : 'tag-media'); }
+  var DAY = 24*3600*1000;
+  var disenos = load('sid9_disenos', [
+    {codigo:'DM-0001', nombreTecnico:'CL24MPa(28d)-I-H67-A1', planta:'Cajamarca', laboratorio:'0734-CAJ', tipo:'Mezcla ligera', resistencia:'24', estado:'Completado', fecha:'02/05/2026', ts:Date.now()-40*DAY, favorito:false, cvdTotal:210.00, mix:[]},
+    {codigo:'DM-0002', nombreTecnico:'CL28MPa(3d)-I-H67-A1', planta:'Trujillo', laboratorio:'1213-TRU', tipo:'Mezcla estructural', resistencia:'28', estado:'Completado', fecha:'', ts:Date.now()-5*DAY, favorito:true, cvdTotal:269.52, mix:[]},
+    {codigo:'DM-0003', nombreTecnico:'CL35MPa(7d)-HE-H67-A1', planta:'Pacasmayo', laboratorio:'0512-PAC', tipo:'Mezcla autocompactante', resistencia:'35', estado:'Espera de resultados', fecha:'', ts:Date.now()-3*DAY, favorito:true, cvdTotal:198.70, mix:[]},
+    {codigo:'DM-0004', nombreTecnico:'CL42MPa(3d)-HE-H67-A1', planta:'Moche', laboratorio:'0899-MOC', tipo:'Mezcla de alta resistencia', resistencia:'42', estado:'Espera de resultados', fecha:'', ts:Date.now()-1*DAY, favorito:false, cvdTotal:305.10, mix:[]},
+    {codigo:'DM-0005', nombreTecnico:'CL24MPa(3d)-I-H67-A2', planta:'Trujillo', laboratorio:'1213-TRU', tipo:'Mezcla estándar', resistencia:'24', estado:'Espera de resultados', fecha:'', ts:Date.now()-6*3600*1000, favorito:false, cvdTotal:245.30, mix:[]}
+  ].map(function(d){
+    if(!d.fecha){ var f = new Date(d.ts); d.fecha = String(f.getDate()).padStart(2,'0')+'/'+String(f.getMonth()+1).padStart(2,'0')+'/'+f.getFullYear(); }
+    return d;
+  }));
 
   var STAR_OUTLINE = '<svg viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polygon points="12 2 15 8.5 22 9.5 17 14.5 18.5 21.5 12 18 5.5 21.5 7 14.5 2 9.5 9 8.5 12 2"/></svg>';
   var STAR_FILLED = '<svg viewBox="0 0 24 24" width="14" height="14" fill="currentColor" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polygon points="12 2 15 8.5 22 9.5 17 14.5 18.5 21.5 12 18 5.5 21.5 7 14.5 2 9.5 9 8.5 12 2"/></svg>';
   var COPY_ICON = '<svg viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="9" y="9" width="13" height="13" rx="2"/><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"/></svg>';
+  var EYE_ICON = '<svg viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/></svg>';
 
   function diseñoTitulo(d){ return d.nombreTecnico || d.tipo; }
   function disenoActionsHtml(d,i){
-    return '<button class="btn-icon fav'+(d.favorito?' active':'')+'" data-act="fav" data-i="'+i+'" title="Favorito">'+(d.favorito?STAR_FILLED:STAR_OUTLINE)+'</button>' +
+    return '<button class="btn-icon view" data-act="view" data-i="'+i+'" title="Ver diseño">'+EYE_ICON+'</button>' +
+      '<button class="btn-icon fav'+(d.favorito?' active':'')+'" data-act="fav" data-i="'+i+'" title="Favorito">'+(d.favorito?STAR_FILLED:STAR_OUTLINE)+'</button>' +
       '<button class="btn-icon copy" data-act="copy" data-i="'+i+'" title="Copiar datos">'+COPY_ICON+'</button>' +
       '<button class="btn-icon del" data-act="del" data-i="'+i+'" title="Eliminar">×</button>';
   }
@@ -896,10 +948,7 @@
         '<span class="mono">'+d.codigo+' · '+d.fecha+'</span>' +
         '<h4>'+diseñoTitulo(d)+'</h4>' +
         '<span class="mono" style="display:block;margin-bottom:8px;color:var(--text-muted);">'+d.planta+' · '+d.resistencia+' MPa'+(d.cvdTotal?(' · CVD S/.'+Number(d.cvdTotal).toFixed(2)):'')+'</span>' +
-        '<div class="tags">' +
-          '<span class="tag-pill '+tagEstado+'">'+d.estado+'</span>' +
-          '<span class="tag-pill '+tagClassPrioridad(d.prioridad)+'">'+d.prioridad+'</span>' +
-        '</div>' +
+        '<div class="tags"><span class="tag-pill '+tagEstado+'">'+d.estado+'</span></div>' +
         '<div class="design-actions">'+disenoActionsHtml(d,i)+'</div>' +
       '</div>' +
     '</div>';
@@ -911,15 +960,12 @@
       '<div class="drow-thumb"></div>' +
       '<span class="drow-code mono">'+d.codigo+'</span>' +
       '<div class="drow-main"><h5>'+diseñoTitulo(d)+'</h5><span>'+d.planta+' · '+d.fecha+' · '+d.resistencia+' MPa</span></div>' +
-      '<div class="drow-tags">' +
-        '<span class="tag-pill '+tagClassPrioridad(d.prioridad)+'">'+d.prioridad+'</span>' +
-        '<span class="tag-pill '+tagEstado+'">'+d.estado+'</span>' +
-      '</div>' +
+      '<div class="drow-tags"><span class="tag-pill '+tagEstado+'">'+d.estado+'</span></div>' +
       '<div class="drow-actions">'+disenoActionsHtml(d,i)+'</div>' +
     '</div>';
   }
   function copyDiseno(d){
-    var text = 'Nombre técnico: '+diseñoTitulo(d)+'\nCódigo: '+d.codigo+'\nPlanta: '+d.planta+'\nResistencia: '+d.resistencia+' MPa\nPrioridad: '+d.prioridad+'\nEstado: '+d.estado+'\nFecha: '+d.fecha+(d.cvdTotal?('\nCVD: S/. '+Number(d.cvdTotal).toFixed(2)):'');
+    var text = 'Nombre técnico: '+diseñoTitulo(d)+'\nCódigo: '+d.codigo+'\nPlanta: '+d.planta+(d.laboratorio?' ('+d.laboratorio+')':'')+'\nResistencia: '+d.resistencia+' MPa\nEstado: '+d.estado+'\nFecha: '+d.fecha+(d.cvdTotal?('\nCVD: S/. '+Number(d.cvdTotal).toFixed(2)):'');
     function ok(){ toast('Datos del diseño copiados'); }
     function fail(){ toast('No se pudo copiar'); }
     if(navigator.clipboard && navigator.clipboard.writeText){
@@ -935,28 +981,93 @@
       }catch(e){ fail(); }
     }
   }
+
+  /* ---- Vista de diseño: formato "3. Composición de mezcla" (modal + impresión + Excel) ---- */
+  var modalEl = document.getElementById('design-modal');
+  var currentModalDesign = null;
+  function mezclaTableHtml(d){
+    var rows = (d.mix||[]).map(function(item){
+      return '<tr>' +
+        '<td class="mezcla-nombre">'+esc(item.nombre)+'</td>' +
+        '<td>'+(item.dosis?esc(item.dosis)+'%':'-')+'</td>' +
+        '<td>'+n(item.pesoSeco).toFixed(2)+'</td>' +
+        '<td>'+n(item.volAbs).toFixed(3)+'</td>' +
+        '<td>'+n(item.pesoSSS).toFixed(2)+'</td>' +
+        '<td>'+n(item.pesoHumedo).toFixed(2)+'</td>' +
+        '<td>'+n(item.batch).toFixed(3)+'</td>' +
+        '<td>'+n(item.cvd).toFixed(2)+'</td>' +
+      '</tr>';
+    }).join('');
+    var totals = (d.mix||[]).reduce(function(a,it){ a.peso+=n(it.pesoSeco); a.vol+=n(it.volAbs); a.sss+=n(it.pesoSSS); a.hum+=n(it.pesoHumedo); a.batch+=n(it.batch); a.cvd+=n(it.cvd); return a; }, {peso:0,vol:0,sss:0,hum:0,batch:0,cvd:0});
+    return '<div class="mezcla-title-row"><h4>3. Composición de mezcla — '+esc(diseñoTitulo(d))+'</h4><span class="mono">'+d.fecha+'</span></div>' +
+      '<div class="mezcla-specs">' +
+        '<div><b>Planta</b>'+esc(d.planta||'-')+'</div>' +
+        '<div><b>Laboratorio</b>'+esc(d.laboratorio||'-')+'</div>' +
+        '<div><b>f\'c</b>'+esc(d.fc||'-')+' kg/cm² ('+esc(d.resistencia||'-')+' MPa)</div>' +
+        '<div><b>f\'cr</b>'+esc(d.fcr||'-')+' kg/cm²</div>' +
+        '<div><b>Edad</b>'+esc(d.edad||'-')+' días</div>' +
+        '<div><b>a/mc efectiva</b>'+esc(d.amcEfectiva||'-')+'</div>' +
+        '<div><b>% Fino / Grueso</b>'+esc(d.pctFino||'-')+'% / '+esc(d.pctGrueso||'-')+'%</div>' +
+        '<div><b>Estado</b>'+esc(d.estado||'-')+'</div>' +
+      '</div>' +
+      '<table class="mezcla-table"><thead><tr><th>Materiales</th><th>D</th><th>Peso Seco (kg/m3)</th><th>Vol. Abs. (m3)</th><th>Peso SSS (kg/m3)</th><th>Peso Húmedo (kg/m3)</th><th>Batch (kg)</th><th>CVD (S/.)</th></tr></thead>' +
+      '<tbody>'+(rows || '<tr><td colspan="8" style="color:#6c6c70;">Este diseño no tiene materiales de mezcla guardados.</td></tr>')+'</tbody>' +
+      '<tfoot><tr class="mezcla-total"><td>Total</td><td></td><td>'+totals.peso.toFixed(2)+'</td><td>'+totals.vol.toFixed(3)+'</td><td>'+totals.sss.toFixed(2)+'</td><td>'+totals.hum.toFixed(2)+'</td><td>'+totals.batch.toFixed(3)+'</td><td>'+totals.cvd.toFixed(2)+'</td></tr></tfoot></table>';
+  }
+  function openDesignModal(d){
+    currentModalDesign = d;
+    document.getElementById('design-modal-body').innerHTML = mezclaTableHtml(d);
+    modalEl.classList.add('show');
+  }
+  document.getElementById('design-modal-close').addEventListener('click', function(){ modalEl.classList.remove('show'); });
+  modalEl.addEventListener('click', function(e){ if(e.target === modalEl) modalEl.classList.remove('show'); });
+  document.getElementById('design-modal-print').addEventListener('click', function(){ window.print(); });
+  document.getElementById('design-modal-excel').addEventListener('click', function(){
+    if(!currentModalDesign || typeof XLSX === 'undefined'){ toast('No se pudo generar el Excel'); return; }
+    var d = currentModalDesign;
+    var rows = [
+      ['3. Composición de mezcla', diseñoTitulo(d), d.fecha],
+      ['Planta', d.planta||'', 'Laboratorio', d.laboratorio||''],
+      ['Materiales','D','Peso Seco (kg/m3)','Vol. Abs. (m3)','Peso SSS (kg/m3)','Peso Húmedo (kg/m3)','Batch (kg)','CVD (S/.)']
+    ];
+    (d.mix||[]).forEach(function(item){
+      rows.push([item.nombre, item.dosis?item.dosis+'%':'', n(item.pesoSeco), Number(n(item.volAbs).toFixed(3)), Number(n(item.pesoSSS).toFixed(2)), Number(n(item.pesoHumedo).toFixed(2)), Number(n(item.batch).toFixed(3)), Number(n(item.cvd).toFixed(2))]);
+    });
+    var totals = (d.mix||[]).reduce(function(a,it){ a.peso+=n(it.pesoSeco); a.vol+=n(it.volAbs); a.sss+=n(it.pesoSSS); a.hum+=n(it.pesoHumedo); a.batch+=n(it.batch); a.cvd+=n(it.cvd); return a; }, {peso:0,vol:0,sss:0,hum:0,batch:0,cvd:0});
+    rows.push(['Total','',Number(totals.peso.toFixed(2)),Number(totals.vol.toFixed(3)),Number(totals.sss.toFixed(2)),Number(totals.hum.toFixed(2)),Number(totals.batch.toFixed(3)),Number(totals.cvd.toFixed(2))]);
+    try{
+      var ws = XLSX.utils.aoa_to_sheet(rows);
+      var wb = XLSX.utils.book_new();
+      XLSX.utils.book_append_sheet(wb, ws, 'Diseño');
+      XLSX.writeFile(wb, diseñoTitulo(d)+'.xlsx');
+      toast('Excel descargado');
+    }catch(err){ toast('No se pudo generar el Excel'); }
+  });
+
   function handleCardAction(e){
     var btn = e.target.closest('.btn-icon');
     if(!btn) return;
     var i = Number(btn.dataset.i);
     var act = btn.dataset.act;
-    if(act === 'fav'){
+    if(act === 'view'){
+      openDesignModal(disenos[i]);
+    } else if(act === 'fav'){
       disenos[i].favorito = !disenos[i].favorito;
-      save('sid8_disenos', disenos);
+      save('sid9_disenos', disenos);
       toast(disenos[i].favorito ? 'Agregado a favoritos' : 'Quitado de favoritos');
       renderAllDesignViews();
     } else if(act === 'copy'){
       copyDiseno(disenos[i]);
     } else if(act === 'del'){
       disenos.splice(i, 1);
-      save('sid8_disenos', disenos);
+      save('sid9_disenos', disenos);
       toast('Diseño eliminado');
       renderAllDesignViews();
     }
   }
   document.getElementById('dis-gallery').addEventListener('click', handleCardAction);
   document.getElementById('recientes-rows').addEventListener('click', handleCardAction);
-  document.getElementById('favoritos-rows').addEventListener('click', handleCardAction);
+  document.getElementById('favoritos-grid').addEventListener('click', handleCardAction);
 
   function renderDisenosHistorico(){
     var wrap = document.getElementById('dis-gallery');
@@ -968,14 +1079,14 @@
   }
   function renderInicioRecientes(){
     var wrap = document.getElementById('recientes-rows');
-    var limite = Date.now() - 7*24*3600*1000;
+    var limite = Date.now() - 7*DAY;
     var recientes = disenos.filter(function(d){ return (d.ts||0) >= limite; }).sort(function(a,b){ return (b.ts||0)-(a.ts||0); });
     wrap.innerHTML = recientes.length ? recientes.map(disenoRowHtml).join('') : '<div class="empty-note">No se registraron diseños en los últimos 7 días.</div>';
   }
   function renderInicioFavoritos(){
-    var wrap = document.getElementById('favoritos-rows');
+    var wrap = document.getElementById('favoritos-grid');
     var favs = disenos.filter(function(d){ return d.favorito; }).sort(function(a,b){ return (b.ts||0)-(a.ts||0); });
-    wrap.innerHTML = favs.length ? favs.map(disenoRowHtml).join('') : '<div class="empty-note">Todavía no marcaste diseños como favoritos.</div>';
+    wrap.innerHTML = favs.length ? favs.map(disenoCardHtml).join('') : '<div class="empty-note">Todavía no marcaste diseños como favoritos.</div>';
   }
   function renderAllDesignViews(){
     renderDisenosHistorico();
@@ -985,9 +1096,8 @@
   }
 
   function nextCodigo(){ return 'DM-' + String(disenos.length + 1).padStart(4,'0'); }
-  function refreshCodigoPreview(){ /* el código interno se asigna al registrar */ }
 
-  /* ---- Cálculos automáticos: f'cr y nombre técnico ---- */
+  /* ---- f'cr y nombre técnico ---- */
   function recalcFcr(){
     var fc = n(document.getElementById('dis-fc').value);
     var s = n(document.getElementById('dis-desv-std').value);
@@ -1011,7 +1121,7 @@
   }
   ['dis-edad','dis-cemento-tipo','dis-tmn','dis-sufijo'].forEach(function(id){ document.getElementById(id).addEventListener('input', refreshNombrePreview); });
 
-  /* ---- Composición de mezcla (línea de materiales ligada a Componentes) ---- */
+  /* ---- Composición de mezcla (ligada a Componentes, con sugerencia automática de cemento) ---- */
   var mixItems = [];
   function componenteOptionsHtml(selectedIdx){
     var byCat = {};
@@ -1034,7 +1144,8 @@
   }
   function mixRowCompute(item){
     var comp = componentes[item.compIndex];
-    if(!comp) return {volAbs:0,pesoSSS:0,pesoHumedo:0,cvd:0};
+    var batchVol = n(document.getElementById('dis-batch-vol').value) || 30;
+    if(!comp) return {volAbs:0,pesoSSS:0,pesoHumedo:0,batch:0,cvd:0};
     var rho = n(comp.rho) || n(comp.pus) || 1000;
     var absorcion = n(comp.absorcion);
     var humedad = n(comp.humedad);
@@ -1042,30 +1153,44 @@
     var pesoSeco = n(item.pesoSeco);
     var volAbs = rho ? pesoSeco/rho : 0;
     var pesoSSS = pesoSeco * (1 + absorcion/100);
-    var pesoHumedo = pesoSSS + pesoSeco*(humedad-absorcion)/100;
-    var cvd = pesoSeco * costo;
-    return {volAbs:volAbs, pesoSSS:pesoSSS, pesoHumedo:pesoHumedo, cvd:cvd};
+    var pesoHumedo = pesoSeco * (1 + humedad/100);
+    var batch = pesoHumedo * batchVol/1000;
+    var cvd = pesoSSS * costo; /* verificado contra la hoja real: CVD = Peso SSS × Costo */
+    return {volAbs:volAbs, pesoSSS:pesoSSS, pesoHumedo:pesoHumedo, batch:batch, cvd:cvd};
+  }
+  function suggestCementoPeso(item){
+    var comp = componentes[item.compIndex];
+    if(!comp || comp.categoria !== 'Cemento') return;
+    if(item.pesoSeco){ return; }
+    var agua = n(document.getElementById('dis-agua-req').value);
+    var amc = n(document.getElementById('dis-amc-efectiva').value);
+    if(agua > 0 && amc > 0){
+      item.pesoSeco = String(Math.round(agua/amc));
+      toast('Peso seco de cemento sugerido: ' + item.pesoSeco + ' kg/m3 (Agua efectiva ÷ a/mc efectiva)');
+    }
   }
   function renderMixTable(){
     var tbody = document.getElementById('mix-tbody');
-    var totals = {peso:0, vol:0, sss:0, humedo:0, cvd:0};
+    var totals = {peso:0, vol:0, sss:0, humedo:0, batch:0, cvd:0};
     tbody.innerHTML = mixItems.map(function(item, idx){
       var r = mixRowCompute(item);
-      totals.peso += n(item.pesoSeco); totals.vol += r.volAbs; totals.sss += r.pesoSSS; totals.humedo += r.pesoHumedo; totals.cvd += r.cvd;
+      totals.peso += n(item.pesoSeco); totals.vol += r.volAbs; totals.sss += r.pesoSSS; totals.humedo += r.pesoHumedo; totals.batch += r.batch; totals.cvd += r.cvd;
       return '<tr>' +
         '<td><select class="mix-row-select" data-i="'+idx+'">'+componenteOptionsHtml(item.compIndex)+'</select></td>' +
         '<td><input type="number" class="mix-peso" data-i="'+idx+'" value="'+esc(item.pesoSeco)+'" placeholder="0" style="width:100px;padding:8px 9px;border-radius:3px;border:1.5px solid var(--line);background:var(--surface);color:var(--text);"></td>' +
         '<td class="mono">'+r.volAbs.toFixed(3)+'</td>' +
         '<td class="mono">'+r.pesoSSS.toFixed(2)+'</td>' +
         '<td class="mono">'+r.pesoHumedo.toFixed(2)+'</td>' +
+        '<td class="mono">'+r.batch.toFixed(3)+'</td>' +
         '<td class="mono">'+r.cvd.toFixed(2)+'</td>' +
         '<td><button class="btn-icon" data-act="del-mix" data-i="'+idx+'" title="Quitar">×</button></td>' +
       '</tr>';
-    }).join('') || '<tr><td colspan="7" style="text-align:center;color:var(--text-muted);">Todavía no agregaste materiales a la mezcla.</td></tr>';
+    }).join('') || '<tr><td colspan="8" style="text-align:center;color:var(--text-muted);">Todavía no agregaste materiales a la mezcla.</td></tr>';
     document.getElementById('mix-total-peso').textContent = totals.peso.toFixed(2);
     document.getElementById('mix-total-vol').textContent = totals.vol.toFixed(3);
     document.getElementById('mix-total-sss').textContent = totals.sss.toFixed(2);
     document.getElementById('mix-total-humedo').textContent = totals.humedo.toFixed(2);
+    document.getElementById('mix-total-batch').textContent = totals.batch.toFixed(2);
     document.getElementById('mix-total-cvd').textContent = 'S/. ' + totals.cvd.toFixed(2);
     return totals;
   }
@@ -1077,6 +1202,7 @@
     if(!e.target.classList.contains('mix-row-select')) return;
     var i = Number(e.target.dataset.i);
     mixItems[i].compIndex = e.target.value === '' ? null : Number(e.target.value);
+    suggestCementoPeso(mixItems[i]);
     renderMixTable();
   });
   document.getElementById('mix-tbody').addEventListener('input', function(e){
@@ -1091,13 +1217,15 @@
     mixItems.splice(Number(btn.dataset.i), 1);
     renderMixTable();
   });
+  document.getElementById('dis-batch-vol').addEventListener('input', renderMixTable);
 
   function resetCalcForm(){
-    ['dis-laboratorio','dis-uso','dis-ndiseno','dis-sap','dis-negocio','dis-tipo-concreto','dis-fc','dis-fc-mpa','dis-ft','dis-edad',
-     'dis-cemento-tipo','dis-tmn','dis-tmn-mm','dis-slump','dis-t50','dis-exposicion','dis-amc-max','dis-aire','dis-destino',
-     'dis-colocacion','dis-finos','dis-otras-esp','dis-desv-std','dis-fcr','dis-amc-calc','dis-amc-efectiva','dis-agua-calc',
-     'dis-agua-req','dis-pucf','dis-vol-diseno','dis-lim-gradacion','dis-pct-fino','dis-pct-grueso','dis-sufijo'
+    ['dis-uso','dis-ndiseno','dis-sap','dis-negocio','dis-tipo-concreto','dis-fc','dis-fc-mpa','dis-ft','dis-edad',
+     'dis-cemento-tipo','dis-tmn','dis-slump','dis-exposicion','dis-aire','dis-destino',
+     'dis-colocacion','dis-otras-esp','dis-desv-std','dis-fcr','dis-amc-efectiva',
+     'dis-agua-req','dis-vol-diseno','dis-pct-fino','dis-pct-grueso','dis-sufijo'
     ].forEach(function(id){ var el = document.getElementById(id); if(el) el.value = ''; });
+    document.getElementById('dis-batch-vol').value = '30';
     mixItems = [];
     renderMixTable();
     refreshNombrePreview();
@@ -1110,11 +1238,16 @@
     var hoy = new Date();
     var fecha = String(hoy.getDate()).padStart(2,'0') + '/' + String(hoy.getMonth()+1).padStart(2,'0') + '/' + hoy.getFullYear();
     var totals = renderMixTable();
+    var mixSnapshot = mixItems.map(function(item){
+      var comp = componentes[item.compIndex];
+      var r = mixRowCompute(item);
+      return {nombre: comp?comp.nombre:'-', dosis: comp?comp.dosis:'', pesoSeco:n(item.pesoSeco), volAbs:r.volAbs, pesoSSS:r.pesoSSS, pesoHumedo:r.pesoHumedo, batch:r.batch, cvd:r.cvd};
+    });
     var d = {
       codigo: nextCodigo(),
       nombreTecnico: refreshNombrePreview(),
       planta: document.getElementById('dis-planta').value,
-      laboratorio: document.getElementById('dis-laboratorio').value.trim(),
+      laboratorio: document.getElementById('dis-laboratorio').value,
       uso: document.getElementById('dis-uso').value.trim(),
       ndiseno: document.getElementById('dis-ndiseno').value.trim(),
       sap: document.getElementById('dis-sap').value.trim(),
@@ -1133,16 +1266,17 @@
       colocacion: document.getElementById('dis-colocacion').value.trim(),
       desvStd: document.getElementById('dis-desv-std').value.trim(),
       fcr: document.getElementById('dis-fcr').value.trim(),
+      amcEfectiva: document.getElementById('dis-amc-efectiva').value.trim(),
+      aguaReq: document.getElementById('dis-agua-req').value.trim(),
       pctFino: document.getElementById('dis-pct-fino').value.trim(),
       pctGrueso: document.getElementById('dis-pct-grueso').value.trim(),
-      mix: mixItems.map(function(item){ var comp = componentes[item.compIndex]; return {nombre: comp?comp.nombre:'-', pesoSeco:item.pesoSeco}; }),
+      mix: mixSnapshot,
       cvdTotal: Number(totals.cvd.toFixed(2)),
-      prioridad: document.getElementById('dis-prioridad').value,
       estado: document.getElementById('dis-estado').value,
       fecha: fecha, ts: hoy.getTime(), favorito:false
     };
     disenos.push(d);
-    save('sid8_disenos', disenos);
+    save('sid9_disenos', disenos);
     resetCalcForm();
     toast('Diseño registrado: ' + d.nombreTecnico);
     showSubTab('historico');
@@ -1196,7 +1330,7 @@
     {t:'row', key:'comentarios', label:'Comentarios', unit:''}
   ];
 
-  var rrEstudios = load('sid8_rr', [{
+  var rrEstudios = load('sid9_rr', [{
     id:'e1', nombre:'Estudio HE 0.70', fecha:'20/08/2026',
     tipos:[
       {id:'t1', nombre:'EST HE 0.70 TIPO I', valores:{ipac:'281',hepac:'-',agua:'194',arena_qsc:'516',arena_lvd:'501',piedra_h67:'913',mrb2025:'2.81',mrb1201:'2.1',iddnhe:'-',sika:'-',ac:'0.70',cvd:'189.39',d_mrb2025:'1.00%',d_mrb1201:'0.75%',d_iddnhe:'-',d_sika:'-',cons_0:'8 1/2',cons_30:'7 3/4',cons_60:'7 1/2',cons_90:'5 1/2',cons_120:'-',tc_0:'26',tc_30:'26',tc_60:'25.5',tc_90:'25.25',tc_120:'-',ta_0:'25.9',ta_30:'26.15',ta_60:'26.25',ta_90:'26.1',ta_120:'-',pu:'2361.5',fragua_i:'08:30',fragua_f:'10:26',aire:'2.1',cohesividad:'Conforme',apariencia:'Normal',comentarios:'-'}},
@@ -1238,7 +1372,7 @@
     var fecha = String(hoy.getDate()).padStart(2,'0') + '/' + String(hoy.getMonth()+1).padStart(2,'0') + '/' + hoy.getFullYear();
     var newId = 'e' + Date.now();
     rrEstudios.push({id:newId, nombre:'Estudio '+nombre, fecha:fecha, tipos:[{id:'t'+Date.now(), nombre:'Tipo 1', valores:{}}], obs:{}, edades:[]});
-    save('sid8_rr', rrEstudios);
+    save('sid9_rr', rrEstudios);
     rrActiveId = newId;
     input.value = '';
     renderRRStudyList();
@@ -1309,7 +1443,7 @@
     } else if(el.dataset.row){
       estudio.tipos[Number(el.dataset.ti)].valores[el.dataset.row] = el.value;
     }
-    save('sid8_rr', rrEstudios);
+    save('sid9_rr', rrEstudios);
   });
   document.getElementById('rr-table-holder').addEventListener('click', function(e){
     var btn = e.target.closest('.rr-del-col');
@@ -1317,7 +1451,7 @@
     var estudio = rrFind(rrActiveId);
     var removed = estudio.tipos.splice(Number(btn.dataset.ti), 1)[0];
     estudio.edades.forEach(function(ed){ delete ed.valores[removed.id]; });
-    save('sid8_rr', rrEstudios);
+    save('sid9_rr', rrEstudios);
     renderRRDetail();
     toast('Tipo eliminado');
   });
@@ -1326,7 +1460,7 @@
     if(!estudio) return;
     var id = 't' + Date.now();
     estudio.tipos.push({id:id, nombre:'Nuevo tipo', valores:{}});
-    save('sid8_rr', rrEstudios);
+    save('sid9_rr', rrEstudios);
     renderRRDetail();
   });
   document.getElementById('rr-edad-holder').addEventListener('input', function(e){
@@ -1336,7 +1470,7 @@
     if(el.dataset.edadLabel !== undefined){ estudio.edades[Number(el.dataset.edadLabel)].edad = el.value; }
     else if(el.dataset.edadReq !== undefined){ estudio.edades[Number(el.dataset.edadReq)].requisito = el.value; }
     else if(el.dataset.edad !== undefined){ estudio.edades[Number(el.dataset.edad)].valores[el.dataset.tid] = el.value; }
-    save('sid8_rr', rrEstudios);
+    save('sid9_rr', rrEstudios);
   });
   document.getElementById('rr-add-edad').addEventListener('click', function(){
     var estudio = rrFind(rrActiveId);
@@ -1344,7 +1478,7 @@
     var valores = {};
     estudio.tipos.forEach(function(t){ valores[t.id] = ''; });
     estudio.edades.push({edad:'Nueva edad', requisito:'', valores:valores});
-    save('sid8_rr', rrEstudios);
+    save('sid9_rr', rrEstudios);
     renderRRDetail();
   });
 
@@ -1361,17 +1495,17 @@
     requestAnimationFrame(step);
   }
   function updateStats(){
-    var enProceso = disenos.filter(function(d){ return d.estado === 'En proceso'; }).length;
+    var enEspera = disenos.filter(function(d){ return d.estado === 'Espera de resultados'; }).length;
     document.getElementById('stat-componentes').textContent = componentes.length;
-    document.getElementById('stat-disenos').textContent = enProceso;
+    document.getElementById('stat-disenos').textContent = enEspera;
     document.getElementById('stat-estudios').textContent = rrEstudios.length;
     document.getElementById('home-stat-componentes').textContent = componentes.length;
-    document.getElementById('home-stat-disenos').textContent = enProceso;
+    document.getElementById('home-stat-disenos').textContent = enEspera;
     document.getElementById('home-stat-estudios').textContent = rrEstudios.length;
   }
   function animateReportes(){
     animateCount(document.getElementById('stat-componentes'), componentes.length);
-    animateCount(document.getElementById('stat-disenos'), disenos.filter(function(d){ return d.estado === 'En proceso'; }).length);
+    animateCount(document.getElementById('stat-disenos'), disenos.filter(function(d){ return d.estado === 'Espera de resultados'; }).length);
     animateCount(document.getElementById('stat-estudios'), rrEstudios.length);
     animateCount(document.getElementById('stat-avance'), 57, '%');
     document.querySelectorAll('.bar-fill').forEach(function(bar){
@@ -1385,7 +1519,7 @@
   var elNotif = document.getElementById('set-notif');
   var elAutosave = document.getElementById('set-autosave');
   var elLang = document.getElementById('set-lang');
-  var settings = load('sid8_settings', {notif:true, autosave:true, lang:'es'});
+  var settings = load('sid9_settings', {notif:true, autosave:true, lang:'es'});
   function applySettingsToUI(){
     elDarkMode.checked = currentTheme === 'dark';
     elNotif.checked = settings.notif;
@@ -1395,20 +1529,21 @@
   elDarkMode.addEventListener('change', function(){
     currentTheme = elDarkMode.checked ? 'dark' : 'light';
     applyTheme(currentTheme);
-    save('sid8_theme', currentTheme);
+    save('sid9_theme', currentTheme);
     toast(currentTheme === 'dark' ? 'Modo oscuro activado' : 'Modo claro activado');
   });
   document.getElementById('set-save').addEventListener('click', function(){
     settings = { notif: elNotif.checked, autosave: elAutosave.checked, lang: elLang.value };
-    save('sid8_settings', settings);
+    save('sid9_settings', settings);
     toast('Cambios guardados correctamente');
   });
 
   /* ================= INIT ================= */
   renderNavSub();
-  setCompSubOpen(load('sid8_comp_sub_open', false));
+  setCompSubOpen(load('sid9_comp_sub_open', false));
   renderComponentesPanel();
   renderAllDesignViews();
+  syncLaboratorio();
   renderMixTable();
   refreshNombrePreview();
   renderRRStudyList();
