@@ -606,6 +606,8 @@
                 <div class="params-field"><label>f't — flexión (kg/cm²)</label><input type="text" id="dis-ft" placeholder="37"></div>
                 <div class="params-field"><label>Edad del f'c (días)</label><input type="number" id="dis-edad" placeholder="3"></div>
                 <div class="params-field"><label>Tipo de cemento</label><input type="text" id="dis-cemento-tipo" placeholder="I"></div>
+                <div class="params-field"><label>Cemento (material)</label><select id="dis-cemento-mat"></select></div>
+                <div class="params-field"><label>Peso seco cemento (kg/m3)</label><input type="number" id="dis-cemento-peso" placeholder="546"></div>
                 <div class="params-field"><label>Huso granul. TMN (AG)</label><input type="text" id="dis-tmn" placeholder="67"></div>
                 <div class="params-field"><label>Tipo de agregado grueso</label><select id="dis-agregado-grueso"></select></div>
                 <div class="params-field"><label>Consistencia (slump/slump flow)</label><input type="text" id="dis-slump" placeholder="3" data-key="consistencia"></div>
@@ -640,6 +642,7 @@
                 <div class="params-field"><label>Reducción agua calculada (%)</label><input type="text" id="dis-red-agua-calc" placeholder="6.9%" data-key="redAguaCalc"></div>
                 <div class="params-field"><label>Reducción agua establecida (%)</label><input type="text" id="dis-red-agua-est" placeholder="0.0%" data-key="redAguaEst"></div>
                 <div class="params-field"><label>Agua efectiva de diseño (L)</label><input type="text" id="dis-agua-req" placeholder="202"></div>
+                <div class="params-field"><label>Agua (material)</label><select id="dis-agua-mat"></select></div>
                 <div class="params-field span-2" style="border-top:1px dashed var(--line);padding-top:6px;margin-top:2px;"><label>Slump / % aire / volumen / PUCF</label></div>
                 <div class="params-field"><label>Slump determinado</label><input type="text" id="dis-slump-det" placeholder="2 1/2" data-key="slumpDet"></div>
                 <div class="params-field"><label>Slump requerido</label><input type="text" id="dis-slump-req" placeholder="6.5" data-key="slumpReq"></div>
@@ -669,10 +672,10 @@
                 <div class="params-field"><label>Batch de prueba (L)</label><input type="number" id="dis-batch-vol" value="30"></div>
 
                 <div class="params-field span-2" style="margin-top:4px;">
-                  <label>Incidencia individual de agregados</label>
+                  <label>Incidencia individual de agregados (arena y piedra)</label>
                   <div class="table-scroll">
                     <table class="mini-params-table">
-                      <thead><tr><th>Cód.</th><th>Material</th><th>%</th></tr></thead>
+                      <thead><tr><th>Cód.</th><th>Material</th><th>%</th><th>Peso Seco</th></tr></thead>
                       <tbody id="incidencia-tbody"></tbody>
                     </table>
                   </div>
@@ -698,24 +701,20 @@
             </div>
           </div>
 
-          <div class="section-hint" style="margin-top:20px;">Selección de materiales de la mezcla — elegí acá los componentes y su peso seco. La sección 3 se arma sola con esto, solo para visualizar.</div>
-          <div class="table-scroll">
-            <table>
-              <thead><tr><th>Material</th><th>Peso Seco (kg/m3)</th><th></th></tr></thead>
-              <tbody id="mix-tbody"></tbody>
-            </table>
-          </div>
-          <button class="btn-add ghost" id="mix-add-row" style="margin-top:14px;">+ Agregar material a la mezcla</button>
-          <p class="section-hint" style="margin-top:8px;margin-bottom:0;">Si el material que necesitás no aparece, registralo primero en <strong>Componentes</strong>.</p>
+          <p class="section-hint" style="margin-top:16px;margin-bottom:0;">Si el material que necesitás no aparece en algún selector, registralo primero en <strong>Componentes</strong>.</p>
         </div>
 
-        <!-- 3. COMPOSICIÓN DE MEZCLA (solo visualización) -->
+        <!-- 3. COMPOSICIÓN DE MEZCLA (solo el aditivo se elige acá) -->
         <div class="card">
           <div class="mezcla-head-row">
             <div><div class="section-num" style="margin-bottom:0;">3. Composición de mezcla</div><span class="mono" style="color:var(--text-muted);" id="mezcla-nombre-echo"></span></div>
             <input type="date" id="dis-fecha-mezcla">
           </div>
-          <div class="section-hint">Vista de solo lectura: se actualiza automáticamente con lo que elijas en la sección 2.</div>
+          <div class="section-hint">El cemento, el agua y los agregados ya quedaron definidos en la sección 2. Acá solo elegís el aditivo correspondiente.</div>
+          <div class="form-row">
+            <select id="dis-aditivo-mat"></select>
+            <input type="number" id="dis-aditivo-peso" placeholder="Peso seco aditivo (kg/m3)">
+          </div>
           <div class="table-scroll">
             <table class="mezcla-table">
               <thead><tr><th style="text-align:left;">Materiales</th><th>D</th><th>Peso Seco<br>(kg/m3)</th><th>Vol. Abs.<br>(m3)</th><th>Peso SSS<br>(kg/m3)</th><th>Peso Húmedo<br>(kg/m3)</th><th>Batch<br>(kg)</th><th>CVD<br>(S/.)</th></tr></thead>
@@ -1047,7 +1046,7 @@
       save('sid10_componentes', componentes);
       if(compEditingIndex === idx) resetCompForm();
       renderComponentesPanel();
-      rebuildMixSelectOptions();
+      rebuildAllMaterialSelects();
       toast('Componente eliminado');
     }
   });
@@ -1076,7 +1075,7 @@
     save('sid10_componentes', componentes);
     resetCompForm();
     renderComponentesPanel();
-    rebuildMixSelectOptions();
+    rebuildAllMaterialSelects();
   });
 
   /* ================= DISEÑOS — CALCULADORA ================= */
@@ -1271,13 +1270,18 @@
         if(d.extra[el.dataset.key] !== undefined) el.value = d.extra[el.dataset.key];
       });
     }
+    function findIdxByNombre(nombre){
+      for(var k=0;k<componentes.length;k++){ if(componentes[k].nombre === nombre) return k; }
+      return -1;
+    }
+    if(d.cementoMat){ var cIdx = findIdxByNombre(d.cementoMat); document.getElementById('dis-cemento-mat').value = cIdx>=0?cIdx:''; }
+    document.getElementById('dis-cemento-peso').value = d.cementoPeso || '';
+    if(d.aguaMat){ var aIdx = findIdxByNombre(d.aguaMat); document.getElementById('dis-agua-mat').value = aIdx>=0?aIdx:''; }
+    if(d.aditivoMat){ var dIdx = findIdxByNombre(d.aditivoMat); document.getElementById('dis-aditivo-mat').value = dIdx>=0?dIdx:''; }
+    document.getElementById('dis-aditivo-peso').value = d.aditivoPeso || '';
+    rebuildIncidenciaTable();
     recalcFcr();
-    mixItems = (d.mix||[]).map(function(item){
-      var idx = -1;
-      for(var k=0;k<componentes.length;k++){ if(componentes[k].nombre === item.nombre){ idx = k; break; } }
-      return {compIndex: idx>=0?idx:null, pesoSeco:String(item.pesoSeco||'')};
-    });
-    renderMixTable();
+    renderMezclaDisplay();
     refreshNombrePreview();
     toast('Diseño duplicado — editalo y presioná "Registrar Diseño" para guardarlo como uno nuevo');
     document.getElementById('sub-calcular').scrollIntoView({behavior:'smooth', block:'start'});
@@ -1427,9 +1431,9 @@
   /* ---- 1. Propiedades de las materias primas (en vivo) ---- */
   function renderPropiedades(){
     var tbody = document.getElementById('propiedades-tbody');
-    var used = mixItems.filter(function(it){ return it.compIndex !== null; }).map(function(it){ return componentes[it.compIndex]; }).filter(Boolean);
+    var used = getComposicionItems().map(function(it){ return componentes[it.compIndex]; }).filter(Boolean);
     if(!used.length){
-      tbody.innerHTML = '<tr><td colspan="15" style="color:var(--text-muted);">Agregá materiales en la sección 3 para verlos acá.</td></tr>';
+      tbody.innerHTML = '<tr><td colspan="15" style="color:var(--text-muted);">Elegí cemento, agua, agregados y aditivo para verlos acá.</td></tr>';
       return;
     }
     tbody.innerHTML = used.map(function(c){
@@ -1443,28 +1447,26 @@
     }).join('');
   }
 
-  /* ---- Composición de mezcla ---- */
-  var mixItems = [];
-  function componenteOptionsHtml(selectedIdx){
-    var byCat = {};
-    componentes.forEach(function(c,i){ (byCat[c.categoria] = byCat[c.categoria]||[]).push(i); });
-    var html = '<option value="">Elegí un material…</option>';
-    Object.keys(byCat).forEach(function(cat){
-      html += '<optgroup label="'+cat+'">';
-      byCat[cat].forEach(function(i){
-        html += '<option value="'+i+'"'+(i===selectedIdx?' selected':'')+'>'+esc(componentes[i].nombre)+'</option>';
-      });
-      html += '</optgroup>';
+  /* ---- Selects de material por categoría (Cemento, Agua, Aditivo) ---- */
+  function catOptionsHtml(categoria, selectedIdx, placeholder){
+    var html = '<option value="">'+placeholder+'</option>';
+    componentes.forEach(function(c,i){
+      if(c.categoria !== categoria) return;
+      html += '<option value="'+i+'"'+(String(i)===String(selectedIdx)?' selected':'')+'>'+esc(c.nombre)+'</option>';
     });
     return html;
   }
-  function rebuildMixSelectOptions(){
-    document.querySelectorAll('.mix-row-select').forEach(function(sel){
-      var current = sel.value === '' ? null : Number(sel.value);
-      sel.innerHTML = componenteOptionsHtml(current);
-    });
-    rebuildAgregadoGruesoSelect();
-    rebuildIncidenciaTable();
+  function rebuildCementoSelect(){
+    var sel = document.getElementById('dis-cemento-mat');
+    sel.innerHTML = catOptionsHtml('Cemento', sel.value, 'Elegí el cemento…');
+  }
+  function rebuildAguaSelect(){
+    var sel = document.getElementById('dis-agua-mat');
+    sel.innerHTML = catOptionsHtml('Agua', sel.value, 'Elegí el agua…');
+  }
+  function rebuildAditivoSelect(){
+    var sel = document.getElementById('dis-aditivo-mat');
+    sel.innerHTML = catOptionsHtml('Aditivo', sel.value, 'Elegí el aditivo correspondiente…');
   }
   function agregadoGruesoOptionsHtml(selectedIdx){
     var html = '<option value="">Elegí…</option>';
@@ -1478,6 +1480,13 @@
     var sel = document.getElementById('dis-agregado-grueso');
     var current = sel.value === '' ? null : Number(sel.value);
     sel.innerHTML = agregadoGruesoOptionsHtml(current);
+  }
+  function rebuildAllMaterialSelects(){
+    rebuildCementoSelect();
+    rebuildAguaSelect();
+    rebuildAditivoSelect();
+    rebuildAgregadoGruesoSelect();
+    rebuildIncidenciaTable();
   }
 
   /* ---- Incidencia individual de agregados (AF1/AF2 = Arena, AG1/AG2/AG3 = Piedra) ---- */
@@ -1498,16 +1507,25 @@
   }
   function rebuildIncidenciaTable(){
     var tbody = document.getElementById('incidencia-tbody');
-    var existing = {};
-    tbody.querySelectorAll('select[data-inc]').forEach(function(sel){ existing[sel.dataset.inc] = sel.value; });
+    var existingSel = {}, existingPct = {}, existingPeso = {};
+    tbody.querySelectorAll('select[data-inc]').forEach(function(sel){ existingSel[sel.dataset.inc] = sel.value; });
+    tbody.querySelectorAll('input[data-inc-pct]').forEach(function(inp){ existingPct[inp.dataset.incPct] = inp.value; });
+    tbody.querySelectorAll('input[data-inc-peso]').forEach(function(inp){ existingPeso[inp.dataset.incPeso] = inp.value; });
     tbody.innerHTML = INCIDENCIA_ROWS.map(function(r){
       return '<tr>' +
         '<td>'+r.codigo+'</td>' +
-        '<td><select data-inc="'+r.codigo+'" data-key="inc_'+r.codigo+'_mat">'+matOptionsForCategoria(r.categoria, existing[r.codigo])+'</select></td>' +
-        '<td><input type="text" placeholder="0%" data-key="inc_'+r.codigo+'_pct"></td>' +
+        '<td><select data-inc="'+r.codigo+'" data-key="inc_'+r.codigo+'_mat">'+matOptionsForCategoria(r.categoria, existingSel[r.codigo])+'</select></td>' +
+        '<td><input type="text" placeholder="0%" data-inc-pct="'+r.codigo+'" data-key="inc_'+r.codigo+'_pct" value="'+esc(existingPct[r.codigo]||'')+'"></td>' +
+        '<td><input type="number" placeholder="kg/m3" data-inc-peso="'+r.codigo+'" data-key="inc_'+r.codigo+'_peso" value="'+esc(existingPeso[r.codigo]||'')+'"></td>' +
       '</tr>';
     }).join('');
   }
+  document.getElementById('incidencia-tbody').addEventListener('input', function(e){
+    if(e.target.matches('input[data-inc-peso]')) renderMezclaDisplay();
+  });
+  document.getElementById('incidencia-tbody').addEventListener('change', function(e){
+    if(e.target.matches('select[data-inc]')) renderMezclaDisplay();
+  });
 
   /* ---- Límites de control ---- */
   var LIMITES_ROWS = [
@@ -1535,15 +1553,16 @@
     return parts.length > 1 ? parts[1].trim() : c.nombre.trim();
   }
   document.getElementById('dis-agregado-grueso').addEventListener('change', refreshNombrePreview);
-  function mixRowCompute(item){
-    var comp = componentes[item.compIndex];
+
+  /* ---- Composición de mezcla: se arma de la sección 2 (cemento, agua, agregados) + el aditivo elegido en la sección 3 ---- */
+  function rowCompute(compIndex, pesoSeco){
+    var comp = componentes[compIndex];
     var batchVol = n(document.getElementById('dis-batch-vol').value) || 30;
     if(!comp) return {volAbs:0,pesoSSS:0,pesoHumedo:0,batch:0,cvd:0};
     var rho = n(comp.rho) || n(comp.pus) || 1000;
     var absorcion = n(comp.absorcion);
     var humedad = n(comp.humedad);
     var costo = n(comp.costo);
-    var pesoSeco = n(item.pesoSeco);
     var volAbs = rho ? pesoSeco/rho : 0;
     var pesoSSS = pesoSeco * (1 + absorcion/100);
     var pesoHumedo = pesoSeco * (1 + humedad/100);
@@ -1551,28 +1570,55 @@
     var cvd = pesoSSS * costo;
     return {volAbs:volAbs, pesoSSS:pesoSSS, pesoHumedo:pesoHumedo, batch:batch, cvd:cvd};
   }
-  function suggestCementoPeso(item){
-    var comp = componentes[item.compIndex];
-    if(!comp || comp.categoria !== 'Cemento') return;
-    if(item.pesoSeco){ return; }
+  function getComposicionItems(){
+    var items = [];
+    var cemIdx = document.getElementById('dis-cemento-mat').value;
+    var cemPeso = n(document.getElementById('dis-cemento-peso').value);
+    if(cemIdx !== '' && cemPeso > 0) items.push({compIndex:Number(cemIdx), pesoSeco:cemPeso});
+
+    var aguaIdx = document.getElementById('dis-agua-mat').value;
+    var aguaPeso = n(document.getElementById('dis-agua-req').value);
+    if(aguaIdx !== '' && aguaPeso > 0) items.push({compIndex:Number(aguaIdx), pesoSeco:aguaPeso});
+
+    INCIDENCIA_ROWS.forEach(function(r){
+      var sel = document.querySelector('select[data-inc="'+r.codigo+'"]');
+      var pesoInput = document.querySelector('input[data-inc-peso="'+r.codigo+'"]');
+      if(sel && sel.value !== '' && pesoInput){
+        var peso = n(pesoInput.value);
+        if(peso > 0) items.push({compIndex:Number(sel.value), pesoSeco:peso});
+      }
+    });
+
+    var admIdx = document.getElementById('dis-aditivo-mat').value;
+    var admPeso = n(document.getElementById('dis-aditivo-peso').value);
+    if(admIdx !== '' && admPeso > 0) items.push({compIndex:Number(admIdx), pesoSeco:admPeso});
+
+    return items;
+  }
+  function suggestCementoPeso(){
+    var pesoEl = document.getElementById('dis-cemento-peso');
+    if(pesoEl.value) return;
     var agua = n(document.getElementById('dis-agua-req').value);
     var amc = n(document.getElementById('dis-amc-efectiva').value);
     if(agua > 0 && amc > 0){
-      item.pesoSeco = String(Math.round(agua/amc));
-      toast('Peso seco de cemento sugerido: ' + item.pesoSeco + ' kg/m3');
+      pesoEl.value = String(Math.round(agua/amc));
+      toast('Peso seco de cemento sugerido: ' + pesoEl.value + ' kg/m3');
+      renderMezclaDisplay();
     }
   }
+  document.getElementById('dis-cemento-mat').addEventListener('change', suggestCementoPeso);
   function renderMezclaDisplay(){
+    var items = getComposicionItems();
     var totals = {peso:0, vol:0, sss:0, humedo:0, batch:0, cvd:0};
-    var rows = mixItems.map(function(item){
+    var rows = items.map(function(item){
       var comp = componentes[item.compIndex];
-      var r = mixRowCompute(item);
-      totals.peso += n(item.pesoSeco); totals.vol += r.volAbs; totals.sss += r.pesoSSS; totals.humedo += r.pesoHumedo; totals.batch += r.batch; totals.cvd += r.cvd;
+      var r = rowCompute(item.compIndex, item.pesoSeco);
+      totals.peso += item.pesoSeco; totals.vol += r.volAbs; totals.sss += r.pesoSSS; totals.humedo += r.pesoHumedo; totals.batch += r.batch; totals.cvd += r.cvd;
       var isAditivo = comp && comp.categoria === 'Aditivo';
       return '<tr>' +
         '<td class="mezcla-nombre-mat">'+(comp?esc(comp.nombre):'—')+'</td>' +
         '<td class="'+(isAditivo?'mezcla-dosis':'')+'">'+(isAditivo && comp.dosis ? esc(comp.dosis)+'%' : '-')+'</td>' +
-        '<td>'+n(item.pesoSeco).toFixed(2)+'</td>' +
+        '<td>'+item.pesoSeco.toFixed(2)+'</td>' +
         '<td>'+r.volAbs.toFixed(3)+'</td>' +
         '<td>'+r.pesoSSS.toFixed(2)+'</td>' +
         '<td>'+r.pesoHumedo.toFixed(2)+'</td>' +
@@ -1580,70 +1626,40 @@
         '<td>'+r.cvd.toFixed(2)+'</td>' +
       '</tr>';
     }).join('');
-    document.getElementById('mezcla-display-tbody').innerHTML = rows || '<tr><td colspan="8" style="text-align:center;color:var(--text-muted);">Todavía no seleccionaste materiales en la sección 2.</td></tr>';
+    document.getElementById('mezcla-display-tbody').innerHTML = rows || '<tr><td colspan="8" style="text-align:center;color:var(--text-muted);">Completá cemento, agua y agregados en la sección 2, y el aditivo acá abajo.</td></tr>';
     document.getElementById('mezcla-display-total').innerHTML =
       '<td style="text-align:left;">Total</td><td></td><td>'+totals.peso.toFixed(2)+'</td><td>'+totals.vol.toFixed(3)+'</td><td>'+totals.sss.toFixed(2)+'</td><td>'+totals.humedo.toFixed(2)+'</td><td>'+totals.batch.toFixed(2)+'</td><td>'+totals.cvd.toFixed(2)+'</td>';
     document.getElementById('cvd-diseno-view').textContent = 'S/. ' + totals.cvd.toFixed(2);
     document.getElementById('cvd-base-view').textContent = 'S/. ' + n(document.getElementById('dis-cvd-base').value).toFixed(2);
-    return totals;
-  }
-  function renderMixTable(){
-    var tbody = document.getElementById('mix-tbody');
-    tbody.innerHTML = mixItems.map(function(item, idx){
-      return '<tr>' +
-        '<td class="mezcla-select-cell"><select class="mix-row-select" data-i="'+idx+'">'+componenteOptionsHtml(item.compIndex)+'</select></td>' +
-        '<td><input type="number" class="mix-peso" data-i="'+idx+'" value="'+esc(item.pesoSeco)+'" placeholder="0" style="width:110px;padding:8px 9px;border-radius:3px;border:1.5px solid var(--line);background:var(--surface);color:var(--text);"></td>' +
-        '<td><button class="btn-icon" data-act="del-mix" data-i="'+idx+'" title="Quitar">×</button></td>' +
-      '</tr>';
-    }).join('') || '<tr><td colspan="3" style="text-align:center;color:var(--text-muted);">Todavía no agregaste materiales a la mezcla.</td></tr>';
-    var totals = renderMezclaDisplay();
     renderPropiedades();
     return totals;
   }
-  document.getElementById('mix-add-row').addEventListener('click', function(){
-    mixItems.push({compIndex:null, pesoSeco:''});
-    renderMixTable();
+  ['dis-cemento-mat','dis-cemento-peso','dis-agua-mat','dis-agua-req','dis-aditivo-mat','dis-aditivo-peso','dis-batch-vol','dis-cvd-base'].forEach(function(id){
+    var el = document.getElementById(id);
+    el.addEventListener(el.tagName === 'SELECT' ? 'change' : 'input', renderMezclaDisplay);
   });
-  document.getElementById('mix-tbody').addEventListener('change', function(e){
-    if(!e.target.classList.contains('mix-row-select')) return;
-    var i = Number(e.target.dataset.i);
-    mixItems[i].compIndex = e.target.value === '' ? null : Number(e.target.value);
-    suggestCementoPeso(mixItems[i]);
-    renderMixTable();
-  });
-  document.getElementById('mix-tbody').addEventListener('input', function(e){
-    if(!e.target.classList.contains('mix-peso')) return;
-    var i = Number(e.target.dataset.i);
-    mixItems[i].pesoSeco = e.target.value;
-    renderMixTable();
-  });
-  document.getElementById('mix-tbody').addEventListener('click', function(e){
-    var btn = e.target.closest('[data-act="del-mix"]');
-    if(!btn) return;
-    mixItems.splice(Number(btn.dataset.i), 1);
-    renderMixTable();
-  });
-  document.getElementById('dis-batch-vol').addEventListener('input', renderMezclaDisplay);
-  document.getElementById('dis-cvd-base').addEventListener('input', renderMezclaDisplay);
 
   function todayISO(){ var d = new Date(); return d.getFullYear()+'-'+String(d.getMonth()+1).padStart(2,'0')+'-'+String(d.getDate()).padStart(2,'0'); }
 
   function resetCalcForm(){
     ['dis-ndiseno','dis-sap','dis-fc','dis-fc-mpa','dis-ft','dis-edad',
-     'dis-cemento-tipo','dis-tmn','dis-slump','dis-exposicion','dis-aire','dis-destino',
+     'dis-cemento-tipo','dis-cemento-peso','dis-tmn','dis-slump','dis-exposicion','dis-aire','dis-destino',
      'dis-colocacion','dis-otras-esp','dis-desv-std','dis-fcr','dis-amc-efectiva',
-     'dis-agua-req','dis-vol-diseno','dis-cvd-base','dis-lim-gradacion','dis-pct-fino','dis-pct-grueso','dis-sufijo'
+     'dis-agua-req','dis-vol-diseno','dis-cvd-base','dis-lim-gradacion','dis-pct-fino','dis-pct-grueso','dis-sufijo',
+     'dis-aditivo-peso'
     ].forEach(function(id){ var el = document.getElementById(id); if(el) el.value = ''; });
     document.querySelectorAll('#sub-calcular [data-key]').forEach(function(el){
       if(el.tagName === 'SELECT'){ el.selectedIndex = 0; } else { el.value = ''; }
     });
     document.getElementById('dis-tipo-concreto').value = '';
     document.getElementById('dis-agregado-grueso').value = '';
+    document.getElementById('dis-cemento-mat').value = '';
+    document.getElementById('dis-agua-mat').value = '';
+    document.getElementById('dis-aditivo-mat').value = '';
     document.getElementById('dis-batch-vol').value = '30';
     document.getElementById('dis-fecha-mezcla').value = todayISO();
     rebuildIncidenciaTable();
-    mixItems = [];
-    renderMixTable();
+    renderMezclaDisplay();
     refreshNombrePreview();
   }
 
@@ -1652,14 +1668,14 @@
     var tipoDef = tipoIdxSel !== '' ? TIPO_CONCRETO_DEFS[Number(tipoIdxSel)] : null;
     var fc = document.getElementById('dis-fc').value.trim();
     if(!tipoDef || !fc){ toast('Completá al menos Tipo de concreto y f\'c'); return; }
-    var totals = renderMixTable();
+    var totals = renderMezclaDisplay();
     var fechaISO = document.getElementById('dis-fecha-mezcla').value || todayISO();
     var fParts = fechaISO.split('-');
     var fecha = fParts[2]+'/'+fParts[1]+'/'+fParts[0];
-    var mixSnapshot = mixItems.map(function(item){
+    var mixSnapshot = getComposicionItems().map(function(item){
       var comp = componentes[item.compIndex];
-      var r = mixRowCompute(item);
-      return {nombre: comp?comp.nombre:'-', dosis: comp?comp.dosis:'', pesoSeco:n(item.pesoSeco), volAbs:r.volAbs, pesoSSS:r.pesoSSS, pesoHumedo:r.pesoHumedo, batch:r.batch, cvd:r.cvd};
+      var r = rowCompute(item.compIndex, item.pesoSeco);
+      return {nombre: comp?comp.nombre:'-', dosis: comp?comp.dosis:'', pesoSeco:item.pesoSeco, volAbs:r.volAbs, pesoSSS:r.pesoSSS, pesoHumedo:r.pesoHumedo, batch:r.batch, cvd:r.cvd};
     });
     var d = {
       codigo: nextCodigo(),
@@ -1689,6 +1705,11 @@
       aguaReq: document.getElementById('dis-agua-req').value.trim(),
       pctFino: document.getElementById('dis-pct-fino').value.trim(),
       pctGrueso: document.getElementById('dis-pct-grueso').value.trim(),
+      cementoMat: (function(){ var idx=document.getElementById('dis-cemento-mat').value; var c=idx!==''?componentes[Number(idx)]:null; return c?c.nombre:''; })(),
+      cementoPeso: document.getElementById('dis-cemento-peso').value.trim(),
+      aguaMat: (function(){ var idx=document.getElementById('dis-agua-mat').value; var c=idx!==''?componentes[Number(idx)]:null; return c?c.nombre:''; })(),
+      aditivoMat: (function(){ var idx=document.getElementById('dis-aditivo-mat').value; var c=idx!==''?componentes[Number(idx)]:null; return c?c.nombre:''; })(),
+      aditivoPeso: document.getElementById('dis-aditivo-peso').value.trim(),
       extra: (function(){
         var e = {};
         document.querySelectorAll('#sub-calcular [data-key]').forEach(function(el){ e[el.dataset.key] = el.value; });
@@ -1962,14 +1983,13 @@
   /* ================= INIT ================= */
   buildPlantaSelect();
   buildTipoConcretoSelect();
-  rebuildAgregadoGruesoSelect();
-  rebuildIncidenciaTable();
+  rebuildAllMaterialSelects();
   buildLimitesTable();
   renderComponentesPanel();
   renderAllDesignViews();
   syncLaboratorio();
   document.getElementById('dis-fecha-mezcla').value = todayISO();
-  renderMixTable();
+  renderMezclaDisplay();
   refreshNombrePreview();
   renderRRStudyList();
   renderRRDetail();
