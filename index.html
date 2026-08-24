@@ -68,45 +68,57 @@
   .loader-bar-track{width:200px;height:3px;background:#2a2a2a;margin-top:18px;position:relative;overflow:hidden;}
   .loader-bar-fill{position:absolute;left:0;top:0;bottom:0;width:0;background:var(--rojo-600);transition:width .18s linear;}
 
-  /* ================= SIDEBAR TOGGLE (rojo) ================= */
-  .floating-toggle{position:fixed;top:16px;left:16px;z-index:60;width:42px;height:42px;border-radius:4px;background:var(--rojo-600);border:none;color:#fff;display:none;align-items:center;justify-content:center;box-shadow:0 8px 18px -6px rgba(200,30,30,.5);}
-  .floating-toggle:hover{background:var(--rojo-700);}
-  .floating-toggle.show{display:flex;}
-  .floating-toggle svg{width:18px;height:18px;}
-
-  /* ================= APP SHELL ================= */
-  #app-shell{display:flex;min-height:100vh;opacity:0;transition:opacity .4s var(--ease);}
+  /* ================= APP SHELL / TOPBAR ================= */
+  #app-shell{min-height:100vh;opacity:0;transition:opacity .4s var(--ease);}
   #app-shell.ready{opacity:1;}
-  .sidebar{width:252px;flex-shrink:0;background:var(--surface);color:var(--text);border-right:1px solid var(--line);display:flex;flex-direction:column;padding:22px 0;position:sticky;top:0;height:100vh;transition:width .3s var(--ease), padding .3s var(--ease), opacity .25s var(--ease);}
-  #app-shell.sidebar-hidden .sidebar{width:0;padding:0;opacity:0;overflow:hidden;pointer-events:none;}
-  .sidebar-scroll{overflow-y:auto;flex:1;}
-  .sidebar .brand{display:flex;align-items:center;gap:10px;padding:0 18px;margin-bottom:22px;}
-  .sidebar .brand .mark{width:16px;height:16px;background:var(--rojo-600);flex-shrink:0;}
-  .sidebar .brand-text{font-family:var(--font-display);font-weight:700;letter-spacing:.01em;font-size:1.05rem;white-space:nowrap;color:var(--text);}
-  .sidebar .brand-text small{display:block;font-size:.62rem;letter-spacing:.03em;color:var(--text-muted);font-weight:400;font-family:var(--font-body);}
-  .sidebar-toggle-inline{margin-left:auto;width:28px;height:28px;border-radius:4px;display:flex;align-items:center;justify-content:center;color:#fff;background:var(--rojo-600);flex-shrink:0;}
-  .sidebar-toggle-inline:hover{background:var(--rojo-700);}
-  .sidebar-toggle-inline svg{width:15px;height:15px;}
 
-  .nav-item{display:flex;align-items:center;gap:11px;width:100%;text-align:left;padding:12px 18px;color:var(--text);font-size:.87rem;font-weight:500;border-left:3px solid transparent;white-space:nowrap;transition:background .15s, border-color .15s, color .15s;}
-  .nav-item svg{width:17px;height:17px;flex-shrink:0;color:var(--text-muted);}
-  .nav-item:hover{background:var(--surface-2);}
-  .nav-item.active{border-left-color:var(--rojo-600);color:var(--rojo-600);background:var(--surface-2);}
-  .nav-item.active svg{color:var(--rojo-600);}
-  .nav-item .chev{margin-left:auto;width:14px;height:14px;transition:transform .2s var(--ease);color:var(--text-muted);}
-  .nav-parent.expanded .chev{transform:rotate(90deg);color:var(--rojo-600);}
+  .topbar{
+    position:sticky;top:0;z-index:50;
+    display:flex;align-items:center;gap:22px;
+    padding:0 clamp(18px,3vw,40px);
+    height:64px;
+    background:linear-gradient(180deg,#1d1b1e,#151316);
+    border-bottom:3px solid var(--rojo-600);
+    box-shadow:0 6px 18px rgba(0,0,0,.18);
+  }
+  .topbar .brand{display:flex;align-items:center;gap:10px;flex-shrink:0;}
+  .topbar .brand .mark{width:16px;height:16px;background:var(--rojo-500);flex-shrink:0;}
+  .topbar .brand-text{font-family:var(--font-display);font-weight:700;letter-spacing:.01em;font-size:1.02rem;white-space:nowrap;color:#fff;}
+  .topbar .brand-text small{display:block;font-size:.6rem;letter-spacing:.03em;color:rgba(255,255,255,.55);font-weight:400;font-family:var(--font-body);}
 
-  .nav-sub{max-height:0;overflow:hidden;transition:max-height .3s var(--ease);}
-  .nav-sub.open{max-height:340px;}
-  .nav-subitem{display:block;width:100%;text-align:left;padding:9px 18px 9px 46px;font-size:.82rem;color:var(--text-muted);border-left:3px solid transparent;white-space:nowrap;}
+  .topbar-nav{display:flex;align-items:center;gap:2px;flex:1;overflow-x:auto;height:100%;}
+  .topbar-nav::-webkit-scrollbar{display:none;}
+  .nav-item{
+    display:flex;align-items:center;gap:9px;height:100%;padding:0 15px;
+    color:rgba(255,255,255,.68);font-size:.85rem;font-weight:600;white-space:nowrap;
+    border-bottom:3px solid transparent;margin-bottom:-3px;position:relative;
+    transition:color .15s, background .15s, border-color .15s;
+  }
+  .nav-item svg{width:16px;height:16px;flex-shrink:0;color:rgba(255,255,255,.5);}
+  .nav-item:hover{color:#fff;background:rgba(255,255,255,.06);}
+  .nav-item:hover svg{color:rgba(255,255,255,.8);}
+  .nav-item.active{color:#fff;border-color:var(--rojo-500);}
+  .nav-item.active svg{color:var(--rojo-400,#f0a8a8);}
+  .nav-item .chev{width:12px;height:12px;transition:transform .2s var(--ease);color:rgba(255,255,255,.5);}
+  .nav-parent.expanded .chev{transform:rotate(180deg);}
+
+  .nav-dropdown{position:relative;height:100%;}
+  .nav-sub{
+    position:absolute;top:100%;left:0;margin-top:0;
+    background:#fff;border:1px solid var(--line);border-radius:0 0 6px 6px;
+    box-shadow:0 16px 32px rgba(0,0,0,.2);min-width:210px;
+    max-height:0;overflow:hidden;opacity:0;pointer-events:none;
+    transition:max-height .2s var(--ease), opacity .15s var(--ease);
+    z-index:60;
+  }
+  .nav-sub.open{max-height:420px;opacity:1;pointer-events:auto;}
+  .nav-subitem{display:block;width:100%;text-align:left;padding:10px 16px;font-size:.83rem;color:var(--text-muted);border-left:3px solid transparent;white-space:nowrap;}
   .nav-subitem:hover{color:var(--text);background:var(--surface-2);}
   .nav-subitem.active{color:var(--rojo-600);font-weight:600;border-left-color:var(--rojo-600);background:var(--surface-2);}
 
-  .sidebar-bottom{padding:16px 18px 0;}
-  .sidebar-rule{height:2px;background:var(--rojo-600);margin:0 18px 16px;}
-  .foot-note{font-size:.68rem;color:var(--text-muted);line-height:1.6;padding:0 18px;}
+  .topbar-foot{display:none;}
 
-  .content{flex:1;padding:34px clamp(20px,3.5vw,52px) 60px;max-width:1380px;min-width:0;}
+  .content{padding:34px clamp(20px,3.5vw,52px) 60px;max-width:1380px;min-width:0;margin:0 auto;}
   .panel{display:none;}
   .panel.active{display:block;animation:panelIn .2s var(--ease) both;}
   @keyframes panelIn{from{opacity:0;}to{opacity:1;}}
@@ -116,6 +128,13 @@
   .badge-pill{padding:6px 13px;border-radius:3px;font-size:.72rem;font-weight:600;background:var(--surface);border:1.5px solid var(--rojo-600);color:var(--rojo-600);white-space:nowrap;}
   .card{background:var(--surface);border:1px solid var(--line);border-radius:4px;padding:22px;box-shadow:0 1px 2px rgba(0,0,0,.03);}
   .card + .card{margin-top:18px;}
+
+  @media(max-width:760px){
+    .topbar{gap:12px;padding:0 14px;}
+    .topbar .brand-text small{display:none;}
+    .nav-item .label{display:none;}
+    .nav-item{padding:0 11px;}
+  }
 
   /* ================= INICIO — sin cards, todo en filas ================= */
   .stat-strip{display:flex;flex-wrap:wrap;gap:0;border:1px solid var(--line);border-radius:4px;margin-bottom:22px;overflow:hidden;}
@@ -289,6 +308,8 @@
   table.mezcla-table select.mix-row-select{width:100%;border:none;background:transparent;color:#1f4e8c;font-weight:600;font-size:.8rem;}
   table.mezcla-table input.mix-peso{width:80px;padding:5px 6px;border:1px solid var(--line);border-radius:3px;background:var(--surface);color:var(--text);text-align:center;}
   table.mezcla-table td.mezcla-dosis{background:#fdf3d3;}
+  table.mezcla-table td.mezcla-nombre-mat,
+  table.mezcla-table td.mezcla-nombre{text-align:left;font-weight:600;color:#1f4e8c;}
   table.mezcla-table tr.mezcla-total td{background:#6f6f6f;color:#fff;font-weight:700;}
 
   /* ---- Vista de diseño (modal + impresión) ---- */
@@ -309,7 +330,7 @@
   .mezcla-specs b{display:block;font-size:.66rem;text-transform:uppercase;color:#6c6c70;margin-bottom:2px;}
 
   @media print{
-    #app-shell, #loading-view, .floating-toggle, #toast, .modal-actions, .modal-close, .modal-header{display:none !important;}
+    #app-shell, #loading-view, #toast, .modal-actions, .modal-close, .modal-header{display:none !important;}
     #design-modal{position:static !important;background:none !important;padding:0 !important;display:block !important;}
     #design-modal .modal-card{box-shadow:none !important;max-width:none !important;}
     #design-modal .modal-body{padding:0 !important;}
@@ -386,33 +407,28 @@
   </div>
 </div>
 
-<button class="floating-toggle" id="floating-toggle" aria-label="Mostrar menú" title="Mostrar menú">
-  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="4" y1="7" x2="20" y2="7"/><line x1="4" y1="12" x2="20" y2="12"/><line x1="4" y1="17" x2="20" y2="17"/></svg>
-</button>
-
 <!-- ============ APP SHELL ============ -->
 <div id="app-shell">
-  <aside class="sidebar">
+  <header class="topbar">
     <div class="brand">
       <span class="mark"></span>
       <div class="brand-text">Sistema I+D<small>Laboratorio de Aplicaciones</small></div>
-      <button class="sidebar-toggle-inline" id="sidebar-toggle" aria-label="Ocultar menú" title="Ocultar menú">
-        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="4" y1="7" x2="20" y2="7"/><line x1="4" y1="12" x2="20" y2="12"/><line x1="4" y1="17" x2="20" y2="17"/></svg>
-      </button>
     </div>
 
-    <div class="sidebar-scroll">
+    <nav class="topbar-nav">
       <button class="nav-item active" data-panel="inicio">
         <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 11l9-8 9 8"/><path d="M5 10v10h14V10"/></svg>
         <span class="label">Inicio</span>
       </button>
 
-      <button class="nav-item nav-parent" id="nav-componentes-toggle">
-        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 8l-9-5-9 5 9 5 9-5z"/><path d="M3 8v8l9 5 9-5V8"/></svg>
-        <span class="label">Componentes</span>
-        <svg class="chev" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M9 18l6-6-6-6"/></svg>
-      </button>
-      <div class="nav-sub" id="nav-componentes-sub"></div>
+      <div class="nav-dropdown">
+        <button class="nav-item nav-parent" id="nav-componentes-toggle">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 8l-9-5-9 5 9 5 9-5z"/><path d="M3 8v8l9 5 9-5V8"/></svg>
+          <span class="label">Componentes</span>
+          <svg class="chev" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M6 9l6 6 6-6"/></svg>
+        </button>
+        <div class="nav-sub" id="nav-componentes-sub"></div>
+      </div>
 
       <button class="nav-item" data-panel="disenos">
         <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="4" y="2" width="16" height="20" rx="2"/><line x1="8" y1="7" x2="16" y2="7"/><line x1="8" y1="12" x2="16" y2="12"/><line x1="8" y1="17" x2="12" y2="17"/></svg>
@@ -430,13 +446,8 @@
         <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 1 1-2.83 2.83l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-4 0v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 1 1-2.83-2.83l.06-.06A1.65 1.65 0 0 0 4.6 15a1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1 0-4h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 1 1 2.83-2.83l.06.06A1.65 1.65 0 0 0 9 4.6a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 4 0v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 1 1 2.83 2.83l-.06.06A1.65 1.65 0 0 0 19.4 9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 0 4h-.09a1.65 1.65 0 0 0-1.51 1z"/></svg>
         <span class="label">Ajustes</span>
       </button>
-    </div>
-
-    <div class="sidebar-bottom">
-      <div class="sidebar-rule"></div>
-      <div class="foot-note">Cementos Pacasmayo<br>NEW I+D — SSCC</div>
-    </div>
-  </aside>
+    </nav>
+  </header>
 
   <main class="content">
 
@@ -576,6 +587,7 @@
                 <div class="params-field"><label>Edad del f'c (días)</label><input type="number" id="dis-edad" placeholder="3"></div>
                 <div class="params-field"><label>Tipo de cemento</label><input type="text" id="dis-cemento-tipo" placeholder="I"></div>
                 <div class="params-field"><label>Huso granul. TMN (AG)</label><input type="text" id="dis-tmn" placeholder="67"></div>
+                <div class="params-field"><label>Tipo de agregado grueso</label><select id="dis-agregado-grueso"></select></div>
                 <div class="params-field"><label>Consistencia (slump, pulg)</label><input type="text" id="dis-slump" placeholder="3"></div>
                 <div class="params-field"><label>Exposición</label><input type="text" id="dis-exposicion" placeholder="Ambiente"></div>
                 <div class="params-field"><label>Aire incorporado (%)</label><input type="text" id="dis-aire" placeholder="1.5"></div>
@@ -609,23 +621,32 @@
               </div>
             </div>
           </div>
+
+          <div class="section-hint" style="margin-top:20px;">Selección de materiales de la mezcla — elegí acá los componentes y su peso seco. La sección 3 se arma sola con esto, solo para visualizar.</div>
+          <div class="table-scroll">
+            <table>
+              <thead><tr><th>Material</th><th>Peso Seco (kg/m3)</th><th></th></tr></thead>
+              <tbody id="mix-tbody"></tbody>
+            </table>
+          </div>
+          <button class="btn-add ghost" id="mix-add-row" style="margin-top:14px;">+ Agregar material a la mezcla</button>
+          <p class="section-hint" style="margin-top:8px;margin-bottom:0;">Si el material que necesitás no aparece, registralo primero en <strong>Componentes</strong>.</p>
         </div>
 
-        <!-- 3. COMPOSICIÓN DE MEZCLA -->
+        <!-- 3. COMPOSICIÓN DE MEZCLA (solo visualización) -->
         <div class="card">
           <div class="mezcla-head-row">
             <div><div class="section-num" style="margin-bottom:0;">3. Composición de mezcla</div><span class="mono" style="color:var(--text-muted);" id="mezcla-nombre-echo"></span></div>
             <input type="date" id="dis-fecha-mezcla">
           </div>
+          <div class="section-hint">Vista de solo lectura: se actualiza automáticamente con lo que elijas en la sección 2.</div>
           <div class="table-scroll">
             <table class="mezcla-table">
-              <thead><tr><th style="text-align:left;">Materiales</th><th>D</th><th>Peso Seco<br>(kg/m3)</th><th>Vol. Abs.<br>(m3)</th><th>Peso SSS<br>(kg/m3)</th><th>Peso Húmedo<br>(kg/m3)</th><th>Batch<br>(kg)</th><th>CVD<br>(S/.)</th><th></th></tr></thead>
-              <tbody id="mix-tbody"></tbody>
-              <tfoot><tr class="mezcla-total"><td style="text-align:left;">Total</td><td></td><td id="mix-total-peso">0.00</td><td id="mix-total-vol">0.000</td><td id="mix-total-sss">0.00</td><td id="mix-total-humedo">0.00</td><td id="mix-total-batch">0.00</td><td id="mix-total-cvd">0.00</td><td></td></tr></tfoot>
+              <thead><tr><th style="text-align:left;">Materiales</th><th>D</th><th>Peso Seco<br>(kg/m3)</th><th>Vol. Abs.<br>(m3)</th><th>Peso SSS<br>(kg/m3)</th><th>Peso Húmedo<br>(kg/m3)</th><th>Batch<br>(kg)</th><th>CVD<br>(S/.)</th></tr></thead>
+              <tbody id="mezcla-display-tbody"></tbody>
+              <tfoot><tr class="mezcla-total" id="mezcla-display-total"></tr></tfoot>
             </table>
           </div>
-          <button class="btn-add ghost" id="mix-add-row" style="margin-top:14px;">+ Agregar material a la mezcla</button>
-          <p class="section-hint" style="margin-top:8px;margin-bottom:0;">Si el material que necesitás no aparece, registralo primero en <strong>Componentes</strong>.</p>
         </div>
 
         <button class="btn-add" id="dis-add" style="font-size:.92rem;padding:14px 26px;">Registrar Diseño</button>
@@ -771,18 +792,6 @@
   }
   runLoader();
 
-  /* ================= SIDEBAR TOGGLE ================= */
-  var floatingToggle = document.getElementById('floating-toggle');
-  var sidebarToggle = document.getElementById('sidebar-toggle');
-  function setSidebar(hidden){
-    appShell.classList.toggle('sidebar-hidden', hidden);
-    floatingToggle.classList.toggle('show', hidden);
-    save('sid10_sidebar_hidden', hidden);
-  }
-  sidebarToggle.addEventListener('click', function(){ setSidebar(true); });
-  floatingToggle.addEventListener('click', function(){ setSidebar(false); });
-  setSidebar(load('sid10_sidebar_hidden', false));
-
   /* ================= NAV ================= */
   var navItems = document.querySelectorAll('.sidebar .nav-item[data-panel]');
   function showPanel(name){
@@ -879,6 +888,10 @@
     renderNavSub();
     showPanel('componentes');
     renderComponentesPanel();
+    setCompSubOpen(false);
+  });
+  document.addEventListener('click', function(e){
+    if(!e.target.closest('.nav-dropdown')) setCompSubOpen(false);
   });
 
   function buildCompForm(def){
@@ -1161,6 +1174,11 @@
     document.getElementById('dis-edad').value = d.edad || '';
     document.getElementById('dis-cemento-tipo').value = d.cementoTipo || '';
     document.getElementById('dis-tmn').value = d.tmn || '';
+    if(d.agregadoGrueso){
+      var aggIdx = -1;
+      for(var k=0;k<componentes.length;k++){ if(componentes[k].categoria==='Piedra' && componentes[k].nombre===d.agregadoGrueso){ aggIdx=k; break; } }
+      document.getElementById('dis-agregado-grueso').value = aggIdx>=0 ? aggIdx : '';
+    }
     document.getElementById('dis-slump').value = d.slump || '';
     document.getElementById('dis-exposicion').value = d.exposicion || '';
     document.getElementById('dis-aire').value = d.aire || '';
@@ -1302,20 +1320,21 @@
   function refreshNombrePreview(){
     var tipoIdx = document.getElementById('dis-tipo-concreto').value;
     var tipoDef = tipoIdx !== '' ? TIPO_CONCRETO_DEFS[Number(tipoIdx)] : null;
-    var fcMpa = document.getElementById('dis-fc-mpa').value;
-    var edad = document.getElementById('dis-edad').value;
-    var cemento = document.getElementById('dis-cemento-tipo').value;
-    var tmn = document.getElementById('dis-tmn').value;
-    var sufijo = document.getElementById('dis-sufijo').value;
-    var nombre = '';
-    if(tipoDef && fcMpa){
-      nombre = tipoDef.code + fcMpa + 'MPa(' + (edad||'0') + 'd)-' + (cemento||'·') + '-H' + (tmn||'0') + '-' + (sufijo||'A1');
-    }
+    var amc = document.getElementById('dis-amc-efectiva').value.trim();
+    var cemento = document.getElementById('dis-cemento-tipo').value.trim();
+    var aggCode = agregadoGruesoCode();
+    var sufijo = document.getElementById('dis-sufijo').value.trim();
+    var parts = [];
+    if(amc) parts.push(amc);
+    if(tipoDef) parts.push(tipoDef.code);
+    if(cemento) parts.push(cemento);
+    if(aggCode) parts.push(aggCode);
+    var nombre = parts.length ? parts.join('-') + (sufijo ? '-' + sufijo : '') : '';
     document.getElementById('nombre-preview-text').textContent = nombre || '—';
     document.getElementById('mezcla-nombre-echo').textContent = nombre;
     return nombre;
   }
-  ['dis-tipo-concreto','dis-edad','dis-cemento-tipo','dis-tmn','dis-sufijo'].forEach(function(id){
+  ['dis-tipo-concreto','dis-amc-efectiva','dis-cemento-tipo','dis-sufijo'].forEach(function(id){
     var el = document.getElementById(id);
     el.addEventListener(el.tagName === 'SELECT' ? 'change' : 'input', refreshNombrePreview);
   });
@@ -1364,7 +1383,30 @@
       var current = sel.value === '' ? null : Number(sel.value);
       sel.innerHTML = componenteOptionsHtml(current);
     });
+    rebuildAgregadoGruesoSelect();
   }
+  function agregadoGruesoOptionsHtml(selectedIdx){
+    var html = '<option value="">Elegí…</option>';
+    componentes.forEach(function(c,i){
+      if(c.categoria !== 'Piedra') return;
+      html += '<option value="'+i+'"'+(i===selectedIdx?' selected':'')+'>'+esc(c.nombre)+'</option>';
+    });
+    return html;
+  }
+  function rebuildAgregadoGruesoSelect(){
+    var sel = document.getElementById('dis-agregado-grueso');
+    var current = sel.value === '' ? null : Number(sel.value);
+    sel.innerHTML = agregadoGruesoOptionsHtml(current);
+  }
+  function agregadoGruesoCode(){
+    var idx = document.getElementById('dis-agregado-grueso').value;
+    if(idx === '') return '';
+    var c = componentes[Number(idx)];
+    if(!c) return '';
+    if(c.tmn && c.tmn !== '-') return c.tmn;
+    return c.nombre.replace(/[^A-Za-z0-9]/g,'').slice(0,4).toUpperCase();
+  }
+  document.getElementById('dis-agregado-grueso').addEventListener('change', refreshNombrePreview);
   function mixRowCompute(item){
     var comp = componentes[item.compIndex];
     var batchVol = n(document.getElementById('dis-batch-vol').value) || 30;
@@ -1392,34 +1434,41 @@
       toast('Peso seco de cemento sugerido: ' + item.pesoSeco + ' kg/m3');
     }
   }
-  function renderMixTable(){
-    var tbody = document.getElementById('mix-tbody');
+  function renderMezclaDisplay(){
     var totals = {peso:0, vol:0, sss:0, humedo:0, batch:0, cvd:0};
-    tbody.innerHTML = mixItems.map(function(item, idx){
+    var rows = mixItems.map(function(item){
+      var comp = componentes[item.compIndex];
       var r = mixRowCompute(item);
       totals.peso += n(item.pesoSeco); totals.vol += r.volAbs; totals.sss += r.pesoSSS; totals.humedo += r.pesoHumedo; totals.batch += r.batch; totals.cvd += r.cvd;
-      var comp = componentes[item.compIndex];
       var isAditivo = comp && comp.categoria === 'Aditivo';
       return '<tr>' +
-        '<td class="mezcla-select-cell"><select class="mix-row-select" data-i="'+idx+'">'+componenteOptionsHtml(item.compIndex)+'</select></td>' +
+        '<td class="mezcla-nombre-mat">'+(comp?esc(comp.nombre):'—')+'</td>' +
         '<td class="'+(isAditivo?'mezcla-dosis':'')+'">'+(isAditivo && comp.dosis ? esc(comp.dosis)+'%' : '-')+'</td>' +
-        '<td><input type="number" class="mix-peso" data-i="'+idx+'" value="'+esc(item.pesoSeco)+'" placeholder="0"></td>' +
-        '<td class="mono">'+r.volAbs.toFixed(3)+'</td>' +
-        '<td class="mono">'+r.pesoSSS.toFixed(2)+'</td>' +
-        '<td class="mono">'+r.pesoHumedo.toFixed(2)+'</td>' +
-        '<td class="mono">'+r.batch.toFixed(3)+'</td>' +
-        '<td class="mono">'+r.cvd.toFixed(2)+'</td>' +
-        '<td><button class="btn-icon" data-act="del-mix" data-i="'+idx+'" title="Quitar">×</button></td>' +
+        '<td>'+n(item.pesoSeco).toFixed(2)+'</td>' +
+        '<td>'+r.volAbs.toFixed(3)+'</td>' +
+        '<td>'+r.pesoSSS.toFixed(2)+'</td>' +
+        '<td>'+r.pesoHumedo.toFixed(2)+'</td>' +
+        '<td>'+r.batch.toFixed(3)+'</td>' +
+        '<td>'+r.cvd.toFixed(2)+'</td>' +
       '</tr>';
-    }).join('') || '<tr><td colspan="9" style="text-align:center;color:var(--text-muted);">Todavía no agregaste materiales a la mezcla.</td></tr>';
-    document.getElementById('mix-total-peso').textContent = totals.peso.toFixed(2);
-    document.getElementById('mix-total-vol').textContent = totals.vol.toFixed(3);
-    document.getElementById('mix-total-sss').textContent = totals.sss.toFixed(2);
-    document.getElementById('mix-total-humedo').textContent = totals.humedo.toFixed(2);
-    document.getElementById('mix-total-batch').textContent = totals.batch.toFixed(2);
-    document.getElementById('mix-total-cvd').textContent = totals.cvd.toFixed(2);
+    }).join('');
+    document.getElementById('mezcla-display-tbody').innerHTML = rows || '<tr><td colspan="8" style="text-align:center;color:var(--text-muted);">Todavía no seleccionaste materiales en la sección 2.</td></tr>';
+    document.getElementById('mezcla-display-total').innerHTML =
+      '<td style="text-align:left;">Total</td><td></td><td>'+totals.peso.toFixed(2)+'</td><td>'+totals.vol.toFixed(3)+'</td><td>'+totals.sss.toFixed(2)+'</td><td>'+totals.humedo.toFixed(2)+'</td><td>'+totals.batch.toFixed(2)+'</td><td>'+totals.cvd.toFixed(2)+'</td>';
     document.getElementById('cvd-diseno-view').textContent = 'S/. ' + totals.cvd.toFixed(2);
     document.getElementById('cvd-base-view').textContent = 'S/. ' + n(document.getElementById('dis-cvd-base').value).toFixed(2);
+    return totals;
+  }
+  function renderMixTable(){
+    var tbody = document.getElementById('mix-tbody');
+    tbody.innerHTML = mixItems.map(function(item, idx){
+      return '<tr>' +
+        '<td class="mezcla-select-cell"><select class="mix-row-select" data-i="'+idx+'">'+componenteOptionsHtml(item.compIndex)+'</select></td>' +
+        '<td><input type="number" class="mix-peso" data-i="'+idx+'" value="'+esc(item.pesoSeco)+'" placeholder="0" style="width:110px;padding:8px 9px;border-radius:3px;border:1.5px solid var(--line);background:var(--surface);color:var(--text);"></td>' +
+        '<td><button class="btn-icon" data-act="del-mix" data-i="'+idx+'" title="Quitar">×</button></td>' +
+      '</tr>';
+    }).join('') || '<tr><td colspan="3" style="text-align:center;color:var(--text-muted);">Todavía no agregaste materiales a la mezcla.</td></tr>';
+    var totals = renderMezclaDisplay();
     renderPropiedades();
     return totals;
   }
@@ -1446,8 +1495,8 @@
     mixItems.splice(Number(btn.dataset.i), 1);
     renderMixTable();
   });
-  document.getElementById('dis-batch-vol').addEventListener('input', renderMixTable);
-  document.getElementById('dis-cvd-base').addEventListener('input', renderMixTable);
+  document.getElementById('dis-batch-vol').addEventListener('input', renderMezclaDisplay);
+  document.getElementById('dis-cvd-base').addEventListener('input', renderMezclaDisplay);
 
   function todayISO(){ var d = new Date(); return d.getFullYear()+'-'+String(d.getMonth()+1).padStart(2,'0')+'-'+String(d.getDate()).padStart(2,'0'); }
 
@@ -1458,6 +1507,7 @@
      'dis-agua-req','dis-vol-diseno','dis-cvd-base','dis-lim-gradacion','dis-pct-fino','dis-pct-grueso','dis-sufijo'
     ].forEach(function(id){ var el = document.getElementById(id); if(el) el.value = ''; });
     document.getElementById('dis-tipo-concreto').value = '';
+    document.getElementById('dis-agregado-grueso').value = '';
     document.getElementById('dis-batch-vol').value = '30';
     document.getElementById('dis-fecha-mezcla').value = todayISO();
     mixItems = [];
@@ -1495,6 +1545,7 @@
       edad: document.getElementById('dis-edad').value.trim(),
       cementoTipo: document.getElementById('dis-cemento-tipo').value.trim(),
       tmn: document.getElementById('dis-tmn').value.trim(),
+      agregadoGrueso: (function(){ var idx=document.getElementById('dis-agregado-grueso').value; var c=idx!==''?componentes[Number(idx)]:null; return c?c.nombre:''; })(),
       slump: document.getElementById('dis-slump').value.trim(),
       exposicion: document.getElementById('dis-exposicion').value.trim(),
       aire: document.getElementById('dis-aire').value.trim(),
@@ -1774,8 +1825,9 @@
   /* ================= INIT ================= */
   buildPlantaSelect();
   buildTipoConcretoSelect();
+  rebuildAgregadoGruesoSelect();
   renderNavSub();
-  setCompSubOpen(load('sid10_comp_sub_open', false));
+  setCompSubOpen(false);
   renderComponentesPanel();
   renderAllDesignViews();
   syncLaboratorio();
