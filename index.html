@@ -338,6 +338,16 @@
   }
 
   /* ---- Reporte RR ---- */
+  .comp-cat-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(160px,1fr));gap:14px;}
+  .comp-cat-tile{background:var(--surface);border:1.5px solid var(--line);border-radius:8px;padding:28px 16px;text-align:center;transition:transform .15s var(--ease), border-color .15s var(--ease), box-shadow .15s var(--ease);}
+  .comp-cat-tile:hover{transform:translateY(-3px);border-color:var(--rojo-500);box-shadow:0 12px 24px rgba(0,0,0,.08);}
+  .comp-cat-tile .icon-wrap{width:52px;height:52px;border-radius:50%;background:var(--surface-2);display:flex;align-items:center;justify-content:center;margin:0 auto 12px;color:var(--rojo-600);}
+  .comp-cat-tile .icon-wrap svg{width:26px;height:26px;}
+  .comp-cat-tile h4{font-family:var(--font-display);font-size:.95rem;font-weight:700;margin-bottom:4px;}
+  .comp-cat-tile span{font-size:.74rem;color:var(--text-muted);}
+  .comp-back{display:inline-flex;align-items:center;gap:7px;font-size:.83rem;color:var(--rojo-600);font-weight:600;margin-bottom:16px;}
+  .comp-back:hover{text-decoration:underline;}
+
   .rr-layout{display:grid;grid-template-columns:240px 1fr;gap:18px;align-items:start;}
   @media(max-width:1000px){.rr-layout{grid-template-columns:1fr;}}
   .rr-study-card{background:var(--surface);border:1px solid var(--line);border-radius:3px;padding:12px 14px;margin-bottom:8px;cursor:pointer;}
@@ -421,14 +431,10 @@
         <span class="label">Inicio</span>
       </button>
 
-      <div class="nav-dropdown">
-        <button class="nav-item nav-parent" id="nav-componentes-toggle">
-          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 8l-9-5-9 5 9 5 9-5z"/><path d="M3 8v8l9 5 9-5V8"/></svg>
-          <span class="label">Componentes</span>
-          <svg class="chev" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M6 9l6 6 6-6"/></svg>
-        </button>
-        <div class="nav-sub" id="nav-componentes-sub"></div>
-      </div>
+      <button class="nav-item" data-panel="componentes">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 8l-9-5-9 5 9 5 9-5z"/><path d="M3 8v8l9 5 9-5V8"/></svg>
+        <span class="label">Componentes</span>
+      </button>
 
       <button class="nav-item" data-panel="disenos">
         <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="4" y="2" width="16" height="20" rx="2"/><line x1="8" y1="7" x2="16" y2="7"/><line x1="8" y1="12" x2="16" y2="12"/><line x1="8" y1="17" x2="12" y2="17"/></svg>
@@ -484,11 +490,17 @@
     <!-- COMPONENTES -->
     <section id="panel-componentes" class="panel">
       <div class="content-header">
-        <div><h2 id="comp-title">Componentes</h2><p id="comp-desc">Elegí una categoría en el menú lateral.</p></div>
+        <div><h2 id="comp-title">Componentes</h2><p id="comp-desc">Elegí una categoría para registrar o consultar componentes.</p></div>
         <span class="badge-pill" id="comp-count">0 registros</span>
       </div>
-      <div id="comp-empty" class="card empty-note">Elegí una categoría (Cemento, Adición, Agua, Pigmento, Piedra, Arena o Aditivo) desde el menú lateral para ver o registrar componentes.</div>
+
+      <div id="comp-cat-grid" class="comp-cat-grid"></div>
+
       <div id="comp-body" style="display:none;">
+        <button class="comp-back" id="comp-back-btn">
+          <svg viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M19 12H5"/><path d="M12 19l-7-7 7-7"/></svg>
+          Volver a categorías
+        </button>
         <div class="card">
           <div class="form-row">
             <input type="text" id="comp-nombre" placeholder="Nombre del componente">
@@ -793,7 +805,7 @@
   runLoader();
 
   /* ================= NAV ================= */
-  var navItems = document.querySelectorAll('.sidebar .nav-item[data-panel]');
+  var navItems = document.querySelectorAll('.topbar-nav .nav-item[data-panel]');
   function showPanel(name){
     navItems.forEach(function(btn){ btn.classList.toggle('active', btn.dataset.panel === name); });
     document.querySelectorAll('.panel').forEach(function(sec){ sec.classList.toggle('active', sec.id === 'panel-' + name); });
@@ -801,7 +813,13 @@
     if(name === 'inicio'){ renderInicioRecientes(); renderInicioFavoritos(); }
     window.scrollTo({top:0, behavior:'auto'});
   }
-  navItems.forEach(function(btn){ btn.addEventListener('click', function(){ showPanel(btn.dataset.panel); }); });
+  navItems.forEach(function(btn){
+    btn.addEventListener('click', function(){
+      if(btn.dataset.panel === 'componentes'){ activeCompCat = null; }
+      showPanel(btn.dataset.panel);
+      if(btn.dataset.panel === 'componentes'){ renderComponentesPanel(); }
+    });
+  });
   document.getElementById('btn-calcular').addEventListener('click', function(){ showPanel('disenos'); showSubTab('calcular'); });
   document.getElementById('btn-historico').addEventListener('click', function(){ showPanel('disenos'); showSubTab('historico'); });
 
@@ -840,13 +858,13 @@
     costo:'Costo (S./kg)', procedencia:'Procedencia', dosis:'Dosis (%)', funcion:'Función'
   };
   var CAT_DEFS = [
-    {id:'Cemento', desc:'Cementos y precursores cementantes usados como base del diseño.', fields:['norma','tipo','sap','rho','pus','costo','procedencia']},
-    {id:'Adición', desc:'Adiciones minerales y puzolánicas.', fields:['norma','sap','rho','pus','costo','procedencia']},
-    {id:'Agua', desc:'Agua de mezcla y hielo.', fields:['sap','rho','pus','costo','procedencia']},
-    {id:'Pigmento', desc:'Pigmentos para concreto decorativo.', fields:['sap','rho','pus','costo','procedencia']},
-    {id:'Piedra', desc:'Agregado grueso: piedra chancada y grava.', fields:['norma','tipo','sap','rho','absorcion','humedad','mfinura','tmn','pasa200','pasa100','pus','wr','costo','procedencia']},
-    {id:'Arena', desc:'Agregado fino: arenas naturales y combinadas.', fields:['norma','tipo','sap','rho','absorcion','humedad','mfinura','tmn','pasa200','pasa100','pus','wr','costo','procedencia']},
-    {id:'Aditivo', desc:'Aditivos químicos: plastificantes, reductores y modificadores.', fields:['norma','tipo','sap','rho','dosis','funcion','costo','procedencia']}
+    {id:'Cemento', desc:'Cementos y precursores cementantes usados como base del diseño.', icon:'<path d="M21 8l-9-5-9 5 9 5 9-5z"/><path d="M3 8v8l9 5 9-5V8"/><path d="M12 13v8"/>', fields:['norma','tipo','sap','rho','pus','costo','procedencia']},
+    {id:'Adición', desc:'Adiciones minerales y puzolánicas.', icon:'<path d="M9 2v6L4 20a1 1 0 0 0 1 2h14a1 1 0 0 0 1-2L15 8V2"/><line x1="8" y1="2" x2="16" y2="2"/>', fields:['norma','sap','rho','pus','costo','procedencia']},
+    {id:'Agua', desc:'Agua de mezcla y hielo.', icon:'<path d="M12 2s7 8.5 7 13a7 7 0 0 1-14 0c0-4.5 7-13 7-13z"/>', fields:['sap','rho','pus','costo','procedencia']},
+    {id:'Pigmento', desc:'Pigmentos para concreto decorativo.', icon:'<path d="M12 3a9 9 0 1 0 0 18c1.1 0 2-.9 2-2 0-.5-.2-1-.5-1.4-.3-.4-.5-.9-.5-1.4 0-1.1.9-2 2-2h2a4 4 0 0 0 4-4c0-4.4-4-7.2-9-7.2z"/><circle cx="7.5" cy="10.5" r="1"/><circle cx="12" cy="7.5" r="1"/><circle cx="16.5" cy="10.5" r="1"/>', fields:['sap','rho','pus','costo','procedencia']},
+    {id:'Piedra', desc:'Agregado grueso: piedra chancada y grava.', icon:'<path d="M3 20l6-10 4 6 3-4 5 8H3z"/>', fields:['norma','tipo','sap','rho','absorcion','humedad','mfinura','tmn','pasa200','pasa100','pus','wr','costo','procedencia']},
+    {id:'Arena', desc:'Agregado fino: arenas naturales y combinadas.', icon:'<circle cx="6" cy="6" r="1.6"/><circle cx="12" cy="6" r="1.6"/><circle cx="18" cy="6" r="1.6"/><circle cx="6" cy="12" r="1.6"/><circle cx="12" cy="12" r="1.6"/><circle cx="18" cy="12" r="1.6"/><circle cx="6" cy="18" r="1.6"/><circle cx="12" cy="18" r="1.6"/><circle cx="18" cy="18" r="1.6"/>', fields:['norma','tipo','sap','rho','absorcion','humedad','mfinura','tmn','pasa200','pasa100','pus','wr','costo','procedencia']},
+    {id:'Aditivo', desc:'Aditivos químicos: plastificantes, reductores y modificadores.', icon:'<path d="M9 2h6"/><path d="M10 2v6.5l-4.5 9A2 2 0 0 0 7.3 20h9.4a2 2 0 0 0 1.8-2.5l-4.5-9V2"/>', fields:['norma','tipo','sap','rho','dosis','funcion','costo','procedencia']}
   ];
   function catDef(id){ return CAT_DEFS.filter(function(c){ return c.id === id; })[0]; }
 
@@ -861,37 +879,29 @@
     {categoria:'Aditivo', nombre:'Master Rheobuild 1201', peso:'3.28', norma:'C494', tipo:'F', sap:'902-00940', rho:'1230', dosis:'0.60', funcion:'Reductor de agua', costo:'3.30', procedencia:'Fabricante: BASF-Perú'},
     {categoria:'Aditivo', nombre:'Master Rheobuild 2025', peso:'4.91', norma:'C494', tipo:'D', sap:'902-00989', rho:'1250', dosis:'0.90', funcion:'Superplastificante', costo:'3.30', procedencia:'Fabricante: BASF-Perú'}
   ]);
-  var activeCompCat = load('sid10_comp_active_cat', null);
+  var activeCompCat = null;
   var compEditingIndex = null;
 
-  function renderNavSub(){
-    var sub = document.getElementById('nav-componentes-sub');
-    sub.innerHTML = CAT_DEFS.map(function(c){
-      return '<button class="nav-subitem'+(c.id===activeCompCat?' active':'')+'" data-cat="'+c.id+'">'+c.id+'</button>';
+  function renderCompCatGrid(){
+    var grid = document.getElementById('comp-cat-grid');
+    grid.innerHTML = CAT_DEFS.map(function(c){
+      var count = componentes.filter(function(x){ return x.categoria === c.id; }).length;
+      return '<button class="comp-cat-tile" data-cat="'+c.id+'">' +
+        '<span class="icon-wrap"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">'+c.icon+'</svg></span>' +
+        '<h4>'+c.id+'</h4><span>'+count+' registrado'+(count===1?'':'s')+'</span>' +
+      '</button>';
     }).join('');
   }
-  function setCompSubOpen(open){
-    document.getElementById('nav-componentes-sub').classList.toggle('open', open);
-    document.getElementById('nav-componentes-toggle').classList.toggle('expanded', open);
-    save('sid10_comp_sub_open', open);
-  }
-  document.getElementById('nav-componentes-toggle').addEventListener('click', function(){
-    var isOpen = document.getElementById('nav-componentes-sub').classList.contains('open');
-    setCompSubOpen(!isOpen);
-  });
-  document.getElementById('nav-componentes-sub').addEventListener('click', function(e){
-    var btn = e.target.closest('.nav-subitem');
-    if(!btn) return;
-    activeCompCat = btn.dataset.cat;
-    save('sid10_comp_active_cat', activeCompCat);
+  document.getElementById('comp-cat-grid').addEventListener('click', function(e){
+    var tile = e.target.closest('.comp-cat-tile');
+    if(!tile) return;
+    activeCompCat = tile.dataset.cat;
     compEditingIndex = null;
-    renderNavSub();
-    showPanel('componentes');
     renderComponentesPanel();
-    setCompSubOpen(false);
   });
-  document.addEventListener('click', function(e){
-    if(!e.target.closest('.nav-dropdown')) setCompSubOpen(false);
+  document.getElementById('comp-back-btn').addEventListener('click', function(){
+    activeCompCat = null;
+    renderComponentesPanel();
   });
 
   function buildCompForm(def){
@@ -911,17 +921,18 @@
   }
   function renderComponentesPanel(){
     var def = catDef(activeCompCat);
-    var emptyEl = document.getElementById('comp-empty');
+    var gridEl = document.getElementById('comp-cat-grid');
     var bodyEl = document.getElementById('comp-body');
     if(!def){
-      emptyEl.style.display = 'block';
+      gridEl.style.display = 'grid';
       bodyEl.style.display = 'none';
       document.getElementById('comp-title').textContent = 'Componentes';
-      document.getElementById('comp-desc').textContent = 'Elegí una categoría en el menú lateral.';
+      document.getElementById('comp-desc').textContent = 'Elegí una categoría para registrar o consultar componentes.';
       document.getElementById('comp-count').textContent = componentes.length + ' registros';
+      renderCompCatGrid();
       return;
     }
-    emptyEl.style.display = 'none';
+    gridEl.style.display = 'none';
     bodyEl.style.display = 'block';
     document.getElementById('comp-title').textContent = def.id;
     document.getElementById('comp-desc').textContent = def.desc;
@@ -1826,8 +1837,6 @@
   buildPlantaSelect();
   buildTipoConcretoSelect();
   rebuildAgregadoGruesoSelect();
-  renderNavSub();
-  setCompSubOpen(false);
   renderComponentesPanel();
   renderAllDesignViews();
   syncLaboratorio();
