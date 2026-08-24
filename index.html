@@ -86,7 +86,7 @@
     box-shadow:0 6px 18px rgba(0,0,0,.18);
   }
   .topbar .brand{display:flex;align-items:center;gap:10px;flex-shrink:0;}
-  .topbar .brand .mark{width:16px;height:16px;background:var(--naranja-500);flex-shrink:0;}
+  .topbar .brand .mark{width:18px;height:18px;background:linear-gradient(135deg,#fbbf24,var(--naranja-600) 55%,#dc2626);border-radius:3px;flex-shrink:0;}
   .topbar .brand-text{font-family:var(--font-display);font-weight:700;letter-spacing:.01em;font-size:1.02rem;white-space:nowrap;color:#fff;}
   .topbar .brand-text small{display:block;font-size:.6rem;letter-spacing:.03em;color:rgba(255,255,255,.55);font-weight:400;font-family:var(--font-body);}
 
@@ -147,7 +147,22 @@
   .stat-strip .num{font-family:var(--font-display);font-size:1.7rem;font-weight:700;color:var(--naranja-600);}
   .stat-strip .label{font-size:.8rem;color:var(--text-muted);margin-top:2px;}
 
-  #panel-inicio .hero-panel{background:#ffffff;border:1px solid var(--line);border-left:6px solid var(--naranja-600);padding:34px clamp(22px,4.5vw,46px);text-align:center;box-shadow:0 1px 3px rgba(0,0,0,.04);}
+  #panel-inicio .hero-panel{
+    position:relative;overflow:hidden;
+    background:linear-gradient(135deg,#fff9f3 0%,#ffe4c4 55%,#ffd1a3 100%);
+    border:none;border-radius:16px;
+    padding:38px clamp(22px,4.5vw,50px);text-align:center;
+    box-shadow:0 18px 40px -20px rgba(234,88,12,.45);
+  }
+  #panel-inicio .hero-panel::before{
+    content:"";position:absolute;top:-70px;right:-70px;width:220px;height:220px;border-radius:50%;
+    background:radial-gradient(circle,rgba(220,38,38,.14),transparent 70%);
+  }
+  #panel-inicio .hero-panel::after{
+    content:"";position:absolute;bottom:-90px;left:-60px;width:200px;height:200px;border-radius:50%;
+    background:radial-gradient(circle,rgba(250,204,21,.18),transparent 70%);
+  }
+  #panel-inicio .hero-panel > *{position:relative;z-index:1;}
   #panel-inicio .hero-panel h1{font-family:var(--font-display);font-weight:700;font-size:clamp(1.15rem,2.4vw,1.7rem);letter-spacing:.02em;color:var(--text);}
   #panel-inicio .hero-subtag{display:inline-block;margin-top:6px;font-family:var(--font-display);font-weight:700;font-size:.85rem;letter-spacing:.08em;color:#fbc38c;}
   #panel-inicio .hero-panel h1 em{font-style:normal;color:var(--naranja-600);}
@@ -195,7 +210,8 @@
   .more-menu.show{display:block;}
   .more-menu button{display:flex;align-items:center;gap:8px;width:100%;text-align:left;padding:9px 12px;font-size:.8rem;color:var(--text);}
   .more-menu button:hover{background:var(--surface-2);}
-  .more-menu button.danger{color:var(--naranja-600);}
+  .more-menu button.danger{color:#dc2626;}
+  .more-menu button.danger:hover{background:#fee2e2;}
 
   /* ---- shared form / table ---- */
   .subtabs{display:flex;gap:0;margin-bottom:22px;border-bottom:1px solid var(--line);}
@@ -450,7 +466,7 @@
   <header class="topbar">
     <div class="brand">
       <span class="mark"></span>
-      <div class="brand-text">I+D</div>
+      <div class="brand-text">Sistema I+D</div>
     </div>
 
     <nav class="topbar-nav">
