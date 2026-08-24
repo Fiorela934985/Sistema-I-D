@@ -73,13 +73,11 @@
   #app-shell.ready{opacity:1;}
 
   .topbar{
-    position:sticky;top:0;z-index:50;
+    position:fixed;top:0;left:0;right:0;z-index:50;
     display:flex;align-items:center;gap:22px;
     padding:0 clamp(18px,3vw,40px);
     height:64px;
     background:linear-gradient(180deg,#161514,#0d0c0b);
-    border-bottom:none;
-    position:relative;
   }
   .topbar::after{
     content:"";position:absolute;left:0;right:0;bottom:-5px;height:5px;
@@ -92,7 +90,7 @@
   .topbar .brand-text{font-family:var(--font-display);font-weight:700;letter-spacing:.01em;font-size:1.02rem;white-space:nowrap;color:#fff;}
   .topbar .brand-text small{display:block;font-size:.6rem;letter-spacing:.03em;color:rgba(255,255,255,.55);font-weight:400;font-family:var(--font-body);}
 
-  .topbar-nav{display:flex;align-items:center;gap:2px;flex:1;overflow-x:auto;height:100%;}
+  .topbar-nav{display:flex;align-items:center;justify-content:center;gap:2px;flex:1;overflow-x:auto;height:100%;}
   .topbar-nav::-webkit-scrollbar{display:none;}
   .nav-item{
     display:flex;align-items:center;gap:9px;height:100%;padding:0 15px;
@@ -124,7 +122,7 @@
 
   .topbar-foot{display:none;}
 
-  .content{padding:34px clamp(20px,3.5vw,52px) 60px;max-width:1380px;min-width:0;margin:0 auto;}
+  .content{padding:104px clamp(20px,3vw,40px) 60px;max-width:1680px;min-width:0;margin:0 auto;}
   .panel{display:none;}
   .panel.active{display:block;animation:panelIn .2s var(--ease) both;}
   @keyframes panelIn{from{opacity:0;}to{opacity:1;}}
@@ -150,7 +148,8 @@
   .stat-strip .label{font-size:.8rem;color:var(--text-muted);margin-top:2px;}
 
   #panel-inicio .hero-panel{background:#ffffff;border:1px solid var(--line);border-left:6px solid var(--naranja-600);padding:34px clamp(22px,4.5vw,46px);text-align:center;box-shadow:0 1px 3px rgba(0,0,0,.04);}
-  #panel-inicio .hero-panel h1{font-family:var(--font-display);font-weight:700;font-size:clamp(1.6rem,3.2vw,2.3rem);letter-spacing:.01em;}
+  #panel-inicio .hero-panel h1{font-family:var(--font-display);font-weight:700;font-size:clamp(1.15rem,2.4vw,1.7rem);letter-spacing:.02em;color:var(--text);}
+  #panel-inicio .hero-subtag{display:inline-block;margin-top:6px;font-family:var(--font-display);font-weight:700;font-size:.85rem;letter-spacing:.08em;color:#fbc38c;}
   #panel-inicio .hero-panel h1 em{font-style:normal;color:var(--naranja-600);}
   #panel-inicio .hero-panel .lead{margin-top:8px;color:var(--text-muted);font-size:.94rem;}
 
@@ -287,7 +286,7 @@
   .hoja-title{display:flex;align-items:center;justify-content:center;font-family:var(--font-display);font-weight:700;font-size:1.05rem;text-transform:uppercase;text-align:center;padding:12px;border-right:1px solid var(--line);}
   .hoja-code{padding:10px 16px;font-size:.68rem;line-height:1.7;color:var(--text-muted);}
   .hoja-code b{color:var(--text);}
-  .hoja-nombre{position:sticky;top:64px;z-index:40;text-align:center;padding:10px 14px;font-family:var(--font-display);font-weight:700;font-size:1.15rem;background:var(--surface-2);border-bottom:2px solid var(--naranja-600);color:var(--naranja-600);box-shadow:0 4px 10px rgba(0,0,0,.05);}
+  .hoja-nombre{position:sticky;top:69px;z-index:40;text-align:center;padding:10px 14px;font-family:var(--font-display);font-weight:700;font-size:1.15rem;background:var(--surface-2);border-bottom:2px solid var(--naranja-600);color:var(--naranja-600);box-shadow:0 4px 10px rgba(0,0,0,.05);}
   .hoja-meta{display:grid;grid-template-columns:repeat(auto-fit,minmax(170px,1fr));}
   .hoja-meta-cell{padding:10px 16px;border-right:1px solid var(--line);border-bottom:1px solid var(--line);}
   .hoja-meta-cell label{display:block;font-size:.64rem;text-transform:uppercase;color:var(--text-muted);font-weight:600;margin-bottom:4px;}
@@ -451,7 +450,7 @@
   <header class="topbar">
     <div class="brand">
       <span class="mark"></span>
-      <div class="brand-text">Sistema I+D<small>Laboratorio de Aplicaciones</small></div>
+      <div class="brand-text">I+D</div>
     </div>
 
     <nav class="topbar-nav">
@@ -489,7 +488,8 @@
     <!-- INICIO — sin cards -->
     <section id="panel-inicio" class="panel active">
       <div class="hero-panel">
-        <h1>Laboratorio de <em>I+D</em></h1>
+        <h1>LABORATORIO DE INVESTIGACIÓN Y DESARROLLO</h1>
+        <span class="hero-subtag">I+D</span>
         <p class="lead">Realiza un diseño y controla los resultados.</p>
         <div class="cta-row">
           <button class="btn-solid" id="btn-calcular">Calcular Diseño <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h14"/><path d="M13 6l6 6-6 6"/></svg></button>
@@ -518,7 +518,7 @@
     <!-- COMPONENTES -->
     <section id="panel-componentes" class="panel">
       <div class="content-header">
-        <div><h2 id="comp-title">Componentes</h2><p id="comp-desc">Elegí una categoría para registrar o consultar componentes.</p></div>
+        <div><h2 id="comp-title">Componentes</h2></div>
         <span class="badge-pill" id="comp-count">0 registros</span>
       </div>
 
@@ -549,7 +549,7 @@
     <!-- DISEÑOS -->
     <section id="panel-disenos" class="panel">
       <div class="content-header">
-        <div><h2>Diseños</h2><p>Calculá un nuevo diseño de mezcla o revisá el histórico completo.</p></div>
+        <div><h2>Diseños</h2></div>
         <span class="badge-pill" id="disenos-count">5 registros</span>
       </div>
 
@@ -585,7 +585,6 @@
               </select>
             </div>
             <div class="hoja-meta-cell"><label>N° Diseño</label><input type="text" id="dis-ndiseno" placeholder="70"></div>
-            <div class="hoja-meta-cell"><label>Código SAP</label><input type="text" id="dis-sap" placeholder="004-01685"></div>
             <div class="hoja-meta-cell">
               <div class="hoja-cvd">
                 <span>Base<b id="cvd-base-view">S/. 0.00</b></span>
@@ -603,7 +602,6 @@
               <input type="checkbox" id="toggle-propiedades" checked style="width:15px;height:15px;">Ver esta sección
             </label>
           </div>
-          <div class="section-hint">Se actualiza automáticamente según los materiales que elijas en "3. Composición de mezcla".</div>
           <div class="table-scroll" id="propiedades-wrap">
             <table class="hoja-table">
               <thead><tr><th style="text-align:left;">Materiales</th><th>Norma</th><th>Tipo</th><th>Cód. SAP</th><th>ρ Bseca</th><th>Absorción%</th><th>Humedad%</th><th>M. Finura</th><th>TMN A.G.</th><th>Pasa200</th><th>Pasa100</th><th>PUS</th><th>WR</th><th>Costo</th><th>Procedencia</th></tr></thead>
@@ -718,7 +716,6 @@
             </div>
           </div>
 
-          <p class="section-hint" style="margin-top:16px;margin-bottom:0;">Si el material que necesitás no aparece en algún selector, registralo primero en <strong>Componentes</strong>.</p>
         </div>
 
         <!-- 3. COMPOSICIÓN DE MEZCLA (solo el aditivo se elige acá) -->
@@ -727,7 +724,6 @@
             <div><div class="section-num" style="margin-bottom:0;">3. Composición de mezcla</div><span class="mono" style="color:var(--text-muted);" id="mezcla-nombre-echo"></span></div>
             <input type="date" id="dis-fecha-mezcla">
           </div>
-          <div class="section-hint">El cemento, el agua y los agregados ya quedaron definidos en la sección 2. Acá solo elegís el aditivo correspondiente.</div>
           <div class="form-row">
             <select id="dis-aditivo-mat"></select>
             <input type="number" id="dis-aditivo-peso" placeholder="Peso seco aditivo (kg/m3)">
@@ -749,11 +745,6 @@
         <div class="hist-toolbar">
           <input type="text" id="hist-search" placeholder="Buscar por nombre…">
           <input type="date" id="hist-fecha-filtro">
-          <div class="filter-chips" id="hist-estado-filtro">
-            <button class="filter-chip active" data-estado="Todos">Todos</button>
-            <button class="filter-chip" data-estado="Completo">Completo</button>
-            <button class="filter-chip" data-estado="Incompleto">Incompleto</button>
-          </div>
           <div class="view-toggle" id="hist-view-toggle">
             <button class="view-toggle-btn active" data-view="cards" title="Ver en tarjetas">
               <svg viewBox="0 0 24 24" width="15" height="15" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="7" height="7" rx="1"/><rect x="14" y="3" width="7" height="7" rx="1"/><rect x="3" y="14" width="7" height="7" rx="1"/><rect x="14" y="14" width="7" height="7" rx="1"/></svg>
@@ -763,15 +754,14 @@
             </button>
           </div>
         </div>
-        <p style="font-size:.83rem;color:var(--text-muted);margin:12px 0 16px;">Lista completa de todos los diseños registrados. Marcá favoritos, copiá los datos o abrí la vista imprimible / exportable a Excel de cualquiera.</p>
-        <div class="gallery" id="dis-gallery"></div>
+        <div class="gallery" id="dis-gallery" style="margin-top:14px;"></div>
       </div>
     </section>
 
     <!-- REPORTE RR -->
     <section id="panel-reporte-rr" class="panel">
       <div class="content-header">
-        <div><h2>Reporte RR</h2><p>Comparación de resultados por estudio: relación a/c, dosis de aditivo y parámetros de diseño.</p></div>
+        <div><h2>Reporte RR</h2></div>
         <span class="badge-pill" id="rr-count">0 estudios</span>
       </div>
       <div class="rr-layout">
@@ -800,7 +790,7 @@
     <!-- REPORTES -->
     <section id="panel-reportes" class="panel">
       <div class="content-header">
-        <div><h2>Reportes</h2><p>Indicadores generales del sistema, en tiempo real.</p></div>
+        <div><h2>Reportes</h2></div>
         <span class="badge-pill">Actualizado hoy</span>
       </div>
       <div class="stat-grid">
@@ -819,13 +809,13 @@
 
     <!-- AJUSTES -->
     <section id="panel-ajustes" class="panel">
-      <div class="content-header"><div><h2>Ajustes</h2><p>Preferencias generales del sistema.</p></div></div>
+      <div class="content-header"><div><h2>Ajustes</h2></div></div>
       <div class="card">
         <div class="settings-list">
-          <div class="setting-row"><div><h4>Modo oscuro</h4><p>Cambia el panel completo a una paleta oscura.</p></div><label class="switch"><input type="checkbox" id="set-darkmode"><span class="slider"></span></label></div>
-          <div class="setting-row"><div><h4>Notificaciones</h4><p>Recibir avisos de cambios en componentes y diseños.</p></div><label class="switch"><input type="checkbox" id="set-notif" checked><span class="slider"></span></label></div>
-          <div class="setting-row"><div><h4>Autoguardado</h4><p>Guarda automáticamente los cambios del panel.</p></div><label class="switch"><input type="checkbox" id="set-autosave" checked><span class="slider"></span></label></div>
-          <div class="setting-row"><div><h4>Idioma</h4><p>Idioma de la interfaz del sistema.</p></div><select class="lang-select" id="set-lang"><option value="es">Español</option><option value="en">English</option></select></div>
+          <div class="setting-row"><div><h4>Modo oscuro</h4></div><label class="switch"><input type="checkbox" id="set-darkmode"><span class="slider"></span></label></div>
+          <div class="setting-row"><div><h4>Notificaciones</h4></div><label class="switch"><input type="checkbox" id="set-notif" checked><span class="slider"></span></label></div>
+          <div class="setting-row"><div><h4>Autoguardado</h4></div><label class="switch"><input type="checkbox" id="set-autosave" checked><span class="slider"></span></label></div>
+          <div class="setting-row"><div><h4>Idioma</h4></div><select class="lang-select" id="set-lang"><option value="es">Español</option><option value="en">English</option></select></div>
         </div>
         <div class="settings-actions"><button class="btn-add" id="set-save">Guardar cambios</button></div>
       </div>
@@ -1024,7 +1014,6 @@
       gridEl.style.display = 'grid';
       bodyEl.style.display = 'none';
       document.getElementById('comp-title').textContent = 'Componentes';
-      document.getElementById('comp-desc').textContent = 'Elegí una categoría para registrar o consultar componentes.';
       document.getElementById('comp-count').textContent = componentes.length + ' registros';
       renderCompCatGrid();
       return;
@@ -1032,7 +1021,6 @@
     gridEl.style.display = 'none';
     bodyEl.style.display = 'block';
     document.getElementById('comp-title').textContent = def.id;
-    document.getElementById('comp-desc').textContent = def.desc;
     buildCompForm(def);
 
     var items = componentes.filter(function(c){ return c.categoria === def.id; });
@@ -1274,7 +1262,6 @@
     syncLaboratorio();
     if(d.uso) document.getElementById('dis-uso').value = d.uso;
     document.getElementById('dis-ndiseno').value = d.ndiseno || '';
-    document.getElementById('dis-sap').value = d.sap || '';
     var tipoIdx = selectedTipoConcretoIndexByLabel(d.tipo);
     document.getElementById('dis-tipo-concreto').value = tipoIdx >= 0 ? tipoIdx : '';
     document.getElementById('dis-fc').value = d.fc || '';
@@ -1355,14 +1342,12 @@
   document.getElementById('favoritos-grid').addEventListener('click', handleCardAction);
 
   var histView = 'cards';
-  var histFiltroEstado = 'Todos';
   function renderDisenosHistorico(){
     var wrap = document.getElementById('dis-gallery');
     var searchTxt = (document.getElementById('hist-search').value || '').trim().toLowerCase();
     var fechaFiltro = document.getElementById('hist-fecha-filtro').value;
     var filtered = disenos.filter(function(d){
       if(searchTxt && diseñoTitulo(d).toLowerCase().indexOf(searchTxt) === -1) return false;
-      if(histFiltroEstado !== 'Todos' && d.estado !== histFiltroEstado) return false;
       if(fechaFiltro){
         var dParts = d.fecha.split('/');
         var dIso = dParts.length===3 ? (dParts[2]+'-'+dParts[1]+'-'+dParts[0]) : '';
@@ -1373,19 +1358,12 @@
 
     wrap.classList.toggle('list-view', histView === 'list');
     var renderFn = histView === 'list' ? disenoRowHtml : disenoCardHtml;
-    wrap.innerHTML = filtered.length ? filtered.map(renderFn).join('') : '<div class="empty-note">No hay diseños que coincidan con la búsqueda o los filtros.</div>';
+    wrap.innerHTML = filtered.length ? filtered.map(renderFn).join('') : '<div class="empty-note">Sin resultados.</div>';
     document.getElementById('disenos-count').textContent = disenos.length + ' registros';
     updateStats();
   }
   document.getElementById('hist-search').addEventListener('input', renderDisenosHistorico);
   document.getElementById('hist-fecha-filtro').addEventListener('change', renderDisenosHistorico);
-  document.getElementById('hist-estado-filtro').addEventListener('click', function(e){
-    var chip = e.target.closest('.filter-chip');
-    if(!chip) return;
-    histFiltroEstado = chip.dataset.estado;
-    document.querySelectorAll('#hist-estado-filtro .filter-chip').forEach(function(c){ c.classList.toggle('active', c===chip); });
-    renderDisenosHistorico();
-  });
   document.getElementById('hist-view-toggle').addEventListener('click', function(e){
     var btn = e.target.closest('.view-toggle-btn');
     if(!btn) return;
@@ -1715,7 +1693,7 @@
   function todayISO(){ var d = new Date(); return d.getFullYear()+'-'+String(d.getMonth()+1).padStart(2,'0')+'-'+String(d.getDate()).padStart(2,'0'); }
 
   function resetCalcForm(){
-    ['dis-ndiseno','dis-sap','dis-fc','dis-fc-mpa','dis-ft','dis-edad',
+    ['dis-ndiseno','dis-fc','dis-fc-mpa','dis-ft','dis-edad',
      'dis-cemento-tipo','dis-cemento-peso','dis-tmn','dis-slump','dis-exposicion','dis-aire',
      'dis-otras-esp','dis-desv-std','dis-fcr','dis-amc-efectiva',
      'dis-agua-req','dis-vol-diseno','dis-cvd-base','dis-lim-gradacion','dis-pct-fino','dis-pct-grueso','dis-sufijo',
@@ -1757,7 +1735,6 @@
       laboratorio: document.getElementById('dis-laboratorio').value,
       uso: document.getElementById('dis-uso').value,
       ndiseno: document.getElementById('dis-ndiseno').value.trim(),
-      sap: document.getElementById('dis-sap').value.trim(),
       negocio: document.getElementById('dis-negocio').value,
       tipo: tipoDef.label,
       fc: fc,
