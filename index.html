@@ -272,7 +272,7 @@
   .hoja-title{display:flex;align-items:center;justify-content:center;font-family:var(--font-display);font-weight:700;font-size:1.05rem;text-transform:uppercase;text-align:center;padding:12px;border-right:1px solid var(--line);}
   .hoja-code{padding:10px 16px;font-size:.68rem;line-height:1.7;color:var(--text-muted);}
   .hoja-code b{color:var(--text);}
-  .hoja-nombre{text-align:center;padding:14px;font-family:var(--font-display);font-weight:700;font-size:1.4rem;background:var(--surface-2);border-bottom:1px solid var(--line);color:var(--rojo-600);}
+  .hoja-nombre{position:sticky;top:64px;z-index:40;text-align:center;padding:10px 14px;font-family:var(--font-display);font-weight:700;font-size:1.15rem;background:var(--surface-2);border-bottom:2px solid var(--rojo-600);color:var(--rojo-600);box-shadow:0 4px 10px rgba(0,0,0,.05);}
   .hoja-meta{display:grid;grid-template-columns:repeat(auto-fit,minmax(170px,1fr));}
   .hoja-meta-cell{padding:10px 16px;border-right:1px solid var(--line);border-bottom:1px solid var(--line);}
   .hoja-meta-cell label{display:block;font-size:.64rem;text-transform:uppercase;color:var(--text-muted);font-weight:600;margin-bottom:4px;}
@@ -290,14 +290,22 @@
   table.hoja-table td{padding:6px 8px;border-bottom:1px solid var(--line);text-align:center;white-space:nowrap;}
   table.hoja-table td.hoja-nombre-mat{text-align:left;font-weight:600;color:#1f4e8c;}
 
-  .params-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:14px;}
+  .params-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:12px;}
   @media(max-width:1000px){.params-grid{grid-template-columns:1fr;}}
   .params-col{border:1px solid var(--line);border-radius:4px;overflow:hidden;}
-  .params-col-head{background:#6f6f6f;color:#fff;padding:8px 12px;font-family:var(--font-display);font-size:.76rem;text-transform:uppercase;text-align:center;font-weight:600;}
-  .params-col-body{padding:12px;display:flex;flex-direction:column;gap:9px;background:var(--surface);}
-  .params-field label{display:block;font-size:.6rem;text-transform:uppercase;color:var(--text-muted);font-weight:600;margin-bottom:2px;}
-  .params-field input,.params-field select{width:100%;padding:6px 7px;font-size:.76rem;border:1px solid var(--line);border-radius:3px;background:var(--surface);color:var(--text);}
+  .params-col-head{background:#6f6f6f;color:#fff;padding:6px 10px;font-family:var(--font-display);font-size:.72rem;text-transform:uppercase;text-align:center;font-weight:600;}
+  .params-col-body{padding:10px 12px;display:grid;grid-template-columns:1fr 1fr;gap:7px 9px;background:var(--surface);align-content:start;}
+  .params-field label{display:block;font-size:.58rem;text-transform:uppercase;color:var(--text-muted);font-weight:600;margin-bottom:2px;line-height:1.2;}
+  .params-field input,.params-field select{width:100%;padding:5px 6px;font-size:.72rem;border:1px solid var(--line);border-radius:3px;background:var(--surface);color:var(--text);}
   .params-field input[readonly]{background:var(--surface-2);color:var(--rojo-600);font-weight:600;font-family:var(--font-mono);}
+  .params-field.span-2{grid-column:1 / -1;}
+  table.mini-params-table{width:100%;border-collapse:collapse;font-size:.66rem;}
+  table.mini-params-table th{background:var(--surface-2);color:var(--text-muted);padding:3px 4px;text-align:center;font-weight:600;text-transform:uppercase;font-size:.58rem;}
+  table.mini-params-table th:first-child{text-align:left;}
+  table.mini-params-table td{padding:2px 3px;border-bottom:1px solid var(--line);}
+  table.mini-params-table td:first-child{font-family:var(--font-mono);color:var(--text-muted);white-space:nowrap;}
+  table.mini-params-table input,table.mini-params-table select{width:100%;padding:3px 4px;font-size:.66rem;border:1px solid var(--line);border-radius:2px;background:var(--surface);color:var(--text);}
+  table.mini-params-table td.mini-label{text-align:left;color:var(--text);font-family:var(--font-body);white-space:normal;}
 
   .mezcla-head-row{display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:10px;margin-bottom:12px;}
   .mezcla-head-row input[type="date"]{padding:8px 10px;border-radius:3px;border:1.5px solid var(--line);background:var(--surface);color:var(--text);font-size:.82rem;}
@@ -600,33 +608,89 @@
                 <div class="params-field"><label>Tipo de cemento</label><input type="text" id="dis-cemento-tipo" placeholder="I"></div>
                 <div class="params-field"><label>Huso granul. TMN (AG)</label><input type="text" id="dis-tmn" placeholder="67"></div>
                 <div class="params-field"><label>Tipo de agregado grueso</label><select id="dis-agregado-grueso"></select></div>
-                <div class="params-field"><label>Consistencia (slump, pulg)</label><input type="text" id="dis-slump" placeholder="3"></div>
+                <div class="params-field"><label>Consistencia (slump/slump flow)</label><input type="text" id="dis-slump" placeholder="3" data-key="consistencia"></div>
+                <div class="params-field"><label>Viscosidad T50</label><input type="text" id="dis-t50" placeholder="-" data-key="t50"></div>
                 <div class="params-field"><label>Exposición</label><input type="text" id="dis-exposicion" placeholder="Ambiente"></div>
+                <div class="params-field"><label>Relación a/mc máxima</label><input type="text" id="dis-amc-max" placeholder="-" data-key="amcMax"></div>
                 <div class="params-field"><label>Aire incorporado (%)</label><input type="text" id="dis-aire" placeholder="1.5"></div>
                 <div class="params-field"><label>Destino</label><input type="text" id="dis-destino" placeholder="Radio local"></div>
                 <div class="params-field"><label>Tipo de colocación</label><input type="text" id="dis-colocacion" placeholder="Bombeado"></div>
-                <div class="params-field"><label>Otras especificaciones</label><input type="text" id="dis-otras-esp" placeholder="-"></div>
+                <div class="params-field"><label>Contenido de finos &lt;0.15mm (kg/m3)</label><input type="text" id="dis-finos015" placeholder="-" data-key="finos015"></div>
+                <div class="params-field span-2"><label>Otras especificaciones</label><input type="text" id="dis-otras-esp" placeholder="-"></div>
+                <div class="params-field"><label>Descripción en MPa</label>
+                  <select id="dis-desc-mpa" data-key="descMpa"><option value="No">No</option><option value="Sí">Sí</option></select>
+                </div>
+                <div class="params-field"><label>Descripción del concreto adicional</label><input type="text" id="dis-desc-adicional" placeholder="-" data-key="descAdicional"></div>
               </div>
             </div>
+
             <div class="params-col">
               <div class="params-col-head">Cálculos relacionados</div>
               <div class="params-col-body">
                 <div class="params-field"><label>Desviación estándar (kg/cm²)</label><input type="number" id="dis-desv-std" placeholder="20"></div>
                 <div class="params-field"><label>f'cr — objetivo (auto)</label><input type="text" id="dis-fcr" readonly></div>
+                <div class="params-field"><label>a/mc calculada</label><input type="text" id="dis-amc-calc" placeholder="0.54" data-key="amcCalc"></div>
+                <div class="params-field"><label>a/mc requerida</label><input type="text" id="dis-amc-req" placeholder="0.37" data-key="amcReq"></div>
                 <div class="params-field"><label>a/mc efectiva</label><input type="text" id="dis-amc-efectiva" placeholder="0.37"></div>
+                <div class="params-field"><label>Base de datos (a/mc)</label><input type="text" id="dis-amc-base" placeholder="P.C.A" data-key="amcBase"></div>
+                <div class="params-field span-2" style="border-top:1px dashed var(--line);padding-top:6px;margin-top:2px;"><label>Consumo de agua por m3</label></div>
+                <div class="params-field"><label>Agua calculada (L)</label><input type="text" id="dis-agua-calc" placeholder="-" data-key="aguaCalc"></div>
+                <div class="params-field"><label>Agua requerida (L)</label><input type="text" id="dis-agua-req-val" placeholder="202" data-key="aguaReqVal"></div>
+                <div class="params-field"><label>Consumo real sin aditivos (L)</label><input type="text" id="dis-agua-real" placeholder="202" data-key="aguaReal"></div>
+                <div class="params-field"><label>Reducción agua calculada (%)</label><input type="text" id="dis-red-agua-calc" placeholder="6.9%" data-key="redAguaCalc"></div>
+                <div class="params-field"><label>Reducción agua establecida (%)</label><input type="text" id="dis-red-agua-est" placeholder="0.0%" data-key="redAguaEst"></div>
                 <div class="params-field"><label>Agua efectiva de diseño (L)</label><input type="text" id="dis-agua-req" placeholder="202"></div>
+                <div class="params-field span-2" style="border-top:1px dashed var(--line);padding-top:6px;margin-top:2px;"><label>Slump / % aire / volumen / PUCF</label></div>
+                <div class="params-field"><label>Slump determinado</label><input type="text" id="dis-slump-det" placeholder="2 1/2" data-key="slumpDet"></div>
+                <div class="params-field"><label>Slump requerido</label><input type="text" id="dis-slump-req" placeholder="6.5" data-key="slumpReq"></div>
+                <div class="params-field"><label>Slump diseño</label><input type="text" id="dis-slump-diseno" placeholder="6 1/2" data-key="slumpDiseno"></div>
+                <div class="params-field"><label>% aire requerido</label><input type="text" id="dis-aire-req" placeholder="1.5%" data-key="aireReq"></div>
+                <div class="params-field"><label>% aire diseño</label><input type="text" id="dis-aire-diseno" placeholder="1.5%" data-key="aireDiseno"></div>
+                <div class="params-field"><label>Volumen calculado (m3)</label><input type="text" id="dis-vol-calc" placeholder="1.02" data-key="volCalc"></div>
                 <div class="params-field"><label>Volumen de diseño (m3)</label><input type="text" id="dis-vol-diseno" placeholder="1.00"></div>
+                <div class="params-field"><label>PUCF determinado (kg/m3)</label><input type="text" id="dis-pucf-det" placeholder="2419" data-key="pucfDet"></div>
+                <div class="params-field"><label>PUCF requerido (kg/m3)</label><input type="text" id="dis-pucf-req" placeholder="2459" data-key="pucfReq"></div>
+                <div class="params-field"><label>PUCF diseño (kg/m3)</label><input type="text" id="dis-pucf-diseno" placeholder="2260" data-key="pucfDiseno"></div>
                 <div class="params-field"><label>CVD Base (referencial, S/.)</label><input type="text" id="dis-cvd-base" placeholder="288.07"></div>
                 <div class="params-field"><label>Sufijo del nombre técnico</label><input type="text" id="dis-sufijo" placeholder="A1"></div>
               </div>
             </div>
+
             <div class="params-col">
               <div class="params-col-head">Proporcionamiento de agregados</div>
               <div class="params-col-body">
                 <div class="params-field"><label>Límite de gradación</label><input type="text" id="dis-lim-gradacion" placeholder="DIN 1045"></div>
+                <div class="params-field"><label>TMN (A.G.) — especificación</label><input type="text" id="dis-tmn-spec" placeholder="3/4" data-key="tmnSpec"></div>
                 <div class="params-field"><label>% Agregado fino</label><input type="text" id="dis-pct-fino" placeholder="41"></div>
                 <div class="params-field"><label>% Agregado grueso</label><input type="text" id="dis-pct-grueso" placeholder="59"></div>
+                <div class="params-field"><label>¿Usará agregado especial?</label>
+                  <select id="dis-agg-especial" data-key="aggEspecial"><option value="No">No</option><option value="Sí">Sí</option></select>
+                </div>
                 <div class="params-field"><label>Batch de prueba (L)</label><input type="number" id="dis-batch-vol" value="30"></div>
+
+                <div class="params-field span-2" style="margin-top:4px;">
+                  <label>Incidencia individual de agregados</label>
+                  <div class="table-scroll">
+                    <table class="mini-params-table">
+                      <thead><tr><th>Cód.</th><th>Material</th><th>%</th></tr></thead>
+                      <tbody id="incidencia-tbody"></tbody>
+                    </table>
+                  </div>
+                </div>
+                <div class="params-field"><label>Mf Patrón</label><input type="text" id="dis-mf-patron" placeholder="5.20" data-key="mfPatron"></div>
+                <div class="params-field"><label>Mf Teórica</label><input type="text" id="dis-mf-teorica" placeholder="4.35" data-key="mfTeorica"></div>
+                <div class="params-field span-2"><label>Mf Diseño (Mfg)</label><input type="text" id="dis-mf-diseno" placeholder="5.73" data-key="mfDiseno"></div>
+
+                <div class="params-field span-2" style="margin-top:6px;">
+                  <label>Límites de control</label>
+                  <div class="table-scroll">
+                    <table class="mini-params-table">
+                      <thead><tr><th></th><th>Diseño</th><th>Min</th><th>Max</th><th>Estado</th></tr></thead>
+                      <tbody id="limites-tbody"></tbody>
+                    </table>
+                  </div>
+                </div>
+
                 <div class="params-field"><label>Estado del diseño</label>
                   <select id="dis-estado"><option value="Espera de resultados">Espera de resultados</option><option value="Completado">Completado</option></select>
                 </div>
@@ -1202,6 +1266,11 @@
     document.getElementById('dis-pct-grueso').value = d.pctGrueso || '';
     document.getElementById('dis-sufijo').value = '';
     document.getElementById('dis-estado').value = 'Espera de resultados';
+    if(d.extra){
+      document.querySelectorAll('#sub-calcular [data-key]').forEach(function(el){
+        if(d.extra[el.dataset.key] !== undefined) el.value = d.extra[el.dataset.key];
+      });
+    }
     recalcFcr();
     mixItems = (d.mix||[]).map(function(item){
       var idx = -1;
@@ -1336,8 +1405,8 @@
     var aggCode = agregadoGruesoCode();
     var sufijo = document.getElementById('dis-sufijo').value.trim();
     var parts = [];
-    if(amc) parts.push(amc);
     if(tipoDef) parts.push(tipoDef.code);
+    if(amc) parts.push(amc);
     if(cemento) parts.push(cemento);
     if(aggCode) parts.push(aggCode);
     var nombre = parts.length ? parts.join('-') + (sufijo ? '-' + sufijo : '') : '';
@@ -1395,6 +1464,7 @@
       sel.innerHTML = componenteOptionsHtml(current);
     });
     rebuildAgregadoGruesoSelect();
+    rebuildIncidenciaTable();
   }
   function agregadoGruesoOptionsHtml(selectedIdx){
     var html = '<option value="">Elegí…</option>';
@@ -1409,13 +1479,60 @@
     var current = sel.value === '' ? null : Number(sel.value);
     sel.innerHTML = agregadoGruesoOptionsHtml(current);
   }
+
+  /* ---- Incidencia individual de agregados (AF1/AF2 = Arena, AG1/AG2/AG3 = Piedra) ---- */
+  var INCIDENCIA_ROWS = [
+    {codigo:'AF1', categoria:'Arena'},
+    {codigo:'AF2', categoria:'Arena'},
+    {codigo:'AG1', categoria:'Piedra'},
+    {codigo:'AG2', categoria:'Piedra'},
+    {codigo:'AG3', categoria:'Piedra'}
+  ];
+  function matOptionsForCategoria(categoria, selected){
+    var html = '<option value="">—</option>';
+    componentes.forEach(function(c,i){
+      if(c.categoria !== categoria) return;
+      html += '<option value="'+i+'"'+(String(i)===String(selected)?' selected':'')+'>'+esc(c.nombre)+'</option>';
+    });
+    return html;
+  }
+  function rebuildIncidenciaTable(){
+    var tbody = document.getElementById('incidencia-tbody');
+    var existing = {};
+    tbody.querySelectorAll('select[data-inc]').forEach(function(sel){ existing[sel.dataset.inc] = sel.value; });
+    tbody.innerHTML = INCIDENCIA_ROWS.map(function(r){
+      return '<tr>' +
+        '<td>'+r.codigo+'</td>' +
+        '<td><select data-inc="'+r.codigo+'" data-key="inc_'+r.codigo+'_mat">'+matOptionsForCategoria(r.categoria, existing[r.codigo])+'</select></td>' +
+        '<td><input type="text" placeholder="0%" data-key="inc_'+r.codigo+'_pct"></td>' +
+      '</tr>';
+    }).join('');
+  }
+
+  /* ---- Límites de control ---- */
+  var LIMITES_ROWS = [
+    'Factor de grosor','Factor de trabajabilidad','Factor mortero','Factor pasta','Agua/finos',
+    'Cont. Finos <0.30mm','Cont. Finos <0.15mm','Coeficiente de uniformidad','Coeficiente de curvatura'
+  ];
+  function buildLimitesTable(){
+    var tbody = document.getElementById('limites-tbody');
+    tbody.innerHTML = LIMITES_ROWS.map(function(label, i){
+      return '<tr>' +
+        '<td class="mini-label">'+label+'</td>' +
+        '<td><input type="text" data-key="lim_'+i+'_diseno"></td>' +
+        '<td><input type="text" data-key="lim_'+i+'_min"></td>' +
+        '<td><input type="text" data-key="lim_'+i+'_max"></td>' +
+        '<td><input type="text" data-key="lim_'+i+'_estado"></td>' +
+      '</tr>';
+    }).join('');
+  }
   function agregadoGruesoCode(){
     var idx = document.getElementById('dis-agregado-grueso').value;
     if(idx === '') return '';
     var c = componentes[Number(idx)];
     if(!c) return '';
-    if(c.tmn && c.tmn !== '-') return c.tmn;
-    return c.nombre.replace(/[^A-Za-z0-9]/g,'').slice(0,4).toUpperCase();
+    var parts = c.nombre.split('-');
+    return parts.length > 1 ? parts[1].trim() : c.nombre.trim();
   }
   document.getElementById('dis-agregado-grueso').addEventListener('change', refreshNombrePreview);
   function mixRowCompute(item){
@@ -1517,10 +1634,14 @@
      'dis-colocacion','dis-otras-esp','dis-desv-std','dis-fcr','dis-amc-efectiva',
      'dis-agua-req','dis-vol-diseno','dis-cvd-base','dis-lim-gradacion','dis-pct-fino','dis-pct-grueso','dis-sufijo'
     ].forEach(function(id){ var el = document.getElementById(id); if(el) el.value = ''; });
+    document.querySelectorAll('#sub-calcular [data-key]').forEach(function(el){
+      if(el.tagName === 'SELECT'){ el.selectedIndex = 0; } else { el.value = ''; }
+    });
     document.getElementById('dis-tipo-concreto').value = '';
     document.getElementById('dis-agregado-grueso').value = '';
     document.getElementById('dis-batch-vol').value = '30';
     document.getElementById('dis-fecha-mezcla').value = todayISO();
+    rebuildIncidenciaTable();
     mixItems = [];
     renderMixTable();
     refreshNombrePreview();
@@ -1568,6 +1689,11 @@
       aguaReq: document.getElementById('dis-agua-req').value.trim(),
       pctFino: document.getElementById('dis-pct-fino').value.trim(),
       pctGrueso: document.getElementById('dis-pct-grueso').value.trim(),
+      extra: (function(){
+        var e = {};
+        document.querySelectorAll('#sub-calcular [data-key]').forEach(function(el){ e[el.dataset.key] = el.value; });
+        return e;
+      })(),
       mix: mixSnapshot,
       cvdTotal: Number(totals.cvd.toFixed(2)),
       estado: document.getElementById('dis-estado').value,
@@ -1837,6 +1963,8 @@
   buildPlantaSelect();
   buildTipoConcretoSelect();
   rebuildAgregadoGruesoSelect();
+  rebuildIncidenciaTable();
+  buildLimitesTable();
   renderComponentesPanel();
   renderAllDesignViews();
   syncLaboratorio();
