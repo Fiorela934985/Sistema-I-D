@@ -1331,7 +1331,6 @@
     return '<button class="btn-icon view" data-act="view" data-i="'+i+'" title="Ver diseño">'+EYE_ICON+'</button>' +
       '<button class="btn-icon results" data-act="results" data-i="'+i+'" title="'+resultsLabel+'">'+RESULTS_ICON+'</button>' +
       '<button class="btn-icon dup" data-act="dup" data-i="'+i+'" title="Duplicar">'+DUP_ICON+'</button>' +
-      '<button class="btn-icon copy" data-act="copy" data-i="'+i+'" title="Copiar datos">'+CLIPBOARD_ICON+'</button>' +
       '<button class="btn-icon fav'+(d.favorito?' active':'')+'" data-act="fav" data-i="'+i+'" title="Favorito">'+(d.favorito?STAR_FILLED:STAR_OUTLINE)+'</button>' +
       '<button class="btn-icon danger" data-act="del" data-i="'+i+'" title="Eliminar">'+TRASH_ICON+'</button>';
   }
@@ -1717,19 +1716,6 @@
   document.getElementById('informe-modal-close').addEventListener('click', function(){ document.getElementById('informe-modal').classList.remove('show'); });
   document.getElementById('informe-modal').addEventListener('click', function(e){ if(e.target.id === 'informe-modal') document.getElementById('informe-modal').classList.remove('show'); });
 
-  function rebuildInformePicker(){
-    var sel = document.getElementById('informe-picker');
-    var completos = disenos.filter(function(d){ return d.estado === 'Completo'; });
-    sel.innerHTML = completos.length
-      ? completos.map(function(d){ var i = disenos.indexOf(d); return '<option value="'+i+'">'+esc(diseñoTitulo(d))+' · '+esc(d.fecha)+'</option>'; }).join('')
-      : '<option value="">No hay diseños completos todavía</option>';
-  }
-  document.getElementById('informe-picker-open').addEventListener('click', function(){
-    var idx = document.getElementById('informe-picker').value;
-    if(idx === '' || idx === null){ toast('Todavía no hay diseños completos para ver su informe'); return; }
-    openInformeModal(disenos[Number(idx)]);
-  });
-
   document.getElementById('informe-download-pdf').addEventListener('click', function(){
     if(!currentInformeDesign || typeof window.jspdf === 'undefined'){ toast('No se pudo generar el PDF'); return; }
     var d = currentInformeDesign;
@@ -1870,8 +1856,6 @@
     } else if(act === 'dup'){
       closeAllMenus();
       askConfirmDuplicate(disenos[i]);
-    } else if(act === 'copy'){
-      copyDiseno(disenos[i]);
     } else if(act === 'fav'){
       disenos[i].favorito = !disenos[i].favorito;
       save('sid10_disenos', disenos);
@@ -1979,7 +1963,6 @@
     renderDisenosHistorico();
     renderInicioRecientes();
     renderInicioFavoritos();
-    rebuildInformePicker();
     updateStats();
   }
   function nextCodigo(){ return 'DID-' + String(disenos.length + 1).padStart(4,'0'); }
