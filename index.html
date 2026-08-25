@@ -216,7 +216,19 @@
   .view-toggle-btn.active{background:var(--naranja-600);color:#fff;}
   .gallery.list-view{display:flex;flex-direction:column;gap:8px;}
 
-  .filter-chips{display:flex;gap:6px;flex-wrap:wrap;}
+  .estado-tiles{display:grid;grid-template-columns:1fr 1fr;gap:20px;}
+  .estado-tile{display:flex;align-items:center;justify-content:center;gap:12px;padding:46px 20px;border-radius:12px;font-family:var(--font-display);font-weight:700;font-size:1.15rem;text-transform:uppercase;letter-spacing:.03em;border:2px solid transparent;transition:transform .15s var(--ease), box-shadow .15s var(--ease);}
+  .estado-tile:hover{transform:translateY(-3px);}
+  .estado-tile .estado-tile-dot{width:16px;height:16px;border-radius:50%;flex-shrink:0;}
+  .estado-tile.tile-rojo{background:#fdecec;color:#991b1b;border-color:#f3b9b9;}
+  .estado-tile.tile-rojo .estado-tile-dot{background:#dc2626;}
+  .estado-tile.tile-rojo:hover{box-shadow:0 16px 30px -14px rgba(220,38,38,.4);}
+  .estado-tile.tile-verde{background:#eafbf0;color:#166534;border-color:#a7e3bb;}
+  .estado-tile.tile-verde .estado-tile-dot{background:#16a34a;}
+  .estado-tile.tile-verde:hover{box-shadow:0 16px 30px -14px rgba(22,163,74,.4);}
+
+  .date-group{margin-bottom:26px;}
+  .date-group-head{display:inline-flex;align-items:center;gap:8px;font-family:var(--font-display);font-weight:700;font-size:.85rem;color:#fff;background:var(--naranja-600);padding:6px 16px;border-radius:999px;margin-bottom:12px;}
   .filter-chip{padding:6px 12px;font-size:.72rem;font-weight:600;border:1px solid var(--line);border-radius:999px;color:var(--text-muted);background:var(--surface);}
   .filter-chip:hover{border-color:var(--naranja-300);color:var(--text);}
   .filter-chip.active{background:var(--naranja-600);border-color:var(--naranja-600);color:#fff;}
@@ -271,6 +283,8 @@
   .btn-icon.edit:hover{background:var(--text);color:#fff;border-color:var(--text);}
   .btn-icon.fav{color:var(--text-muted);}
   .btn-icon.fav.active{background:#f5c518;color:#5c4400;border-color:#f5c518;}
+  .btn-icon.danger{color:#dc2626;}
+  .btn-icon.danger:hover{background:#fee2e2;border-color:#dc2626;}
   .btn-icon.copy{color:var(--text-muted);}
   .btn-icon.copy:hover{background:var(--text);color:#fff;border-color:var(--text);}
   .btn-icon.view{color:var(--text-muted);}
@@ -426,6 +440,8 @@
   .confirm-card{background:var(--surface);border-radius:14px;padding:30px 28px 26px;max-width:340px;width:100%;text-align:center;box-shadow:0 30px 60px -20px rgba(0,0,0,.4);animation:confirmPop .18s var(--ease) both;}
   @keyframes confirmPop{from{opacity:0;transform:scale(.94);}to{opacity:1;transform:scale(1);}}
   .confirm-icon{width:52px;height:52px;border-radius:50%;background:var(--surface-2);color:var(--naranja-600);display:flex;align-items:center;justify-content:center;margin:0 auto 14px;}
+  #confirm-accept.danger-solid{background:#dc2626;}
+  #confirm-accept.danger-solid:hover{background:#b91c1c;}
   .confirm-card h3{font-family:var(--font-display);font-size:1.05rem;font-weight:700;margin-bottom:6px;}
   .confirm-card p{font-size:.8rem;color:var(--text-muted);margin-bottom:20px;word-break:break-word;}
   .confirm-actions{display:flex;gap:10px;justify-content:center;}
@@ -568,10 +584,6 @@
         <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M9 3h6a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2H9a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2z"/><path d="M9 8h6"/><path d="M9 12h6"/><path d="M9 16h3"/></svg>
         <span class="label">Reporte RR</span>
       </button>
-      <button class="nav-item" data-panel="reportes">
-        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 3v18h18"/><rect x="7" y="12" width="3" height="6"/><rect x="12" y="8" width="3" height="10"/><rect x="17" y="5" width="3" height="13"/></svg>
-        <span class="label">Reportes</span>
-      </button>
       <button class="nav-item" data-panel="ajustes">
         <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 1 1-2.83 2.83l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-4 0v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 1 1-2.83-2.83l.06-.06A1.65 1.65 0 0 0 4.6 15a1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1 0-4h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 1 1 2.83-2.83l.06.06A1.65 1.65 0 0 0 9 4.6a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 4 0v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 1 1 2.83 2.83l-.06.06A1.65 1.65 0 0 0 19.4 9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 0 4h-.09a1.65 1.65 0 0 0-1.51 1z"/></svg>
         <span class="label">Ajustes</span>
@@ -648,7 +660,6 @@
     <section id="panel-disenos" class="panel">
       <div class="content-header">
         <div><h2>Diseños</h2></div>
-        <span class="badge-pill" id="disenos-count">5 registros</span>
       </div>
 
       <!-- ===== CALCULAR DISEÑO — réplica de la hoja real ===== -->
@@ -836,26 +847,39 @@
         <button class="btn-add" id="dis-add" style="font-size:.92rem;padding:14px 26px;">Registrar Diseño</button>
       </div>
 
-      <!-- ===== HISTÓRICO ===== -->
+      <!-- ===== HISTÓRICO — 2 apartados por estado ===== -->
       <div class="card sub-panel" id="sub-historico" style="display:none;">
-        <div class="hist-toolbar">
-          <input type="text" id="hist-search" placeholder="Buscar por nombre…">
-          <input type="date" id="hist-fecha-filtro">
-          <div class="view-toggle" id="hist-view-toggle">
-            <button class="view-toggle-btn active" data-view="cards" title="Ver en tarjetas">
-              <svg viewBox="0 0 24 24" width="15" height="15" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="7" height="7" rx="1"/><rect x="14" y="3" width="7" height="7" rx="1"/><rect x="3" y="14" width="7" height="7" rx="1"/><rect x="14" y="14" width="7" height="7" rx="1"/></svg>
-            </button>
-            <button class="view-toggle-btn" data-view="list" title="Ver en lista">
-              <svg viewBox="0 0 24 24" width="15" height="15" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="4" y1="6" x2="20" y2="6"/><line x1="4" y1="12" x2="20" y2="12"/><line x1="4" y1="18" x2="20" y2="18"/></svg>
-            </button>
+
+        <div id="estado-tiles" class="estado-tiles">
+          <button class="estado-tile tile-rojo" data-estado="Falta resultados">
+            <span class="estado-tile-dot"></span>Falta resultados
+          </button>
+          <button class="estado-tile tile-verde" data-estado="Completo">
+            <span class="estado-tile-dot"></span>Completo
+          </button>
+        </div>
+
+        <div id="estado-list-view" style="display:none;">
+          <button class="comp-back" id="estado-back-btn">
+            <svg viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M19 12H5"/><path d="M12 19l-7-7 7-7"/></svg>
+            Volver
+          </button>
+          <div class="hist-toolbar">
+            <input type="text" id="hist-search" placeholder="Buscar por nombre…">
+            <input type="date" id="hist-fecha-filtro">
+            <div class="view-toggle" id="hist-view-toggle">
+              <button class="view-toggle-btn active" data-view="cards" title="Ver en tarjetas">
+                <svg viewBox="0 0 24 24" width="15" height="15" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="7" height="7" rx="1"/><rect x="14" y="3" width="7" height="7" rx="1"/><rect x="3" y="14" width="7" height="7" rx="1"/><rect x="14" y="14" width="7" height="7" rx="1"/></svg>
+              </button>
+              <button class="view-toggle-btn" data-view="list" title="Ver en lista">
+                <svg viewBox="0 0 24 24" width="15" height="15" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="4" y1="6" x2="20" y2="6"/><line x1="4" y1="12" x2="20" y2="12"/><line x1="4" y1="18" x2="20" y2="18"/></svg>
+              </button>
+            </div>
+            <button class="btn-add" id="btn-nuevo-diseno" style="margin-left:auto;">+ Nuevo Diseño</button>
           </div>
-          <button class="btn-add" id="btn-nuevo-diseno" style="margin-left:auto;">+ Nuevo Diseño</button>
+          <div id="dis-gallery-by-date" style="margin-top:14px;"></div>
         </div>
-        <div id="hist-quick-filter-bar" style="display:none;align-items:center;gap:8px;margin-top:10px;">
-          <span class="filter-chip active"></span>
-          <button class="link-cancel" id="hist-quick-filter-clear" style="font-size:.75rem;">Quitar filtro ×</button>
-        </div>
-        <div class="gallery" id="dis-gallery" style="margin-top:14px;"></div>
+
       </div>
     </section>
 
@@ -863,9 +887,27 @@
     <section id="panel-reporte-rr" class="panel">
       <div class="content-header">
         <div><h2>Reporte RR</h2></div>
-        <span class="badge-pill" id="rr-count">0 estudios</span>
       </div>
-      <div class="rr-layout">
+
+      <div class="stat-grid">
+        <div class="stat-card"><div class="num" id="stat-componentes">0</div><div class="label">Componentes registrados</div></div>
+        <div class="stat-card" id="stat-card-falta" style="cursor:pointer;"><div class="num" id="stat-disenos">0</div><div class="label">Falta resultados</div></div>
+        <div class="stat-card"><div class="num" id="stat-estudios">0</div><div class="label">Estudios RR</div></div>
+        <div class="stat-card"><div class="num" id="stat-avance">0%</div><div class="label">Avance promedio</div></div>
+      </div>
+      <div class="card">
+        <h3 style="margin-bottom:16px;font-family:var(--font-display);font-size:.98rem;font-weight:600;">Avance por área</h3>
+        <div class="bar-row"><div class="bar-label"><span>Investigación</span><span>72%</span></div><div class="bar-track"><div class="bar-fill" data-value="72"></div></div></div>
+        <div class="bar-row"><div class="bar-label"><span>Desarrollo</span><span>58%</span></div><div class="bar-track"><div class="bar-fill" data-value="58"></div></div></div>
+        <div class="bar-row"><div class="bar-label"><span>Producción</span><span>40%</span></div><div class="bar-track"><div class="bar-fill" data-value="40"></div></div></div>
+      </div>
+
+      <div class="card" style="margin-top:18px;display:flex;align-items:center;gap:12px;flex-wrap:wrap;">
+        <select id="informe-picker" style="flex:1;min-width:220px;padding:9px 12px;border-radius:3px;border:1.5px solid var(--line);"></select>
+        <button class="btn-add" id="informe-picker-open">Ver informe (resultados + gráficas)</button>
+      </div>
+
+      <div class="rr-layout" style="margin-top:18px;">
         <div>
           <div id="rr-study-list"></div>
           <div class="rr-new-study">
@@ -885,26 +927,6 @@
           </div>
           <div class="rr-table-wrap" id="rr-edad-holder"></div>
         </div>
-      </div>
-    </section>
-
-    <!-- REPORTES -->
-    <section id="panel-reportes" class="panel">
-      <div class="content-header">
-        <div><h2>Reportes</h2></div>
-        <span class="badge-pill">Actualizado hoy</span>
-      </div>
-      <div class="stat-grid">
-        <div class="stat-card"><div class="num" id="stat-componentes">0</div><div class="label">Componentes registrados</div></div>
-        <div class="stat-card" id="stat-card-falta" style="cursor:pointer;"><div class="num" id="stat-disenos">0</div><div class="label">Falta resultados</div></div>
-        <div class="stat-card"><div class="num" id="stat-estudios">0</div><div class="label">Estudios RR</div></div>
-        <div class="stat-card"><div class="num" id="stat-avance">0%</div><div class="label">Avance promedio</div></div>
-      </div>
-      <div class="card">
-        <h3 style="margin-bottom:16px;font-family:var(--font-display);font-size:.98rem;font-weight:600;">Avance por área</h3>
-        <div class="bar-row"><div class="bar-label"><span>Investigación</span><span>72%</span></div><div class="bar-track"><div class="bar-fill" data-value="72"></div></div></div>
-        <div class="bar-row"><div class="bar-label"><span>Desarrollo</span><span>58%</span></div><div class="bar-track"><div class="bar-fill" data-value="58"></div></div></div>
-        <div class="bar-row"><div class="bar-label"><span>Producción</span><span>40%</span></div><div class="bar-track"><div class="bar-fill" data-value="40"></div></div></div>
       </div>
     </section>
 
@@ -983,10 +1005,10 @@
 <!-- ============ MODAL: Confirmar duplicar ============ -->
 <div id="confirm-modal">
   <div class="confirm-card">
-    <div class="confirm-icon">
+    <div class="confirm-icon" id="confirm-modal-icon">
       <svg viewBox="0 0 24 24" width="26" height="26" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="8" y="8" width="12" height="12" rx="2"/><path d="M4 16V6a2 2 0 0 1 2-2h10"/></svg>
     </div>
-    <h3>¿Desea duplicar el diseño?</h3>
+    <h3 id="confirm-modal-title">¿Desea duplicar el diseño?</h3>
     <p id="confirm-modal-name"></p>
     <div class="confirm-actions">
       <button class="btn-ghost" id="confirm-cancel">Cancelar</button>
@@ -1054,7 +1076,7 @@
     navItems.forEach(function(btn){ btn.classList.toggle('active', btn.dataset.panel === name); });
     document.querySelectorAll('.panel').forEach(function(sec){ sec.classList.toggle('active', sec.id === 'panel-' + name); });
     document.getElementById('back-home-bar').style.display = name === 'inicio' ? 'none' : 'block';
-    if(name === 'reportes') animateReportes();
+    if(name === 'reporte-rr') animateReportes();
     if(name === 'inicio'){ renderInicioRecientes(); renderInicioFavoritos(); }
     window.scrollTo({top:0, behavior:'auto'});
   }
@@ -1263,18 +1285,18 @@
   function showSubTab(name){
     document.getElementById('sub-calcular').style.display = name === 'calcular' ? 'block' : 'none';
     document.getElementById('sub-historico').style.display = name === 'historico' ? 'block' : 'none';
-    if(name === 'historico') renderDisenosHistorico();
+    if(name === 'historico'){
+      histEstadoActual = null;
+      document.getElementById('estado-list-view').style.display = 'none';
+      document.getElementById('estado-tiles').style.display = 'grid';
+    }
     window.scrollTo({top:0, behavior:'auto'});
   }
   document.getElementById('btn-nuevo-diseno').addEventListener('click', function(){ showSubTab('calcular'); });
   document.getElementById('stat-card-falta').addEventListener('click', function(){
-    histEstadoQuickFilter = 'Falta resultados';
     showPanel('disenos');
     showSubTab('historico');
-  });
-  document.getElementById('hist-quick-filter-clear').addEventListener('click', function(){
-    histEstadoQuickFilter = null;
-    renderDisenosHistorico();
+    openEstadoList('Falta resultados');
   });
 
   var DAY = 24*3600*1000;
@@ -1300,19 +1322,18 @@
   var TRASH_ICON = '<svg viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="3 6 5 6 21 6"/><path d="M19 6l-1 14a2 2 0 0 1-2 2H8a2 2 0 0 1-2-2L5 6"/><path d="M10 11v6"/><path d="M14 11v6"/></svg>';
 
   function diseñoTitulo(d){ return d.nombreTecnico || d.tipo; }
-  function disenoActionsHtml(d,i){
+  function disenoActionsMiniHtml(d,i){
     return '<button class="btn-icon view" data-act="view" data-i="'+i+'" title="Ver diseño">'+EYE_ICON+'</button>' +
-      '<button class="btn-icon results" data-act="results" data-i="'+i+'" title="Cargar resultados">'+RESULTS_ICON+'</button>' +
-      '<button class="btn-icon informe" data-act="informe" data-i="'+i+'" title="Ver informe">'+CHART_ICON+'</button>' +
+      '<button class="btn-icon fav'+(d.favorito?' active':'')+'" data-act="fav" data-i="'+i+'" title="Favorito">'+(d.favorito?STAR_FILLED:STAR_OUTLINE)+'</button>';
+  }
+  function disenoActionsHtml(d,i){
+    var resultsLabel = d.estado === 'Completo' ? 'Editar resultados' : 'Cargar resultados';
+    return '<button class="btn-icon view" data-act="view" data-i="'+i+'" title="Ver diseño">'+EYE_ICON+'</button>' +
+      '<button class="btn-icon results" data-act="results" data-i="'+i+'" title="'+resultsLabel+'">'+RESULTS_ICON+'</button>' +
       '<button class="btn-icon dup" data-act="dup" data-i="'+i+'" title="Duplicar">'+DUP_ICON+'</button>' +
+      '<button class="btn-icon copy" data-act="copy" data-i="'+i+'" title="Copiar datos">'+CLIPBOARD_ICON+'</button>' +
       '<button class="btn-icon fav'+(d.favorito?' active':'')+'" data-act="fav" data-i="'+i+'" title="Favorito">'+(d.favorito?STAR_FILLED:STAR_OUTLINE)+'</button>' +
-      '<div class="more-wrap">' +
-        '<button class="btn-icon more" data-act="more" data-i="'+i+'" title="Más opciones">'+KEBAB_ICON+'</button>' +
-        '<div class="more-menu" data-menu-i="'+i+'">' +
-          '<button data-act="copy" data-i="'+i+'">'+CLIPBOARD_ICON+' Copiar datos</button>' +
-          '<button class="danger" data-act="del" data-i="'+i+'">'+TRASH_ICON+' Eliminar</button>' +
-        '</div>' +
-      '</div>';
+      '<button class="btn-icon danger" data-act="del" data-i="'+i+'" title="Eliminar">'+TRASH_ICON+'</button>';
   }
   function disenoCardHtml(d){
     var i = disenos.indexOf(d);
@@ -1323,12 +1344,20 @@
         '<span class="mono">'+d.codigo+' · '+d.fecha+'</span>' +
         '<h4>'+diseñoTitulo(d)+'</h4>' +
         '<span class="mono" style="display:block;margin-bottom:8px;color:var(--text-muted);">'+d.planta+' · '+d.resistencia+' MPa'+(d.cvdTotal?(' · CVD S/.'+Number(d.cvdTotal).toFixed(2)):'')+'</span>' +
-        '<div class="tags"><span class="tag-pill '+tagEstado+'">'+d.estado+'</span></div>' +
         '<div class="design-actions">'+disenoActionsHtml(d,i)+'</div>' +
       '</div>' +
     '</div>';
   }
   function disenoRowHtml(d){
+    var i = disenos.indexOf(d);
+    return '<div class="design-row">' +
+      '<div class="drow-thumb"></div>' +
+      '<span class="drow-code mono">'+d.codigo+'</span>' +
+      '<div class="drow-main"><h5>'+diseñoTitulo(d)+'</h5><span>'+d.planta+' · '+d.fecha+' · '+d.resistencia+' MPa</span></div>' +
+      '<div class="drow-actions">'+disenoActionsHtml(d,i)+'</div>' +
+    '</div>';
+  }
+  function disenoRowMiniHtml(d){
     var i = disenos.indexOf(d);
     var tagEstado = d.estado === 'Completo' ? 'tag-verde' : 'tag-rojo';
     return '<div class="design-row">' +
@@ -1336,7 +1365,7 @@
       '<span class="drow-code mono">'+d.codigo+'</span>' +
       '<div class="drow-main"><h5>'+diseñoTitulo(d)+'</h5><span>'+d.planta+' · '+d.fecha+' · '+d.resistencia+' MPa</span></div>' +
       '<div class="drow-tags"><span class="tag-pill '+tagEstado+'">'+d.estado+'</span></div>' +
-      '<div class="drow-actions">'+disenoActionsHtml(d,i)+'</div>' +
+      '<div class="drow-actions">'+disenoActionsMiniHtml(d,i)+'</div>' +
     '</div>';
   }
   function copyDiseno(d){
@@ -1688,6 +1717,19 @@
   document.getElementById('informe-modal-close').addEventListener('click', function(){ document.getElementById('informe-modal').classList.remove('show'); });
   document.getElementById('informe-modal').addEventListener('click', function(e){ if(e.target.id === 'informe-modal') document.getElementById('informe-modal').classList.remove('show'); });
 
+  function rebuildInformePicker(){
+    var sel = document.getElementById('informe-picker');
+    var completos = disenos.filter(function(d){ return d.estado === 'Completo'; });
+    sel.innerHTML = completos.length
+      ? completos.map(function(d){ var i = disenos.indexOf(d); return '<option value="'+i+'">'+esc(diseñoTitulo(d))+' · '+esc(d.fecha)+'</option>'; }).join('')
+      : '<option value="">No hay diseños completos todavía</option>';
+  }
+  document.getElementById('informe-picker-open').addEventListener('click', function(){
+    var idx = document.getElementById('informe-picker').value;
+    if(idx === '' || idx === null){ toast('Todavía no hay diseños completos para ver su informe'); return; }
+    openInformeModal(disenos[Number(idx)]);
+  });
+
   document.getElementById('informe-download-pdf').addEventListener('click', function(){
     if(!currentInformeDesign || typeof window.jspdf === 'undefined'){ toast('No se pudo generar el PDF'); return; }
     var d = currentInformeDesign;
@@ -1725,25 +1767,43 @@
   });
 
   var pendingDuplicate = null;
+  var pendingDelete = null;
   function askConfirmDuplicate(d){
     pendingDuplicate = d;
+    pendingDelete = null;
+    document.getElementById('confirm-modal-title').textContent = '¿Desea duplicar el diseño?';
+    document.getElementById('confirm-accept').textContent = 'Sí, duplicar';
+    document.getElementById('confirm-accept').classList.remove('danger-solid');
     document.getElementById('confirm-modal-name').textContent = diseñoTitulo(d);
     document.getElementById('confirm-modal').classList.add('show');
   }
-  document.getElementById('confirm-cancel').addEventListener('click', function(){
+  function askConfirmDelete(d){
+    pendingDelete = d;
     pendingDuplicate = null;
+    document.getElementById('confirm-modal-title').textContent = '¿Desea eliminar el diseño?';
+    document.getElementById('confirm-accept').textContent = 'Sí, eliminar';
+    document.getElementById('confirm-accept').classList.add('danger-solid');
+    document.getElementById('confirm-modal-name').textContent = diseñoTitulo(d) + ' — esta acción no se puede deshacer';
+    document.getElementById('confirm-modal').classList.add('show');
+  }
+  document.getElementById('confirm-cancel').addEventListener('click', function(){
+    pendingDuplicate = null; pendingDelete = null;
     document.getElementById('confirm-modal').classList.remove('show');
   });
   document.getElementById('confirm-modal').addEventListener('click', function(e){
     if(e.target.id === 'confirm-modal'){
-      pendingDuplicate = null;
+      pendingDuplicate = null; pendingDelete = null;
       document.getElementById('confirm-modal').classList.remove('show');
     }
   });
   document.getElementById('confirm-accept').addEventListener('click', function(){
     document.getElementById('confirm-modal').classList.remove('show');
-    if(pendingDuplicate) duplicateDesignToForm(pendingDuplicate);
-    pendingDuplicate = null;
+    if(pendingDuplicate){ duplicateDesignToForm(pendingDuplicate); }
+    else if(pendingDelete){
+      var idx = disenos.indexOf(pendingDelete);
+      if(idx >= 0){ disenos.splice(idx, 1); save('sid10_disenos', disenos); toast('Diseño eliminado'); renderAllDesignViews(); }
+    }
+    pendingDuplicate = null; pendingDelete = null;
   });
 
   function duplicateDesignToForm(d){
@@ -1807,30 +1867,19 @@
       openDesignModal(disenos[i]);
     } else if(act === 'results'){
       openResultsModal(disenos[i], i);
-    } else if(act === 'informe'){
-      openInformeModal(disenos[i]);
     } else if(act === 'dup'){
       closeAllMenus();
       askConfirmDuplicate(disenos[i]);
+    } else if(act === 'copy'){
+      copyDiseno(disenos[i]);
     } else if(act === 'fav'){
       disenos[i].favorito = !disenos[i].favorito;
       save('sid10_disenos', disenos);
       toast(disenos[i].favorito ? 'Agregado a favoritos' : 'Quitado de favoritos');
       renderAllDesignViews();
-    } else if(act === 'more'){
-      var menu = btn.parentElement.querySelector('.more-menu');
-      var isOpen = menu.classList.contains('show');
-      closeAllMenus();
-      if(!isOpen) menu.classList.add('show');
-    } else if(act === 'copy'){
-      closeAllMenus();
-      copyDiseno(disenos[i]);
     } else if(act === 'del'){
       closeAllMenus();
-      disenos.splice(i, 1);
-      save('sid10_disenos', disenos);
-      toast('Diseño eliminado');
-      renderAllDesignViews();
+      askConfirmDelete(disenos[i]);
     }
   }
   document.getElementById('dis-gallery').addEventListener('click', handleCardAction);
@@ -1838,35 +1887,42 @@
   document.getElementById('favoritos-grid').addEventListener('click', handleCardAction);
 
   var histView = 'cards';
-  var histEstadoQuickFilter = null;
+  var histEstadoActual = null;
+
+  function fechaToIso(fecha){
+    var p = (fecha||'').split('/');
+    return p.length === 3 ? (p[2]+'-'+p[1]+'-'+p[0]) : '';
+  }
   function renderDisenosHistorico(){
-    var wrap = document.getElementById('dis-gallery');
+    if(!histEstadoActual) return;
+    var wrap = document.getElementById('dis-gallery-by-date');
     var searchTxt = (document.getElementById('hist-search').value || '').trim().toLowerCase();
     var fechaFiltro = document.getElementById('hist-fecha-filtro').value;
     var filtered = disenos.filter(function(d){
+      if(d.estado !== histEstadoActual) return false;
       if(searchTxt && diseñoTitulo(d).toLowerCase().indexOf(searchTxt) === -1) return false;
-      if(histEstadoQuickFilter && d.estado !== histEstadoQuickFilter) return false;
-      if(fechaFiltro){
-        var dParts = d.fecha.split('/');
-        var dIso = dParts.length===3 ? (dParts[2]+'-'+dParts[1]+'-'+dParts[0]) : '';
-        if(dIso !== fechaFiltro) return false;
-      }
+      if(fechaFiltro && fechaToIso(d.fecha) !== fechaFiltro) return false;
       return true;
     }).sort(function(a,b){ return (b.ts||0)-(a.ts||0); });
 
-    var quickBar = document.getElementById('hist-quick-filter-bar');
-    if(histEstadoQuickFilter){
-      quickBar.style.display = 'flex';
-      quickBar.querySelector('span').textContent = 'Mostrando: ' + histEstadoQuickFilter;
-    } else {
-      quickBar.style.display = 'none';
+    if(!filtered.length){
+      wrap.innerHTML = '<div class="empty-note">Sin diseños en este apartado.</div>';
+      return;
     }
-
-    wrap.classList.toggle('list-view', histView === 'list');
+    var groups = [];
+    var byDate = {};
+    filtered.forEach(function(d){
+      var key = d.fecha || 'Sin fecha';
+      if(!byDate[key]){ byDate[key] = []; groups.push(key); }
+      byDate[key].push(d);
+    });
     var renderFn = histView === 'list' ? disenoRowHtml : disenoCardHtml;
-    wrap.innerHTML = filtered.length ? filtered.map(renderFn).join('') : '<div class="empty-note">Sin resultados.</div>';
-    document.getElementById('disenos-count').textContent = disenos.length + ' registros';
-    updateStats();
+    wrap.innerHTML = groups.map(function(fecha){
+      return '<div class="date-group">' +
+        '<div class="date-group-head">'+esc(fecha)+'</div>' +
+        '<div class="gallery'+(histView==='list'?' list-view':'')+'">'+byDate[fecha].map(renderFn).join('')+'</div>' +
+      '</div>';
+    }).join('');
   }
   document.getElementById('hist-search').addEventListener('input', renderDisenosHistorico);
   document.getElementById('hist-fecha-filtro').addEventListener('change', renderDisenosHistorico);
@@ -1877,21 +1933,53 @@
     document.querySelectorAll('.view-toggle-btn').forEach(function(b){ b.classList.toggle('active', b===btn); });
     renderDisenosHistorico();
   });
+
+  function openEstadoList(estado){
+    histEstadoActual = estado;
+    document.getElementById('estado-tiles').style.display = 'none';
+    document.getElementById('estado-list-view').style.display = 'block';
+    document.getElementById('hist-search').value = '';
+    document.getElementById('hist-fecha-filtro').value = '';
+    renderDisenosHistorico();
+  }
+  document.getElementById('estado-tiles').addEventListener('click', function(e){
+    var tile = e.target.closest('.estado-tile');
+    if(!tile) return;
+    openEstadoList(tile.dataset.estado);
+  });
+  document.getElementById('estado-back-btn').addEventListener('click', function(){
+    histEstadoActual = null;
+    document.getElementById('estado-list-view').style.display = 'none';
+    document.getElementById('estado-tiles').style.display = 'grid';
+  });
+  function disenoCardMiniHtml(d){
+    var i = disenos.indexOf(d);
+    return '<div class="design-card">' +
+      '<div class="design-thumb"></div>' +
+      '<div class="design-body">' +
+        '<span class="mono">'+d.codigo+' · '+d.fecha+'</span>' +
+        '<h4>'+diseñoTitulo(d)+'</h4>' +
+        '<span class="mono" style="display:block;margin-bottom:8px;color:var(--text-muted);">'+d.planta+' · '+d.resistencia+' MPa</span>' +
+        '<div class="design-actions">'+disenoActionsMiniHtml(d,i)+'</div>' +
+      '</div>' +
+    '</div>';
+  }
   function renderInicioRecientes(){
     var wrap = document.getElementById('recientes-rows');
     var limite = Date.now() - 7*DAY;
     var recientes = disenos.filter(function(d){ return (d.ts||0) >= limite; }).sort(function(a,b){ return (b.ts||0)-(a.ts||0); });
-    wrap.innerHTML = recientes.length ? recientes.map(disenoRowHtml).join('') : '<div class="empty-note">No hay diseños de los últimos 7 días.</div>';
+    wrap.innerHTML = recientes.length ? recientes.map(disenoRowMiniHtml).join('') : '<div class="empty-note">No hay diseños de los últimos 7 días.</div>';
   }
   function renderInicioFavoritos(){
     var wrap = document.getElementById('favoritos-grid');
     var favs = disenos.filter(function(d){ return d.favorito; }).sort(function(a,b){ return (b.ts||0)-(a.ts||0); });
-    wrap.innerHTML = favs.length ? favs.map(disenoCardHtml).join('') : '<div class="empty-note">Todavía no marcaste diseños como favoritos.</div>';
+    wrap.innerHTML = favs.length ? favs.map(disenoCardMiniHtml).join('') : '<div class="empty-note">Todavía no marcaste diseños como favoritos.</div>';
   }
   function renderAllDesignViews(){
     renderDisenosHistorico();
     renderInicioRecientes();
     renderInicioFavoritos();
+    rebuildInformePicker();
     updateStats();
   }
   function nextCodigo(){ return 'DID-' + String(disenos.length + 1).padStart(4,'0'); }
@@ -2343,7 +2431,6 @@
         '<h5>'+esc(e.nombre)+'</h5><span>'+e.tipos.length+' tipos · '+e.fecha+'</span>' +
       '</div>';
     }).join('');
-    document.getElementById('rr-count').textContent = rrEstudios.length + ' estudios';
     updateStats();
   }
   document.getElementById('rr-study-list').addEventListener('click', function(e){
