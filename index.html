@@ -8,6 +8,8 @@
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Oswald:wght@500;600;700&family=Inter:wght@400;500;600;700&family=Roboto+Mono:wght@400;500&display=swap" rel="stylesheet">
 <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.4/chart.umd.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
 <style>
   :root{
     --naranja-300:#f2a3a3;
@@ -380,6 +382,8 @@
   .results-head h2{font-family:var(--font-display);font-size:1.15rem;font-weight:700;letter-spacing:.02em;color:var(--naranja-700);}
   .results-head .modal-close{position:absolute;right:16px;top:14px;}
   .results-body{padding:22px 26px;max-height:70vh;overflow-y:auto;}
+  .results-design-recap{border:1.5px solid var(--line);border-radius:6px;padding:14px 16px;margin-bottom:16px;background:var(--surface-2);}
+  .results-section-label{font-family:var(--font-display);font-weight:700;font-size:.85rem;color:var(--naranja-600);text-transform:uppercase;margin-bottom:10px;padding-bottom:6px;border-bottom:2px solid var(--naranja-600);}
   .replica-block{border:1.5px solid var(--line);border-radius:8px;margin-bottom:20px;overflow:hidden;}
   .replica-block:last-child{margin-bottom:0;}
   .replica-head{background:#6f6f6f;color:#fff;padding:9px 14px;font-family:var(--font-display);font-weight:700;font-size:.85rem;letter-spacing:.02em;}
@@ -395,6 +399,27 @@
   .resist-toolbar{display:flex;gap:8px;margin-bottom:8px;flex-wrap:wrap;}
   .resist-toolbar button{font-size:.72rem;padding:6px 10px;border-radius:3px;border:1px solid var(--line);color:var(--text-muted);background:var(--surface);}
   .resist-toolbar button:hover{color:var(--naranja-600);border-color:var(--naranja-300);}
+
+  #informe-modal{position:fixed;inset:0;background:rgba(10,10,10,.7);z-index:206;display:none;align-items:flex-start;justify-content:center;padding:24px 14px;overflow-y:auto;}
+  #informe-modal.show{display:flex;}
+  .informe-card{background:var(--surface);border-radius:12px;max-width:1400px;width:100%;box-shadow:0 30px 70px -20px rgba(0,0,0,.5);}
+  .informe-head{position:relative;text-align:center;padding:20px 50px;background:linear-gradient(160deg,#1a0505,#4a0d0d 65%,#7a1414);border-radius:12px 12px 0 0;}
+  .informe-head h2{font-family:var(--font-display);font-size:1.2rem;font-weight:700;letter-spacing:.03em;color:#fff;text-transform:uppercase;}
+  .informe-head .modal-close{position:absolute;right:16px;top:16px;color:#fff;}
+  .informe-split{display:grid;grid-template-columns:1fr 1fr;gap:0;min-height:60vh;}
+  .informe-left{border-right:1px solid var(--line);display:flex;flex-direction:column;}
+  .informe-zoom-bar{display:flex;align-items:center;gap:10px;padding:10px 14px;border-bottom:1px solid var(--line);background:var(--surface-2);}
+  .informe-zoom-bar button{width:26px;height:26px;border-radius:4px;border:1px solid var(--line);background:var(--surface);font-weight:700;}
+  .informe-zoom-bar button:hover{border-color:var(--naranja-500);color:var(--naranja-600);}
+  .informe-zoom-viewport{flex:1;overflow:auto;padding:20px;background:#f4f4f4;}
+  .informe-zoom-content{transform-origin:top left;transition:transform .12s var(--ease);background:var(--surface);padding:14px;border-radius:6px;box-shadow:0 2px 8px rgba(0,0,0,.08);}
+  .informe-right{padding:20px;display:flex;flex-direction:column;gap:22px;overflow-y:auto;max-height:80vh;}
+  .informe-chart-card{border:1px solid var(--line);border-radius:8px;padding:14px;}
+  .informe-chart-card h4{font-family:var(--font-display);font-size:.85rem;font-weight:700;margin-bottom:10px;}
+  .informe-chart-card canvas{max-width:100%;}
+  .informe-chart-dl{margin-top:10px;font-size:.72rem;padding:6px 12px;border-radius:3px;border:1px solid var(--line);color:var(--text-muted);background:var(--surface);}
+  .informe-chart-dl:hover{color:var(--naranja-600);border-color:var(--naranja-300);}
+  @media(max-width:900px){.informe-split{grid-template-columns:1fr;}.informe-left{border-right:none;border-bottom:1px solid var(--line);}}
 
   #confirm-modal{position:fixed;inset:0;background:rgba(20,10,10,.6);z-index:210;display:none;align-items:center;justify-content:center;padding:18px;}
   #confirm-modal.show{display:flex;}
@@ -781,7 +806,7 @@
                   <select id="dis-replicas"><option value="1">1</option><option value="2">2</option><option value="3">3</option><option value="4">4</option></select>
                 </div>
                 <div class="params-field"><label>Estado del diseño</label>
-                  <select id="dis-estado"><option value="Incompleto">Incompleto</option><option value="Completo">Completo</option></select>
+                  <select id="dis-estado"><option value="Falta resultados">Falta resultados</option><option value="Completo">Completo</option></select>
                 </div>
               </div>
             </div>
@@ -826,6 +851,10 @@
           </div>
           <button class="btn-add" id="btn-nuevo-diseno" style="margin-left:auto;">+ Nuevo Diseño</button>
         </div>
+        <div id="hist-quick-filter-bar" style="display:none;align-items:center;gap:8px;margin-top:10px;">
+          <span class="filter-chip active"></span>
+          <button class="link-cancel" id="hist-quick-filter-clear" style="font-size:.75rem;">Quitar filtro ×</button>
+        </div>
         <div class="gallery" id="dis-gallery" style="margin-top:14px;"></div>
       </div>
     </section>
@@ -867,7 +896,7 @@
       </div>
       <div class="stat-grid">
         <div class="stat-card"><div class="num" id="stat-componentes">0</div><div class="label">Componentes registrados</div></div>
-        <div class="stat-card"><div class="num" id="stat-disenos">0</div><div class="label">Diseños incompletos</div></div>
+        <div class="stat-card" id="stat-card-falta" style="cursor:pointer;"><div class="num" id="stat-disenos">0</div><div class="label">Falta resultados</div></div>
         <div class="stat-card"><div class="num" id="stat-estudios">0</div><div class="label">Estudios RR</div></div>
         <div class="stat-card"><div class="num" id="stat-avance">0%</div><div class="label">Avance promedio</div></div>
       </div>
@@ -921,6 +950,32 @@
     <div class="modal-actions">
       <button class="btn-add" id="results-save">Guardar resultados</button>
       <button class="btn-add ghost" id="results-print">Imprimir formato</button>
+    </div>
+  </div>
+</div>
+
+<!-- ============ MODAL: Informe (resultados + gráficas) ============ -->
+<div id="informe-modal">
+  <div class="informe-card">
+    <div class="informe-head">
+      <h2 id="informe-title">—</h2>
+      <button class="modal-close" id="informe-modal-close">×</button>
+    </div>
+    <div class="informe-split">
+      <div class="informe-left">
+        <div class="informe-zoom-bar">
+          <button id="informe-zoom-out">−</button>
+          <span id="informe-zoom-pct">100%</span>
+          <button id="informe-zoom-in">+</button>
+        </div>
+        <div class="informe-zoom-viewport">
+          <div class="informe-zoom-content" id="informe-recap"></div>
+        </div>
+      </div>
+      <div class="informe-right" id="informe-charts"></div>
+    </div>
+    <div class="modal-actions">
+      <button class="btn-add" id="informe-download-pdf">Descargar informe completo (PDF)</button>
     </div>
   </div>
 </div>
@@ -1212,14 +1267,23 @@
     window.scrollTo({top:0, behavior:'auto'});
   }
   document.getElementById('btn-nuevo-diseno').addEventListener('click', function(){ showSubTab('calcular'); });
+  document.getElementById('stat-card-falta').addEventListener('click', function(){
+    histEstadoQuickFilter = 'Falta resultados';
+    showPanel('disenos');
+    showSubTab('historico');
+  });
+  document.getElementById('hist-quick-filter-clear').addEventListener('click', function(){
+    histEstadoQuickFilter = null;
+    renderDisenosHistorico();
+  });
 
   var DAY = 24*3600*1000;
   var disenos = load('sid10_disenos', [
     {codigo:'DID-0001', nombreTecnico:'CL24MPa(28d)-I-H67-A1', planta:'1207 Industrial Cajamarca', laboratorio:'1207-CAX', tipo:'Mezcla ligera', resistencia:'24', estado:'Completo', fecha:'', ts:Date.now()-40*DAY, favorito:false, cvdTotal:210.00, mix:[]},
     {codigo:'DID-0002', nombreTecnico:'CL28MPa(3d)-I-H67-A1', planta:'1213 Industrial Trujillo', laboratorio:'1213-TRU', tipo:'Mezcla estructural', resistencia:'28', estado:'Completo', fecha:'', ts:Date.now()-5*DAY, favorito:true, cvdTotal:269.52, mix:[]},
-    {codigo:'DID-0003', nombreTecnico:'CL35MPa(7d)-HE-H67-A1', planta:'1211 Industrial Pacasmayo', laboratorio:'1211-PAC', tipo:'Mezcla autocompactante', resistencia:'35', estado:'Incompleto', fecha:'', ts:Date.now()-3*DAY, favorito:true, cvdTotal:198.70, mix:[]},
-    {codigo:'DID-0004', nombreTecnico:'CL42MPa(3d)-HE-H67-A1', planta:'1219 Industrial Moche', laboratorio:'1219-MCH', tipo:'Mezcla de alta resistencia', resistencia:'42', estado:'Incompleto', fecha:'', ts:Date.now()-1*DAY, favorito:false, cvdTotal:305.10, mix:[]},
-    {codigo:'DID-0005', nombreTecnico:'CL24MPa(3d)-I-H67-A2', planta:'1213 Industrial Trujillo', laboratorio:'1213-TRU', tipo:'Mezcla estándar', resistencia:'24', estado:'Incompleto', fecha:'', ts:Date.now()-6*3600*1000, favorito:false, cvdTotal:245.30, mix:[]}
+    {codigo:'DID-0003', nombreTecnico:'CL35MPa(7d)-HE-H67-A1', planta:'1211 Industrial Pacasmayo', laboratorio:'1211-PAC', tipo:'Mezcla autocompactante', resistencia:'35', estado:'Falta resultados', fecha:'', ts:Date.now()-3*DAY, favorito:true, cvdTotal:198.70, mix:[]},
+    {codigo:'DID-0004', nombreTecnico:'CL42MPa(3d)-HE-H67-A1', planta:'1219 Industrial Moche', laboratorio:'1219-MCH', tipo:'Mezcla de alta resistencia', resistencia:'42', estado:'Falta resultados', fecha:'', ts:Date.now()-1*DAY, favorito:false, cvdTotal:305.10, mix:[]},
+    {codigo:'DID-0005', nombreTecnico:'CL24MPa(3d)-I-H67-A2', planta:'1213 Industrial Trujillo', laboratorio:'1213-TRU', tipo:'Mezcla estándar', resistencia:'24', estado:'Falta resultados', fecha:'', ts:Date.now()-6*3600*1000, favorito:false, cvdTotal:245.30, mix:[]}
   ].map(function(d){
     if(!d.fecha){ var f = new Date(d.ts); d.fecha = String(f.getDate()).padStart(2,'0')+'/'+String(f.getMonth()+1).padStart(2,'0')+'/'+f.getFullYear(); }
     return d;
@@ -1230,6 +1294,7 @@
   var CLIPBOARD_ICON = '<svg viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="8" y="2" width="8" height="4" rx="1"/><path d="M8 4H6a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V6a2 2 0 0 0-2-2h-2"/><line x1="9" y1="12" x2="15" y2="12"/><line x1="9" y1="16" x2="13" y2="16"/></svg>';
   var DUP_ICON = '<svg viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="9" y="9" width="13" height="13" rx="2"/><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"/></svg>';
   var RESULTS_ICON = '<svg viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M9 2h6a1 1 0 0 1 1 1v1H8V3a1 1 0 0 1 1-1z"/><path d="M8 4H6a2 2 0 0 0-2 2v13a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V6a2 2 0 0 0-2-2h-2"/><path d="M9 12l2 2 4-4"/></svg>';
+  var CHART_ICON = '<svg viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 3v18h18"/><path d="M7 15l4-6 3 4 5-8"/></svg>';
   var EYE_ICON = '<svg viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/></svg>';
   var KEBAB_ICON = '<svg viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="5" r="1.4"/><circle cx="12" cy="12" r="1.4"/><circle cx="12" cy="19" r="1.4"/></svg>';
   var TRASH_ICON = '<svg viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="3 6 5 6 21 6"/><path d="M19 6l-1 14a2 2 0 0 1-2 2H8a2 2 0 0 1-2-2L5 6"/><path d="M10 11v6"/><path d="M14 11v6"/></svg>';
@@ -1238,6 +1303,7 @@
   function disenoActionsHtml(d,i){
     return '<button class="btn-icon view" data-act="view" data-i="'+i+'" title="Ver diseño">'+EYE_ICON+'</button>' +
       '<button class="btn-icon results" data-act="results" data-i="'+i+'" title="Cargar resultados">'+RESULTS_ICON+'</button>' +
+      '<button class="btn-icon informe" data-act="informe" data-i="'+i+'" title="Ver informe">'+CHART_ICON+'</button>' +
       '<button class="btn-icon dup" data-act="dup" data-i="'+i+'" title="Duplicar">'+DUP_ICON+'</button>' +
       '<button class="btn-icon fav'+(d.favorito?' active':'')+'" data-act="fav" data-i="'+i+'" title="Favorito">'+(d.favorito?STAR_FILLED:STAR_OUTLINE)+'</button>' +
       '<div class="more-wrap">' +
@@ -1415,7 +1481,7 @@
     var existing = d.resultados && d.resultados.replicas || [];
     var nombre = diseñoTitulo(d);
     document.getElementById('results-modal-title').textContent = nombre;
-    var body = '';
+    var body = '<div class="results-design-recap">'+mezclaTableHtml(d)+'</div><div class="results-section-label">2. Ensayos</div>';
     for(var r=0;r<numReplicas;r++){
       var data = existing[r] || emptyReplica();
       if(!data.slump) data = emptyReplica();
@@ -1511,10 +1577,144 @@
     if(!currentResultsDesign) return;
     var numReplicas = currentResultsDesign.replicas || 1;
     currentResultsDesign.resultados = { replicas: collectResultsFromModal(numReplicas) };
+    currentResultsDesign.estado = 'Completo';
     save('sid10_disenos', disenos);
     document.getElementById('results-modal').classList.remove('show');
-    toast('Resultados guardados');
+    toast('Resultados guardados — diseño marcado como Completo');
     renderAllDesignViews();
+  });
+
+  /* ================= INFORME (visor: resultados + gráficas) ================= */
+  var informeZoom = 1;
+  var informeCharts = [];
+  var REPLICA_COLORS = ['#c81e1e','#ea580c','#0d9488','#7c3aed'];
+
+  function informeRecapHtml(d){
+    var html = mezclaTableHtml(d);
+    var replicas = (d.resultados && d.resultados.replicas) || [];
+    replicas.forEach(function(rep, idx){
+      var resistRows = (rep.resist||[]).filter(function(row){ return row.edad || row.kgcm2; }).map(function(row){
+        return '<tr><td>'+esc(row.edad)+'</td><td>'+esc(row.carga)+'</td><td>'+esc(row.kgcm2)+'</td></tr>';
+      }).join('');
+      html += '<div class="results-section-label" style="margin-top:18px;">'+esc(diseñoTitulo(d))+'-R'+(idx+1)+'</div>' +
+        '<table class="resist-table" style="margin-bottom:6px;"><thead><tr><th>Edad</th><th>Carga</th><th>kg/cm2</th></tr></thead><tbody>'+(resistRows||'<tr><td colspan="3" style="color:var(--text-muted);">Sin datos</td></tr>')+'</tbody></table>';
+    });
+    return html;
+  }
+
+  function buildInformeCharts(d){
+    document.getElementById('informe-charts').innerHTML = '';
+    informeCharts.forEach(function(c){ c.destroy(); });
+    informeCharts = [];
+    if(typeof Chart === 'undefined'){ toast('No se pudo cargar la librería de gráficos'); return; }
+    var replicas = (d.resultados && d.resultados.replicas) || [];
+    if(!replicas.length){
+      document.getElementById('informe-charts').innerHTML = '<div class="empty-note">Todavía no hay resultados cargados para graficar.</div>';
+      return;
+    }
+
+    function addChartCard(id, title){
+      var card = document.createElement('div');
+      card.className = 'informe-chart-card';
+      card.innerHTML = '<h4>'+title+'</h4><canvas id="'+id+'"></canvas><button class="informe-chart-dl" data-canvas="'+id+'">Descargar PNG</button>';
+      document.getElementById('informe-charts').appendChild(card);
+    }
+
+    // Gráfica 1: Resistencia a la compresión vs Edad (una serie por réplica)
+    addChartCard('chart-resistencia', 'Resistencia a la compresión vs Edad');
+    var datasetsResist = replicas.map(function(rep, idx){
+      var pts = (rep.resist||[]).filter(function(r){ return r.edad && r.kgcm2; }).map(function(r){ return {x:Number(r.edad), y:Number(r.kgcm2)}; }).sort(function(a,b){ return a.x-b.x; });
+      return {label:'R'+(idx+1), data:pts, borderColor:REPLICA_COLORS[idx%4], backgroundColor:REPLICA_COLORS[idx%4], tension:.25};
+    });
+    informeCharts.push(new Chart(document.getElementById('chart-resistencia'), {
+      type:'line',
+      data:{datasets:datasetsResist},
+      options:{responsive:true, scales:{x:{type:'linear', title:{display:true,text:'Edad (días)'}}, y:{title:{display:true,text:'kg/cm²'}}}}
+    }));
+
+    // Gráfica 2: Slump / Fluidez vs tiempo (una serie por réplica)
+    addChartCard('chart-slump', 'Pérdida de asentamiento vs tiempo');
+    var minuteLabels = SLUMP_ROWS;
+    var datasetsSlump = replicas.map(function(rep, idx){
+      var pts = (rep.slump||[]).map(function(row){ return n(row.slump); });
+      return {label:'R'+(idx+1), data:pts, borderColor:REPLICA_COLORS[idx%4], backgroundColor:REPLICA_COLORS[idx%4], tension:.25};
+    });
+    informeCharts.push(new Chart(document.getElementById('chart-slump'), {
+      type:'line',
+      data:{labels:minuteLabels, datasets:datasetsSlump},
+      options:{responsive:true, scales:{y:{title:{display:true,text:'Slump / Flow'}}}}
+    }));
+
+    // Gráfica 3: Temperatura del concreto vs tiempo (una serie por réplica)
+    addChartCard('chart-temp', 'Temperatura del concreto vs tiempo');
+    var datasetsTemp = replicas.map(function(rep, idx){
+      var pts = (rep.slump||[]).map(function(row){ return n(row.tempc); });
+      return {label:'R'+(idx+1), data:pts, borderColor:REPLICA_COLORS[idx%4], backgroundColor:REPLICA_COLORS[idx%4], tension:.25};
+    });
+    informeCharts.push(new Chart(document.getElementById('chart-temp'), {
+      type:'line',
+      data:{labels:minuteLabels, datasets:datasetsTemp},
+      options:{responsive:true, scales:{y:{title:{display:true,text:'Temp. Concreto °C'}}}}
+    }));
+  }
+
+  document.getElementById('informe-charts').addEventListener('click', function(e){
+    var btn = e.target.closest('.informe-chart-dl');
+    if(!btn) return;
+    var canvas = document.getElementById(btn.dataset.canvas);
+    var link = document.createElement('a');
+    link.download = btn.dataset.canvas + '.png';
+    link.href = canvas.toDataURL('image/png');
+    link.click();
+  });
+
+  function setInformeZoom(z){
+    informeZoom = Math.max(.5, Math.min(2, z));
+    document.getElementById('informe-recap').style.transform = 'scale('+informeZoom+')';
+    document.getElementById('informe-zoom-pct').textContent = Math.round(informeZoom*100) + '%';
+  }
+  document.getElementById('informe-zoom-in').addEventListener('click', function(){ setInformeZoom(informeZoom + .1); });
+  document.getElementById('informe-zoom-out').addEventListener('click', function(){ setInformeZoom(informeZoom - .1); });
+
+  var currentInformeDesign = null;
+  function openInformeModal(d){
+    currentInformeDesign = d;
+    document.getElementById('informe-title').textContent = diseñoTitulo(d);
+    document.getElementById('informe-recap').innerHTML = informeRecapHtml(d);
+    setInformeZoom(1);
+    buildInformeCharts(d);
+    document.getElementById('informe-modal').classList.add('show');
+  }
+  document.getElementById('informe-modal-close').addEventListener('click', function(){ document.getElementById('informe-modal').classList.remove('show'); });
+  document.getElementById('informe-modal').addEventListener('click', function(e){ if(e.target.id === 'informe-modal') document.getElementById('informe-modal').classList.remove('show'); });
+
+  document.getElementById('informe-download-pdf').addEventListener('click', function(){
+    if(!currentInformeDesign || typeof window.jspdf === 'undefined'){ toast('No se pudo generar el PDF'); return; }
+    var d = currentInformeDesign;
+    var jsPDF = window.jspdf.jsPDF;
+    var doc = new jsPDF('p','mm','a4');
+    var pageW = 210, margin = 12, y = margin;
+    doc.setFont('helvetica','bold'); doc.setFontSize(14);
+    doc.text(diseñoTitulo(d), pageW/2, y, {align:'center'}); y += 8;
+    doc.setFont('helvetica','normal'); doc.setFontSize(9);
+    doc.text('Planta: '+(d.planta||'-')+'   f\'c: '+(d.fc||'-')+' kg/cm2   Fecha: '+(d.fecha||'-'), margin, y); y += 8;
+    doc.setFont('helvetica','bold'); doc.text('Composición de mezcla', margin, y); y += 6;
+    doc.setFont('helvetica','normal'); doc.setFontSize(8);
+    (d.mix||[]).forEach(function(item){
+      doc.text(esc(item.nombre)+' — Peso seco: '+n(item.pesoSeco).toFixed(2)+' kg/m3', margin, y); y += 5;
+      if(y > 270){ doc.addPage(); y = margin; }
+    });
+    y += 4;
+    informeCharts.forEach(function(chart, idx){
+      var canvas = chart.canvas;
+      var imgData = canvas.toDataURL('image/png');
+      var imgW = pageW - margin*2, imgH = imgW * (canvas.height/canvas.width);
+      if(y + imgH > 280){ doc.addPage(); y = margin; }
+      doc.addImage(imgData, 'PNG', margin, y, imgW, imgH);
+      y += imgH + 8;
+    });
+    doc.save(diseñoTitulo(d)+'-informe.pdf');
+    toast('Informe PDF descargado');
   });
 
   function closeAllMenus(){
@@ -1574,7 +1774,7 @@
     document.getElementById('dis-pct-fino').value = d.pctFino || '';
     document.getElementById('dis-pct-grueso').value = d.pctGrueso || '';
     document.getElementById('dis-sufijo').value = '';
-    document.getElementById('dis-estado').value = 'Incompleto';
+    document.getElementById('dis-estado').value = 'Falta resultados';
     document.getElementById('dis-replicas').value = String(d.replicas || 1);
     if(d.extra){
       document.querySelectorAll('#sub-calcular [data-key]').forEach(function(el){
@@ -1607,6 +1807,8 @@
       openDesignModal(disenos[i]);
     } else if(act === 'results'){
       openResultsModal(disenos[i], i);
+    } else if(act === 'informe'){
+      openInformeModal(disenos[i]);
     } else if(act === 'dup'){
       closeAllMenus();
       askConfirmDuplicate(disenos[i]);
@@ -1636,12 +1838,14 @@
   document.getElementById('favoritos-grid').addEventListener('click', handleCardAction);
 
   var histView = 'cards';
+  var histEstadoQuickFilter = null;
   function renderDisenosHistorico(){
     var wrap = document.getElementById('dis-gallery');
     var searchTxt = (document.getElementById('hist-search').value || '').trim().toLowerCase();
     var fechaFiltro = document.getElementById('hist-fecha-filtro').value;
     var filtered = disenos.filter(function(d){
       if(searchTxt && diseñoTitulo(d).toLowerCase().indexOf(searchTxt) === -1) return false;
+      if(histEstadoQuickFilter && d.estado !== histEstadoQuickFilter) return false;
       if(fechaFiltro){
         var dParts = d.fecha.split('/');
         var dIso = dParts.length===3 ? (dParts[2]+'-'+dParts[1]+'-'+dParts[0]) : '';
@@ -1649,6 +1853,14 @@
       }
       return true;
     }).sort(function(a,b){ return (b.ts||0)-(a.ts||0); });
+
+    var quickBar = document.getElementById('hist-quick-filter-bar');
+    if(histEstadoQuickFilter){
+      quickBar.style.display = 'flex';
+      quickBar.querySelector('span').textContent = 'Mostrando: ' + histEstadoQuickFilter;
+    } else {
+      quickBar.style.display = 'none';
+    }
 
     wrap.classList.toggle('list-view', histView === 'list');
     var renderFn = histView === 'list' ? disenoRowHtml : disenoCardHtml;
@@ -2272,14 +2484,14 @@
     requestAnimationFrame(step);
   }
   function updateStats(){
-    var enEspera = disenos.filter(function(d){ return d.estado === 'Incompleto'; }).length;
+    var enEspera = disenos.filter(function(d){ return d.estado === 'Falta resultados'; }).length;
     document.getElementById('stat-componentes').textContent = componentes.length;
     document.getElementById('stat-disenos').textContent = enEspera;
     document.getElementById('stat-estudios').textContent = rrEstudios.length;
   }
   function animateReportes(){
     animateCount(document.getElementById('stat-componentes'), componentes.length);
-    animateCount(document.getElementById('stat-disenos'), disenos.filter(function(d){ return d.estado === 'Incompleto'; }).length);
+    animateCount(document.getElementById('stat-disenos'), disenos.filter(function(d){ return d.estado === 'Falta resultados'; }).length);
     animateCount(document.getElementById('stat-estudios'), rrEstudios.length);
     animateCount(document.getElementById('stat-avance'), 57, '%');
     document.querySelectorAll('.bar-fill').forEach(function(bar){
