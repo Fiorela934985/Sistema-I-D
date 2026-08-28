@@ -425,7 +425,7 @@
   .informe-zoom-bar{display:flex;align-items:center;gap:10px;padding:10px 14px;border-bottom:1px solid var(--line);background:var(--surface-2);}
   .informe-zoom-bar button{width:26px;height:26px;border-radius:4px;border:1px solid var(--line);background:var(--surface);font-weight:700;}
   .informe-zoom-bar button:hover{border-color:var(--naranja-500);color:var(--naranja-600);}
-  .informe-zoom-viewport{flex:1;overflow:auto;padding:20px;background:#f4f4f4;}
+  .informe-zoom-viewport{flex:1;overflow:auto;padding:8px;background:#f4f4f4;}
   .informe-zoom-content{transform-origin:top left;transition:transform .12s var(--ease);background:var(--surface);padding:14px;border-radius:6px;box-shadow:0 2px 8px rgba(0,0,0,.08);}
   .informe-right{padding:20px;display:flex;flex-direction:column;gap:22px;overflow-y:auto;max-height:80vh;}
   .informe-chart-card{border:1px solid var(--line);border-radius:8px;padding:14px;}
@@ -436,6 +436,8 @@
   @media(max-width:900px){.informe-split{grid-template-columns:1fr;}.informe-left{border-right:none;border-bottom:1px solid var(--line);}}
 
   #confirm-modal{position:fixed;inset:0;background:rgba(20,10,10,.6);z-index:210;display:none;align-items:center;justify-content:center;padding:18px;}
+  #replicas-modal,#print-confirm-modal{position:fixed;inset:0;background:rgba(20,10,10,.6);z-index:212;display:none;align-items:center;justify-content:center;padding:18px;}
+  #replicas-modal.show,#print-confirm-modal.show{display:flex;}
   #confirm-modal.show{display:flex;}
   .confirm-card{background:var(--surface);border-radius:14px;padding:30px 28px 26px;max-width:340px;width:100%;text-align:center;box-shadow:0 30px 60px -20px rgba(0,0,0,.4);animation:confirmPop .18s var(--ease) both;}
   @keyframes confirmPop{from{opacity:0;transform:scale(.94);}to{opacity:1;transform:scale(1);}}
@@ -463,7 +465,7 @@
   .mezcla-specs b{display:block;font-size:.66rem;text-transform:uppercase;color:#6c6c70;margin-bottom:2px;}
 
   @media print{
-    #app-shell, #loading-view, #toast, .modal-actions, .modal-close, .modal-header, #confirm-modal{display:none !important;}
+    #app-shell, #loading-view, #toast, .modal-actions, .modal-close, .modal-header, #confirm-modal, #replicas-modal, #print-confirm-modal{display:none !important;}
     #design-modal{position:static !important;background:none !important;padding:0 !important;display:block !important;}
     #design-modal .modal-card{box-shadow:none !important;max-width:none !important;}
     #design-modal .modal-body{padding:0 !important;}
@@ -819,7 +821,7 @@
                 </div>
 
                 <div class="params-field"><label>N° de réplicas</label>
-                  <select id="dis-replicas"><option value="1">1</option><option value="2">2</option><option value="3">3</option><option value="4">4</option></select>
+                  <input type="number" id="dis-replicas" min="1" value="2">
                 </div>
                 <div class="params-field"><label>Estado del diseño</label>
                   <select id="dis-estado"><option value="Falta resultados">Falta resultados</option><option value="Completo">Completo</option></select>
@@ -950,6 +952,39 @@
 </div>
 
 <div id="toast"><span class="dot"></span><span id="toast-msg"></span></div>
+
+<!-- ============ MODAL: Réplicas post-registro ============ -->
+<div id="replicas-modal">
+  <div class="confirm-card">
+    <div class="confirm-icon">
+      <svg viewBox="0 0 24 24" width="26" height="26" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="4" y="4" width="7" height="7" rx="1"/><rect x="13" y="4" width="7" height="7" rx="1"/><rect x="4" y="13" width="7" height="7" rx="1"/><rect x="13" y="13" width="7" height="7" rx="1"/></svg>
+    </div>
+    <h3>Diseño registrado — ¿Cuántas réplicas necesita?</h3>
+    <p id="replicas-modal-name"></p>
+    <div style="display:flex;justify-content:center;margin-bottom:16px;">
+      <input type="number" id="replicas-modal-input" min="1" value="2" style="width:80px;text-align:center;padding:8px;border-radius:4px;border:1.5px solid var(--line);font-size:1rem;">
+    </div>
+    <div class="confirm-actions">
+      <button class="btn-ghost" id="replicas-modal-default">Usar 2 (predeterminado)</button>
+      <button class="btn-add" id="replicas-modal-confirm">Confirmar cantidad</button>
+    </div>
+  </div>
+</div>
+
+<!-- ============ MODAL: ¿Desea imprimir? ============ -->
+<div id="print-confirm-modal">
+  <div class="confirm-card">
+    <div class="confirm-icon">
+      <svg viewBox="0 0 24 24" width="26" height="26" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="6 9 6 2 18 2 18 9"/><path d="M6 18H4a2 2 0 0 1-2-2v-5a2 2 0 0 1 2-2h16a2 2 0 0 1 2 2v5a2 2 0 0 1-2 2h-2"/><rect x="6" y="14" width="12" height="8"/></svg>
+    </div>
+    <h3>¿Desea imprimir el diseño?</h3>
+    <p>Se abrirá el formato completo (diseño + resultados) listo para imprimir.</p>
+    <div class="confirm-actions">
+      <button class="btn-ghost" id="print-confirm-no">Ahora no</button>
+      <button class="btn-add" id="print-confirm-yes">Sí, imprimir</button>
+    </div>
+  </div>
+</div>
 
 <!-- ============ MODAL: Resultados de ensayo ============ -->
 <div id="results-modal">
@@ -1676,7 +1711,7 @@
   });
 
   function setInformeZoom(z){
-    informeZoom = Math.max(.5, Math.min(2, z));
+    informeZoom = Math.max(.25, Math.min(2, z));
     document.getElementById('informe-recap').style.transform = 'scale('+informeZoom+')';
     document.getElementById('informe-zoom-pct').textContent = Math.round(informeZoom*100) + '%';
   }
@@ -1688,7 +1723,7 @@
     currentInformeDesign = d;
     document.getElementById('informe-title').textContent = diseñoTitulo(d);
     document.getElementById('informe-recap').innerHTML = informeRecapHtml(d);
-    setInformeZoom(1);
+    setInformeZoom(.6);
     buildInformeCharts(d);
     document.getElementById('informe-modal').classList.add('show');
   }
@@ -2199,7 +2234,7 @@
     document.getElementById('dis-agua-mat').value = '';
     document.getElementById('dis-aditivo-mat').value = '';
     document.getElementById('dis-batch-vol').value = '30';
-    document.getElementById('dis-replicas').value = '1';
+    document.getElementById('dis-replicas').value = '2';
     document.getElementById('dis-fecha-mezcla').value = todayISO();
     rebuildIncidenciaTable();
     renderMezclaDisplay();
@@ -2211,6 +2246,10 @@
     var tipoDef = tipoIdxSel !== '' ? TIPO_CONCRETO_DEFS[Number(tipoIdxSel)] : null;
     var fc = document.getElementById('dis-fc').value.trim();
     if(!tipoDef || !fc){ toast('Completá al menos Tipo de concreto y f\'c'); return; }
+    var nombreCandidato = refreshNombrePreview();
+    if(!nombreCandidato){ toast('Completá los campos necesarios para armar el nombre del diseño'); return; }
+    var yaExiste = disenos.some(function(existing){ return (existing.nombreTecnico||'').trim().toLowerCase() === nombreCandidato.trim().toLowerCase(); });
+    if(yaExiste){ toast('Ya existe un diseño con ese nombre — ajustá el sufijo u otro campo'); return; }
     var totals = renderMezclaDisplay();
     var fechaISO = document.getElementById('dis-fecha-mezcla').value || todayISO();
     var fParts = fechaISO.split('-');
@@ -2222,7 +2261,7 @@
     });
     var d = {
       codigo: nextCodigo(),
-      nombreTecnico: refreshNombrePreview(),
+      nombreTecnico: nombreCandidato,
       planta: document.getElementById('dis-planta').value,
       laboratorio: document.getElementById('dis-laboratorio').value,
       uso: document.getElementById('dis-uso').value,
@@ -2258,16 +2297,44 @@
       mix: mixSnapshot,
       cvdTotal: Number(totals.cvd.toFixed(2)),
       estado: document.getElementById('dis-estado').value,
-      replicas: Number(document.getElementById('dis-replicas').value) || 1,
+      replicas: Number(document.getElementById('dis-replicas').value) || 2,
       fecha: fecha, ts: new Date(fechaISO).getTime() || Date.now(), favorito:false
     };
     disenos.push(d);
     save('sid10_disenos', disenos);
     resetCalcForm();
-    toast('Diseño registrado: ' + d.nombreTecnico);
-    showSubTab('historico');
     renderAllDesignViews();
+    askReplicasThenPrint(d);
   });
+
+  /* ---- Flujo post-registro: réplicas → ¿imprimir? ---- */
+  function askReplicasThenPrint(d){
+    document.getElementById('replicas-modal-name').textContent = diseñoTitulo(d);
+    document.getElementById('replicas-modal-input').value = d.replicas || 2;
+    document.getElementById('replicas-modal').classList.add('show');
+    function finishReplicas(count){
+      d.replicas = count;
+      save('sid10_disenos', disenos);
+      document.getElementById('replicas-modal').classList.remove('show');
+      renderAllDesignViews();
+      document.getElementById('print-confirm-modal').classList.add('show');
+    }
+    document.getElementById('replicas-modal-default').onclick = function(){ finishReplicas(2); };
+    document.getElementById('replicas-modal-confirm').onclick = function(){
+      var v = Number(document.getElementById('replicas-modal-input').value) || 2;
+      finishReplicas(Math.max(1, v));
+    };
+    document.getElementById('print-confirm-no').onclick = function(){
+      document.getElementById('print-confirm-modal').classList.remove('show');
+      showSubTab('historico');
+    };
+    document.getElementById('print-confirm-yes').onclick = function(){
+      document.getElementById('print-confirm-modal').classList.remove('show');
+      var idx = disenos.indexOf(d);
+      openResultsModal(d, idx);
+      setTimeout(function(){ window.print(); }, 300);
+    };
+  }
 
   /* ================= REPORTE RR ================= */
   var RR_ROWS = [
