@@ -198,6 +198,7 @@
 
   .design-rows{display:flex;flex-direction:column;gap:8px;}
   .design-row{display:flex;align-items:center;gap:16px;padding:13px 16px;border:1px solid var(--line);border-radius:4px;background:var(--surface);}
+  .design-row .drow-thumb{width:4px;align-self:stretch;background:var(--naranja-600);border-radius:2px;flex-shrink:0;}
   .design-row .drow-code{font-family:var(--font-mono);font-size:.74rem;color:var(--text-muted);min-width:70px;flex-shrink:0;}
   .design-row .drow-main{flex:1;min-width:0;}
   .design-row .drow-main h5{font-size:.9rem;font-weight:600;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;}
@@ -227,8 +228,7 @@
   .estado-tile.tile-verde:hover{box-shadow:0 16px 30px -14px rgba(22,163,74,.4);}
 
   .date-group{margin-bottom:26px;}
-  .date-group-head{display:inline-flex;align-items:center;gap:10px;font-family:var(--font-display);font-weight:700;font-size:.85rem;color:#fff;background:#2b2a29;padding:7px 18px;border-radius:6px;margin-bottom:14px;letter-spacing:.02em;}
-  .date-group-head .date-group-count{font-family:var(--font-mono);font-weight:400;font-size:.72rem;color:rgba(255,255,255,.65);background:rgba(255,255,255,.12);padding:2px 8px;border-radius:999px;}
+  .date-group-head{display:inline-flex;align-items:center;gap:8px;font-family:var(--font-display);font-weight:700;font-size:.85rem;color:#fff;background:var(--naranja-600);padding:6px 16px;border-radius:999px;margin-bottom:12px;}
   .filter-chip{padding:6px 12px;font-size:.72rem;font-weight:600;border:1px solid var(--line);border-radius:999px;color:var(--text-muted);background:var(--surface);}
   .filter-chip:hover{border-color:var(--naranja-300);color:var(--text);}
   .filter-chip.active{background:var(--naranja-600);border-color:var(--naranja-600);color:#fff;}
@@ -292,10 +292,8 @@
   .btn-icon.view:hover{background:var(--text);color:#fff;border-color:var(--text);}
 
   .gallery{display:grid;grid-template-columns:repeat(auto-fill,minmax(240px,1fr));gap:14px;}
-  .design-card{border-radius:4px;border:1px solid var(--line);position:relative;box-shadow:0 1px 3px rgba(0,0,0,.04);}
-  .estado-bg-rojo{background:#fdecec !important;}
-  .estado-bg-naranja{background:#fdf1e6 !important;}
-  .estado-bg-verde{background:#eaf8ef !important;}
+  .design-card{border-radius:4px;background:var(--surface);border:1px solid var(--line);position:relative;box-shadow:0 1px 3px rgba(0,0,0,.04);}
+  .design-thumb{height:5px;background:var(--naranja-600);border-radius:4px 4px 0 0;}
   .design-body{padding:15px 17px;}
   .design-body .mono{color:var(--text-muted);display:block;margin-bottom:4px;}
   .design-body h4{font-size:.95rem;margin-bottom:8px;font-weight:600;}
@@ -1381,10 +1379,10 @@
   function disenoCardHtml(d){
     var i = disenos.indexOf(d);
     var tagEstado = d.estado === 'Completado' ? 'tag-verde' : (d.estado === 'En desarrollo' ? 'tag-naranja' : 'tag-rojo');
-    var bgEstado = d.estado === 'Completado' ? 'estado-bg-verde' : (d.estado === 'En desarrollo' ? 'estado-bg-naranja' : 'estado-bg-rojo');
-    return '<div class="design-card '+bgEstado+'">' +
+    return '<div class="design-card">' +
+      '<div class="design-thumb"></div>' +
       '<div class="design-body">' +
-        '<span class="mono">'+d.codigo+'</span>' +
+        '<span class="mono">'+d.codigo+' · '+d.fecha+'</span>' +
         '<h4>'+diseñoTitulo(d)+'</h4>' +
         '<span class="mono" style="display:block;margin-bottom:8px;color:var(--text-muted);">'+d.planta+' · '+d.resistencia+' MPa'+(d.cvdTotal?(' · CVD S/.'+Number(d.cvdTotal).toFixed(2)):'')+'</span>' +
         '<div class="tags"><span class="tag-pill '+tagEstado+'">'+d.estado+'</span></div>' +
@@ -1395,10 +1393,10 @@
   function disenoRowHtml(d){
     var i = disenos.indexOf(d);
     var tagEstado = d.estado === 'Completado' ? 'tag-verde' : (d.estado === 'En desarrollo' ? 'tag-naranja' : 'tag-rojo');
-    var bgEstado = d.estado === 'Completado' ? 'estado-bg-verde' : (d.estado === 'En desarrollo' ? 'estado-bg-naranja' : 'estado-bg-rojo');
-    return '<div class="design-row '+bgEstado+'">' +
+    return '<div class="design-row">' +
+      '<div class="drow-thumb"></div>' +
       '<span class="drow-code mono">'+d.codigo+'</span>' +
-      '<div class="drow-main"><h5>'+diseñoTitulo(d)+'</h5><span>'+d.planta+' · '+d.resistencia+' MPa</span></div>' +
+      '<div class="drow-main"><h5>'+diseñoTitulo(d)+'</h5><span>'+d.planta+' · '+d.fecha+' · '+d.resistencia+' MPa</span></div>' +
       '<div class="drow-tags"><span class="tag-pill '+tagEstado+'">'+d.estado+'</span></div>' +
       '<div class="drow-actions">'+disenoActionsHtml(d,i)+'</div>' +
     '</div>';
@@ -1538,17 +1536,11 @@
     '</div>';
   }
 
-  var resultsInitialSnapshot = '';
-  function serializeResultsForm(){
-    var vals = [];
-    document.querySelectorAll('#results-modal-body input, #results-modal-body select, #results-modal-body textarea').forEach(function(el){
-      vals.push(el.value);
-    });
-    return vals.join('§');
-  }
+  var resultsModalDirty = false;
   function openResultsModal(d, i){
     currentResultsDesign = d;
     currentResultsIndex = i;
+    resultsModalDirty = false;
     var numReplicas = d.replicas || 1;
     var existing = d.resultados && d.resultados.replicas || [];
     var nombre = diseñoTitulo(d);
@@ -1560,9 +1552,10 @@
       body += replicaBlockHtml(r, nombre, data);
     }
     document.getElementById('results-modal-body').innerHTML = body;
-    resultsInitialSnapshot = serializeResultsForm();
     document.getElementById('results-modal').classList.add('show');
   }
+  document.getElementById('results-modal-body').addEventListener('input', function(){ resultsModalDirty = true; });
+  document.getElementById('results-modal-body').addEventListener('change', function(){ resultsModalDirty = true; });
   document.getElementById('results-modal-close').addEventListener('click', function(){ document.getElementById('results-modal').classList.remove('show'); });
   document.getElementById('results-modal').addEventListener('click', function(e){ if(e.target.id === 'results-modal') document.getElementById('results-modal').classList.remove('show'); });
   document.getElementById('results-print').addEventListener('click', function(){ window.print(); });
@@ -1649,15 +1642,14 @@
   document.getElementById('results-save').addEventListener('click', function(){
     if(!currentResultsDesign) return;
     var numReplicas = currentResultsDesign.replicas || 1;
-    var actuallyChanged = serializeResultsForm() !== resultsInitialSnapshot;
     currentResultsDesign.resultados = { replicas: collectResultsFromModal(numReplicas) };
-    if(actuallyChanged){
-      currentResultsDesign.editedAt = Date.now();
+    currentResultsDesign.editedAt = Date.now();
+    if(resultsModalDirty){
       document.getElementById('completos-confirm-modal').classList.add('show');
     } else {
       save('sid10_disenos', disenos);
       document.getElementById('results-modal').classList.remove('show');
-      toast('Sin cambios para guardar');
+      toast('Resultados guardados');
       renderAllDesignViews();
     }
   });
@@ -1960,15 +1952,14 @@
     var groups = [];
     var byDate = {};
     filtered.forEach(function(d){
-      var key = (histSortBy === 'edicion' && d.editedAt) ? formatFechaCorta(d.editedAt) : (d.fecha || 'Sin fecha');
+      var key = (histSortBy === 'edicion' && d.editedAt) ? new Date(d.editedAt).toLocaleDateString('es-PE') : (d.fecha || 'Sin fecha');
       if(!byDate[key]){ byDate[key] = []; groups.push(key); }
       byDate[key].push(d);
     });
     var renderFn = histView === 'list' ? disenoRowHtml : disenoCardHtml;
     wrap.innerHTML = groups.map(function(fecha){
-      var cant = byDate[fecha].length;
       return '<div class="date-group">' +
-        '<div class="date-group-head">'+esc(fecha)+'<span class="date-group-count">'+cant+' diseño'+(cant===1?'':'s')+'</span></div>' +
+        '<div class="date-group-head">'+esc(fecha)+'</div>' +
         '<div class="gallery'+(histView==='list'?' list-view':'')+'">'+byDate[fecha].map(renderFn).join('')+'</div>' +
       '</div>';
     }).join('');
@@ -2299,13 +2290,6 @@
   });
 
   function todayISO(){ var d = new Date(); return d.getFullYear()+'-'+String(d.getMonth()+1).padStart(2,'0')+'-'+String(d.getDate()).padStart(2,'0'); }
-  function formatFechaCorta(ts){
-    var dt = new Date(ts);
-    var dd = String(dt.getDate()).padStart(2,'0');
-    var mm = String(dt.getMonth()+1).padStart(2,'0');
-    var yyyy = dt.getFullYear();
-    return dd+'/'+mm+'/'+yyyy;
-  }
 
   function resetCalcForm(){
     ['dis-ndiseno','dis-fc','dis-fc-mpa','dis-ft','dis-edad',
