@@ -213,7 +213,12 @@
   .gallery.list-view{display:flex;flex-direction:column;gap:8px;}
 
   .date-group{margin-bottom:26px;}
-  .date-group-head{display:inline-flex;align-items:center;gap:8px;font-family:var(--font-display);font-weight:700;font-size:.85rem;color:#fff;background:var(--naranja-600);padding:6px 16px;border-radius:999px;margin-bottom:12px;}
+  .date-group-head{display:inline-flex;align-items:center;gap:8px;font-family:var(--font-display);font-weight:700;font-size:.85rem;color:#fff;background:var(--naranja-600);padding:6px 16px;border-radius:999px;margin-bottom:12px;cursor:pointer;}
+  .date-group-head:hover{background:var(--naranja-700);}
+  .date-group-head .dg-chevron{display:inline-block;transition:transform .2s var(--ease);font-size:.7rem;}
+  .date-group-head .dg-count{opacity:.8;font-weight:400;}
+  .date-group.collapsed .dg-chevron{transform:rotate(-90deg);}
+  .date-group.collapsed .gallery{display:none;}
   .filter-chip{padding:6px 12px;font-size:.72rem;font-weight:600;border:1px solid var(--line);border-radius:999px;color:var(--text-muted);background:var(--surface);}
   .filter-chip:hover{border-color:var(--naranja-300);color:var(--text);}
   .filter-chip.active{background:var(--naranja-600);border-color:var(--naranja-600);color:#fff;}
@@ -282,8 +287,14 @@
   .design-thumb{height:5px;background:var(--naranja-600);border-radius:4px 4px 0 0;}
   .design-body{padding:15px 17px;}
   .design-body .mono{color:var(--text-muted);display:block;margin-bottom:4px;}
-  .design-body h4{font-size:.95rem;margin-bottom:8px;font-weight:600;}
+  .design-body h4.dc-proyecto{font-family:var(--font-display);font-size:.92rem;font-weight:700;color:var(--negro);display:flex;align-items:center;gap:7px;margin-bottom:3px;}
+  html[data-theme="dark"] .design-body h4.dc-proyecto{color:#fff;}
+  .dc-tipo{display:inline-block;font-size:.62rem;text-transform:uppercase;letter-spacing:.04em;font-weight:700;color:var(--text-muted);margin-bottom:6px;}
+  .dc-nombre{display:block;font-family:var(--font-display);font-weight:700;color:var(--naranja-600);font-size:.86rem;margin-bottom:6px;}
+  .dc-meta{margin-bottom:8px;}
   .design-body .tags{display:flex;gap:6px;flex-wrap:wrap;}
+  .dc-tipo-inline{font-size:.62rem;text-transform:uppercase;color:var(--text-muted);font-weight:700;}
+  .dc-nombre-inline{display:block;font-family:var(--font-display);font-weight:700;color:var(--naranja-600);font-size:.8rem;}
   .design-actions{display:flex;gap:6px;margin-top:12px;padding-top:12px;border-top:1px solid var(--line);flex-wrap:wrap;}
 
   /* ================= DASHBOARD ================= */
@@ -403,14 +414,14 @@
   table.mezcla-table td.mezcla-nombre{text-align:left;font-weight:600;color:#1f4e8c;}
   table.mezcla-table tr.mezcla-total td{background:#6f6f6f;color:#fff;font-weight:700;}
 
-  /* ---- Proyecto / Iteración (header bloqueado dentro de Calcular Diseño) ---- */
+  /* ---- Proyecto / Iteración (dentro de Calcular Diseño) ---- */
   .proyecto-picker{position:relative;border:1px solid var(--line);border-left:4px solid var(--naranja-600);border-radius:6px;padding:12px 16px;margin-bottom:18px;background:var(--surface);box-shadow:0 1px 2px rgba(0,0,0,.03);}
-  .proyecto-picker::before{content:"Proyecto activo";position:absolute;top:-9px;left:14px;background:var(--naranja-600);color:#fff;font-family:var(--font-display);font-size:.62rem;font-weight:700;text-transform:uppercase;letter-spacing:.04em;padding:2px 10px;border-radius:999px;}
-  .pp-locked-row{display:flex;align-items:center;gap:28px;flex-wrap:wrap;margin-top:4px;}
-  .pp-locked-row > div{display:flex;flex-direction:column;gap:2px;}
-  .pp-locked-label{font-size:.64rem;text-transform:uppercase;color:var(--text-muted);font-weight:700;letter-spacing:.03em;}
-  .pp-locked-row b{font-size:.92rem;font-weight:700;color:var(--text);}
-  .pp-locked-row .btn-add{margin-left:auto;}
+  .proyecto-picker::before{content:"Proyecto e iteración";position:absolute;top:-9px;left:14px;background:var(--naranja-600);color:#fff;font-family:var(--font-display);font-size:.62rem;font-weight:700;text-transform:uppercase;letter-spacing:.04em;padding:2px 10px;border-radius:999px;}
+  .proyecto-picker .pp-row{display:flex;gap:14px;flex-wrap:wrap;margin-top:4px;}
+  .proyecto-picker .pp-field{flex:1;min-width:200px;display:flex;flex-direction:column;gap:5px;}
+  .proyecto-picker label{font-size:.66rem;text-transform:uppercase;color:var(--text-muted);font-weight:700;letter-spacing:.02em;}
+  .proyecto-picker select,.proyecto-picker input{padding:9px 11px;border-radius:3px;border:1.5px solid var(--line);font-size:.85rem;background:var(--surface);color:var(--text);}
+  .proyecto-picker select:focus,.proyecto-picker input:focus{outline:none;border-color:var(--naranja-600);}
 
   /* ---- Proyectos (panel dedicado) ---- */
   .proyectos-tipo-block{margin-bottom:28px;}
@@ -667,14 +678,14 @@
         <span class="label">Inicio</span>
       </button>
 
-      <button class="nav-item" data-panel="proyectos">
-        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 7a2 2 0 0 1 2-2h4l2 2h8a2 2 0 0 1 2 2v9a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V7z"/></svg>
-        <span class="label">Proyectos</span>
+      <button class="nav-item" data-panel="disenos">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="4" y="2" width="16" height="20" rx="2"/><line x1="8" y1="7" x2="16" y2="7"/><line x1="8" y1="12" x2="16" y2="12"/><line x1="8" y1="17" x2="12" y2="17"/></svg>
+        <span class="label">Diseños</span>
       </button>
 
       <button class="nav-item" data-panel="componentes">
         <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 8l-9-5-9 5 9 5 9-5z"/><path d="M3 8v8l9 5 9-5V8"/></svg>
-        <span class="label">Componentes</span>
+        <span class="label">Registro</span>
       </button>
 
       <button class="nav-item" data-panel="roturas">
@@ -746,77 +757,11 @@
       <div class="gallery" id="favoritos-grid"></div>
     </section>
 
-    <!-- ============ PROYECTOS ============ -->
-    <section id="panel-proyectos" class="panel">
-      <div class="content-header">
-        <div><h2>Proyectos</h2></div>
-        <div style="display:flex;gap:10px;align-items:center;">
-          <button class="link-mono" id="btn-ver-todos-disenos">Ver todos los diseños →</button>
-          <span class="badge-pill" id="proyectos-count">0 proyectos</span>
-        </div>
-      </div>
-
-      <!-- Vista: lista de proyectos -->
-      <div id="proyectos-lista-view">
-        <div class="hist-toolbar" style="margin-bottom:16px;">
-          <input type="text" id="proyectos-search" placeholder="Buscar proyecto…">
-          <button class="btn-add ghost" id="btn-nuevo-proyecto-toggle" style="margin-left:auto;">+ Otro proyecto</button>
-        </div>
-        <div class="card" id="nuevo-proyecto-form" style="display:none;">
-          <div class="section-num" style="margin-bottom:14px;">Agregar proyecto a la lista</div>
-          <div class="form-row">
-            <select id="np-tipo"><option value="Cubos">Cubos</option><option value="Probetas">Probetas</option></select>
-            <input type="text" id="np-nombre" placeholder="Nombre del proyecto">
-          </div>
-          <div class="form-actions">
-            <button class="btn-add" id="np-guardar">Agregar y abrir</button>
-            <a class="link-cancel" id="np-cancelar">Cancelar</a>
-          </div>
-        </div>
-        <div class="proyectos-tipo-block">
-          <h3 class="proyectos-tipo-title"><span class="tipo-dot tipo-dot-cubos"></span>Cubos</h3>
-          <div class="proyectos-grid" id="proyectos-grid-Cubos"></div>
-        </div>
-        <div class="proyectos-tipo-block">
-          <h3 class="proyectos-tipo-title"><span class="tipo-dot tipo-dot-probetas"></span>Probetas</h3>
-          <div class="proyectos-grid" id="proyectos-grid-Probetas"></div>
-        </div>
-      </div>
-
-      <!-- Vista: detalle de un proyecto -->
-      <div id="proyecto-detalle-view" style="display:none;">
-        <button class="back-home-btn" id="btn-volver-proyectos">
-          <svg viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M19 12H5"/><path d="M12 19l-7-7 7-7"/></svg>
-          Todos los proyectos
-        </button>
-        <div class="proyecto-detalle-head">
-          <div>
-            <h2 id="pd-nombre">—</h2>
-            <span class="tag-pill" id="pd-tipo-badge" style="background:var(--negro);color:#fff;border-color:var(--negro);"></span>
-          </div>
-        </div>
-        <div class="proyecto-kpis" id="pd-kpis"></div>
-
-        <div class="section-title-row">
-          <h3>Meses con actividad</h3>
-        </div>
-        <div class="iteracion-tabs" id="iteracion-tabs"></div>
-
-        <div class="section-title-row">
-          <h3 id="pd-disenos-title">Diseños</h3>
-          <div style="display:flex;gap:8px;align-items:center;">
-            <select id="pd-mes-nuevo"></select>
-            <button class="btn-add" id="btn-nuevo-diseno-en-proyecto">+ Nuevo Diseño</button>
-          </div>
-        </div>
-        <div class="gallery" id="pd-disenos-grid"></div>
-      </div>
-    </section>
 
     <!-- COMPONENTES -->
     <section id="panel-componentes" class="panel">
       <div class="content-header">
-        <div><h2 id="comp-title">Componentes</h2></div>
+        <div><h2 id="comp-title">Registro</h2></div>
         <span class="badge-pill" id="comp-count">0 registros</span>
       </div>
 
@@ -842,6 +787,27 @@
           <table><thead><tr id="comp-thead-row"></tr></thead><tbody id="comp-tbody"></tbody></table>
         </div>
       </div>
+
+      <!-- Proyecto: categoría especial dentro de Registro -->
+      <div id="proy-body" style="display:none;">
+        <button class="comp-back" id="proy-back-btn">
+          <svg viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M19 12H5"/><path d="M12 19l-7-7 7-7"/></svg>
+          Volver a categorías
+        </button>
+        <div class="card">
+          <div class="form-row">
+            <select id="proy-tipo"><option value="Cubos">Cubos</option><option value="Probetas">Probetas</option></select>
+            <input type="text" id="proy-nombre" placeholder="Nombre del proyecto">
+          </div>
+          <div class="form-actions">
+            <button class="btn-add" id="proy-add">+ Agregar proyecto</button>
+            <a class="link-cancel" id="proy-cancel" style="display:none;">Cancelar edición</a>
+          </div>
+        </div>
+        <div class="card table-scroll">
+          <table><thead><tr><th>Tipo</th><th>Nombre</th><th>Diseños</th><th></th></tr></thead><tbody id="proy-tbody"></tbody></table>
+        </div>
+      </div>
     </section>
 
     <!-- DISEÑOS -->
@@ -856,12 +822,22 @@
 
         <!-- PROYECTO / ITERACIÓN -->
         <div class="proyecto-picker">
-          <div class="pp-locked-row">
-            <div><span class="pp-locked-label">Proyecto</span><b id="pp-locked-proyecto">—</b></div>
-            <div><span class="pp-locked-label">Iteración</span><b id="pp-locked-iteracion">—</b></div>
-            <button class="btn-add ghost" id="pp-cambiar-proyecto" type="button">Cambiar</button>
+          <div class="pp-row">
+            <div class="pp-field">
+              <label>Proyecto</label>
+              <select id="pp-proyecto"></select>
+            </div>
+            <div class="pp-field">
+              <label>Iteración (mes)</label>
+              <input type="text" id="pp-iteracion" list="mes-datalist" placeholder="Ej. Agosto">
+            </div>
           </div>
         </div>
+        <datalist id="mes-datalist">
+          <option value="Enero"><option value="Febrero"><option value="Marzo"><option value="Abril">
+          <option value="Mayo"><option value="Junio"><option value="Julio"><option value="Agosto">
+          <option value="Septiembre"><option value="Octubre"><option value="Noviembre"><option value="Diciembre">
+        </datalist>
 
         <!-- ENCABEZADO -->
         <div class="hoja">
@@ -1107,7 +1083,7 @@
           <div class="proyecto-picker">
             <div class="pp-row">
               <div class="pp-field"><label>Proyecto</label><select id="ro-proyecto"></select></div>
-              <div class="pp-field"><label>Mes</label><select id="ro-iteracion"></select></div>
+              <div class="pp-field"><label>Mes</label><input type="text" id="ro-iteracion" list="mes-datalist" placeholder="Ej. Agosto"></div>
               <div class="pp-field"><label>Diseño existente</label><select id="ro-diseno"></select></div>
               <div class="pp-field"><label>Réplica</label><select id="ro-replica"></select></div>
             </div>
@@ -1420,7 +1396,7 @@
     <div class="modal-body">
       <div class="form-row">
         <select id="rrg-proyecto"></select>
-        <select id="rrg-iteracion"></select>
+        <input type="text" id="rrg-iteracion" list="mes-datalist" placeholder="Mes (opcional)">
       </div>
       <div class="form-row">
         <label style="display:flex;align-items:center;gap:6px;font-size:.85rem;"><input type="radio" name="rrg-tipo" value="Promediado" checked> Promediado</label>
@@ -1514,7 +1490,6 @@
     if(name === 'reportes') animateReportes();
     if(name === 'inicio'){ renderInicioRecientes(); renderInicioFavoritos(); renderPendientesHoyInicio(); }
     if(name === 'roturas'){ renderRoturasAll(); }
-    if(name === 'proyectos'){ showProyectosSub('lista'); renderProyectosGrid(); }
     window.scrollTo({top:0, behavior:'auto'});
   }
   document.getElementById('btn-back-home').addEventListener('click', function(){ showPanel('inicio'); });
@@ -1523,26 +1498,23 @@
       if(btn.dataset.panel === 'componentes'){ activeCompCat = null; }
       showPanel(btn.dataset.panel);
       if(btn.dataset.panel === 'componentes'){ renderComponentesPanel(); }
+      if(btn.dataset.panel === 'disenos'){ showSubTab('historico'); }
     });
   });
-  document.getElementById('btn-calcular').addEventListener('click', function(){ showPanel('proyectos'); });
-  document.getElementById('btn-ver-todos-disenos').addEventListener('click', function(){
-    showPanel('disenos');
-    showSubTab('historico');
-    navItems.forEach(function(b){ b.classList.toggle('active', b.dataset.panel==='proyectos'); });
-  });
+  document.getElementById('btn-calcular').addEventListener('click', function(){ showPanel('disenos'); showSubTab('calcular'); });
   document.getElementById('btn-ver-roturas-inicio').addEventListener('click', function(){ showPanel('roturas'); showRoturasSub('pendientes'); });
 
-  /* ================= PROYECTO (lista fija) / ITERACIÓN (mes 1–12) ================= */
+  /* ================= PROYECTO (lista fija, gestionada en Registro) / ITERACIÓN (nombre de mes, editable) ================= */
   var PROYECTO_CATALOGO = load('sid10_proyecto_catalogo', {
     'Cubos': ['Aditivos in House', 'Adhesivo Cementante', 'Benchmarking Ad. Cementante', 'P.I. Adhesivo Cementante'],
     'Probetas': ['Estudio HE', 'Estudio HE + Fly Ash', 'Estudio HE Aditivado', 'Estudio LH', 'Estudio Aditivo', 'Estudio Escoria', 'Aditivos Chiclayo']
   });
+  var MES_NOMBRES = ['Enero','Febrero','Marzo','Abril','Mayo','Junio','Julio','Agosto','Septiembre','Octubre','Noviembre','Diciembre'];
   function saveCatalogo(){ save('sid10_proyecto_catalogo', PROYECTO_CATALOGO); }
   function proyectoId(tipo, nombre){ return tipo + '::' + nombre; }
   function proyectoTipo(pid){ return pid ? pid.split('::')[0] : ''; }
   function proyectoNombre(pid){ if(!pid) return ''; var parts = pid.split('::'); return parts[1] || pid; }
-  function iteracionNombre(mes){ return mes ? ('Mes ' + mes) : ''; }
+  function iteracionNombre(val){ return val || ''; }
   function todosLosProyectoIds(){
     var out = [];
     Object.keys(PROYECTO_CATALOGO).forEach(function(tipo){
@@ -1550,6 +1522,7 @@
     });
     return out;
   }
+  function diseñosDeProyecto(pid){ return disenos.filter(function(d){ return d.proyectoId === pid; }); }
   function fillProyectoCatalogoSelect(sel, selectedId){
     var html = '<option value="">Elegí un proyecto…</option>';
     Object.keys(PROYECTO_CATALOGO).forEach(function(tipo){
@@ -1562,143 +1535,16 @@
     });
     sel.innerHTML = html;
   }
-  function fillMesSelect(sel, selectedMes){
-    var html = '<option value="">Elegí el mes…</option>';
-    for(var m=1;m<=12;m++){ html += '<option value="'+m+'"'+(String(m)===String(selectedMes)?' selected':'')+'>Mes '+m+'</option>'; }
-    sel.innerHTML = html;
-  }
+  function mesActual(){ return MES_NOMBRES[new Date().getMonth()]; }
 
   function refreshAllProyectoSelects(){
+    fillProyectoCatalogoSelect(document.getElementById('pp-proyecto'), document.getElementById('pp-proyecto').value);
     fillProyectoCatalogoSelect(document.getElementById('ro-proyecto'), document.getElementById('ro-proyecto').value);
-    fillMesSelect(document.getElementById('ro-iteracion'), document.getElementById('ro-iteracion').value);
     fillProyectoCatalogoSelect(document.getElementById('rrg-proyecto'), document.getElementById('rrg-proyecto').value);
-    fillMesSelect(document.getElementById('rrg-iteracion'), document.getElementById('rrg-iteracion').value);
   }
   document.getElementById('ro-proyecto').addEventListener('change', function(){ rebuildRoDisenoSelect(); });
   document.getElementById('rrg-proyecto').addEventListener('change', renderRRGDisponibles);
   document.getElementById('rrg-iteracion').addEventListener('change', renderRRGDisponibles);
-
-  /* ---- Todo empieza eligiendo un Proyecto: panel dedicado ---- */
-  var proyectoActivoId = '';
-  var iteracionActivaId = '';
-  var proyectoDetalleAbiertoId = null;
-
-  function diseñosDeProyecto(pid){ return disenos.filter(function(d){ return d.proyectoId === pid; }); }
-  function mesesConDisenos(pid){
-    var set = {};
-    diseñosDeProyecto(pid).forEach(function(d){ if(d.iteracionId) set[d.iteracionId] = true; });
-    return Object.keys(set).map(Number).sort(function(a,b){ return a-b; });
-  }
-
-  function showProyectosSub(view){
-    document.getElementById('proyectos-lista-view').style.display = view === 'lista' ? 'block' : 'none';
-    document.getElementById('proyecto-detalle-view').style.display = view === 'detalle' ? 'block' : 'none';
-  }
-  function proyectoCardHtml(tipo, nombre){
-    var pid = proyectoId(tipo, nombre);
-    var nDis = diseñosDeProyecto(pid).length;
-    return '<div class="proyecto-card" data-id="'+pid+'">' +
-      '<h4>'+esc(nombre)+'</h4>' +
-      '<div class="pc-stats"><div><b>'+nDis+'</b>diseños</div></div>' +
-    '</div>';
-  }
-  function renderProyectosGrid(){
-    var total = todosLosProyectoIds().length;
-    document.getElementById('proyectos-count').textContent = total + ' proyecto' + (total===1?'':'s');
-    var searchTxt = (document.getElementById('proyectos-search').value||'').trim().toLowerCase();
-    ['Cubos','Probetas'].forEach(function(tipo){
-      var wrap = document.getElementById('proyectos-grid-'+tipo);
-      var list = PROYECTO_CATALOGO[tipo].filter(function(nombre){ return !searchTxt || nombre.toLowerCase().indexOf(searchTxt)>-1; });
-      wrap.innerHTML = list.length ? list.map(function(nombre){ return proyectoCardHtml(tipo, nombre); }).join('') : '<div class="empty-note">Sin resultados.</div>';
-    });
-  }
-  document.getElementById('proyectos-search').addEventListener('input', renderProyectosGrid);
-  document.getElementById('proyectos-lista-view').addEventListener('click', function(e){
-    var card = e.target.closest('.proyecto-card');
-    if(!card) return;
-    abrirProyectoDetalle(card.dataset.id);
-  });
-  document.getElementById('btn-nuevo-proyecto-toggle').addEventListener('click', function(){
-    document.getElementById('nuevo-proyecto-form').style.display = document.getElementById('nuevo-proyecto-form').style.display === 'none' ? 'block' : 'none';
-  });
-  document.getElementById('np-cancelar').addEventListener('click', function(e){
-    e.preventDefault();
-    document.getElementById('nuevo-proyecto-form').style.display = 'none';
-  });
-  document.getElementById('np-guardar').addEventListener('click', function(){
-    var tipo = document.getElementById('np-tipo').value;
-    var nombre = document.getElementById('np-nombre').value.trim();
-    if(!nombre){ toast('Ingresá el nombre del proyecto'); return; }
-    if(PROYECTO_CATALOGO[tipo].some(function(x){ return x.toLowerCase()===nombre.toLowerCase(); })){ toast('Ya existe un proyecto con ese nombre en '+tipo); return; }
-    PROYECTO_CATALOGO[tipo].push(nombre);
-    saveCatalogo();
-    document.getElementById('np-nombre').value = '';
-    document.getElementById('nuevo-proyecto-form').style.display = 'none';
-    renderProyectosGrid();
-    toast('Proyecto agregado a la lista');
-    rebuildHistProyectoFiltro();
-    refreshAllProyectoSelects();
-    abrirProyectoDetalle(proyectoId(tipo, nombre));
-  });
-  function abrirProyectoDetalle(pid){
-    proyectoDetalleAbiertoId = pid;
-    document.getElementById('pd-nombre').textContent = proyectoNombre(pid);
-    var tipo = proyectoTipo(pid);
-    document.getElementById('pd-tipo-badge').textContent = tipo;
-    renderProyectoKpis(pid);
-    showProyectosSub('detalle');
-    var meses = mesesConDisenos(pid);
-    renderIteracionTabs(pid, meses[meses.length-1] || '');
-    fillMesSelect(document.getElementById('pd-mes-nuevo'), new Date().getMonth()+1);
-  }
-  function renderProyectoKpis(pid){
-    var lista = diseñosDeProyecto(pid);
-    var completos = lista.filter(function(d){ return d.estado==='Completado'; }).length;
-    var semVerdes = lista.filter(function(d){ return semaforoDiseno(d)==='verde'; }).length;
-    document.getElementById('pd-kpis').innerHTML =
-      '<div class="proyecto-kpi-chip"><b>'+lista.length+'</b> diseños</div>' +
-      '<div class="proyecto-kpi-chip"><b>'+completos+'</b> completados</div>' +
-      '<div class="proyecto-kpi-chip"><b>'+semVerdes+'</b> con roturas al 100%</div>' +
-      '<div class="proyecto-kpi-chip"><b>'+mesesConDisenos(pid).length+'</b> meses activos</div>';
-  }
-  document.getElementById('btn-volver-proyectos').addEventListener('click', function(){ showProyectosSub('lista'); renderProyectosGrid(); });
-  function renderIteracionTabs(pid, activaMes){
-    var meses = mesesConDisenos(pid);
-    var wrap = document.getElementById('iteracion-tabs');
-    if(!meses.length){ wrap.innerHTML = '<div class="empty-note">Todavía no hay diseños — elegí un mes y creá el primero abajo.</div>'; renderProyectoDisenos(pid, ''); return; }
-    if(meses.indexOf(Number(activaMes)) === -1) activaMes = meses[meses.length-1];
-    wrap.innerHTML = meses.map(function(m){
-      return '<button class="iteracion-tab'+(m===Number(activaMes)?' active':'')+'" data-mes="'+m+'">'+iteracionNombre(m)+'</button>';
-    }).join('');
-    renderProyectoDisenos(pid, activaMes);
-  }
-  document.getElementById('iteracion-tabs').addEventListener('click', function(e){
-    var btn = e.target.closest('.iteracion-tab');
-    if(!btn) return;
-    renderIteracionTabs(proyectoDetalleAbiertoId, btn.dataset.mes);
-  });
-  function renderProyectoDisenos(pid, mes){
-    var list = diseñosDeProyecto(pid).filter(function(d){ return !mes || String(d.iteracionId) === String(mes); });
-    var titleEl = document.getElementById('pd-disenos-title');
-    titleEl.textContent = mes ? ('Diseños — ' + iteracionNombre(Number(mes))) : 'Diseños del proyecto';
-    var wrap = document.getElementById('pd-disenos-grid');
-    wrap.innerHTML = list.length ? list.map(disenoCardHtml).join('') : '<div class="empty-note">Todavía no hay diseños en este mes.</div>';
-  }
-  document.getElementById('pd-disenos-grid').addEventListener('click', handleCardAction);
-  document.getElementById('btn-nuevo-diseno-en-proyecto').addEventListener('click', function(){
-    var mes = document.getElementById('pd-mes-nuevo').value;
-    if(!mes){ toast('Elegí el mes para este diseño'); return; }
-    proyectoActivoId = proyectoDetalleAbiertoId;
-    iteracionActivaId = mes;
-    entrarACalcularDiseno();
-  });
-  function entrarACalcularDiseno(){
-    document.getElementById('pp-locked-proyecto').textContent = proyectoTipo(proyectoActivoId) + ' — ' + (proyectoNombre(proyectoActivoId) || '—');
-    document.getElementById('pp-locked-iteracion').textContent = iteracionNombre(iteracionActivaId) || '—';
-    showPanel('disenos');
-    showSubTab('calcular');
-  }
-  document.getElementById('pp-cambiar-proyecto').addEventListener('click', function(){ showPanel('proyectos'); });
 
   /* ================= CÓDIGO CORRELATIVO (ID-XXX) ================= */
   function nextCodigoRotura(){
@@ -1769,22 +1615,33 @@
 
   function renderCompCatGrid(){
     var grid = document.getElementById('comp-cat-grid');
-    grid.innerHTML = CAT_DEFS.map(function(c){
+    var tiles = CAT_DEFS.map(function(c){
       var count = componentes.filter(function(x){ return x.categoria === c.id; }).length;
       return '<button class="comp-cat-tile" data-cat="'+c.id+'">' +
         '<span class="icon-wrap"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">'+c.icon+'</svg></span>' +
         '<h4>'+c.id+'</h4><span>'+count+' registrado'+(count===1?'':'s')+'</span>' +
       '</button>';
     }).join('');
+    var proyCount = todosLosProyectoIds().length;
+    tiles += '<button class="comp-cat-tile" data-cat="Proyecto">' +
+      '<span class="icon-wrap"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 7a2 2 0 0 1 2-2h4l2 2h8a2 2 0 0 1 2 2v9a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V7z"/></svg></span>' +
+      '<h4>Proyecto</h4><span>'+proyCount+' registrado'+(proyCount===1?'':'s')+'</span>' +
+    '</button>';
+    grid.innerHTML = tiles;
   }
   document.getElementById('comp-cat-grid').addEventListener('click', function(e){
     var tile = e.target.closest('.comp-cat-tile');
     if(!tile) return;
     activeCompCat = tile.dataset.cat;
     compEditingIndex = null;
+    proyEditing = null;
     renderComponentesPanel();
   });
   document.getElementById('comp-back-btn').addEventListener('click', function(){
+    activeCompCat = null;
+    renderComponentesPanel();
+  });
+  document.getElementById('proy-back-btn').addEventListener('click', function(){
     activeCompCat = null;
     renderComponentesPanel();
   });
@@ -1808,10 +1665,21 @@
     var def = catDef(activeCompCat);
     var gridEl = document.getElementById('comp-cat-grid');
     var bodyEl = document.getElementById('comp-body');
+    var proyEl = document.getElementById('proy-body');
+    if(activeCompCat === 'Proyecto'){
+      gridEl.style.display = 'none';
+      bodyEl.style.display = 'none';
+      proyEl.style.display = 'block';
+      document.getElementById('comp-title').textContent = 'Proyecto';
+      document.getElementById('comp-count').textContent = todosLosProyectoIds().length + ' registros';
+      renderProyCrud();
+      return;
+    }
+    proyEl.style.display = 'none';
     if(!def){
       gridEl.style.display = 'grid';
       bodyEl.style.display = 'none';
-      document.getElementById('comp-title').textContent = 'Componentes';
+      document.getElementById('comp-title').textContent = 'Registro';
       document.getElementById('comp-count').textContent = componentes.length + ' registros';
       renderCompCatGrid();
       return;
@@ -1898,6 +1766,90 @@
     rebuildAllMaterialSelects();
   });
 
+  /* ================= PROYECTO — CRUD dentro de Registro ================= */
+  var proyEditing = null; // {tipo, nombre} de la fila que se está editando
+  function renderProyCrud(){
+    var tbody = document.getElementById('proy-tbody');
+    var rows = [];
+    Object.keys(PROYECTO_CATALOGO).forEach(function(tipo){
+      PROYECTO_CATALOGO[tipo].forEach(function(nombre){
+        var pid = proyectoId(tipo, nombre);
+        var nDis = diseñosDeProyecto(pid).length;
+        rows.push('<tr>' +
+          '<td class="mono">'+tipo+'</td>' +
+          '<td>'+esc(nombre)+'</td>' +
+          '<td class="mono">'+nDis+'</td>' +
+          '<td><div class="row-actions">' +
+            '<button class="btn-icon edit" data-tipo="'+tipo+'" data-nombre="'+esc(nombre)+'" data-act="edit" title="Editar"><svg viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"/><path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"/></svg></button>' +
+            '<button class="btn-icon danger" data-tipo="'+tipo+'" data-nombre="'+esc(nombre)+'" data-act="del" title="Eliminar">×</button>' +
+          '</div></td>' +
+        '</tr>');
+      });
+    });
+    tbody.innerHTML = rows.join('');
+  }
+  document.getElementById('proy-tbody').addEventListener('click', function(e){
+    var btn = e.target.closest('.btn-icon');
+    if(!btn) return;
+    var tipo = btn.dataset.tipo, nombre = btn.dataset.nombre;
+    if(btn.dataset.act === 'edit'){
+      proyEditing = {tipo:tipo, nombre:nombre};
+      document.getElementById('proy-tipo').value = tipo;
+      document.getElementById('proy-nombre').value = nombre;
+      document.getElementById('proy-add').textContent = 'Guardar cambios';
+      document.getElementById('proy-cancel').style.display = 'inline';
+    } else if(btn.dataset.act === 'del'){
+      var pid = proyectoId(tipo, nombre);
+      var nDis = diseñosDeProyecto(pid).length;
+      if(nDis > 0 && !confirm('Este proyecto tiene '+nDis+' diseño(s) registrados. ¿Eliminarlo igual de la lista?')) return;
+      PROYECTO_CATALOGO[tipo] = PROYECTO_CATALOGO[tipo].filter(function(x){ return x !== nombre; });
+      saveCatalogo();
+      renderProyCrud();
+      renderCompCatGrid();
+      refreshAllProyectoSelects();
+      rebuildHistProyectoFiltro();
+      toast('Proyecto eliminado de la lista');
+    }
+  });
+  document.getElementById('proy-cancel').addEventListener('click', function(e){
+    e.preventDefault();
+    proyEditing = null;
+    document.getElementById('proy-nombre').value = '';
+    document.getElementById('proy-add').textContent = '+ Agregar proyecto';
+    document.getElementById('proy-cancel').style.display = 'none';
+  });
+  document.getElementById('proy-add').addEventListener('click', function(){
+    var tipo = document.getElementById('proy-tipo').value;
+    var nombre = document.getElementById('proy-nombre').value.trim();
+    if(!nombre){ toast('Ingresá el nombre del proyecto'); return; }
+    var yaExiste = PROYECTO_CATALOGO[tipo].some(function(x){ return x.toLowerCase()===nombre.toLowerCase() && !(proyEditing && proyEditing.tipo===tipo && proyEditing.nombre===x); });
+    if(yaExiste){ toast('Ya existe un proyecto con ese nombre en '+tipo); return; }
+    if(proyEditing){
+      var oldPid = proyectoId(proyEditing.tipo, proyEditing.nombre);
+      var newPid = proyectoId(tipo, nombre);
+      if(oldPid !== newPid){
+        disenos.forEach(function(d){ if(d.proyectoId === oldPid) d.proyectoId = newPid; });
+        save('sid10_disenos', disenos);
+      }
+      PROYECTO_CATALOGO[proyEditing.tipo] = PROYECTO_CATALOGO[proyEditing.tipo].filter(function(x){ return x !== proyEditing.nombre; });
+      PROYECTO_CATALOGO[tipo].push(nombre);
+      toast('Proyecto actualizado');
+    } else {
+      PROYECTO_CATALOGO[tipo].push(nombre);
+      toast('Proyecto agregado');
+    }
+    saveCatalogo();
+    proyEditing = null;
+    document.getElementById('proy-nombre').value = '';
+    document.getElementById('proy-add').textContent = '+ Agregar proyecto';
+    document.getElementById('proy-cancel').style.display = 'none';
+    renderProyCrud();
+    renderCompCatGrid();
+    refreshAllProyectoSelects();
+    rebuildHistProyectoFiltro();
+    renderAllDesignViews();
+  });
+
   /* ================= PLANTA -> LABORATORIO ================= */
   var PLANTA_LAB = [
     {nombre:'1203 Concreto Piura', codigo:'1203', lab:'1203-PIU'},
@@ -1954,9 +1906,13 @@
     document.getElementById('sub-calcular').style.display = name === 'calcular' ? 'block' : 'none';
     document.getElementById('sub-historico').style.display = name === 'historico' ? 'block' : 'none';
     if(name === 'historico'){ rebuildHistProyectoFiltro(); renderDisenosHistorico(); }
+    if(name === 'calcular'){
+      fillProyectoCatalogoSelect(document.getElementById('pp-proyecto'), document.getElementById('pp-proyecto').value);
+      if(!document.getElementById('pp-iteracion').value) document.getElementById('pp-iteracion').value = mesActual();
+    }
     window.scrollTo({top:0, behavior:'auto'});
   }
-  document.getElementById('btn-nuevo-diseno').addEventListener('click', function(){ showPanel('proyectos'); });
+  document.getElementById('btn-nuevo-diseno').addEventListener('click', function(){ showSubTab('calcular'); });
 
   var DAY = 24*3600*1000;
   var disenos = load('sid10_disenos', [
@@ -2010,12 +1966,15 @@
     var i = disenos.indexOf(d);
     var tagEstado = d.estado === 'Completado' ? 'tag-verde' : (d.estado === 'En desarrollo' ? 'tag-naranja' : 'tag-rojo');
     var sem = semaforoDotHtml(semaforoDiseno(d), 'Avance de roturas');
+    var proyLabel = d.proyectoId ? esc(proyectoNombre(d.proyectoId)) : 'Sin proyecto';
+    var tipoLabel = d.proyectoId ? proyectoTipo(d.proyectoId) : '';
     return '<div class="design-card">' +
       '<div class="design-thumb"></div>' +
       '<div class="design-body">' +
-        '<span class="mono">'+d.codigo+' · '+d.fecha+'</span>' +
-        '<h4>'+sem+' '+diseñoTitulo(d)+'</h4>' +
-        '<span class="mono" style="display:block;margin-bottom:8px;color:var(--text-muted);">'+d.planta+' · '+d.resistencia+' MPa'+(d.cvdTotal?(' · CVD S/.'+Number(d.cvdTotal).toFixed(2)):'')+(d.proyectoId?(' · '+esc(proyectoNombre(d.proyectoId))):'')+'</span>' +
+        '<h4 class="dc-proyecto">'+sem+' '+proyLabel+'</h4>' +
+        (tipoLabel ? '<span class="dc-tipo">'+tipoLabel+'</span>' : '') +
+        '<span class="dc-nombre">'+diseñoTitulo(d)+'</span>' +
+        '<span class="mono dc-meta">'+d.codigo+' · '+d.fecha+' · '+esc(d.laboratorio||'-')+'</span>' +
         '<div class="tags"><span class="tag-pill '+tagEstado+'">'+d.estado+'</span></div>' +
         '<div class="design-actions">'+disenoActionsHtml(d,i)+'</div>' +
       '</div>' +
@@ -2025,10 +1984,12 @@
     var i = disenos.indexOf(d);
     var tagEstado = d.estado === 'Completado' ? 'tag-verde' : (d.estado === 'En desarrollo' ? 'tag-naranja' : 'tag-rojo');
     var sem = semaforoDotHtml(semaforoDiseno(d), 'Avance de roturas');
+    var proyLabel = d.proyectoId ? esc(proyectoNombre(d.proyectoId)) : 'Sin proyecto';
+    var tipoLabel = d.proyectoId ? proyectoTipo(d.proyectoId) : '';
     return '<div class="design-row">' +
       '<div class="drow-thumb"></div>' +
       '<span class="drow-code mono">'+d.codigo+'</span>' +
-      '<div class="drow-main"><h5>'+sem+' '+diseñoTitulo(d)+'</h5><span>'+d.planta+' · '+d.fecha+' · '+d.resistencia+' MPa</span></div>' +
+      '<div class="drow-main"><h5>'+sem+' '+proyLabel+(tipoLabel?' <span class="dc-tipo-inline">'+tipoLabel+'</span>':'')+'</h5><span class="dc-nombre-inline">'+diseñoTitulo(d)+'</span><span>'+d.fecha+' · '+esc(d.laboratorio||'-')+'</span></div>' +
       '<div class="drow-tags"><span class="tag-pill '+tagEstado+'">'+d.estado+'</span></div>' +
       '<div class="drow-actions">'+disenoActionsHtml(d,i)+'</div>' +
     '</div>';
@@ -2871,9 +2832,10 @@
   });
 
   function duplicateDesignToForm(d){
-    proyectoActivoId = d.proyectoId || '';
-    iteracionActivaId = d.iteracionId || '';
-    entrarACalcularDiseno();
+    showPanel('disenos');
+    showSubTab('calcular');
+    fillProyectoCatalogoSelect(document.getElementById('pp-proyecto'), d.proyectoId || '');
+    document.getElementById('pp-iteracion').value = d.iteracionId || '';
     document.getElementById('dis-planta').value = d.planta || '';
     syncLaboratorio();
     if(d.uso) document.getElementById('dis-uso').value = d.uso;
@@ -2958,7 +2920,14 @@
       renderAllDesignViews();
     }
   }
-  document.getElementById('dis-gallery').addEventListener('click', handleCardAction);
+  document.getElementById('dis-gallery').addEventListener('click', function(e){
+    var toggleBtn = e.target.closest('.date-group-head');
+    if(toggleBtn){
+      toggleBtn.closest('.date-group').classList.toggle('collapsed');
+      return;
+    }
+    handleCardAction(e);
+  });
   document.getElementById('recientes-rows').addEventListener('click', handleCardAction);
   document.getElementById('favoritos-grid').addEventListener('click', handleCardAction);
 
@@ -2999,7 +2968,7 @@
     var renderFn = histView === 'list' ? disenoRowHtml : disenoCardHtml;
     wrap.innerHTML = groups.map(function(fecha){
       return '<div class="date-group">' +
-        '<div class="date-group-head">'+esc(fecha)+'</div>' +
+        '<button class="date-group-head" data-toggle="1"><span class="dg-chevron">▾</span>'+esc(fecha)+' <span class="dg-count">('+byDate[fecha].length+')</span></button>' +
         '<div class="gallery'+(histView==='list'?' list-view':'')+'">'+byDate[fecha].map(renderFn).join('')+'</div>' +
       '</div>';
     }).join('');
@@ -3046,11 +3015,6 @@
     renderInicioFavoritos();
     updateStats();
     updateNavBadges();
-    if(proyectoDetalleAbiertoId){
-      var activeTab = document.querySelector('.iteracion-tab.active');
-      renderProyectoDisenos(proyectoDetalleAbiertoId, activeTab ? activeTab.dataset.id : '');
-      renderProyectoKpis(proyectoDetalleAbiertoId);
-    }
   }
   function nextCodigoDiseno(){ return 'DID-' + String(disenos.length + 1).padStart(4,'0'); }
 
@@ -3362,9 +3326,9 @@
     var tipoDef = tipoIdxSel !== '' ? TIPO_CONCRETO_DEFS[Number(tipoIdxSel)] : null;
     var fc = document.getElementById('dis-fc').value.trim();
     if(!tipoDef || !fc){ toast('Completá al menos Tipo de concreto y f\'c'); return; }
-    var proyectoId = proyectoActivoId;
-    var iteracionId = iteracionActivaId;
-    if(!proyectoId || !iteracionId){ toast('Elegí un Proyecto e Iteración desde el panel Proyectos antes de registrar el diseño'); showPanel('proyectos'); return; }
+    var proyectoId = document.getElementById('pp-proyecto').value;
+    var iteracionId = document.getElementById('pp-iteracion').value.trim();
+    if(!proyectoId || !iteracionId){ toast('Elegí el Proyecto y escribí la Iteración (mes) antes de registrar el diseño'); return; }
     var nombreCandidato = refreshNombrePreview();
     if(!nombreCandidato){ toast('Completá los campos necesarios para armar el nombre del diseño'); return; }
     var yaExiste = disenos.some(function(existing){ return (existing.nombreTecnico||'').trim().toLowerCase() === nombreCandidato.trim().toLowerCase(); });
