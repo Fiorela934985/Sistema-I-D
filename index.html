@@ -413,20 +413,32 @@
   .pp-locked-row .btn-add{margin-left:auto;}
 
   /* ---- Proyectos (panel dedicado) ---- */
-  .proyectos-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(260px,1fr));gap:16px;}
-  .proyecto-card{background:var(--surface);border:1px solid var(--line);border-left:4px solid var(--naranja-600);border-radius:6px;padding:18px 20px;cursor:pointer;transition:transform .15s var(--ease), box-shadow .15s var(--ease);}
+  .proyectos-tipo-block{margin-bottom:28px;}
+  .proyectos-tipo-title{display:flex;align-items:center;gap:9px;font-family:var(--font-display);font-size:1rem;font-weight:700;margin-bottom:14px;text-transform:uppercase;letter-spacing:.02em;}
+  .tipo-dot{width:10px;height:10px;border-radius:50%;display:inline-block;}
+  .tipo-dot-cubos{background:var(--naranja-600);}
+  .tipo-dot-probetas{background:var(--negro);}
+  .proyectos-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(240px,1fr));gap:14px;}
+  .proyecto-card{background:var(--surface);border:1px solid var(--line);border-left:4px solid var(--naranja-600);border-radius:6px;padding:16px 18px;cursor:pointer;transition:transform .15s var(--ease), box-shadow .15s var(--ease);}
   .proyecto-card:hover{transform:translateY(-3px);box-shadow:0 14px 26px -14px rgba(0,0,0,.18);}
-  .proyecto-card h4{font-family:var(--font-display);font-size:1.02rem;font-weight:700;margin-bottom:4px;}
-  .proyecto-card .pc-meta{font-size:.78rem;color:var(--text-muted);margin-bottom:12px;}
+  .proyecto-card h4{font-family:var(--font-display);font-size:.98rem;font-weight:700;margin-bottom:8px;}
   .proyecto-card .pc-stats{display:flex;gap:16px;font-size:.76rem;color:var(--text-muted);}
   .proyecto-card .pc-stats b{display:block;font-family:var(--font-display);font-size:1.15rem;color:var(--naranja-600);}
-  .proyecto-detalle-head{display:flex;justify-content:space-between;align-items:flex-start;margin-bottom:18px;flex-wrap:wrap;gap:10px;}
-  .proyecto-detalle-head h2{font-family:var(--font-display);font-size:1.3rem;font-weight:700;}
-  .proyecto-detalle-head .mono{color:var(--text-muted);font-size:.82rem;}
+  .proyecto-detalle-head{display:flex;justify-content:space-between;align-items:center;margin-bottom:6px;flex-wrap:wrap;gap:10px;}
+  .proyecto-detalle-head h2{font-family:var(--font-display);font-size:1.3rem;font-weight:700;display:inline;margin-right:10px;}
   .iteracion-tabs{display:flex;gap:8px;flex-wrap:wrap;margin-bottom:22px;}
   .iteracion-tab{padding:9px 16px;border-radius:999px;font-size:.8rem;font-weight:600;color:var(--text-muted);background:var(--surface);border:1.5px solid var(--line);white-space:nowrap;}
   .iteracion-tab:hover{border-color:var(--naranja-300);color:var(--text);}
   .iteracion-tab.active{background:var(--naranja-600);border-color:var(--naranja-600);color:#fff;}
+
+  /* ---- Confirmación de réplicas/roturas creadas ---- */
+  .rac-wrap{margin:14px 0 20px;}
+  .rac-summary{font-size:.8rem;color:var(--text-muted);margin-bottom:12px;text-align:center;}
+  .rac-replica-block{border:1px solid var(--line);border-radius:6px;padding:10px 12px;margin-bottom:8px;}
+  .rac-replica-block b{display:block;font-size:.84rem;margin-bottom:7px;}
+  .rac-dia-chips{display:flex;flex-wrap:wrap;gap:6px;}
+  .rac-dia-chip{font-size:.7rem;background:var(--surface-2);border-radius:999px;padding:4px 10px;color:var(--text-muted);white-space:nowrap;}
+  .rac-code{font-family:var(--font-mono);color:var(--naranja-600);font-weight:700;margin-left:4px;}
 
   /* ---- Vista de diseño (modal + impresión) ---- */
   #design-modal{position:fixed;inset:0;background:rgba(20,19,20,.55);z-index:200;display:none;align-items:flex-start;justify-content:center;padding:40px 18px;overflow-y:auto;}
@@ -748,21 +760,27 @@
       <div id="proyectos-lista-view">
         <div class="hist-toolbar" style="margin-bottom:16px;">
           <input type="text" id="proyectos-search" placeholder="Buscar proyecto…">
-          <button class="btn-add" id="btn-nuevo-proyecto-toggle" style="margin-left:auto;">+ Nuevo Proyecto</button>
+          <button class="btn-add ghost" id="btn-nuevo-proyecto-toggle" style="margin-left:auto;">+ Otro proyecto</button>
         </div>
         <div class="card" id="nuevo-proyecto-form" style="display:none;">
-          <div class="section-num" style="margin-bottom:14px;">Nuevo proyecto</div>
+          <div class="section-num" style="margin-bottom:14px;">Agregar proyecto a la lista</div>
           <div class="form-row">
-            <input type="text" id="np-nombre" placeholder="Nombre del proyecto / estudio">
-            <input type="date" id="np-fecha">
-            <input type="text" id="np-responsable" placeholder="Responsable a cargo">
+            <select id="np-tipo"><option value="Cubos">Cubos</option><option value="Probetas">Probetas</option></select>
+            <input type="text" id="np-nombre" placeholder="Nombre del proyecto">
           </div>
           <div class="form-actions">
-            <button class="btn-add" id="np-guardar">Crear proyecto</button>
+            <button class="btn-add" id="np-guardar">Agregar y abrir</button>
             <a class="link-cancel" id="np-cancelar">Cancelar</a>
           </div>
         </div>
-        <div class="proyectos-grid" id="proyectos-grid"></div>
+        <div class="proyectos-tipo-block">
+          <h3 class="proyectos-tipo-title"><span class="tipo-dot tipo-dot-cubos"></span>Cubos</h3>
+          <div class="proyectos-grid" id="proyectos-grid-Cubos"></div>
+        </div>
+        <div class="proyectos-tipo-block">
+          <h3 class="proyectos-tipo-title"><span class="tipo-dot tipo-dot-probetas"></span>Probetas</h3>
+          <div class="proyectos-grid" id="proyectos-grid-Probetas"></div>
+        </div>
       </div>
 
       <!-- Vista: detalle de un proyecto -->
@@ -774,24 +792,22 @@
         <div class="proyecto-detalle-head">
           <div>
             <h2 id="pd-nombre">—</h2>
-            <span id="pd-meta" class="mono"></span>
+            <span class="tag-pill" id="pd-tipo-badge" style="background:var(--negro);color:#fff;border-color:var(--negro);"></span>
           </div>
         </div>
         <div class="proyecto-kpis" id="pd-kpis"></div>
 
         <div class="section-title-row">
-          <h3>Iteraciones</h3>
-          <button class="link-mono" id="btn-nueva-iteracion-toggle">+ Nueva iteración</button>
-        </div>
-        <div class="form-row" id="nueva-iteracion-form" style="display:none;">
-          <input type="text" id="ni-nombre" placeholder="Nombre de la iteración (ej. Iteración 2 — Junio 2026)">
-          <button class="btn-add" id="ni-guardar">Crear</button>
+          <h3>Meses con actividad</h3>
         </div>
         <div class="iteracion-tabs" id="iteracion-tabs"></div>
 
         <div class="section-title-row">
-          <h3 id="pd-disenos-title">Diseños de esta iteración</h3>
-          <button class="btn-add" id="btn-nuevo-diseno-en-proyecto">+ Nuevo Diseño</button>
+          <h3 id="pd-disenos-title">Diseños</h3>
+          <div style="display:flex;gap:8px;align-items:center;">
+            <select id="pd-mes-nuevo"></select>
+            <button class="btn-add" id="btn-nuevo-diseno-en-proyecto">+ Nuevo Diseño</button>
+          </div>
         </div>
         <div class="gallery" id="pd-disenos-grid"></div>
       </div>
@@ -997,7 +1013,7 @@
                 </div>
 
                 <div class="params-field"><label>N° de réplicas</label>
-                  <input type="number" id="dis-replicas" min="1" value="2">
+                  <input type="number" id="dis-replicas" min="1" max="6" value="2">
                 </div>
                 <div class="params-field"><label>Días de rotura</label>
                   <select id="dis-dias-preset">
@@ -1091,7 +1107,7 @@
           <div class="proyecto-picker">
             <div class="pp-row">
               <div class="pp-field"><label>Proyecto</label><select id="ro-proyecto"></select></div>
-              <div class="pp-field"><label>Iteración</label><select id="ro-iteracion"></select></div>
+              <div class="pp-field"><label>Mes</label><select id="ro-iteracion"></select></div>
               <div class="pp-field"><label>Diseño existente</label><select id="ro-diseno"></select></div>
               <div class="pp-field"><label>Réplica</label><select id="ro-replica"></select></div>
             </div>
@@ -1275,7 +1291,7 @@
     <h3>Diseño registrado — ¿Cuántas réplicas necesita?</h3>
     <p id="replicas-modal-name"></p>
     <div style="display:flex;justify-content:center;margin-bottom:16px;">
-      <input type="number" id="replicas-modal-input" min="1" value="2" style="width:80px;text-align:center;padding:8px;border-radius:4px;border:1.5px solid var(--line);font-size:1rem;">
+      <input type="number" id="replicas-modal-input" min="1" max="6" value="2" style="width:80px;text-align:center;padding:8px;border-radius:4px;border:1.5px solid var(--line);font-size:1rem;">
     </div>
     <div class="confirm-actions">
       <button class="btn-ghost" id="replicas-modal-default">Usar 2 (predeterminado)</button>
@@ -1286,12 +1302,12 @@
 
 <!-- ============ MODAL: Roturas creadas automáticamente ============ -->
 <div id="roturas-auto-modal">
-  <div class="confirm-card" style="max-width:380px;">
-    <div class="confirm-icon">
+  <div class="confirm-card" style="max-width:440px;text-align:left;">
+    <div class="confirm-icon" style="margin:0 auto 14px;">
       <svg viewBox="0 0 24 24" width="26" height="26" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 2l3 6-5 4 6 2-8 8 2-7-5-2 4-4-3-5z"/></svg>
     </div>
-    <h3>Registros creados en Roturas</h3>
-    <p id="roturas-auto-modal-text"></p>
+    <h3 style="text-align:center;">Registros creados en Roturas</h3>
+    <div id="roturas-auto-modal-text" class="rac-wrap"></div>
     <div class="confirm-actions">
       <button class="btn-ghost" id="roturas-auto-modal-close">Seguir aquí</button>
       <button class="btn-add" id="roturas-auto-modal-go">Ir a Roturas</button>
@@ -1517,40 +1533,49 @@
   });
   document.getElementById('btn-ver-roturas-inicio').addEventListener('click', function(){ showPanel('roturas'); showRoturasSub('pendientes'); });
 
-  /* ================= PROYECTO / ITERACIÓN ================= */
-  var proyectos = load('sid10_proyectos', [
-    {id:'p1', nombre:'Estudio HE 0.70', fechaInicio:'2026-01-10', responsable:'J. Pérez'}
-  ]);
-  var iteraciones = load('sid10_iteraciones', [
-    {id:'i1', proyectoId:'p1', nombre:'Iteración 1 — Enero 2026'}
-  ]);
-  function saveProyectos(){ save('sid10_proyectos', proyectos); }
-  function saveIteraciones(){ save('sid10_iteraciones', iteraciones); }
-  function nextProyectoId(){ return 'p' + Date.now(); }
-  function nextIteracionId(){ return 'i' + Date.now(); }
-
-  function fillProyectoSelect(sel, selectedId){
-    sel.innerHTML = '<option value="">Elegí un proyecto…</option>' + proyectos.map(function(p){
-      return '<option value="'+p.id+'"'+(p.id===selectedId?' selected':'')+'>'+esc(p.nombre)+'</option>';
-    }).join('');
+  /* ================= PROYECTO (lista fija) / ITERACIÓN (mes 1–12) ================= */
+  var PROYECTO_CATALOGO = load('sid10_proyecto_catalogo', {
+    'Cubos': ['Aditivos in House', 'Adhesivo Cementante', 'Benchmarking Ad. Cementante', 'P.I. Adhesivo Cementante'],
+    'Probetas': ['Estudio HE', 'Estudio HE + Fly Ash', 'Estudio HE Aditivado', 'Estudio LH', 'Estudio Aditivo', 'Estudio Escoria', 'Aditivos Chiclayo']
+  });
+  function saveCatalogo(){ save('sid10_proyecto_catalogo', PROYECTO_CATALOGO); }
+  function proyectoId(tipo, nombre){ return tipo + '::' + nombre; }
+  function proyectoTipo(pid){ return pid ? pid.split('::')[0] : ''; }
+  function proyectoNombre(pid){ if(!pid) return ''; var parts = pid.split('::'); return parts[1] || pid; }
+  function iteracionNombre(mes){ return mes ? ('Mes ' + mes) : ''; }
+  function todosLosProyectoIds(){
+    var out = [];
+    Object.keys(PROYECTO_CATALOGO).forEach(function(tipo){
+      PROYECTO_CATALOGO[tipo].forEach(function(nombre){ out.push(proyectoId(tipo, nombre)); });
+    });
+    return out;
   }
-  function fillIteracionSelect(sel, proyectoId, selectedId){
-    var list = iteraciones.filter(function(it){ return it.proyectoId === proyectoId; });
-    sel.innerHTML = '<option value="">Elegí una iteración…</option>' + list.map(function(it){
-      return '<option value="'+it.id+'"'+(it.id===selectedId?' selected':'')+'>'+esc(it.nombre)+'</option>';
-    }).join('');
+  function fillProyectoCatalogoSelect(sel, selectedId){
+    var html = '<option value="">Elegí un proyecto…</option>';
+    Object.keys(PROYECTO_CATALOGO).forEach(function(tipo){
+      html += '<optgroup label="'+tipo+'">';
+      PROYECTO_CATALOGO[tipo].forEach(function(nombre){
+        var pid = proyectoId(tipo, nombre);
+        html += '<option value="'+pid+'"'+(pid===selectedId?' selected':'')+'>'+esc(nombre)+'</option>';
+      });
+      html += '</optgroup>';
+    });
+    sel.innerHTML = html;
   }
-  function proyectoNombre(id){ var p = proyectos.filter(function(x){ return x.id===id; })[0]; return p ? p.nombre : ''; }
-  function iteracionNombre(id){ var it = iteraciones.filter(function(x){ return x.id===id; })[0]; return it ? it.nombre : ''; }
+  function fillMesSelect(sel, selectedMes){
+    var html = '<option value="">Elegí el mes…</option>';
+    for(var m=1;m<=12;m++){ html += '<option value="'+m+'"'+(String(m)===String(selectedMes)?' selected':'')+'>Mes '+m+'</option>'; }
+    sel.innerHTML = html;
+  }
 
   function refreshAllProyectoSelects(){
-    fillProyectoSelect(document.getElementById('ro-proyecto'), document.getElementById('ro-proyecto').value);
-    fillIteracionSelect(document.getElementById('ro-iteracion'), document.getElementById('ro-proyecto').value, document.getElementById('ro-iteracion').value);
-    fillProyectoSelect(document.getElementById('rrg-proyecto'), document.getElementById('rrg-proyecto').value);
-    fillIteracionSelect(document.getElementById('rrg-iteracion'), document.getElementById('rrg-proyecto').value, document.getElementById('rrg-iteracion').value);
+    fillProyectoCatalogoSelect(document.getElementById('ro-proyecto'), document.getElementById('ro-proyecto').value);
+    fillMesSelect(document.getElementById('ro-iteracion'), document.getElementById('ro-iteracion').value);
+    fillProyectoCatalogoSelect(document.getElementById('rrg-proyecto'), document.getElementById('rrg-proyecto').value);
+    fillMesSelect(document.getElementById('rrg-iteracion'), document.getElementById('rrg-iteracion').value);
   }
-  document.getElementById('ro-proyecto').addEventListener('change', function(){ fillIteracionSelect(document.getElementById('ro-iteracion'), this.value, ''); rebuildRoDisenoSelect(); });
-  document.getElementById('rrg-proyecto').addEventListener('change', function(){ fillIteracionSelect(document.getElementById('rrg-iteracion'), this.value, ''); renderRRGDisponibles(); });
+  document.getElementById('ro-proyecto').addEventListener('change', function(){ rebuildRoDisenoSelect(); });
+  document.getElementById('rrg-proyecto').addEventListener('change', renderRRGDisponibles);
   document.getElementById('rrg-iteracion').addEventListener('change', renderRRGDisponibles);
 
   /* ---- Todo empieza eligiendo un Proyecto: panel dedicado ---- */
@@ -1559,30 +1584,36 @@
   var proyectoDetalleAbiertoId = null;
 
   function diseñosDeProyecto(pid){ return disenos.filter(function(d){ return d.proyectoId === pid; }); }
-  function iteracionesDeProyecto(pid){ return iteraciones.filter(function(it){ return it.proyectoId === pid; }); }
+  function mesesConDisenos(pid){
+    var set = {};
+    diseñosDeProyecto(pid).forEach(function(d){ if(d.iteracionId) set[d.iteracionId] = true; });
+    return Object.keys(set).map(Number).sort(function(a,b){ return a-b; });
+  }
 
   function showProyectosSub(view){
     document.getElementById('proyectos-lista-view').style.display = view === 'lista' ? 'block' : 'none';
     document.getElementById('proyecto-detalle-view').style.display = view === 'detalle' ? 'block' : 'none';
   }
+  function proyectoCardHtml(tipo, nombre){
+    var pid = proyectoId(tipo, nombre);
+    var nDis = diseñosDeProyecto(pid).length;
+    return '<div class="proyecto-card" data-id="'+pid+'">' +
+      '<h4>'+esc(nombre)+'</h4>' +
+      '<div class="pc-stats"><div><b>'+nDis+'</b>diseños</div></div>' +
+    '</div>';
+  }
   function renderProyectosGrid(){
-    document.getElementById('proyectos-count').textContent = proyectos.length + ' proyecto' + (proyectos.length===1?'':'s');
+    var total = todosLosProyectoIds().length;
+    document.getElementById('proyectos-count').textContent = total + ' proyecto' + (total===1?'':'s');
     var searchTxt = (document.getElementById('proyectos-search').value||'').trim().toLowerCase();
-    var wrap = document.getElementById('proyectos-grid');
-    var list = proyectos.filter(function(p){ return !searchTxt || p.nombre.toLowerCase().indexOf(searchTxt)>-1; });
-    if(!list.length){ wrap.innerHTML = '<div class="empty-note">No hay proyectos todavía — creá el primero arriba.</div>'; return; }
-    wrap.innerHTML = list.map(function(p){
-      var nDis = diseñosDeProyecto(p.id).length;
-      var nIter = iteracionesDeProyecto(p.id).length;
-      return '<div class="proyecto-card" data-id="'+p.id+'">' +
-        '<h4>'+esc(p.nombre)+'</h4>' +
-        '<div class="pc-meta">'+esc(p.responsable||'-')+' · desde '+isoToDMY(p.fechaInicio)+'</div>' +
-        '<div class="pc-stats"><div><b>'+nIter+'</b>iteraciones</div><div><b>'+nDis+'</b>diseños</div></div>' +
-      '</div>';
-    }).join('');
+    ['Cubos','Probetas'].forEach(function(tipo){
+      var wrap = document.getElementById('proyectos-grid-'+tipo);
+      var list = PROYECTO_CATALOGO[tipo].filter(function(nombre){ return !searchTxt || nombre.toLowerCase().indexOf(searchTxt)>-1; });
+      wrap.innerHTML = list.length ? list.map(function(nombre){ return proyectoCardHtml(tipo, nombre); }).join('') : '<div class="empty-note">Sin resultados.</div>';
+    });
   }
   document.getElementById('proyectos-search').addEventListener('input', renderProyectosGrid);
-  document.getElementById('proyectos-grid').addEventListener('click', function(e){
+  document.getElementById('proyectos-lista-view').addEventListener('click', function(e){
     var card = e.target.closest('.proyecto-card');
     if(!card) return;
     abrirProyectoDetalle(card.dataset.id);
@@ -1595,32 +1626,30 @@
     document.getElementById('nuevo-proyecto-form').style.display = 'none';
   });
   document.getElementById('np-guardar').addEventListener('click', function(){
+    var tipo = document.getElementById('np-tipo').value;
     var nombre = document.getElementById('np-nombre').value.trim();
-    var fecha = document.getElementById('np-fecha').value;
-    var resp = document.getElementById('np-responsable').value.trim();
-    if(!nombre || !fecha || !resp){ toast('Completá nombre, fecha de inicio y responsable'); return; }
-    var pid = nextProyectoId();
-    proyectos.push({id:pid, nombre:nombre, fechaInicio:fecha, responsable:resp});
-    saveProyectos();
+    if(!nombre){ toast('Ingresá el nombre del proyecto'); return; }
+    if(PROYECTO_CATALOGO[tipo].some(function(x){ return x.toLowerCase()===nombre.toLowerCase(); })){ toast('Ya existe un proyecto con ese nombre en '+tipo); return; }
+    PROYECTO_CATALOGO[tipo].push(nombre);
+    saveCatalogo();
     document.getElementById('np-nombre').value = '';
-    document.getElementById('np-responsable').value = '';
     document.getElementById('nuevo-proyecto-form').style.display = 'none';
     renderProyectosGrid();
-    toast('Proyecto creado');
+    toast('Proyecto agregado a la lista');
     rebuildHistProyectoFiltro();
-    abrirProyectoDetalle(pid);
+    refreshAllProyectoSelects();
+    abrirProyectoDetalle(proyectoId(tipo, nombre));
   });
   function abrirProyectoDetalle(pid){
     proyectoDetalleAbiertoId = pid;
-    var p = proyectos.filter(function(x){ return x.id===pid; })[0];
-    if(!p) return;
-    document.getElementById('pd-nombre').textContent = p.nombre;
-    document.getElementById('pd-meta').textContent = (p.responsable||'-') + ' · desde ' + isoToDMY(p.fechaInicio);
+    document.getElementById('pd-nombre').textContent = proyectoNombre(pid);
+    var tipo = proyectoTipo(pid);
+    document.getElementById('pd-tipo-badge').textContent = tipo;
     renderProyectoKpis(pid);
     showProyectosSub('detalle');
-    var iters = iteracionesDeProyecto(pid);
-    var activa = iters[0] ? iters[0].id : '';
-    renderIteracionTabs(pid, activa);
+    var meses = mesesConDisenos(pid);
+    renderIteracionTabs(pid, meses[meses.length-1] || '');
+    fillMesSelect(document.getElementById('pd-mes-nuevo'), new Date().getMonth()+1);
   }
   function renderProyectoKpis(pid){
     var lista = diseñosDeProyecto(pid);
@@ -1630,57 +1659,41 @@
       '<div class="proyecto-kpi-chip"><b>'+lista.length+'</b> diseños</div>' +
       '<div class="proyecto-kpi-chip"><b>'+completos+'</b> completados</div>' +
       '<div class="proyecto-kpi-chip"><b>'+semVerdes+'</b> con roturas al 100%</div>' +
-      '<div class="proyecto-kpi-chip"><b>'+iteracionesDeProyecto(pid).length+'</b> iteraciones</div>';
+      '<div class="proyecto-kpi-chip"><b>'+mesesConDisenos(pid).length+'</b> meses activos</div>';
   }
   document.getElementById('btn-volver-proyectos').addEventListener('click', function(){ showProyectosSub('lista'); renderProyectosGrid(); });
-  document.getElementById('btn-nueva-iteracion-toggle').addEventListener('click', function(){
-    var f = document.getElementById('nueva-iteracion-form');
-    f.style.display = f.style.display === 'none' ? 'flex' : 'none';
-  });
-  document.getElementById('ni-guardar').addEventListener('click', function(){
-    var nombre = document.getElementById('ni-nombre').value.trim();
-    if(!nombre){ toast('Ingresá el nombre de la iteración'); return; }
-    var iid = nextIteracionId();
-    iteraciones.push({id:iid, proyectoId:proyectoDetalleAbiertoId, nombre:nombre});
-    saveIteraciones();
-    document.getElementById('ni-nombre').value = '';
-    document.getElementById('nueva-iteracion-form').style.display = 'none';
-    renderIteracionTabs(proyectoDetalleAbiertoId, iid);
-    toast('Iteración creada');
-  });
-  function renderIteracionTabs(pid, activaId){
-    var iters = iteracionesDeProyecto(pid);
+  function renderIteracionTabs(pid, activaMes){
+    var meses = mesesConDisenos(pid);
     var wrap = document.getElementById('iteracion-tabs');
-    if(!iters.length){ wrap.innerHTML = '<div class="empty-note">Todavía no hay iteraciones — creá la primera arriba.</div>'; renderProyectoDisenos(pid, ''); return; }
-    if(!iters.some(function(it){ return it.id===activaId; })) activaId = iters[0].id;
-    wrap.innerHTML = iters.map(function(it){
-      return '<button class="iteracion-tab'+(it.id===activaId?' active':'')+'" data-id="'+it.id+'">'+esc(it.nombre)+'</button>';
+    if(!meses.length){ wrap.innerHTML = '<div class="empty-note">Todavía no hay diseños — elegí un mes y creá el primero abajo.</div>'; renderProyectoDisenos(pid, ''); return; }
+    if(meses.indexOf(Number(activaMes)) === -1) activaMes = meses[meses.length-1];
+    wrap.innerHTML = meses.map(function(m){
+      return '<button class="iteracion-tab'+(m===Number(activaMes)?' active':'')+'" data-mes="'+m+'">'+iteracionNombre(m)+'</button>';
     }).join('');
-    renderProyectoDisenos(pid, activaId);
+    renderProyectoDisenos(pid, activaMes);
   }
   document.getElementById('iteracion-tabs').addEventListener('click', function(e){
     var btn = e.target.closest('.iteracion-tab');
     if(!btn) return;
-    renderIteracionTabs(proyectoDetalleAbiertoId, btn.dataset.id);
+    renderIteracionTabs(proyectoDetalleAbiertoId, btn.dataset.mes);
   });
-  function renderProyectoDisenos(pid, iterId){
-    var list = diseñosDeProyecto(pid).filter(function(d){ return !iterId || d.iteracionId === iterId; });
+  function renderProyectoDisenos(pid, mes){
+    var list = diseñosDeProyecto(pid).filter(function(d){ return !mes || String(d.iteracionId) === String(mes); });
     var titleEl = document.getElementById('pd-disenos-title');
-    var iterObj = iteraciones.filter(function(x){ return x.id===iterId; })[0];
-    titleEl.textContent = iterObj ? ('Diseños de "' + iterObj.nombre + '"') : 'Diseños del proyecto';
+    titleEl.textContent = mes ? ('Diseños — ' + iteracionNombre(Number(mes))) : 'Diseños del proyecto';
     var wrap = document.getElementById('pd-disenos-grid');
-    wrap.innerHTML = list.length ? list.map(disenoCardHtml).join('') : '<div class="empty-note">Todavía no hay diseños en esta iteración.</div>';
+    wrap.innerHTML = list.length ? list.map(disenoCardHtml).join('') : '<div class="empty-note">Todavía no hay diseños en este mes.</div>';
   }
   document.getElementById('pd-disenos-grid').addEventListener('click', handleCardAction);
   document.getElementById('btn-nuevo-diseno-en-proyecto').addEventListener('click', function(){
-    var activeTab = document.querySelector('.iteracion-tab.active');
-    if(!activeTab){ toast('Creá primero una iteración'); return; }
+    var mes = document.getElementById('pd-mes-nuevo').value;
+    if(!mes){ toast('Elegí el mes para este diseño'); return; }
     proyectoActivoId = proyectoDetalleAbiertoId;
-    iteracionActivaId = activeTab.dataset.id;
+    iteracionActivaId = mes;
     entrarACalcularDiseno();
   });
   function entrarACalcularDiseno(){
-    document.getElementById('pp-locked-proyecto').textContent = proyectoNombre(proyectoActivoId) || '—';
+    document.getElementById('pp-locked-proyecto').textContent = proyectoTipo(proyectoActivoId) + ' — ' + (proyectoNombre(proyectoActivoId) || '—');
     document.getElementById('pp-locked-iteracion').textContent = iteracionNombre(iteracionActivaId) || '—';
     showPanel('disenos');
     showSubTab('calcular');
@@ -3006,9 +3019,8 @@
   function rebuildHistProyectoFiltro(){
     var sel = document.getElementById('hist-proyecto-filtro');
     var current = sel.value;
-    sel.innerHTML = '<option value="">Todos los proyectos</option>' + proyectos.map(function(p){
-      return '<option value="'+p.id+'"'+(p.id===current?' selected':'')+'>'+esc(p.nombre)+'</option>';
-    }).join('');
+    fillProyectoCatalogoSelect(sel, current);
+    sel.insertAdjacentHTML('afterbegin', '<option value="">Todos los proyectos</option>');
   }
   document.getElementById('hist-view-toggle').addEventListener('click', function(e){
     var btn = e.target.closest('.view-toggle-btn');
@@ -3436,14 +3448,20 @@
       document.getElementById('replicas-modal').classList.remove('show');
       renderAllDesignViews();
       renderRoturasAll();
-      var codesTxt = creados.map(function(c){ return c.codigo+' ('+c.replicaNombre+', día '+c.dia+')'; }).join(' · ');
-      document.getElementById('roturas-auto-modal-text').textContent = 'Se crearon ' + creados.length + ' registros en Roturas: ' + codesTxt;
+      document.getElementById('roturas-auto-modal-text').innerHTML =
+        '<div class="rac-summary">'+creados.length+' registros creados en Roturas — '+d.diasRotura.length+' día(s) × '+count+' réplica(s)</div>' +
+        d.replicaObjs.map(function(rep){
+          var suyos = creados.filter(function(c){ return c.replicaNombre === rep.nombre; }).sort(function(a,b){ return a.dia-b.dia; });
+          return '<div class="rac-replica-block"><b>'+esc(rep.nombre)+'</b>' +
+            '<div class="rac-dia-chips">' + suyos.map(function(c){ return '<span class="rac-dia-chip">Día '+c.dia+' <span class="rac-code">'+c.codigo+'</span></span>'; }).join('') + '</div>' +
+          '</div>';
+        }).join('');
       document.getElementById('roturas-auto-modal').classList.add('show');
     }
     document.getElementById('replicas-modal-default').onclick = function(){ finishReplicas(2); };
     document.getElementById('replicas-modal-confirm').onclick = function(){
       var v = Number(document.getElementById('replicas-modal-input').value) || 2;
-      finishReplicas(Math.max(1, v));
+      finishReplicas(Math.min(6, Math.max(1, v)));
     };
     document.getElementById('roturas-auto-modal-close').onclick = function(){
       document.getElementById('roturas-auto-modal').classList.remove('show');
@@ -3784,7 +3802,7 @@
     var completados = disenos.filter(function(d){ return d.estado==='Completado'; }).length;
     var pct = totalDisenos ? Math.round(completados/totalDisenos*100) : 0;
     var roturasPend = roturaCargas.filter(function(c){ return c.estado==='pendiente' && c.fechaEnsayo<=todayStr; }).length;
-    var proyectosActivos = proyectos.filter(function(p){ return diseñosDeProyecto(p.id).some(function(d){ return d.estado!=='Completado'; }) || diseñosDeProyecto(p.id).length===0; }).length;
+    var proyectosActivos = todosLosProyectoIds().filter(function(pid){ var l = diseñosDeProyecto(pid); return l.length>0 && l.some(function(d){ return d.estado!=='Completado'; }); }).length;
 
     if(first){
       animateCount(document.getElementById('kpi-total-disenos'), totalDisenos);
@@ -3847,7 +3865,7 @@
     }, {plugins:{legend:{display:false}}, scales:{y:{beginAtZero:true, ticks:{precision:0}}}});
 
     // ---- 5. Diseños por proyecto (top 6) ----
-    var proyStats = proyectos.map(function(p){ return {nombre:p.nombre, n: diseñosDeProyecto(p.id).length}; })
+    var proyStats = todosLosProyectoIds().map(function(pid){ return {nombre:proyectoNombre(pid), n: diseñosDeProyecto(pid).length}; })
       .sort(function(a,b){ return b.n-a.n; }).slice(0,6);
     upsertChart('chart-dash-proyectos', 'bar', {
       labels: proyStats.map(function(p){ return p.nombre; }),
