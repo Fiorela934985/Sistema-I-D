@@ -212,11 +212,12 @@
   .view-toggle-btn.active{background:var(--naranja-600);color:#fff;}
   .gallery.list-view{display:flex;flex-direction:column;gap:8px;}
 
-  .date-group{margin-bottom:26px;}
-  .date-group-head{display:inline-flex;align-items:center;gap:8px;font-family:var(--font-display);font-weight:700;font-size:.85rem;color:#fff;background:var(--naranja-600);padding:6px 16px;border-radius:999px;margin-bottom:12px;cursor:pointer;}
-  .date-group-head:hover{background:var(--naranja-700);}
-  .date-group-head .dg-chevron{display:inline-block;transition:transform .2s var(--ease);font-size:.7rem;}
-  .date-group-head .dg-count{opacity:.8;font-weight:400;}
+  .date-group{margin-bottom:28px;}
+  .date-group-head{display:flex;align-items:center;gap:10px;width:100%;font-family:var(--font-display);font-weight:700;font-size:.88rem;color:var(--text);background:transparent;padding:8px 2px;border-bottom:2px solid var(--line-strong);margin-bottom:14px;cursor:pointer;text-align:left;}
+  .date-group-head:hover .dg-fecha{color:var(--naranja-600);}
+  .date-group-head .dg-chevron{display:inline-block;transition:transform .2s var(--ease);font-size:.75rem;color:var(--naranja-600);flex-shrink:0;}
+  .date-group-head .dg-fecha{transition:color .15s;}
+  .date-group-head .dg-count{margin-left:auto;font-family:var(--font-body);font-weight:600;font-size:.72rem;color:var(--text-muted);background:var(--surface-2);padding:3px 11px;border-radius:999px;}
   .date-group.collapsed .dg-chevron{transform:rotate(-90deg);}
   .date-group.collapsed .gallery{display:none;}
   .filter-chip{padding:6px 12px;font-size:.72rem;font-weight:600;border:1px solid var(--line);border-radius:999px;color:var(--text-muted);background:var(--surface);}
@@ -283,14 +284,22 @@
   .btn-icon.view:hover{background:var(--text);color:#fff;border-color:var(--text);}
 
   .gallery{display:grid;grid-template-columns:repeat(auto-fill,minmax(240px,1fr));gap:14px;}
-  .design-card{border-radius:4px;background:var(--surface);border:1px solid var(--line);position:relative;box-shadow:0 1px 3px rgba(0,0,0,.04);}
-  .design-thumb{height:5px;background:var(--naranja-600);border-radius:4px 4px 0 0;}
+  .design-card{border-radius:6px;background:var(--surface);border:1px solid var(--line);position:relative;box-shadow:0 1px 3px rgba(0,0,0,.04);overflow:hidden;transition:transform .15s var(--ease), box-shadow .15s var(--ease);}
+  .design-card:hover{transform:translateY(-2px);box-shadow:0 12px 22px -12px rgba(0,0,0,.16);}
+  .design-thumb{height:5px;background:var(--line-strong);}
+  .design-thumb.thumb-rojo{background:#dc2626;}
+  .design-thumb.thumb-naranja{background:#ea580c;}
+  .design-thumb.thumb-verde{background:#16a34a;}
   .design-body{padding:15px 17px;}
   .design-body .mono{color:var(--text-muted);display:block;margin-bottom:4px;}
   .design-body h4.dc-proyecto{font-family:var(--font-display);font-size:.92rem;font-weight:700;color:var(--negro);display:flex;align-items:center;gap:7px;margin-bottom:3px;}
   html[data-theme="dark"] .design-body h4.dc-proyecto{color:#fff;}
   .dc-tipo{display:inline-block;font-size:.62rem;text-transform:uppercase;letter-spacing:.04em;font-weight:700;color:var(--text-muted);margin-bottom:6px;}
-  .dc-nombre{display:block;font-family:var(--font-display);font-weight:700;color:var(--naranja-600);font-size:.86rem;margin-bottom:6px;}
+  .dc-nombre{display:block;font-family:var(--font-display);font-weight:700;color:var(--naranja-600);font-size:.86rem;margin-bottom:10px;}
+  .dc-stats-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:6px;padding:9px 0;margin-bottom:8px;border-top:1px solid var(--line);border-bottom:1px solid var(--line);}
+  .dc-stats-grid div{text-align:center;}
+  .dc-stats-grid b{display:block;font-family:var(--font-display);font-size:.78rem;font-weight:700;color:var(--text);white-space:nowrap;}
+  .dc-stats-grid span{display:block;font-size:.6rem;color:var(--text-muted);text-transform:uppercase;letter-spacing:.02em;margin-top:1px;}
   .dc-meta{margin-bottom:8px;}
   .design-body .tags{display:flex;gap:6px;flex-wrap:wrap;}
   .dc-tipo-inline{font-size:.62rem;text-transform:uppercase;color:var(--text-muted);font-weight:700;}
@@ -1038,10 +1047,6 @@
           <input type="text" id="hist-search" placeholder="Buscar por nombre…">
           <select id="hist-proyecto-filtro"><option value="">Todos los proyectos</option></select>
           <input type="date" id="hist-fecha-filtro">
-          <div class="view-toggle" id="hist-sort-toggle">
-            <button class="view-toggle-btn active" data-sort="registro" title="Ordenar por fecha de registro">Registro</button>
-            <button class="view-toggle-btn" data-sort="edicion" title="Ordenar por fecha de edición">Edición</button>
-          </div>
           <div class="view-toggle" id="hist-view-toggle">
             <button class="view-toggle-btn active" data-view="cards" title="Ver en tarjetas">
               <svg viewBox="0 0 24 24" width="15" height="15" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="7" height="7" rx="1"/><rect x="14" y="3" width="7" height="7" rx="1"/><rect x="3" y="14" width="7" height="7" rx="1"/><rect x="14" y="14" width="7" height="7" rx="1"/></svg>
@@ -1962,19 +1967,29 @@
         '</div>' +
       '</div>';
   }
+  function estadoColorClass(estado){ return estado === 'Completado' ? 'thumb-verde' : (estado === 'En desarrollo' ? 'thumb-naranja' : 'thumb-rojo'); }
   function disenoCardHtml(d){
     var i = disenos.indexOf(d);
     var tagEstado = d.estado === 'Completado' ? 'tag-verde' : (d.estado === 'En desarrollo' ? 'tag-naranja' : 'tag-rojo');
     var sem = semaforoDotHtml(semaforoDiseno(d), 'Avance de roturas');
     var proyLabel = d.proyectoId ? esc(proyectoNombre(d.proyectoId)) : 'Sin proyecto';
     var tipoLabel = d.proyectoId ? proyectoTipo(d.proyectoId) : '';
+    var nRep = (d.replicaObjs && d.replicaObjs.length) || d.replicas || 0;
+    var completas = roturaCargas.filter(function(c){ return c.disenoCodigoDiseno === d.codigo && c.estado==='completado'; }).length;
+    var totalCargas = nRep * ((d.diasRotura||[]).length || 0);
     return '<div class="design-card">' +
-      '<div class="design-thumb"></div>' +
+      '<div class="design-thumb '+estadoColorClass(d.estado)+'"></div>' +
       '<div class="design-body">' +
         '<h4 class="dc-proyecto">'+sem+' '+proyLabel+'</h4>' +
         (tipoLabel ? '<span class="dc-tipo">'+tipoLabel+'</span>' : '') +
         '<span class="dc-nombre">'+diseñoTitulo(d)+'</span>' +
-        '<span class="mono dc-meta">'+d.codigo+' · '+d.fecha+' · '+esc(d.laboratorio||'-')+'</span>' +
+        '<div class="dc-stats-grid">' +
+          '<div><b>'+d.codigo+'</b><span>Código</span></div>' +
+          '<div><b>'+esc(d.resistencia||'-')+' MPa</b><span>Resistencia</span></div>' +
+          '<div><b>'+nRep+'</b><span>Réplica'+(nRep===1?'':'s')+'</span></div>' +
+          '<div><b>'+(totalCargas?completas+'/'+totalCargas:'—')+'</b><span>Roturas</span></div>' +
+        '</div>' +
+        '<span class="mono dc-meta">'+esc(d.laboratorio||'-')+' · '+d.fecha+(d.iteracionId?(' · '+esc(iteracionNombre(d.iteracionId))):'')+'</span>' +
         '<div class="tags"><span class="tag-pill '+tagEstado+'">'+d.estado+'</span></div>' +
         '<div class="design-actions">'+disenoActionsHtml(d,i)+'</div>' +
       '</div>' +
@@ -2063,11 +2078,12 @@
   function nextRoturaId(){ return 'rc' + Date.now() + Math.floor(Math.random()*1000); }
 
   function crearCargasParaDiseno(d, origen){
-    // Genera un registro pendiente por cada réplica x edad, cada uno con su propio Código.
+    // Un único Código por réplica — se repite en todas sus edades (días).
     var creados = [];
     (d.replicaObjs||[]).forEach(function(rep){
+      var codigo = nextCodigoRotura();
+      rep.codigo = codigo;
       (d.diasRotura||[]).forEach(function(dia){
-        var codigo = nextCodigoRotura();
         var fechaEnsayo = calcularFechaEnsayo(d.fechaElaboracion || d.fecha ? dmyToISO(d.fecha) : todayISO(), dia);
         var tolH = toleranciaHoras(dia);
         var carga = {
@@ -2149,9 +2165,21 @@
     var tipo = document.getElementById('ro-tipo').value;
     var el = document.getElementById('ro-codigo-preview');
     if(!tipo){ el.innerHTML = ''; return; }
-    el.innerHTML = '<div class="codigo-preview">Este registro será: '+peekNextCodigoRotura()+'</div>';
+    var didx = document.getElementById('ro-diseno').value;
+    var repIdx = document.getElementById('ro-replica').value;
+    var repCodigoExistente = '';
+    if(didx !== '' && repIdx !== ''){
+      var d = disenos[Number(didx)];
+      var rep = d && d.replicaObjs ? d.replicaObjs[Number(repIdx)] : null;
+      if(rep && rep.codigo) repCodigoExistente = rep.codigo;
+    }
+    el.innerHTML = repCodigoExistente
+      ? '<div class="codigo-preview">Esta réplica ya usa el código: '+repCodigoExistente+' — se reutiliza para estos días</div>'
+      : '<div class="codigo-preview">Esta réplica usará: '+peekNextCodigoRotura()+' (se repetirá en todos sus días)</div>';
   }
   document.getElementById('ro-tipo').addEventListener('change', renderRoCodigoPreview);
+  document.getElementById('ro-diseno').addEventListener('change', renderRoCodigoPreview);
+  document.getElementById('ro-replica').addEventListener('change', renderRoCodigoPreview);
 
   function renderRoFechasPreview(){
     var fechaElab = document.getElementById('ro-fecha-elab').value;
@@ -2181,9 +2209,10 @@
     }
     var d = disenos[Number(didx)];
     var rep = d.replicaObjs[Number(repIdx)];
+    var codigo = rep.codigo || nextCodigoRotura();
+    if(!rep.codigo){ rep.codigo = codigo; save('sid10_disenos', disenos); }
     var creados = [];
     dias.forEach(function(dia){
-      var codigo = nextCodigoRotura();
       var fechaEnsayo = calcularFechaEnsayo(fechaElab, dia);
       var carga = {
         id: nextRoturaId(), codigo: codigo, tipo: tipo,
@@ -2932,7 +2961,6 @@
   document.getElementById('favoritos-grid').addEventListener('click', handleCardAction);
 
   var histView = 'cards';
-  var histSortBy = 'registro';
   function renderDisenosHistorico(){
     var wrap = document.getElementById('dis-gallery');
     var searchTxt = (document.getElementById('hist-search').value || '').trim().toLowerCase();
@@ -2946,11 +2974,7 @@
         if(dIso !== fechaFiltro) return false;
       }
       return true;
-    }).sort(function(a,b){
-      var av = histSortBy === 'edicion' ? (a.editedAt||a.ts||0) : (a.ts||0);
-      var bv = histSortBy === 'edicion' ? (b.editedAt||b.ts||0) : (b.ts||0);
-      return bv - av;
-    });
+    }).sort(function(a,b){ return (b.ts||0) - (a.ts||0); });
 
     if(!filtered.length){
       wrap.innerHTML = '<div class="empty-note">Sin resultados.</div>';
@@ -2961,27 +2985,20 @@
     var groups = [];
     var byDate = {};
     filtered.forEach(function(d){
-      var key = (histSortBy === 'edicion' && d.editedAt) ? new Date(d.editedAt).toLocaleDateString('es-PE') : (d.fecha || 'Sin fecha');
+      var key = d.fecha || 'Sin fecha';
       if(!byDate[key]){ byDate[key] = []; groups.push(key); }
       byDate[key].push(d);
     });
     var renderFn = histView === 'list' ? disenoRowHtml : disenoCardHtml;
     wrap.innerHTML = groups.map(function(fecha){
       return '<div class="date-group">' +
-        '<button class="date-group-head" data-toggle="1"><span class="dg-chevron">▾</span>'+esc(fecha)+' <span class="dg-count">('+byDate[fecha].length+')</span></button>' +
+        '<button class="date-group-head" data-toggle="1"><span class="dg-chevron">▾</span><span class="dg-fecha">'+esc(fecha)+'</span><span class="dg-count">'+byDate[fecha].length+' diseño'+(byDate[fecha].length===1?'':'s')+'</span></button>' +
         '<div class="gallery'+(histView==='list'?' list-view':'')+'">'+byDate[fecha].map(renderFn).join('')+'</div>' +
       '</div>';
     }).join('');
     document.getElementById('disenos-count').textContent = disenos.length + ' registros';
     updateStats();
   }
-  document.getElementById('hist-sort-toggle').addEventListener('click', function(e){
-    var btn = e.target.closest('.view-toggle-btn');
-    if(!btn) return;
-    histSortBy = btn.dataset.sort;
-    document.querySelectorAll('#hist-sort-toggle .view-toggle-btn').forEach(function(b){ b.classList.toggle('active', b===btn); });
-    renderDisenosHistorico();
-  });
   document.getElementById('hist-search').addEventListener('input', renderDisenosHistorico);
   document.getElementById('hist-fecha-filtro').addEventListener('change', renderDisenosHistorico);
   document.getElementById('hist-proyecto-filtro').addEventListener('change', renderDisenosHistorico);
@@ -3403,21 +3420,17 @@
       d.replicas = count;
       d.replicaObjs = [];
       for(var i=1;i<=count;i++){ d.replicaObjs.push({n:i, nombre:diseñoTitulo(d)+'-R'+i, codigo:''}); }
-      var creados = crearCargasParaDiseno(d, 'automatico');
-      d.replicaObjs.forEach(function(rep, idx){
-        var suyos = creados.filter(function(c){ return c.replicaNombre === rep.nombre; });
-        rep.codigo = suyos.map(function(c){ return c.codigo; }).join(', ');
-      });
+      var creados = crearCargasParaDiseno(d, 'automatico'); // ya deja el código correcto (uno por réplica) en cada rep.codigo
       save('sid10_disenos', disenos);
       document.getElementById('replicas-modal').classList.remove('show');
       renderAllDesignViews();
       renderRoturasAll();
       document.getElementById('roturas-auto-modal-text').innerHTML =
-        '<div class="rac-summary">'+creados.length+' registros creados en Roturas — '+d.diasRotura.length+' día(s) × '+count+' réplica(s)</div>' +
+        '<div class="rac-summary">'+creados.length+' registros creados en Roturas — '+d.diasRotura.length+' día(s) × '+count+' réplica(s), un código por réplica</div>' +
         d.replicaObjs.map(function(rep){
           var suyos = creados.filter(function(c){ return c.replicaNombre === rep.nombre; }).sort(function(a,b){ return a.dia-b.dia; });
-          return '<div class="rac-replica-block"><b>'+esc(rep.nombre)+'</b>' +
-            '<div class="rac-dia-chips">' + suyos.map(function(c){ return '<span class="rac-dia-chip">Día '+c.dia+' <span class="rac-code">'+c.codigo+'</span></span>'; }).join('') + '</div>' +
+          return '<div class="rac-replica-block"><b>'+esc(rep.nombre)+' <span class="rac-code">'+rep.codigo+'</span></b>' +
+            '<div class="rac-dia-chips">' + suyos.map(function(c){ return '<span class="rac-dia-chip">Día '+c.dia+'</span>'; }).join('') + '</div>' +
           '</div>';
         }).join('');
       document.getElementById('roturas-auto-modal').classList.add('show');
