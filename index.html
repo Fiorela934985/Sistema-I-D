@@ -151,7 +151,9 @@
 
   #panel-inicio .hero-panel{
     position:relative;overflow:hidden;
-    background:linear-gradient(160deg, #2b0a0a 0%, #6e1414 55%, #9c1f1f 100%);
+    background:
+      linear-gradient(160deg, rgba(12,4,4,.86) 0%, rgba(60,12,12,.8) 55%, rgba(105,20,20,.72) 100%),
+      url("https://images.unsplash.com/photo-1769284013173-47150b8c7e51?fm=jpg&q=60&w=1600&auto=format&fit=crop") center/cover no-repeat;
     border:1px solid rgba(220,38,38,.3);border-radius:16px;
     padding:16px clamp(20px,4vw,46px) 15px;text-align:center;
     box-shadow:0 20px 44px -18px rgba(0,0,0,.55);
@@ -284,10 +286,36 @@
   .design-body .tags{display:flex;gap:6px;flex-wrap:wrap;}
   .design-actions{display:flex;gap:6px;margin-top:12px;padding-top:12px;border-top:1px solid var(--line);flex-wrap:wrap;}
 
-  .stat-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(200px,1fr));gap:16px;margin-bottom:24px;}
-  .stat-card{background:var(--surface);border:1px solid var(--line);border-radius:4px;padding:18px 20px;border-left:4px solid var(--naranja-600);box-shadow:0 1px 2px rgba(0,0,0,.03);}
-  .stat-card .num{font-family:var(--font-display);font-size:2rem;font-weight:700;}
-  .stat-card .label{font-size:.8rem;color:var(--text-muted);margin-top:3px;}
+  /* ================= DASHBOARD ================= */
+  .live-badge{display:inline-flex;align-items:center;gap:7px;}
+  .live-dot{width:8px;height:8px;border-radius:50%;background:#16a34a;box-shadow:0 0 0 0 rgba(22,163,74,.5);animation:liveDotPulse 1.8s ease-in-out infinite;}
+  @keyframes liveDotPulse{0%{box-shadow:0 0 0 0 rgba(22,163,74,.5);}70%{box-shadow:0 0 0 7px rgba(22,163,74,0);}100%{box-shadow:0 0 0 0 rgba(22,163,74,0);}}
+
+  .kpi-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(220px,1fr));gap:16px;margin-bottom:22px;}
+  .kpi-card{display:flex;align-items:center;gap:16px;background:var(--surface);border:1px solid var(--line);border-radius:8px;padding:18px 20px;box-shadow:0 1px 3px rgba(0,0,0,.04);position:relative;overflow:hidden;}
+  .kpi-card::after{content:"";position:absolute;left:0;top:0;bottom:0;width:4px;}
+  .kpi-card.kpi-naranja::after{background:var(--naranja-600);}
+  .kpi-card.kpi-verde::after{background:#16a34a;}
+  .kpi-card.kpi-rojo::after{background:#dc2626;}
+  .kpi-card.kpi-negro::after{background:var(--negro);}
+  .kpi-icon{width:44px;height:44px;border-radius:50%;background:var(--surface-2);display:flex;align-items:center;justify-content:center;flex-shrink:0;color:var(--naranja-600);}
+  .kpi-icon svg{width:20px;height:20px;}
+  .kpi-num{font-family:var(--font-display);font-size:1.7rem;font-weight:700;line-height:1.1;}
+  .kpi-label{font-size:.78rem;color:var(--text-muted);margin-top:2px;}
+
+  .dash-grid{display:grid;grid-template-columns:repeat(2,1fr);gap:16px;}
+  @media(max-width:900px){.dash-grid{grid-template-columns:1fr;}}
+  .chart-card{background:var(--surface);border:1px solid var(--line);border-radius:8px;padding:18px 20px;box-shadow:0 1px 3px rgba(0,0,0,.04);}
+  .chart-card.span-2{grid-column:span 2;}
+  @media(max-width:900px){.chart-card.span-2{grid-column:span 1;}}
+  .chart-card h4{font-family:var(--font-display);font-size:.88rem;font-weight:700;margin-bottom:14px;text-transform:uppercase;letter-spacing:.02em;}
+  .chart-card .chart-sub{font-family:var(--font-body);font-weight:400;font-size:.72rem;text-transform:none;letter-spacing:0;color:var(--text-muted);}
+  .chart-card canvas{max-width:100%;}
+
+  /* ---- KPIs mini dentro del detalle de proyecto ---- */
+  .proyecto-kpis{display:flex;gap:10px;flex-wrap:wrap;margin:14px 0 22px;}
+  .proyecto-kpi-chip{display:flex;align-items:center;gap:8px;padding:8px 14px;border-radius:999px;border:1px solid var(--line);background:var(--surface);font-size:.78rem;color:var(--text-muted);}
+  .proyecto-kpi-chip b{font-family:var(--font-display);color:var(--text);font-size:.95rem;}
 
   .bar-row{margin-bottom:16px;}
   .bar-row .bar-label{display:flex;justify-content:space-between;font-size:.85rem;margin-bottom:7px;}
@@ -335,12 +363,16 @@
   table.hoja-table td{padding:6px 8px;border-bottom:1px solid var(--line);text-align:center;white-space:nowrap;}
   table.hoja-table td.hoja-nombre-mat{text-align:left;font-weight:600;color:#1f4e8c;}
 
-  .params-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:12px;}
+  .params-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:16px;align-items:start;}
   @media(max-width:1000px){.params-grid{grid-template-columns:1fr;}}
-  .params-col{border:1px solid var(--line);border-radius:4px;overflow:hidden;}
-  .params-col-head{background:#6f6f6f;color:#fff;padding:6px 10px;font-family:var(--font-display);font-size:.72rem;text-transform:uppercase;text-align:center;font-weight:600;}
-  .params-col-body{padding:6px 12px;display:flex;flex-direction:column;background:var(--surface);}
-  .params-field{display:grid;grid-template-columns:minmax(88px,1.25fr) minmax(70px,1fr);align-items:center;gap:8px;padding:4px 0;border-bottom:1px solid var(--line);}
+  .params-col{border:1px solid var(--line);border-radius:6px;overflow:hidden;height:fit-content;}
+  .params-col-head{background:#6f6f6f;color:#fff;padding:11px 14px;font-family:var(--font-display);font-size:.8rem;text-transform:uppercase;font-weight:600;}
+  .params-col-head.acc-head{display:flex;align-items:center;justify-content:space-between;cursor:pointer;user-select:none;}
+  .acc-chevron{transition:transform .2s var(--ease);flex-shrink:0;}
+  .params-col.collapsed .acc-chevron{transform:rotate(-90deg);}
+  .params-col.collapsed .params-col-body{display:none;}
+  .params-col-body{padding:10px 14px;display:flex;flex-direction:column;background:var(--surface);}
+  .params-field{display:grid;grid-template-columns:minmax(88px,1.25fr) minmax(70px,1fr);align-items:center;gap:8px;padding:7px 0;border-bottom:1px solid var(--line);}
   .params-field:last-child{border-bottom:none;}
   .params-field label{font-size:.66rem;color:var(--text);font-weight:700;line-height:1.15;}
   .params-field input,.params-field select{width:100%;padding:4px 6px;font-size:.7rem;border:1px solid var(--line);border-radius:2px;background:var(--surface);color:var(--text);}
@@ -371,15 +403,30 @@
   table.mezcla-table td.mezcla-nombre{text-align:left;font-weight:600;color:#1f4e8c;}
   table.mezcla-table tr.mezcla-total td{background:#6f6f6f;color:#fff;font-weight:700;}
 
-  /* ---- Proyecto / Iteración ---- */
-  .proyecto-picker{border:1.5px dashed var(--naranja-300);border-radius:6px;padding:14px 16px;margin-bottom:18px;background:var(--surface-2);}
-  .proyecto-picker .pp-row{display:flex;gap:10px;flex-wrap:wrap;align-items:flex-end;}
-  .proyecto-picker .pp-field{flex:1;min-width:170px;display:flex;flex-direction:column;gap:5px;}
-  .proyecto-picker label{font-size:.66rem;text-transform:uppercase;color:var(--text-muted);font-weight:700;letter-spacing:.02em;}
-  .proyecto-picker select,.proyecto-picker input{padding:9px 11px;border-radius:3px;border:1.5px solid var(--line);font-size:.83rem;background:var(--surface);color:var(--text);}
-  .pp-new-inline{display:none;gap:8px;flex-wrap:wrap;margin-top:10px;padding-top:10px;border-top:1px dashed var(--line);}
-  .pp-new-inline.show{display:flex;}
-  .pp-new-inline input{flex:1;min-width:150px;padding:9px 11px;border-radius:3px;border:1.5px solid var(--line);font-size:.83rem;background:var(--surface);color:var(--text);}
+  /* ---- Proyecto / Iteración (header bloqueado dentro de Calcular Diseño) ---- */
+  .proyecto-picker{position:relative;border:1px solid var(--line);border-left:4px solid var(--naranja-600);border-radius:6px;padding:12px 16px;margin-bottom:18px;background:var(--surface);box-shadow:0 1px 2px rgba(0,0,0,.03);}
+  .proyecto-picker::before{content:"Proyecto activo";position:absolute;top:-9px;left:14px;background:var(--naranja-600);color:#fff;font-family:var(--font-display);font-size:.62rem;font-weight:700;text-transform:uppercase;letter-spacing:.04em;padding:2px 10px;border-radius:999px;}
+  .pp-locked-row{display:flex;align-items:center;gap:28px;flex-wrap:wrap;margin-top:4px;}
+  .pp-locked-row > div{display:flex;flex-direction:column;gap:2px;}
+  .pp-locked-label{font-size:.64rem;text-transform:uppercase;color:var(--text-muted);font-weight:700;letter-spacing:.03em;}
+  .pp-locked-row b{font-size:.92rem;font-weight:700;color:var(--text);}
+  .pp-locked-row .btn-add{margin-left:auto;}
+
+  /* ---- Proyectos (panel dedicado) ---- */
+  .proyectos-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(260px,1fr));gap:16px;}
+  .proyecto-card{background:var(--surface);border:1px solid var(--line);border-left:4px solid var(--naranja-600);border-radius:6px;padding:18px 20px;cursor:pointer;transition:transform .15s var(--ease), box-shadow .15s var(--ease);}
+  .proyecto-card:hover{transform:translateY(-3px);box-shadow:0 14px 26px -14px rgba(0,0,0,.18);}
+  .proyecto-card h4{font-family:var(--font-display);font-size:1.02rem;font-weight:700;margin-bottom:4px;}
+  .proyecto-card .pc-meta{font-size:.78rem;color:var(--text-muted);margin-bottom:12px;}
+  .proyecto-card .pc-stats{display:flex;gap:16px;font-size:.76rem;color:var(--text-muted);}
+  .proyecto-card .pc-stats b{display:block;font-family:var(--font-display);font-size:1.15rem;color:var(--naranja-600);}
+  .proyecto-detalle-head{display:flex;justify-content:space-between;align-items:flex-start;margin-bottom:18px;flex-wrap:wrap;gap:10px;}
+  .proyecto-detalle-head h2{font-family:var(--font-display);font-size:1.3rem;font-weight:700;}
+  .proyecto-detalle-head .mono{color:var(--text-muted);font-size:.82rem;}
+  .iteracion-tabs{display:flex;gap:8px;flex-wrap:wrap;margin-bottom:22px;}
+  .iteracion-tab{padding:9px 16px;border-radius:999px;font-size:.8rem;font-weight:600;color:var(--text-muted);background:var(--surface);border:1.5px solid var(--line);white-space:nowrap;}
+  .iteracion-tab:hover{border-color:var(--naranja-300);color:var(--text);}
+  .iteracion-tab.active{background:var(--naranja-600);border-color:var(--naranja-600);color:#fff;}
 
   /* ---- Vista de diseño (modal + impresión) ---- */
   #design-modal{position:fixed;inset:0;background:rgba(20,19,20,.55);z-index:200;display:none;align-items:flex-start;justify-content:center;padding:40px 18px;overflow-y:auto;}
@@ -520,12 +567,15 @@
   .rr-add-tipo-btn:hover{background:var(--naranja-600);}
 
   /* ---- Roturas ---- */
-  .roturas-subtabs{display:flex;gap:0;margin-bottom:20px;border-bottom:1px solid var(--line);flex-wrap:wrap;}
-  .semaforo-dot{display:inline-block;width:10px;height:10px;border-radius:50%;flex-shrink:0;}
+  .roturas-subtabs{display:flex;gap:2px;margin-bottom:20px;border-bottom:1px solid var(--line);flex-wrap:wrap;}
+  .roturas-subtabs .subtab{display:flex;align-items:center;gap:6px;}
+  .semaforo-dot{display:inline-block;width:10px;height:10px;border-radius:50%;flex-shrink:0;animation:semPulse 2.2s ease-in-out infinite;}
+  @keyframes semPulse{0%,100%{opacity:1;}50%{opacity:.55;}}
   .semaforo-rojo{background:#dc2626;box-shadow:0 0 0 3px rgba(220,38,38,.15);}
   .semaforo-naranja{background:#ea580c;box-shadow:0 0 0 3px rgba(234,88,12,.15);}
-  .semaforo-verde{background:#16a34a;box-shadow:0 0 0 3px rgba(22,163,74,.15);}
-  .pendiente-row{display:flex;align-items:center;gap:12px;padding:12px 14px;border:1px solid var(--line);border-radius:4px;background:var(--surface);margin-bottom:8px;flex-wrap:wrap;}
+  .semaforo-verde{background:#16a34a;box-shadow:0 0 0 3px rgba(22,163,74,.15);animation:none;}
+  .pendiente-row{display:flex;align-items:center;gap:12px;padding:12px 14px;border:1px solid var(--line);border-left:3px solid var(--line);border-radius:4px;background:var(--surface);margin-bottom:8px;flex-wrap:wrap;transition:border-color .15s, box-shadow .15s;}
+  .pendiente-row:hover{border-left-color:var(--naranja-500);box-shadow:0 3px 10px rgba(0,0,0,.05);}
   .pendiente-row .pr-info{flex:1;min-width:180px;}
   .pendiente-row .pr-info h5{font-size:.87rem;font-weight:600;}
   .pendiente-row .pr-info span{font-size:.74rem;color:var(--text-muted);}
@@ -605,15 +655,16 @@
         <span class="label">Inicio</span>
       </button>
 
+      <button class="nav-item" data-panel="proyectos">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 7a2 2 0 0 1 2-2h4l2 2h8a2 2 0 0 1 2 2v9a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V7z"/></svg>
+        <span class="label">Proyectos</span>
+      </button>
+
       <button class="nav-item" data-panel="componentes">
         <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 8l-9-5-9 5 9 5 9-5z"/><path d="M3 8v8l9 5 9-5V8"/></svg>
         <span class="label">Componentes</span>
       </button>
 
-      <button class="nav-item" data-panel="disenos">
-        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="4" y="2" width="16" height="20" rx="2"/><line x1="8" y1="7" x2="16" y2="7"/><line x1="8" y1="12" x2="16" y2="12"/><line x1="8" y1="17" x2="12" y2="17"/></svg>
-        <span class="label">Diseños</span>
-      </button>
       <button class="nav-item" data-panel="roturas">
         <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 2l3 6-5 4 6 2-8 8 2-7-5-2 4-4-3-5z"/></svg>
         <span class="label">Roturas</span>
@@ -625,7 +676,7 @@
       </button>
       <button class="nav-item" data-panel="reportes">
         <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 3v18h18"/><rect x="7" y="12" width="3" height="6"/><rect x="12" y="8" width="3" height="10"/><rect x="17" y="5" width="3" height="13"/></svg>
-        <span class="label">Reportes</span>
+        <span class="label">Dashboard</span>
       </button>
       <button class="nav-item" data-panel="ajustes">
         <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 1 1-2.83 2.83l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-4 0v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 1 1-2.83-2.83l.06-.06A1.65 1.65 0 0 0 4.6 15a1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1 0-4h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 1 1 2.83-2.83l.06.06A1.65 1.65 0 0 0 9 4.6a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 4 0v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 1 1 2.83 2.83l-.06.06A1.65 1.65 0 0 0 19.4 9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 0 4h-.09a1.65 1.65 0 0 0-1.51 1z"/></svg>
@@ -683,6 +734,69 @@
       <div class="gallery" id="favoritos-grid"></div>
     </section>
 
+    <!-- ============ PROYECTOS ============ -->
+    <section id="panel-proyectos" class="panel">
+      <div class="content-header">
+        <div><h2>Proyectos</h2></div>
+        <div style="display:flex;gap:10px;align-items:center;">
+          <button class="link-mono" id="btn-ver-todos-disenos">Ver todos los diseños →</button>
+          <span class="badge-pill" id="proyectos-count">0 proyectos</span>
+        </div>
+      </div>
+
+      <!-- Vista: lista de proyectos -->
+      <div id="proyectos-lista-view">
+        <div class="hist-toolbar" style="margin-bottom:16px;">
+          <input type="text" id="proyectos-search" placeholder="Buscar proyecto…">
+          <button class="btn-add" id="btn-nuevo-proyecto-toggle" style="margin-left:auto;">+ Nuevo Proyecto</button>
+        </div>
+        <div class="card" id="nuevo-proyecto-form" style="display:none;">
+          <div class="section-num" style="margin-bottom:14px;">Nuevo proyecto</div>
+          <div class="form-row">
+            <input type="text" id="np-nombre" placeholder="Nombre del proyecto / estudio">
+            <input type="date" id="np-fecha">
+            <input type="text" id="np-responsable" placeholder="Responsable a cargo">
+          </div>
+          <div class="form-actions">
+            <button class="btn-add" id="np-guardar">Crear proyecto</button>
+            <a class="link-cancel" id="np-cancelar">Cancelar</a>
+          </div>
+        </div>
+        <div class="proyectos-grid" id="proyectos-grid"></div>
+      </div>
+
+      <!-- Vista: detalle de un proyecto -->
+      <div id="proyecto-detalle-view" style="display:none;">
+        <button class="back-home-btn" id="btn-volver-proyectos">
+          <svg viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M19 12H5"/><path d="M12 19l-7-7 7-7"/></svg>
+          Todos los proyectos
+        </button>
+        <div class="proyecto-detalle-head">
+          <div>
+            <h2 id="pd-nombre">—</h2>
+            <span id="pd-meta" class="mono"></span>
+          </div>
+        </div>
+        <div class="proyecto-kpis" id="pd-kpis"></div>
+
+        <div class="section-title-row">
+          <h3>Iteraciones</h3>
+          <button class="link-mono" id="btn-nueva-iteracion-toggle">+ Nueva iteración</button>
+        </div>
+        <div class="form-row" id="nueva-iteracion-form" style="display:none;">
+          <input type="text" id="ni-nombre" placeholder="Nombre de la iteración (ej. Iteración 2 — Junio 2026)">
+          <button class="btn-add" id="ni-guardar">Crear</button>
+        </div>
+        <div class="iteracion-tabs" id="iteracion-tabs"></div>
+
+        <div class="section-title-row">
+          <h3 id="pd-disenos-title">Diseños de esta iteración</h3>
+          <button class="btn-add" id="btn-nuevo-diseno-en-proyecto">+ Nuevo Diseño</button>
+        </div>
+        <div class="gallery" id="pd-disenos-grid"></div>
+      </div>
+    </section>
+
     <!-- COMPONENTES -->
     <section id="panel-componentes" class="panel">
       <div class="content-header">
@@ -726,23 +840,10 @@
 
         <!-- PROYECTO / ITERACIÓN -->
         <div class="proyecto-picker">
-          <div class="pp-row">
-            <div class="pp-field">
-              <label>Proyecto</label>
-              <select id="pp-proyecto"></select>
-            </div>
-            <div class="pp-field">
-              <label>Iteración</label>
-              <select id="pp-iteracion"></select>
-            </div>
-            <button class="btn-add ghost" id="pp-toggle-new" type="button">+ Nuevo Proyecto/Iteración</button>
-          </div>
-          <div class="pp-new-inline" id="pp-new-inline">
-            <input type="text" id="pp-new-proyecto-nombre" placeholder="Nombre del proyecto">
-            <input type="date" id="pp-new-proyecto-fecha">
-            <input type="text" id="pp-new-proyecto-responsable" placeholder="Responsable a cargo">
-            <input type="text" id="pp-new-iteracion-nombre" placeholder="Nombre de la iteración (ej. Iteración 1 - Enero 2026)">
-            <button class="btn-add" id="pp-new-save" type="button">Crear</button>
+          <div class="pp-locked-row">
+            <div><span class="pp-locked-label">Proyecto</span><b id="pp-locked-proyecto">—</b></div>
+            <div><span class="pp-locked-label">Iteración</span><b id="pp-locked-iteracion">—</b></div>
+            <button class="btn-add ghost" id="pp-cambiar-proyecto" type="button">Cambiar</button>
           </div>
         </div>
 
@@ -798,9 +899,10 @@
         <!-- 2. PARÁMETROS DE DISEÑO -->
         <div class="card">
           <div class="section-num">2. Parámetros de diseño</div>
+          <div class="section-hint">Tocá cada bloque para abrirlo o cerrarlo.</div>
           <div class="params-grid">
-            <div class="params-col">
-              <div class="params-col-head">Especificaciones</div>
+            <div class="params-col" data-acc="especificaciones">
+              <div class="params-col-head acc-head"><span>Especificaciones</span><svg class="acc-chevron" viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M6 9l6 6 6-6"/></svg></div>
               <div class="params-col-body">
                 <div class="params-field"><label>Negocio</label><input type="text" id="dis-negocio" value="Pacasmayo Profesional" readonly></div>
                 <div class="params-field"><label>Tipo de concreto</label><select id="dis-tipo-concreto"></select></div>
@@ -826,8 +928,8 @@
               </div>
             </div>
 
-            <div class="params-col">
-              <div class="params-col-head">Cálculos relacionados</div>
+            <div class="params-col collapsed" data-acc="calculos">
+              <div class="params-col-head acc-head"><span>Cálculos relacionados</span><svg class="acc-chevron" viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M6 9l6 6 6-6"/></svg></div>
               <div class="params-col-body">
                 <div class="params-field"><label>Desviación estándar (kg/cm²)</label><input type="number" id="dis-desv-std" placeholder="20"></div>
                 <div class="params-field"><label>f'cr — objetivo (auto)</label><input type="text" id="dis-fcr" readonly></div>
@@ -859,8 +961,8 @@
               </div>
             </div>
 
-            <div class="params-col">
-              <div class="params-col-head">Proporcionamiento de agregados</div>
+            <div class="params-col collapsed" data-acc="agregados">
+              <div class="params-col-head acc-head"><span>Proporcionamiento de agregados</span><svg class="acc-chevron" viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M6 9l6 6 6-6"/></svg></div>
               <div class="params-col-body">
                 <div class="params-field"><label>Límite de gradación</label><input type="text" id="dis-lim-gradacion" placeholder="DIN 1045"></div>
                 <div class="params-field"><label>TMN (A.G.) — especificación</label><input type="text" id="dis-tmn-spec" placeholder="3/4" data-key="tmnSpec"></div>
@@ -942,6 +1044,7 @@
       <div class="card sub-panel" id="sub-historico" style="display:none;">
         <div class="hist-toolbar">
           <input type="text" id="hist-search" placeholder="Buscar por nombre…">
+          <select id="hist-proyecto-filtro"><option value="">Todos los proyectos</option></select>
           <input type="date" id="hist-fecha-filtro">
           <div class="view-toggle" id="hist-sort-toggle">
             <button class="view-toggle-btn active" data-sort="registro" title="Ordenar por fecha de registro">Registro</button>
@@ -1081,20 +1184,54 @@
     <!-- REPORTES -->
     <section id="panel-reportes" class="panel">
       <div class="content-header">
-        <div><h2>Reportes</h2></div>
-        <span class="badge-pill">Actualizado hoy</span>
+        <div><h2>Dashboard</h2></div>
+        <span class="badge-pill live-badge"><span class="live-dot"></span> En vivo · <span id="dash-updated">ahora</span></span>
       </div>
-      <div class="stat-grid">
-        <div class="stat-card"><div class="num" id="stat-componentes">0</div><div class="label">Componentes registrados</div></div>
-        <div class="stat-card" id="stat-card-falta" style="cursor:pointer;"><div class="num" id="stat-disenos">0</div><div class="label">Diseños iniciados</div></div>
-        <div class="stat-card"><div class="num" id="stat-estudios">0</div><div class="label">Estudios RR</div></div>
-        <div class="stat-card"><div class="num" id="stat-avance">0%</div><div class="label">Avance promedio</div></div>
+
+      <div class="kpi-grid">
+        <div class="kpi-card kpi-naranja">
+          <div class="kpi-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="4" y="2" width="16" height="20" rx="2"/><line x1="8" y1="7" x2="16" y2="7"/><line x1="8" y1="12" x2="16" y2="12"/><line x1="8" y1="17" x2="12" y2="17"/></svg></div>
+          <div><div class="kpi-num" id="kpi-total-disenos">0</div><div class="kpi-label">Diseños totales</div></div>
+        </div>
+        <div class="kpi-card kpi-verde">
+          <div class="kpi-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M9 12l2 2 4-4"/><circle cx="12" cy="12" r="10"/></svg></div>
+          <div><div class="kpi-num" id="kpi-pct-completado">0%</div><div class="kpi-label">Completados</div></div>
+        </div>
+        <div class="kpi-card kpi-rojo">
+          <div class="kpi-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 2l3 6-5 4 6 2-8 8 2-7-5-2 4-4-3-5z"/></svg></div>
+          <div><div class="kpi-num" id="kpi-roturas-pendientes">0</div><div class="kpi-label">Roturas pendientes hoy</div></div>
+        </div>
+        <div class="kpi-card kpi-negro">
+          <div class="kpi-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 7a2 2 0 0 1 2-2h4l2 2h8a2 2 0 0 1 2 2v9a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V7z"/></svg></div>
+          <div><div class="kpi-num" id="kpi-proyectos-activos">0</div><div class="kpi-label">Proyectos activos</div></div>
+        </div>
       </div>
-      <div class="card">
-        <h3 style="margin-bottom:16px;font-family:var(--font-display);font-size:.98rem;font-weight:600;">Avance por área</h3>
-        <div class="bar-row"><div class="bar-label"><span>Investigación</span><span>72%</span></div><div class="bar-track"><div class="bar-fill" data-value="72"></div></div></div>
-        <div class="bar-row"><div class="bar-label"><span>Desarrollo</span><span>58%</span></div><div class="bar-track"><div class="bar-fill" data-value="58"></div></div></div>
-        <div class="bar-row"><div class="bar-label"><span>Producción</span><span>40%</span></div><div class="bar-track"><div class="bar-fill" data-value="40"></div></div></div>
+
+      <div class="dash-grid">
+        <div class="chart-card span-2">
+          <h4>Resistencia promedio por edad <span class="chart-sub">(todas las cargas registradas)</span></h4>
+          <canvas id="chart-dash-resistencia" height="90"></canvas>
+        </div>
+        <div class="chart-card">
+          <h4>Diseños por estado</h4>
+          <canvas id="chart-dash-estado" height="150"></canvas>
+        </div>
+        <div class="chart-card">
+          <h4>Avance de Roturas</h4>
+          <canvas id="chart-dash-semaforo" height="150"></canvas>
+        </div>
+        <div class="chart-card span-2">
+          <h4>Diseños registrados — últimos 14 días</h4>
+          <canvas id="chart-dash-timeline" height="80"></canvas>
+        </div>
+        <div class="chart-card">
+          <h4>Diseños por proyecto</h4>
+          <canvas id="chart-dash-proyectos" height="150"></canvas>
+        </div>
+        <div class="chart-card">
+          <h4>Cumplimiento de plazos (Roturas)</h4>
+          <canvas id="chart-dash-plazos" height="150"></canvas>
+        </div>
       </div>
     </section>
 
@@ -1361,6 +1498,7 @@
     if(name === 'reportes') animateReportes();
     if(name === 'inicio'){ renderInicioRecientes(); renderInicioFavoritos(); renderPendientesHoyInicio(); }
     if(name === 'roturas'){ renderRoturasAll(); }
+    if(name === 'proyectos'){ showProyectosSub('lista'); renderProyectosGrid(); }
     window.scrollTo({top:0, behavior:'auto'});
   }
   document.getElementById('btn-back-home').addEventListener('click', function(){ showPanel('inicio'); });
@@ -1369,10 +1507,14 @@
       if(btn.dataset.panel === 'componentes'){ activeCompCat = null; }
       showPanel(btn.dataset.panel);
       if(btn.dataset.panel === 'componentes'){ renderComponentesPanel(); }
-      if(btn.dataset.panel === 'disenos'){ showSubTab('historico'); }
     });
   });
-  document.getElementById('btn-calcular').addEventListener('click', function(){ showPanel('disenos'); showSubTab('calcular'); });
+  document.getElementById('btn-calcular').addEventListener('click', function(){ showPanel('proyectos'); });
+  document.getElementById('btn-ver-todos-disenos').addEventListener('click', function(){
+    showPanel('disenos');
+    showSubTab('historico');
+    navItems.forEach(function(b){ b.classList.toggle('active', b.dataset.panel==='proyectos'); });
+  });
   document.getElementById('btn-ver-roturas-inicio').addEventListener('click', function(){ showPanel('roturas'); showRoturasSub('pendientes'); });
 
   /* ================= PROYECTO / ITERACIÓN ================= */
@@ -1402,45 +1544,148 @@
   function iteracionNombre(id){ var it = iteraciones.filter(function(x){ return x.id===id; })[0]; return it ? it.nombre : ''; }
 
   function refreshAllProyectoSelects(){
-    fillProyectoSelect(document.getElementById('pp-proyecto'), document.getElementById('pp-proyecto').value);
-    fillIteracionSelect(document.getElementById('pp-iteracion'), document.getElementById('pp-proyecto').value, document.getElementById('pp-iteracion').value);
     fillProyectoSelect(document.getElementById('ro-proyecto'), document.getElementById('ro-proyecto').value);
     fillIteracionSelect(document.getElementById('ro-iteracion'), document.getElementById('ro-proyecto').value, document.getElementById('ro-iteracion').value);
     fillProyectoSelect(document.getElementById('rrg-proyecto'), document.getElementById('rrg-proyecto').value);
     fillIteracionSelect(document.getElementById('rrg-iteracion'), document.getElementById('rrg-proyecto').value, document.getElementById('rrg-iteracion').value);
   }
-  document.getElementById('pp-proyecto').addEventListener('change', function(){ fillIteracionSelect(document.getElementById('pp-iteracion'), this.value, ''); });
   document.getElementById('ro-proyecto').addEventListener('change', function(){ fillIteracionSelect(document.getElementById('ro-iteracion'), this.value, ''); rebuildRoDisenoSelect(); });
   document.getElementById('rrg-proyecto').addEventListener('change', function(){ fillIteracionSelect(document.getElementById('rrg-iteracion'), this.value, ''); renderRRGDisponibles(); });
   document.getElementById('rrg-iteracion').addEventListener('change', renderRRGDisponibles);
 
-  document.getElementById('pp-toggle-new').addEventListener('click', function(){
-    document.getElementById('pp-new-inline').classList.toggle('show');
+  /* ---- Todo empieza eligiendo un Proyecto: panel dedicado ---- */
+  var proyectoActivoId = '';
+  var iteracionActivaId = '';
+  var proyectoDetalleAbiertoId = null;
+
+  function diseñosDeProyecto(pid){ return disenos.filter(function(d){ return d.proyectoId === pid; }); }
+  function iteracionesDeProyecto(pid){ return iteraciones.filter(function(it){ return it.proyectoId === pid; }); }
+
+  function showProyectosSub(view){
+    document.getElementById('proyectos-lista-view').style.display = view === 'lista' ? 'block' : 'none';
+    document.getElementById('proyecto-detalle-view').style.display = view === 'detalle' ? 'block' : 'none';
+  }
+  function renderProyectosGrid(){
+    document.getElementById('proyectos-count').textContent = proyectos.length + ' proyecto' + (proyectos.length===1?'':'s');
+    var searchTxt = (document.getElementById('proyectos-search').value||'').trim().toLowerCase();
+    var wrap = document.getElementById('proyectos-grid');
+    var list = proyectos.filter(function(p){ return !searchTxt || p.nombre.toLowerCase().indexOf(searchTxt)>-1; });
+    if(!list.length){ wrap.innerHTML = '<div class="empty-note">No hay proyectos todavía — creá el primero arriba.</div>'; return; }
+    wrap.innerHTML = list.map(function(p){
+      var nDis = diseñosDeProyecto(p.id).length;
+      var nIter = iteracionesDeProyecto(p.id).length;
+      return '<div class="proyecto-card" data-id="'+p.id+'">' +
+        '<h4>'+esc(p.nombre)+'</h4>' +
+        '<div class="pc-meta">'+esc(p.responsable||'-')+' · desde '+isoToDMY(p.fechaInicio)+'</div>' +
+        '<div class="pc-stats"><div><b>'+nIter+'</b>iteraciones</div><div><b>'+nDis+'</b>diseños</div></div>' +
+      '</div>';
+    }).join('');
+  }
+  document.getElementById('proyectos-search').addEventListener('input', renderProyectosGrid);
+  document.getElementById('proyectos-grid').addEventListener('click', function(e){
+    var card = e.target.closest('.proyecto-card');
+    if(!card) return;
+    abrirProyectoDetalle(card.dataset.id);
   });
-  document.getElementById('pp-new-save').addEventListener('click', function(){
-    var nombre = document.getElementById('pp-new-proyecto-nombre').value.trim();
-    var fecha = document.getElementById('pp-new-proyecto-fecha').value;
-    var resp = document.getElementById('pp-new-proyecto-responsable').value.trim();
-    var iterNombre = document.getElementById('pp-new-iteracion-nombre').value.trim();
-    if(!nombre || !fecha || !resp){ toast('Completá nombre, fecha de inicio y responsable del Proyecto'); return; }
+  document.getElementById('btn-nuevo-proyecto-toggle').addEventListener('click', function(){
+    document.getElementById('nuevo-proyecto-form').style.display = document.getElementById('nuevo-proyecto-form').style.display === 'none' ? 'block' : 'none';
+  });
+  document.getElementById('np-cancelar').addEventListener('click', function(e){
+    e.preventDefault();
+    document.getElementById('nuevo-proyecto-form').style.display = 'none';
+  });
+  document.getElementById('np-guardar').addEventListener('click', function(){
+    var nombre = document.getElementById('np-nombre').value.trim();
+    var fecha = document.getElementById('np-fecha').value;
+    var resp = document.getElementById('np-responsable').value.trim();
+    if(!nombre || !fecha || !resp){ toast('Completá nombre, fecha de inicio y responsable'); return; }
     var pid = nextProyectoId();
     proyectos.push({id:pid, nombre:nombre, fechaInicio:fecha, responsable:resp});
     saveProyectos();
-    var iid = '';
-    if(iterNombre){
-      iid = nextIteracionId();
-      iteraciones.push({id:iid, proyectoId:pid, nombre:iterNombre});
-      saveIteraciones();
-    }
-    refreshAllProyectoSelects();
-    document.getElementById('pp-proyecto').value = pid;
-    fillIteracionSelect(document.getElementById('pp-iteracion'), pid, iid);
-    document.getElementById('pp-new-proyecto-nombre').value = '';
-    document.getElementById('pp-new-proyecto-responsable').value = '';
-    document.getElementById('pp-new-iteracion-nombre').value = '';
-    document.getElementById('pp-new-inline').classList.remove('show');
-    toast('Proyecto creado y seleccionado');
+    document.getElementById('np-nombre').value = '';
+    document.getElementById('np-responsable').value = '';
+    document.getElementById('nuevo-proyecto-form').style.display = 'none';
+    renderProyectosGrid();
+    toast('Proyecto creado');
+    rebuildHistProyectoFiltro();
+    abrirProyectoDetalle(pid);
   });
+  function abrirProyectoDetalle(pid){
+    proyectoDetalleAbiertoId = pid;
+    var p = proyectos.filter(function(x){ return x.id===pid; })[0];
+    if(!p) return;
+    document.getElementById('pd-nombre').textContent = p.nombre;
+    document.getElementById('pd-meta').textContent = (p.responsable||'-') + ' · desde ' + isoToDMY(p.fechaInicio);
+    renderProyectoKpis(pid);
+    showProyectosSub('detalle');
+    var iters = iteracionesDeProyecto(pid);
+    var activa = iters[0] ? iters[0].id : '';
+    renderIteracionTabs(pid, activa);
+  }
+  function renderProyectoKpis(pid){
+    var lista = diseñosDeProyecto(pid);
+    var completos = lista.filter(function(d){ return d.estado==='Completado'; }).length;
+    var semVerdes = lista.filter(function(d){ return semaforoDiseno(d)==='verde'; }).length;
+    document.getElementById('pd-kpis').innerHTML =
+      '<div class="proyecto-kpi-chip"><b>'+lista.length+'</b> diseños</div>' +
+      '<div class="proyecto-kpi-chip"><b>'+completos+'</b> completados</div>' +
+      '<div class="proyecto-kpi-chip"><b>'+semVerdes+'</b> con roturas al 100%</div>' +
+      '<div class="proyecto-kpi-chip"><b>'+iteracionesDeProyecto(pid).length+'</b> iteraciones</div>';
+  }
+  document.getElementById('btn-volver-proyectos').addEventListener('click', function(){ showProyectosSub('lista'); renderProyectosGrid(); });
+  document.getElementById('btn-nueva-iteracion-toggle').addEventListener('click', function(){
+    var f = document.getElementById('nueva-iteracion-form');
+    f.style.display = f.style.display === 'none' ? 'flex' : 'none';
+  });
+  document.getElementById('ni-guardar').addEventListener('click', function(){
+    var nombre = document.getElementById('ni-nombre').value.trim();
+    if(!nombre){ toast('Ingresá el nombre de la iteración'); return; }
+    var iid = nextIteracionId();
+    iteraciones.push({id:iid, proyectoId:proyectoDetalleAbiertoId, nombre:nombre});
+    saveIteraciones();
+    document.getElementById('ni-nombre').value = '';
+    document.getElementById('nueva-iteracion-form').style.display = 'none';
+    renderIteracionTabs(proyectoDetalleAbiertoId, iid);
+    toast('Iteración creada');
+  });
+  function renderIteracionTabs(pid, activaId){
+    var iters = iteracionesDeProyecto(pid);
+    var wrap = document.getElementById('iteracion-tabs');
+    if(!iters.length){ wrap.innerHTML = '<div class="empty-note">Todavía no hay iteraciones — creá la primera arriba.</div>'; renderProyectoDisenos(pid, ''); return; }
+    if(!iters.some(function(it){ return it.id===activaId; })) activaId = iters[0].id;
+    wrap.innerHTML = iters.map(function(it){
+      return '<button class="iteracion-tab'+(it.id===activaId?' active':'')+'" data-id="'+it.id+'">'+esc(it.nombre)+'</button>';
+    }).join('');
+    renderProyectoDisenos(pid, activaId);
+  }
+  document.getElementById('iteracion-tabs').addEventListener('click', function(e){
+    var btn = e.target.closest('.iteracion-tab');
+    if(!btn) return;
+    renderIteracionTabs(proyectoDetalleAbiertoId, btn.dataset.id);
+  });
+  function renderProyectoDisenos(pid, iterId){
+    var list = diseñosDeProyecto(pid).filter(function(d){ return !iterId || d.iteracionId === iterId; });
+    var titleEl = document.getElementById('pd-disenos-title');
+    var iterObj = iteraciones.filter(function(x){ return x.id===iterId; })[0];
+    titleEl.textContent = iterObj ? ('Diseños de "' + iterObj.nombre + '"') : 'Diseños del proyecto';
+    var wrap = document.getElementById('pd-disenos-grid');
+    wrap.innerHTML = list.length ? list.map(disenoCardHtml).join('') : '<div class="empty-note">Todavía no hay diseños en esta iteración.</div>';
+  }
+  document.getElementById('pd-disenos-grid').addEventListener('click', handleCardAction);
+  document.getElementById('btn-nuevo-diseno-en-proyecto').addEventListener('click', function(){
+    var activeTab = document.querySelector('.iteracion-tab.active');
+    if(!activeTab){ toast('Creá primero una iteración'); return; }
+    proyectoActivoId = proyectoDetalleAbiertoId;
+    iteracionActivaId = activeTab.dataset.id;
+    entrarACalcularDiseno();
+  });
+  function entrarACalcularDiseno(){
+    document.getElementById('pp-locked-proyecto').textContent = proyectoNombre(proyectoActivoId) || '—';
+    document.getElementById('pp-locked-iteracion').textContent = iteracionNombre(iteracionActivaId) || '—';
+    showPanel('disenos');
+    showSubTab('calcular');
+  }
+  document.getElementById('pp-cambiar-proyecto').addEventListener('click', function(){ showPanel('proyectos'); });
 
   /* ================= CÓDIGO CORRELATIVO (ID-XXX) ================= */
   function nextCodigoRotura(){
@@ -1695,14 +1940,10 @@
   function showSubTab(name){
     document.getElementById('sub-calcular').style.display = name === 'calcular' ? 'block' : 'none';
     document.getElementById('sub-historico').style.display = name === 'historico' ? 'block' : 'none';
-    if(name === 'historico') renderDisenosHistorico();
+    if(name === 'historico'){ rebuildHistProyectoFiltro(); renderDisenosHistorico(); }
     window.scrollTo({top:0, behavior:'auto'});
   }
-  document.getElementById('btn-nuevo-diseno').addEventListener('click', function(){ showSubTab('calcular'); });
-  document.getElementById('stat-card-falta').addEventListener('click', function(){
-    showPanel('disenos');
-    showSubTab('historico');
-  });
+  document.getElementById('btn-nuevo-diseno').addEventListener('click', function(){ showPanel('proyectos'); });
 
   var DAY = 24*3600*1000;
   var disenos = load('sid10_disenos', [
@@ -1795,6 +2036,51 @@
         ok();
       }catch(e){ fail(); }
     }
+  }
+
+  /* ================= EVIDENCIAS (IndexedDB — persisten al recargar) ================= */
+  var EVID_DB_NAME = 'sid10_files';
+  var EVID_STORE = 'evidencias';
+  var evidDbPromise = null;
+  function openEvidDB(){
+    if(evidDbPromise) return evidDbPromise;
+    evidDbPromise = new Promise(function(resolve, reject){
+      if(!window.indexedDB){ reject(new Error('IndexedDB no disponible')); return; }
+      var req = indexedDB.open(EVID_DB_NAME, 1);
+      req.onupgradeneeded = function(e){ e.target.result.createObjectStore(EVID_STORE); };
+      req.onsuccess = function(e){ resolve(e.target.result); };
+      req.onerror = function(e){ reject(e.target.error); };
+    });
+    return evidDbPromise;
+  }
+  function saveEvidenciaBlob(key, blob){
+    return openEvidDB().then(function(db){
+      return new Promise(function(resolve, reject){
+        var tx = db.transaction(EVID_STORE, 'readwrite');
+        tx.objectStore(EVID_STORE).put(blob, key);
+        tx.oncomplete = function(){ resolve(key); };
+        tx.onerror = function(e){ reject(e.target.error); };
+      });
+    });
+  }
+  function loadEvidenciaURL(key){
+    return openEvidDB().then(function(db){
+      return new Promise(function(resolve, reject){
+        var tx = db.transaction(EVID_STORE, 'readonly');
+        var req = tx.objectStore(EVID_STORE).get(key);
+        req.onsuccess = function(){ resolve(req.result ? URL.createObjectURL(req.result) : null); };
+        req.onerror = function(e){ reject(e.target.error); };
+      });
+    });
+  }
+  function deleteEvidencia(key){
+    return openEvidDB().then(function(db){
+      return new Promise(function(resolve){
+        var tx = db.transaction(EVID_STORE, 'readwrite');
+        tx.objectStore(EVID_STORE).delete(key);
+        tx.oncomplete = function(){ resolve(); };
+      });
+    });
   }
 
   /* ================= ROTURAS ================= */
@@ -2067,6 +2353,8 @@
     var tr = delBtn.closest('tr');
     var i = Number(tr.dataset.i);
     if(usaEnRRGenerado(roturaCargas[i]) && !confirm('Este resultado ya fue incluido en un reporte RR generado. ¿Deseás eliminarlo igual?')) return;
+    var removedCarga = roturaCargas[i];
+    [1,2,3].forEach(function(mIdx){ if(removedCarga['evid'+mIdx]) deleteEvidencia(removedCarga['evid'+mIdx]); });
     roturaCargas.splice(i,1);
     saveRoturaCargas();
     renderRoturasFormato();
@@ -2094,7 +2382,7 @@
           '<div class="field-mini"><label>Tipo de rotura</label><select id="mc-'+tipoKey+'">' +
             ['','Tipo 1','Tipo 2','Tipo 3','Tipo 4','Tipo 5','Tipo 6'].map(function(t){ return '<option'+(c[tipoKey]===t?' selected':'')+'>'+t+'</option>'; }).join('') +
           '</select></div>' +
-          '<div class="field-mini"><label>Evidencia</label><div class="evidencia-drop" id="mc-drop-'+mIdx+'">'+(c[evidKey]?'<img src="'+c[evidKey]+'"><br>Cambiar foto':'Subir foto')+'<input type="file" accept="image/*" id="mc-file-'+mIdx+'" style="display:none;"></div></div>' +
+          '<div class="field-mini"><label>Evidencia <span style="font-weight:400;color:var(--text-muted);">(se guarda en el navegador)</span></label><div class="evidencia-drop" id="mc-drop-'+mIdx+'" data-evid-key="'+(c[evidKey]||'')+'">'+(c[evidKey]?'Cargando…':'Subir foto')+'<input type="file" accept="image/*" id="mc-file-'+mIdx+'" style="display:none;"></div></div>' +
         '</div>' +
       '</div>';
     }
@@ -2106,14 +2394,27 @@
     [1,2,3].forEach(function(mIdx){
       var dropEl = document.getElementById('mc-drop-'+mIdx);
       var fileEl = document.getElementById('mc-file-'+mIdx);
+      var existingKey = dropEl.dataset.evidKey;
+      if(existingKey){
+        loadEvidenciaURL(existingKey).then(function(url){
+          if(url) dropEl.innerHTML = '<img src="'+url+'"><br>Cambiar foto';
+          else dropEl.innerHTML = 'Subir foto';
+          dropEl.appendChild(fileEl);
+        }).catch(function(){ dropEl.innerHTML = 'Subir foto'; dropEl.appendChild(fileEl); });
+      }
       dropEl.addEventListener('click', function(){ fileEl.click(); });
       fileEl.addEventListener('change', function(){
         var f = fileEl.files[0];
         if(!f) return;
         var url = URL.createObjectURL(f);
-        dropEl.innerHTML = '<img src="'+url+'"><br>Cambiar foto';
-        dropEl.dataset.evid = url;
-        dropEl.appendChild(fileEl);
+        dropEl.innerHTML = 'Guardando…';
+        var newKey = c.id + '_m' + mIdx;
+        saveEvidenciaBlob(newKey, f).then(function(){
+          dropEl.dataset.evidKey = newKey;
+          dropEl.dataset.pendingSave = '1';
+          dropEl.innerHTML = '<img src="'+url+'"><br>Cambiar foto';
+          dropEl.appendChild(fileEl);
+        });
       });
     });
 
@@ -2132,7 +2433,7 @@
       c['m'+mIdx+'kg'] = document.getElementById('mc-m'+mIdx+'kg').value;
       c['tipoRoturaM'+mIdx] = document.getElementById('mc-tipoRoturaM'+mIdx).value;
       var dropEl = document.getElementById('mc-drop-'+mIdx);
-      if(dropEl.dataset.evid) c['evid'+mIdx] = dropEl.dataset.evid;
+      if(dropEl.dataset.evidKey) c['evid'+mIdx] = dropEl.dataset.evidKey;
     });
     recalcCarga(c);
     saveRoturaCargas();
@@ -2557,10 +2858,9 @@
   });
 
   function duplicateDesignToForm(d){
-    showPanel('disenos');
-    showSubTab('calcular');
-    document.getElementById('pp-proyecto').value = d.proyectoId || '';
-    fillIteracionSelect(document.getElementById('pp-iteracion'), d.proyectoId||'', d.iteracionId||'');
+    proyectoActivoId = d.proyectoId || '';
+    iteracionActivaId = d.iteracionId || '';
+    entrarACalcularDiseno();
     document.getElementById('dis-planta').value = d.planta || '';
     syncLaboratorio();
     if(d.uso) document.getElementById('dis-uso').value = d.uso;
@@ -2655,8 +2955,10 @@
     var wrap = document.getElementById('dis-gallery');
     var searchTxt = (document.getElementById('hist-search').value || '').trim().toLowerCase();
     var fechaFiltro = document.getElementById('hist-fecha-filtro').value;
+    var proyFiltro = document.getElementById('hist-proyecto-filtro').value;
     var filtered = disenos.filter(function(d){
       if(searchTxt && diseñoTitulo(d).toLowerCase().indexOf(searchTxt) === -1) return false;
+      if(proyFiltro && d.proyectoId !== proyFiltro) return false;
       if(fechaFiltro){
         var dIso = dmyToISO(d.fecha);
         if(dIso !== fechaFiltro) return false;
@@ -2700,6 +3002,14 @@
   });
   document.getElementById('hist-search').addEventListener('input', renderDisenosHistorico);
   document.getElementById('hist-fecha-filtro').addEventListener('change', renderDisenosHistorico);
+  document.getElementById('hist-proyecto-filtro').addEventListener('change', renderDisenosHistorico);
+  function rebuildHistProyectoFiltro(){
+    var sel = document.getElementById('hist-proyecto-filtro');
+    var current = sel.value;
+    sel.innerHTML = '<option value="">Todos los proyectos</option>' + proyectos.map(function(p){
+      return '<option value="'+p.id+'"'+(p.id===current?' selected':'')+'>'+esc(p.nombre)+'</option>';
+    }).join('');
+  }
   document.getElementById('hist-view-toggle').addEventListener('click', function(e){
     var btn = e.target.closest('.view-toggle-btn');
     if(!btn) return;
@@ -2724,6 +3034,11 @@
     renderInicioFavoritos();
     updateStats();
     updateNavBadges();
+    if(proyectoDetalleAbiertoId){
+      var activeTab = document.querySelector('.iteracion-tab.active');
+      renderProyectoDisenos(proyectoDetalleAbiertoId, activeTab ? activeTab.dataset.id : '');
+      renderProyectoKpis(proyectoDetalleAbiertoId);
+    }
   }
   function nextCodigoDiseno(){ return 'DID-' + String(disenos.length + 1).padStart(4,'0'); }
 
@@ -3035,9 +3350,9 @@
     var tipoDef = tipoIdxSel !== '' ? TIPO_CONCRETO_DEFS[Number(tipoIdxSel)] : null;
     var fc = document.getElementById('dis-fc').value.trim();
     if(!tipoDef || !fc){ toast('Completá al menos Tipo de concreto y f\'c'); return; }
-    var proyectoId = document.getElementById('pp-proyecto').value;
-    var iteracionId = document.getElementById('pp-iteracion').value;
-    if(!proyectoId){ toast('Elegí o creá un Proyecto antes de registrar el diseño'); return; }
+    var proyectoId = proyectoActivoId;
+    var iteracionId = iteracionActivaId;
+    if(!proyectoId || !iteracionId){ toast('Elegí un Proyecto e Iteración desde el panel Proyectos antes de registrar el diseño'); showPanel('proyectos'); return; }
     var nombreCandidato = refreshNombrePreview();
     if(!nombreCandidato){ toast('Completá los campos necesarios para armar el nombre del diseño'); return; }
     var yaExiste = disenos.some(function(existing){ return (existing.nombreTecnico||'').trim().toLowerCase() === nombreCandidato.trim().toLowerCase(); });
@@ -3433,7 +3748,7 @@
     showPanel('reporte-rr');
   });
 
-  /* ================= REPORTES / stats ================= */
+  /* ================= DASHBOARD (KPIs + gráficos en vivo) ================= */
   function animateCount(el, target, suffix){
     suffix = suffix || '';
     var start = 0, duration = 700, startTime = null;
@@ -3445,21 +3760,128 @@
     }
     requestAnimationFrame(step);
   }
-  function updateStats(){
-    var enEspera = disenos.filter(function(d){ return d.estado === 'Iniciado'; }).length;
-    document.getElementById('stat-componentes').textContent = componentes.length;
-    document.getElementById('stat-disenos').textContent = enEspera;
-    document.getElementById('stat-estudios').textContent = rrEstudios.length;
+  function updateStats(){ /* usado por otras pantallas para refrescar badges/contadores dependientes */ }
+
+  var dashCharts = {};
+  var dashInterval = null;
+  var DASH_PALETTE = ['#c81e1e','#ea580c','#f5c518','#16a34a','#0d9488','#7c3aed'];
+
+  function destroyDashCharts(){
+    Object.keys(dashCharts).forEach(function(k){ dashCharts[k].destroy(); });
+    dashCharts = {};
+  }
+  function chartDefaults(){
+    return {
+      plugins:{legend:{labels:{color:getComputedStyle(document.body).color, font:{family:'Inter'}}}},
+      scales:{}
+    };
+  }
+  function buildDashboard(first){
+    var todayStr = todayISO();
+
+    // ---- KPIs ----
+    var totalDisenos = disenos.length;
+    var completados = disenos.filter(function(d){ return d.estado==='Completado'; }).length;
+    var pct = totalDisenos ? Math.round(completados/totalDisenos*100) : 0;
+    var roturasPend = roturaCargas.filter(function(c){ return c.estado==='pendiente' && c.fechaEnsayo<=todayStr; }).length;
+    var proyectosActivos = proyectos.filter(function(p){ return diseñosDeProyecto(p.id).some(function(d){ return d.estado!=='Completado'; }) || diseñosDeProyecto(p.id).length===0; }).length;
+
+    if(first){
+      animateCount(document.getElementById('kpi-total-disenos'), totalDisenos);
+      animateCount(document.getElementById('kpi-pct-completado'), pct, '%');
+      animateCount(document.getElementById('kpi-roturas-pendientes'), roturasPend);
+      animateCount(document.getElementById('kpi-proyectos-activos'), proyectosActivos);
+    } else {
+      document.getElementById('kpi-total-disenos').textContent = totalDisenos;
+      document.getElementById('kpi-pct-completado').textContent = pct+'%';
+      document.getElementById('kpi-roturas-pendientes').textContent = roturasPend;
+      document.getElementById('kpi-proyectos-activos').textContent = proyectosActivos;
+    }
+    document.getElementById('dash-updated').textContent = new Date().toLocaleTimeString('es-PE',{hour:'2-digit',minute:'2-digit',second:'2-digit'});
+
+    // ---- 1. Resistencia promedio por edad (agregado real) ----
+    var porEdad = {};
+    roturaCargas.forEach(function(c){
+      if(!c.promedio) return;
+      porEdad[c.dia] = porEdad[c.dia] || [];
+      porEdad[c.dia].push(Number(c.promedio));
+    });
+    var edadesOrdenadas = Object.keys(porEdad).map(Number).sort(function(a,b){return a-b;});
+    var resistData = edadesOrdenadas.map(function(dia){
+      var vals = porEdad[dia];
+      return +(vals.reduce(function(a,b){return a+b;},0)/vals.length).toFixed(1);
+    });
+    upsertChart('chart-dash-resistencia', 'line', {
+      labels: edadesOrdenadas.map(function(d){ return d+'d'; }),
+      datasets:[{label:'kg/cm² promedio', data:resistData, borderColor:'#c81e1e', backgroundColor:'rgba(200,30,30,.12)', fill:true, tension:.35, pointRadius:4, pointBackgroundColor:'#c81e1e'}]
+    }, {scales:{y:{beginAtZero:false, title:{display:true,text:'kg/cm²'}}}});
+
+    // ---- 2. Diseños por estado (donut) ----
+    var estados = ['Iniciado','En desarrollo','Completado'];
+    var estadoColors = ['#dc2626','#ea580c','#16a34a'];
+    var estadoCounts = estados.map(function(e){ return disenos.filter(function(d){ return d.estado===e; }).length; });
+    upsertChart('chart-dash-estado', 'doughnut', {
+      labels: estados,
+      datasets:[{data:estadoCounts, backgroundColor:estadoColors, borderWidth:0}]
+    }, {cutout:'62%', plugins:{legend:{position:'bottom', labels:{boxWidth:10,padding:10}}}});
+
+    // ---- 3. Semáforo de roturas por diseño ----
+    var semCounts = {rojo:0, naranja:0, verde:0};
+    disenos.forEach(function(d){ semCounts[semaforoDiseno(d)]++; });
+    upsertChart('chart-dash-semaforo', 'bar', {
+      labels:['Sin iniciar','En proceso','Completo'],
+      datasets:[{data:[semCounts.rojo, semCounts.naranja, semCounts.verde], backgroundColor:['#dc2626','#ea580c','#16a34a'], borderRadius:6, maxBarThickness:46}]
+    }, {plugins:{legend:{display:false}}, scales:{y:{beginAtZero:true, ticks:{precision:0}}}});
+
+    // ---- 4. Timeline últimos 14 días ----
+    var days = [];
+    for(var i=13;i>=0;i--){ days.push(new Date(Date.now()-i*DAY)); }
+    var dayLabels = days.map(function(d){ return String(d.getDate()).padStart(2,'0')+'/'+String(d.getMonth()+1).padStart(2,'0'); });
+    var dayCounts = days.map(function(d){
+      var iso = d.getFullYear()+'-'+String(d.getMonth()+1).padStart(2,'0')+'-'+String(d.getDate()).padStart(2,'0');
+      return disenos.filter(function(x){ return dmyToISO(x.fecha) === iso; }).length;
+    });
+    upsertChart('chart-dash-timeline', 'bar', {
+      labels: dayLabels,
+      datasets:[{label:'Diseños registrados', data:dayCounts, backgroundColor:'#ea580c', borderRadius:5, maxBarThickness:28}]
+    }, {plugins:{legend:{display:false}}, scales:{y:{beginAtZero:true, ticks:{precision:0}}}});
+
+    // ---- 5. Diseños por proyecto (top 6) ----
+    var proyStats = proyectos.map(function(p){ return {nombre:p.nombre, n: diseñosDeProyecto(p.id).length}; })
+      .sort(function(a,b){ return b.n-a.n; }).slice(0,6);
+    upsertChart('chart-dash-proyectos', 'bar', {
+      labels: proyStats.map(function(p){ return p.nombre; }),
+      datasets:[{data: proyStats.map(function(p){ return p.n; }), backgroundColor:'#161616', borderRadius:5, maxBarThickness:26}]
+    }, {indexAxis:'y', plugins:{legend:{display:false}}, scales:{x:{beginAtZero:true, ticks:{precision:0}}}});
+
+    // ---- 6. Cumplimiento de plazos ----
+    var aTiempo = roturaCargas.filter(function(c){ return c.estado==='completado'; }).length;
+    var vencidas = roturaCargas.filter(function(c){ return c.estado==='pendiente' && c.fechaEnsayo < todayStr; }).length;
+    var enPlazo = roturaCargas.filter(function(c){ return c.estado==='pendiente' && c.fechaEnsayo >= todayStr; }).length;
+    upsertChart('chart-dash-plazos', 'doughnut', {
+      labels:['Completadas','En plazo','Vencidas'],
+      datasets:[{data:[aTiempo, enPlazo, vencidas], backgroundColor:['#16a34a','#f5c518','#dc2626'], borderWidth:0}]
+    }, {cutout:'62%', plugins:{legend:{position:'bottom', labels:{boxWidth:10,padding:10}}}});
+  }
+  function upsertChart(canvasId, type, data, extraOptions){
+    if(typeof Chart === 'undefined') return;
+    var canvas = document.getElementById(canvasId);
+    if(!canvas) return;
+    if(dashCharts[canvasId]){
+      dashCharts[canvasId].data = data;
+      dashCharts[canvasId].update();
+      return;
+    }
+    var opts = Object.assign({responsive:true, maintainAspectRatio:false, animation:{duration:900, easing:'easeOutQuart'}}, extraOptions||{});
+    dashCharts[canvasId] = new Chart(canvas, {type:type, data:data, options:opts});
   }
   function animateReportes(){
-    animateCount(document.getElementById('stat-componentes'), componentes.length);
-    animateCount(document.getElementById('stat-disenos'), disenos.filter(function(d){ return d.estado === 'Iniciado'; }).length);
-    animateCount(document.getElementById('stat-estudios'), rrEstudios.length);
-    animateCount(document.getElementById('stat-avance'), 57, '%');
-    document.querySelectorAll('.bar-fill').forEach(function(bar){
-      bar.style.width = '0%';
-      requestAnimationFrame(function(){ setTimeout(function(){ bar.style.width = bar.dataset.value + '%'; }, 50); });
-    });
+    buildDashboard(true);
+    clearInterval(dashInterval);
+    dashInterval = setInterval(function(){
+      if(!document.getElementById('panel-reportes').classList.contains('active')){ clearInterval(dashInterval); return; }
+      buildDashboard(false);
+    }, 4000);
   }
 
   /* ================= AJUSTES ================= */
@@ -3493,8 +3915,9 @@
   buildLimitesTable();
   renderComponentesPanel();
   refreshAllProyectoSelects();
-  document.getElementById('pp-proyecto').value = proyectos[0] ? proyectos[0].id : '';
-  fillIteracionSelect(document.getElementById('pp-iteracion'), document.getElementById('pp-proyecto').value, '');
+  document.querySelectorAll('.acc-head').forEach(function(head){
+    head.addEventListener('click', function(){ head.closest('.params-col').classList.toggle('collapsed'); });
+  });
   renderAllDesignViews();
   syncLaboratorio();
   document.getElementById('dis-fecha-mezcla').value = todayISO();
