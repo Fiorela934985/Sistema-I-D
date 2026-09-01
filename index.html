@@ -475,6 +475,10 @@
   .proyecto-picker label{font-size:.66rem;text-transform:uppercase;color:var(--text-muted);font-weight:700;letter-spacing:.02em;}
   .proyecto-picker select,.proyecto-picker input{padding:9px 11px;border-radius:3px;border:1.5px solid var(--line);font-size:.85rem;background:var(--surface);color:var(--text);}
   .proyecto-picker select:focus,.proyecto-picker input:focus{outline:none;border-color:var(--naranja-600);}
+  .pp-numeral-row{display:flex;gap:8px;align-items:center;}
+  .pp-check-inline{display:flex;align-items:center;gap:5px;font-size:.78rem;color:var(--text);white-space:nowrap;cursor:pointer;}
+  .pp-check-inline input{width:15px;height:15px;flex:none;}
+  .pp-numeral-row select:disabled{opacity:.4;cursor:not-allowed;}
 
   /* ---- Proyectos (panel dedicado) ---- */
   .proyectos-tipo-block{margin-bottom:28px;}
@@ -890,9 +894,12 @@
               <label>Iteración — Mes</label>
               <select id="pp-mes"></select>
             </div>
-            <div class="pp-field" style="flex:0 0 90px;">
-              <label>Complemento</label>
-              <select id="pp-numeral"></select>
+            <div class="pp-field pp-numeral-check-field" style="flex:0 0 170px;">
+              <label>Complemento (opcional)</label>
+              <div class="pp-numeral-row">
+                <label class="pp-check-inline"><input type="checkbox" id="pp-usar-numeral"> Usar</label>
+                <select id="pp-numeral" disabled></select>
+              </div>
             </div>
           </div>
         </div>
@@ -1452,7 +1459,13 @@
     <p id="edit-iter-modal-name"></p>
     <div class="pp-row" style="justify-content:center;margin-bottom:18px;">
       <div class="pp-field"><label>Mes</label><select id="ei-mes"></select></div>
-      <div class="pp-field" style="flex:0 0 90px;"><label>Complemento</label><select id="ei-numeral"></select></div>
+      <div class="pp-field pp-numeral-check-field" style="flex:0 0 170px;">
+        <label>Complemento (opcional)</label>
+        <div class="pp-numeral-row">
+          <label class="pp-check-inline"><input type="checkbox" id="ei-usar-numeral"> Usar</label>
+          <select id="ei-numeral" disabled></select>
+        </div>
+      </div>
     </div>
     <div class="confirm-actions">
       <button class="btn-ghost" id="ei-cancelar">Cancelar</button>
@@ -1608,10 +1621,13 @@
     sel.innerHTML = NUMERAL_ROMANO.map(function(r){ return '<option'+(r===selected?' selected':'')+'>'+r+'</option>'; }).join('');
   }
   function partesDeIteracion(iteracionStr){
-    if(!iteracionStr) return {mes:'', numeral:'I'};
-    var parts = iteracionStr.trim().split(' ');
-    var numeral = NUMERAL_ROMANO.indexOf(parts[parts.length-1]) > -1 ? parts.pop() : 'I';
-    return {mes: parts.join(' '), numeral: numeral};
+    if(!iteracionStr) return {mes:'', numeral:'I', tieneNumeral:false};
+    var m = iteracionStr.match(/^(.*?)\s*-\s*(I{1,3})$/);
+    if(m) return {mes: m[1].trim(), numeral: m[2], tieneNumeral: true};
+    return {mes: iteracionStr.trim(), numeral: 'I', tieneNumeral: false};
+  }
+  function construirIteracion(mes, usarNumeral, numeral){
+    return usarNumeral ? (mes + ' - ' + numeral) : mes;
   }
 
   function refreshAllProyectoSelects(){
@@ -1978,10 +1994,12 @@
       var numeralActualSel = document.getElementById('pp-numeral').value || 'I';
       fillMesSelect(document.getElementById('pp-mes'), mesActualSel);
       fillNumeralSelect(document.getElementById('pp-numeral'), numeralActualSel);
-    }
-    window.scrollTo({top:0, behavior:'auto'});
+    }    window.scrollTo({top:0, behavior:'auto'});
   }
   document.getElementById('btn-nuevo-diseno').addEventListener('click', function(){ showSubTab('calcular'); });
+  document.getElementById('pp-usar-numeral').addEventListener('change', function(){
+    document.getElementById('pp-numeral').disabled = !this.checked;
+  });
 
   var DAY = 24*3600*1000;
   var disenos = load('sid10_disenos', [
@@ -2966,6 +2984,8 @@
     var partes = partesDeIteracion(d.iteracionId);
     fillMesSelect(document.getElementById('pp-mes'), partes.mes);
     fillNumeralSelect(document.getElementById('pp-numeral'), partes.numeral);
+    document.getElementById('pp-usar-numeral').checked = partes.tieneNumeral;
+    document.getElementById('pp-numeral').disabled = !partes.tieneNumeral;
     document.getElementById('dis-planta').value = d.planta || '';
     syncLaboratorio();
     if(d.uso) document.getElementById('dis-uso').value = d.uso;
@@ -3086,20 +3106,41 @@
       updateStats();
       return;
     }
-    var groups = [];
-    var byDate = {};
-    filtered.forEach(function(d){
-      var key = d.fecha || 'Sin fecha';
-      if(!byDate[key]){ byDate[key] = []; groups.push(key); }
-      byDate[key].push(d);
-    });
     var renderFn = histView === 'list' ? disenoRowHtml : disenoCardHtml;
-    wrap.innerHTML = groups.map(function(fecha){
-      return '<div class="date-group">' +
-        '<button class="date-group-head" data-toggle="1"><span class="dg-chevron">▾</span><span class="dg-fecha">'+esc(fecha)+'</span><span class="dg-count">'+byDate[fecha].length+' diseño'+(byDate[fecha].length===1?'':'s')+'</span></button>' +
-        '<div class="gallery'+(histView==='list'?' list-view':'')+'">'+byDate[fecha].map(renderFn).join('')+'</div>' +
-      '</div>';
-    }).join('');
+    var groups = [];
+    var byKey = {};
+    if(proyFiltro){
+      // Con un Proyecto elegido: agrupar por Iteración (partición del proyecto), no por fecha.
+      filtered.forEach(function(d){
+        var key = d.iteracionId || 'Sin iteración';
+        if(!byKey[key]){ byKey[key] = []; groups.push(key); }
+        byKey[key].push(d);
+      });
+      groups.sort(function(a,b){
+        var pa = partesDeIteracion(a==='Sin iteración'?'':a), pb = partesDeIteracion(b==='Sin iteración'?'':b);
+        var ia = MES_NOMBRES.indexOf(pa.mes), ib = MES_NOMBRES.indexOf(pb.mes);
+        if(ia !== ib) return ia - ib;
+        return NUMERAL_ROMANO.indexOf(pa.numeral) - NUMERAL_ROMANO.indexOf(pb.numeral);
+      });
+      wrap.innerHTML = groups.map(function(iter){
+        return '<div class="date-group">' +
+          '<button class="date-group-head" data-toggle="1"><span class="dg-chevron">▾</span><span class="dg-fecha">'+esc(proyectoNombre(proyFiltro))+' — '+esc(iter)+'</span><span class="dg-count">'+byKey[iter].length+' diseño'+(byKey[iter].length===1?'':'s')+'</span></button>' +
+          '<div class="gallery'+(histView==='list'?' list-view':'')+'">'+byKey[iter].map(renderFn).join('')+'</div>' +
+        '</div>';
+      }).join('');
+    } else {
+      filtered.forEach(function(d){
+        var key = d.fecha || 'Sin fecha';
+        if(!byKey[key]){ byKey[key] = []; groups.push(key); }
+        byKey[key].push(d);
+      });
+      wrap.innerHTML = groups.map(function(fecha){
+        return '<div class="date-group">' +
+          '<button class="date-group-head" data-toggle="1"><span class="dg-chevron">▾</span><span class="dg-fecha">'+esc(fecha)+'</span><span class="dg-count">'+byKey[fecha].length+' diseño'+(byKey[fecha].length===1?'':'s')+'</span></button>' +
+          '<div class="gallery'+(histView==='list'?' list-view':'')+'">'+byKey[fecha].map(renderFn).join('')+'</div>' +
+        '</div>';
+      }).join('');
+    }
     document.getElementById('disenos-count').textContent = disenos.length + ' registros';
     updateStats();
   }
@@ -3215,16 +3256,22 @@
     var partes = partesDeIteracion(disenos[i].iteracionId);
     fillMesSelect(document.getElementById('ei-mes'), partes.mes);
     fillNumeralSelect(document.getElementById('ei-numeral'), partes.numeral);
+    document.getElementById('ei-usar-numeral').checked = partes.tieneNumeral;
+    document.getElementById('ei-numeral').disabled = !partes.tieneNumeral;
     document.getElementById('edit-iter-modal').classList.add('show');
   }
+  document.getElementById('ei-usar-numeral').addEventListener('change', function(){
+    document.getElementById('ei-numeral').disabled = !this.checked;
+  });
   document.getElementById('ei-cancelar').addEventListener('click', function(){ document.getElementById('edit-iter-modal').classList.remove('show'); });
   document.getElementById('edit-iter-modal').addEventListener('click', function(e){ if(e.target.id==='edit-iter-modal') document.getElementById('edit-iter-modal').classList.remove('show'); });
   document.getElementById('ei-guardar').addEventListener('click', function(){
     if(editIterIdx===null) return;
     var mes = document.getElementById('ei-mes').value;
+    var usarNumeral = document.getElementById('ei-usar-numeral').checked;
     var numeral = document.getElementById('ei-numeral').value;
     if(!mes){ toast('Elegí el mes'); return; }
-    disenos[editIterIdx].iteracionId = mes + ' ' + numeral;
+    disenos[editIterIdx].iteracionId = construirIteracion(mes, usarNumeral, numeral);
     save('sid10_disenos', disenos);
     document.getElementById('edit-iter-modal').classList.remove('show');
     toast('Iteración actualizada');
@@ -3541,8 +3588,9 @@
     if(!tipoDef || !fc){ toast('Completá al menos Tipo de concreto y f\'c'); return; }
     var proyectoId = document.getElementById('pp-proyecto').value;
     var mesSel = document.getElementById('pp-mes').value;
+    var usarNumeral = document.getElementById('pp-usar-numeral').checked;
     var numeralSel = document.getElementById('pp-numeral').value;
-    var iteracionId = mesSel ? (mesSel + ' ' + numeralSel) : '';
+    var iteracionId = mesSel ? construirIteracion(mesSel, usarNumeral, numeralSel) : '';
     if(!proyectoId || !iteracionId){ toast('Elegí el Proyecto y el Mes de la Iteración antes de registrar el diseño'); return; }
     var nombreCandidato = refreshNombrePreview();
     if(!nombreCandidato){ toast('Completá los campos necesarios para armar el nombre del diseño'); return; }
