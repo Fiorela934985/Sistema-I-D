@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Sistema I+D · Laboratorio de Aplicaciones</title>
+<title>Sistema I+D</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Oswald:wght@500;600;700&family=Inter:wght@400;500;600;700&family=Roboto+Mono:wght@400;500&display=swap" rel="stylesheet">
@@ -729,7 +729,7 @@
         </div>
       </div>
       <div class="loader-word">SISTEMA <span>I+D</span></div>
-      <div class="loader-sub">Laboratorio de Aplicaciones</div>
+      <div class="loader-sub">Laboratorio de I+D</div>
       <div class="loader-bar-track"><div class="loader-bar-fill" id="loader-bar"></div></div>
     </div>
   </div>
@@ -2606,7 +2606,7 @@
           '<div class="field-mini"><label>Tipo de rotura</label><select id="mc-'+tipoKey+'">' +
             ['','Tipo 1','Tipo 2','Tipo 3','Tipo 4','Tipo 5','Tipo 6'].map(function(t){ return '<option'+(c[tipoKey]===t?' selected':'')+'>'+t+'</option>'; }).join('') +
           '</select></div>' +
-          '<div class="field-mini"><label>Evidencia <span style="font-weight:400;color:var(--text-muted);">(se guarda en el navegador)</span></label><div class="evidencia-drop" id="mc-drop-'+mIdx+'" data-evid-key="'+(c[evidKey]||'')+'">'+(c[evidKey]?'Cargando…':'Subir foto')+'<input type="file" accept="image/*" id="mc-file-'+mIdx+'" style="display:none;"></div></div>' +
+          '<div class="field-mini"><label>Evidencia <span style="font-weight:400;color:var(--text-muted);">(.)</span></label><div class="evidencia-drop" id="mc-drop-'+mIdx+'" data-evid-key="'+(c[evidKey]||'')+'">'+(c[evidKey]?'Cargando…':'Subir foto')+'<input type="file" accept="image/*" id="mc-file-'+mIdx+'" style="display:none;"></div></div>' +
         '</div>' +
       '</div>';
     }
