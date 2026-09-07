@@ -462,8 +462,14 @@
   .acc-chevron{transition:transform .2s var(--ease);flex-shrink:0;}
   .params-col.collapsed .acc-chevron{transform:rotate(-90deg);}
   .params-col.collapsed .params-col-body{display:none;}
-  .params-col-body{padding:10px 14px;display:flex;flex-direction:column;background:var(--surface);}
-  .params-field{display:grid;grid-template-columns:minmax(88px,1.25fr) minmax(70px,1fr);align-items:center;gap:8px;padding:7px 0;border-bottom:1px solid var(--line);}
+  .params-col-body{padding:14px;display:grid;grid-template-columns:repeat(2,1fr);gap:10px;background:var(--surface);align-content:start;}
+  .params-field{display:flex;flex-direction:column;gap:5px;padding:9px 10px;border:1px solid var(--line);border-radius:7px;background:var(--surface-2);}
+  .params-field.span-2{grid-column:span 2;}
+  .params-field label{font-size:.6rem;text-transform:uppercase;color:var(--text-muted);font-weight:700;letter-spacing:.02em;line-height:1.2;}
+  .params-field input,.params-field select{border:1px solid var(--line);border-radius:4px;padding:6px 8px;font-size:.8rem;background:var(--surface);color:var(--text);width:100%;}
+  .params-field input:focus,.params-field select:focus{outline:none;border-color:var(--naranja-600);}
+  .params-field .val-pair{display:flex;gap:5px;}
+  .params-field .val-pair input{min-width:0;}
   .params-field:last-child{border-bottom:none;}
   .params-field label{font-size:.66rem;color:var(--text);font-weight:700;line-height:1.15;}
   .params-field input,.params-field select{width:100%;padding:4px 6px;font-size:.7rem;border:1px solid var(--line);border-radius:2px;background:var(--surface);color:var(--text);}
@@ -514,7 +520,15 @@
   .pp-check-inline{display:flex;align-items:center;gap:5px;font-size:.78rem;color:var(--text);white-space:nowrap;cursor:pointer;}
   .pp-check-inline input{width:15px;height:15px;flex:none;}
   .pp-numeral-row select:disabled{opacity:.4;cursor:not-allowed;}
+  .rm-step1-row{display:flex;gap:16px;justify-content:center;margin-bottom:18px;}
+  .rm-step1-field{display:flex;flex-direction:column;gap:5px;align-items:flex-start;}
+  .rm-step1-field label{font-size:.66rem;text-transform:uppercase;color:var(--text-muted);font-weight:700;letter-spacing:.02em;}
+  .rm-step1-field select,.rm-step1-field input{padding:9px 12px;border-radius:4px;border:1.5px solid var(--line);font-size:.9rem;width:140px;text-align:center;}
   .pp-nueva-iter-panel{margin-top:14px;padding-top:14px;border-top:1px dashed var(--line);}
+  .ca-row{display:flex;align-items:center;gap:12px;padding:9px 12px;border:1px solid var(--line);border-radius:6px;margin-bottom:8px;background:var(--surface-2);font-size:.82rem;}
+  .ca-row-cat{font-size:.62rem;text-transform:uppercase;font-weight:700;color:var(--text-muted);background:var(--surface);border-radius:999px;padding:3px 9px;flex-shrink:0;}
+  .ca-row-nombre{flex:1;font-weight:600;}
+  .ca-row-cant{font-family:var(--font-mono);color:var(--naranja-600);font-weight:700;flex-shrink:0;}
   .mc-unidad-toggle{display:flex;align-items:center;gap:14px;margin-bottom:14px;padding:10px 14px;background:var(--surface-2);border-radius:6px;}
   .mc-unidad-label{font-size:.76rem;font-weight:700;color:var(--text-muted);}
   .m-especimen-grid input:disabled{background:var(--surface-2);color:var(--text-muted);cursor:not-allowed;}
@@ -935,13 +949,6 @@
         <!-- PROYECTO / ITERACIÓN -->
         <div class="proyecto-picker">
           <div class="pp-row">
-            <div class="pp-field" style="flex:0 0 130px;">
-              <label>Tipo</label>
-              <select id="pp-tipo-espec">
-                <option value="Probetas">Probeta (P.)</option>
-                <option value="Cubos">Cubo (C.)</option>
-              </select>
-            </div>
             <div class="pp-field" style="flex:2;">
               <label>Proyecto</label>
               <select id="pp-proyecto"></select>
@@ -994,11 +1001,12 @@
                 <option>Específico / autoconstrucción</option>
               </select>
             </div>
-            <div class="hoja-meta-cell"><label>N° Diseño</label><input type="text" id="dis-ndiseno" placeholder="70"></div>
+            <div class="hoja-meta-cell"><label>N° Diseño (auto)</label><input type="text" id="dis-ndiseno" readonly></div>
+            <div class="hoja-meta-cell"><label>Colaborador *</label><input type="text" id="dis-colaborador" placeholder="Iniciales del colaborador…"></div>
+            <div class="hoja-meta-cell"><label>Responsable *</label><input type="text" id="dis-responsable" placeholder="Nombre del responsable…"></div>
             <div class="hoja-meta-cell">
               <div class="hoja-cvd">
-                <span>Base<b id="cvd-base-view">S/. 0.00</b></span>
-                <span>Diseño<b id="cvd-diseno-view">S/. 0.00</b></span>
+                <span>Costo estimado<b id="cvd-diseno-view">S/. 0.00</b></span>
               </div>
             </div>
           </div>
@@ -1119,19 +1127,6 @@
                   </div>
                 </div>
 
-                <div class="params-field"><label>N° de réplicas</label>
-                  <input type="number" id="dis-replicas" min="1" max="6" value="2">
-                </div>
-                <div class="params-field"><label>Días de rotura</label>
-                  <select id="dis-dias-preset">
-                    <option value="1,3,7,28">Predeterminado (1, 3, 7, 28)</option>
-                    <option value="custom">Personalizado…</option>
-                  </select>
-                </div>
-                <div class="params-field span-2" id="dis-dias-custom-wrap" style="display:none;">
-                  <label>Elegí los días (personalizado)</label>
-                  <div id="dis-dias-custom-checks" style="display:flex;gap:10px;flex-wrap:wrap;font-size:.72rem;"></div>
-                </div>
                 <div class="params-field"><label>Estado del diseño</label>
                   <select id="dis-estado"><option value="Iniciado">Iniciado</option><option value="En desarrollo">En desarrollo</option><option value="Completado">Completado</option></select>
                 </div>
@@ -1139,6 +1134,37 @@
             </div>
           </div>
 
+        </div>
+
+        <!-- COMPONENTES ADICIONALES (opcional) — permite más de 1 cemento, aditivo, etc. -->
+        <div class="ro-reg-card">
+          <div class="ro-reg-tag">Componentes adicionales (opcional)</div>
+          <div class="ro-reg-section">
+            <p class="mono" style="color:var(--text-muted);font-size:.76rem;">Si el diseño usa más de un cemento, adición o aditivo, agregalos acá — se suman solos a la tabla de Composición de Mezcla, jalando datos de Registro.</p>
+            <div id="comp-adic-lista"></div>
+            <div class="pp-row" style="align-items:flex-end;">
+              <div class="pp-field" style="flex:0 0 150px;">
+                <label>Categoría</label>
+                <select id="ca-categoria">
+                  <option value="Cemento">Cemento</option>
+                  <option value="Adición">Adición</option>
+                  <option value="Aditivo">Aditivo</option>
+                  <option value="Pigmento">Pigmento</option>
+                </select>
+              </div>
+              <div class="pp-field" style="flex:2;">
+                <label>Material (de Registro)</label>
+                <select id="ca-material"></select>
+              </div>
+              <div class="pp-field" style="flex:0 0 160px;">
+                <label>Cantidad (kg/m3)</label>
+                <input type="number" id="ca-cantidad" placeholder="0">
+              </div>
+              <div class="pp-field" style="flex:0 0 auto;">
+                <button class="btn-add" id="ca-agregar" type="button">+ Agregar</button>
+              </div>
+            </div>
+          </div>
         </div>
 
         <!-- 3. COMPOSICIÓN DE MEZCLA -->
@@ -1416,14 +1442,23 @@
       <svg viewBox="0 0 24 24" width="26" height="26" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="4" y="4" width="7" height="7" rx="1"/><rect x="13" y="4" width="7" height="7" rx="1"/><rect x="4" y="13" width="7" height="7" rx="1"/><rect x="13" y="13" width="7" height="7" rx="1"/></svg>
     </div>
     <div id="replicas-modal-step1">
-      <h3>Diseño registrado — ¿Cuántas réplicas necesita?</h3>
+      <h3>Diseño registrado — completá estos datos</h3>
       <p id="replicas-modal-name"></p>
-      <div style="display:flex;justify-content:center;margin-bottom:16px;">
-        <input type="number" id="replicas-modal-input" min="1" max="6" value="2" style="width:80px;text-align:center;padding:8px;border-radius:4px;border:1.5px solid var(--line);font-size:1rem;">
+      <div class="rm-step1-row">
+        <div class="rm-step1-field">
+          <label>Tipo</label>
+          <select id="replicas-modal-tipo">
+            <option value="Probetas">Probeta</option>
+            <option value="Cubos">Cubo</option>
+          </select>
+        </div>
+        <div class="rm-step1-field">
+          <label>N° de réplicas</label>
+          <input type="number" id="replicas-modal-input" min="1" max="6" value="2">
+        </div>
       </div>
       <div class="confirm-actions">
-        <button class="btn-ghost" id="replicas-modal-default">Usar 2 (predeterminado)</button>
-        <button class="btn-add" id="replicas-modal-confirm">Confirmar cantidad</button>
+        <button class="btn-add" id="replicas-modal-confirm">Siguiente: elegir días →</button>
       </div>
     </div>
     <div id="replicas-modal-step2" style="display:none;">
@@ -2173,12 +2208,8 @@
       return '<label style="display:flex;align-items:center;gap:5px;"><input type="checkbox" data-dia="'+d+'" class="'+prefix+'-dia-check">'+d+' d</label>';
     }).join('');
   }
-  buildDiasCustomChecks('dis-dias-custom-checks', 'dis');
   buildDiasCustomChecks('ro-dias-custom-checks', 'ro');
 
-  document.getElementById('dis-dias-preset').addEventListener('change', function(){
-    document.getElementById('dis-dias-custom-wrap').style.display = this.value === 'custom' ? 'block' : 'none';
-  });
   document.getElementById('ro-dias-preset').addEventListener('change', function(){
     document.getElementById('ro-dias-custom-wrap').style.display = this.value === 'custom' ? 'block' : 'none';
     renderRoFechasPreview();
@@ -2233,6 +2264,7 @@
       var proyActual = document.getElementById('pp-proyecto').value;
       fillProyectoCatalogoSelect(document.getElementById('pp-proyecto'), proyActual);
       fillPpIteracionSelect(proyectoNombre(proyActual), document.getElementById('pp-iteracion-select').value);
+      if(!document.getElementById('dis-ndiseno').value) document.getElementById('dis-ndiseno').value = disenos.length + 1;
     }    window.scrollTo({top:0, behavior:'auto'});
   }
   document.getElementById('btn-nuevo-diseno').addEventListener('click', function(){ showSubTab('calcular'); });
@@ -3305,14 +3337,17 @@
   function duplicateDesignToForm(d){
     showPanel('disenos');
     showSubTab('calcular');
-    document.getElementById('pp-tipo-espec').value = d.tipoRotura || 'Probetas';
     fillProyectoCatalogoSelect(document.getElementById('pp-proyecto'), d.proyectoId || '');
     registrarIteracion(proyectoNombre(d.proyectoId), d.iteracionId);
     fillPpIteracionSelect(proyectoNombre(d.proyectoId), d.iteracionId);
+    document.getElementById('dis-colaborador').value = d.colaborador || '';
+    document.getElementById('dis-responsable').value = d.responsable || '';
+    componentesAdicionales = (d.componentesAdicionales || []).slice();
+    renderComponentesAdicionales();
     document.getElementById('dis-planta').value = d.planta || '';
     syncLaboratorio();
     if(d.uso) document.getElementById('dis-uso').value = d.uso;
-    document.getElementById('dis-ndiseno').value = d.ndiseno || '';
+    document.getElementById('dis-ndiseno').value = disenos.length + 1;
     var tipoIdx = selectedTipoConcretoIndexByLabel(d.tipo);
     document.getElementById('dis-tipo-concreto').value = tipoIdx >= 0 ? tipoIdx : '';
     document.getElementById('dis-fc').value = d.fc || '';
@@ -3335,7 +3370,6 @@
     document.getElementById('dis-pct-grueso').value = d.pctGrueso || '';
     document.getElementById('dis-sufijo').value = '';
     document.getElementById('dis-estado').value = 'Iniciado';
-    document.getElementById('dis-replicas').value = String((d.replicaObjs&&d.replicaObjs.length) || d.replicas || 1);
     if(d.extra){
       document.querySelectorAll('#sub-calcular [data-key]').forEach(function(el){
         if(d.extra[el.dataset.key] !== undefined) el.value = d.extra[el.dataset.key];
@@ -3569,7 +3603,7 @@
     updateStats();
     updateNavBadges();
   }
-  function nextCodigoDiseno(tipoEspec){ var pre = tipoEspec === 'Cubos' ? 'C' : 'P'; return pre + '-' + String(disenos.length + 1).padStart(4,'0'); }
+  function nextCodigoDiseno(){ return 'DID-' + String(disenos.length + 1).padStart(4,'0'); }
 
   var editIterIdx = null;
   function abrirEditIteracionModal(i){
@@ -3734,6 +3768,7 @@
     rebuildAditivoSelect();
     rebuildAgregadoGruesoSelect();
     rebuildIncidenciaTable();
+    rebuildCaMaterialSelect();
   }
 
   var INCIDENCIA_ROWS = [
@@ -3834,8 +3869,55 @@
     var admPeso = n(document.getElementById('dis-aditivo-peso').value);
     if(admIdx !== '' && admPeso > 0) items.push({compIndex:Number(admIdx), pesoSeco:admPeso});
 
+    componentesAdicionales.forEach(function(item){
+      if(item.cantidad > 0) items.push({compIndex:item.compIndex, pesoSeco:item.cantidad});
+    });
+
     return items;
   }
+
+  /* ---- Componentes adicionales (permite más de 1 cemento/adición/aditivo, jalando de Registro) ---- */
+  var componentesAdicionales = [];
+  function rebuildCaMaterialSelect(){
+    var cat = document.getElementById('ca-categoria').value;
+    var sel = document.getElementById('ca-material');
+    var lista = componentes.map(function(c,i){ return {c:c,i:i}; }).filter(function(x){ return x.c.categoria === cat; });
+    sel.innerHTML = '<option value="">Elegí el material…</option>' + lista.map(function(x){
+      return '<option value="'+x.i+'">'+esc(x.c.nombre)+'</option>';
+    }).join('');
+  }
+  document.getElementById('ca-categoria').addEventListener('change', rebuildCaMaterialSelect);
+  function renderComponentesAdicionales(){
+    var wrap = document.getElementById('comp-adic-lista');
+    if(!componentesAdicionales.length){ wrap.innerHTML = ''; return; }
+    wrap.innerHTML = componentesAdicionales.map(function(item, idx){
+      var comp = componentes[item.compIndex];
+      return '<div class="ca-row">' +
+        '<span class="ca-row-cat">'+(comp?esc(comp.categoria):'-')+'</span>' +
+        '<span class="ca-row-nombre">'+(comp?esc(comp.nombre):'—')+'</span>' +
+        '<span class="ca-row-cant">'+item.cantidad+' kg/m3</span>' +
+        '<button class="btn-icon danger" data-idx="'+idx+'" title="Quitar">×</button>' +
+      '</div>';
+    }).join('');
+  }
+  document.getElementById('comp-adic-lista').addEventListener('click', function(e){
+    var btn = e.target.closest('.btn-icon.danger');
+    if(!btn) return;
+    componentesAdicionales.splice(Number(btn.dataset.idx), 1);
+    renderComponentesAdicionales();
+    renderMezclaDisplay();
+  });
+  document.getElementById('ca-agregar').addEventListener('click', function(){
+    var idx = document.getElementById('ca-material').value;
+    var cantidad = n(document.getElementById('ca-cantidad').value);
+    if(idx === ''){ toast('Elegí el material'); return; }
+    if(!(cantidad > 0)){ toast('Ingresá una cantidad mayor a 0'); return; }
+    componentesAdicionales.push({compIndex: Number(idx), cantidad: cantidad});
+    document.getElementById('ca-material').value = '';
+    document.getElementById('ca-cantidad').value = '';
+    renderComponentesAdicionales();
+    renderMezclaDisplay();
+  });
   function suggestCementoPeso(){
     var pesoEl = document.getElementById('dis-cemento-peso');
     if(pesoEl.value) return;
@@ -3871,7 +3953,7 @@
     document.getElementById('mezcla-display-total').innerHTML =
       '<td style="text-align:left;">Total</td><td></td><td>'+totals.peso.toFixed(2)+'</td><td>'+totals.vol.toFixed(3)+'</td><td>'+totals.sss.toFixed(2)+'</td><td>'+totals.humedo.toFixed(2)+'</td><td>'+totals.batch.toFixed(2)+'</td><td>'+totals.cvd.toFixed(2)+'</td>';
     document.getElementById('cvd-diseno-view').textContent = 'S/. ' + totals.cvd.toFixed(2);
-    document.getElementById('cvd-base-view').textContent = 'S/. ' + n(document.getElementById('dis-cvd-base').value).toFixed(2);
+    // El costo base ya no se muestra por separado (solo 1 costo visible: el del diseño).
     renderPropiedades();
     return totals;
   }
@@ -3881,11 +3963,11 @@
   });
 
   function resetCalcForm(){
-    ['dis-ndiseno','dis-fc','dis-fc-mpa','dis-ft','dis-edad',
+    ['dis-fc','dis-fc-mpa','dis-ft','dis-edad',
      'dis-cemento-tipo','dis-cemento-peso','dis-tmn','dis-slump','dis-exposicion','dis-aire',
      'dis-otras-esp','dis-desv-std','dis-fcr','dis-amc-efectiva',
      'dis-agua-req','dis-vol-diseno','dis-cvd-base','dis-lim-gradacion','dis-pct-fino','dis-pct-grueso','dis-sufijo',
-     'dis-aditivo-peso'
+     'dis-aditivo-peso','dis-colaborador','dis-responsable'
     ].forEach(function(id){ var el = document.getElementById(id); if(el) el.value = ''; });
     document.querySelectorAll('#sub-calcular [data-key]').forEach(function(el){
       if(el.tagName === 'SELECT'){ el.selectedIndex = 0; } else { el.value = ''; }
@@ -3896,10 +3978,10 @@
     document.getElementById('dis-agua-mat').value = '';
     document.getElementById('dis-aditivo-mat').value = '';
     document.getElementById('dis-batch-vol').value = '30';
-    document.getElementById('dis-replicas').value = '2';
-    document.getElementById('dis-dias-preset').value = '1,3,7,28';
-    document.getElementById('dis-dias-custom-wrap').style.display = 'none';
     document.getElementById('dis-fecha-mezcla').value = todayISO();
+    document.getElementById('dis-ndiseno').value = disenos.length + 1;
+    componentesAdicionales = [];
+    renderComponentesAdicionales();
     rebuildIncidenciaTable();
     renderMezclaDisplay();
     refreshNombrePreview();
@@ -3914,6 +3996,9 @@
     var iteracionId = document.getElementById('pp-iteracion-select').value;
     if(iteracionId === '__nueva__') iteracionId = '';
     if(!proyectoId || !iteracionId){ toast('Elegí el Proyecto y la Iteración antes de registrar el diseño'); return; }
+    var colaborador = document.getElementById('dis-colaborador').value.trim();
+    var responsable = document.getElementById('dis-responsable').value.trim();
+    if(!colaborador || !responsable){ toast('Completá Colaborador y Responsable'); return; }
     var nombreCandidato = refreshNombrePreview();
     if(!nombreCandidato){ toast('Completá los campos necesarios para armar el nombre del diseño'); return; }
     var yaExiste = disenos.some(function(existing){ return (existing.nombreTecnico||'').trim().toLowerCase() === nombreCandidato.trim().toLowerCase(); });
@@ -3926,11 +4011,12 @@
       var r = rowCompute(item.compIndex, item.pesoSeco);
       return {nombre: comp?comp.nombre:'-', dosis: comp?comp.dosis:'', pesoSeco:item.pesoSeco, volAbs:r.volAbs, pesoSSS:r.pesoSSS, pesoHumedo:r.pesoHumedo, batch:r.batch, cvd:r.cvd};
     });
-    var tipoEspec = document.getElementById('pp-tipo-espec').value;
     var d = {
-      codigo: nextCodigoDiseno(tipoEspec),
+      codigo: nextCodigoDiseno(),
       proyectoId: proyectoId, iteracionId: iteracionId,
       nombreTecnico: nombreCandidato,
+      colaborador: colaborador,
+      responsable: responsable,
       planta: document.getElementById('dis-planta').value,
       laboratorio: document.getElementById('dis-laboratorio').value,
       uso: document.getElementById('dis-uso').value,
@@ -3964,11 +4050,12 @@
         return e;
       })(),
       mix: mixSnapshot,
+      componentesAdicionales: componentesAdicionales.slice(),
       cvdTotal: Number(totals.cvd.toFixed(2)),
       estado: document.getElementById('dis-estado').value,
-      replicas: Number(document.getElementById('dis-replicas').value) || 2,
-      diasRotura: getDiasSeleccionados('dis'),
-      tipoRotura: tipoEspec,
+      replicas: 2,
+      diasRotura: [1,3,7,28],
+      tipoRotura: '',
       fechaElaboracionISO: fechaISO,
       horaElaboracion: '10:00',
       fecha: fecha, ts: new Date(fechaISO).getTime() || Date.now(), favorito:false
@@ -3985,13 +4072,16 @@
   function askReplicasThenPrint(d){
     document.getElementById('replicas-modal-name').textContent = diseñoTitulo(d);
     document.getElementById('replicas-modal-input').value = d.replicas || 2;
+    document.getElementById('replicas-modal-tipo').value = d.tipoRotura || 'Probetas';
     document.getElementById('replicas-modal-step1').style.display = 'block';
     document.getElementById('replicas-modal-step2').style.display = 'none';
     document.getElementById('replicas-modal').classList.add('show');
     var cantidadElegida = d.replicas || 2;
+    var tipoElegido = d.tipoRotura || 'Probetas';
 
-    function irAPasoDias(count){
+    function irAPasoDias(count, tipo){
       cantidadElegida = count;
+      tipoElegido = tipo;
       var yaElegidos = d.diasRotura || [1,3,7,28];
       var todos = DIAS_COMUNES.slice();
       yaElegidos.forEach(function(dia){ if(todos.indexOf(dia)===-1) todos.push(dia); });
@@ -4008,6 +4098,7 @@
     function finishReplicas(diasElegidos){
       d.diasRotura = diasElegidos;
       d.replicas = cantidadElegida;
+      d.tipoRotura = tipoElegido;
       d.replicaObjs = [];
       for(var i=1;i<=cantidadElegida;i++){ d.replicaObjs.push({n:i, nombre:diseñoTitulo(d)+'-R'+i, codigo:''}); }
       var creados = crearCargasParaDiseno(d, 'automatico'); // ya deja el código correcto (uno por réplica) en cada rep.codigo
@@ -4016,7 +4107,7 @@
       renderAllDesignViews();
       renderRoturasAll();
       document.getElementById('roturas-auto-modal-text').innerHTML =
-        '<div class="rac-summary">'+creados.length+' registros creados en Roturas — '+d.diasRotura.length+' día(s) × '+cantidadElegida+' réplica(s), un código por réplica</div>' +
+        '<div class="rac-summary">'+creados.length+' registros creados en Roturas ('+(tipoElegido==='Cubos'?'Cubos':'Probetas')+') — '+d.diasRotura.length+' día(s) × '+cantidadElegida+' réplica(s), un código por réplica</div>' +
         d.replicaObjs.map(function(rep){
           var suyos = creados.filter(function(c){ return c.replicaNombre === rep.nombre; }).sort(function(a,b){ return a.dia-b.dia; });
           return '<div class="rac-replica-block"><b>'+esc(rep.nombre)+' <span class="rac-code">'+rep.codigo+'</span></b>' +
@@ -4025,10 +4116,10 @@
         }).join('');
       document.getElementById('roturas-auto-modal').classList.add('show');
     }
-    document.getElementById('replicas-modal-default').onclick = function(){ irAPasoDias(2); };
     document.getElementById('replicas-modal-confirm').onclick = function(){
       var v = Number(document.getElementById('replicas-modal-input').value) || 2;
-      irAPasoDias(Math.min(6, Math.max(1, v)));
+      var tipo = document.getElementById('replicas-modal-tipo').value;
+      irAPasoDias(Math.min(6, Math.max(1, v)), tipo);
     };
     document.getElementById('replicas-dias-atras').onclick = function(){
       document.getElementById('replicas-modal-step1').style.display = 'block';
