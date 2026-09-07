@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Sistema I+D</title>
+<title>Sistema I+D · Laboratorio de Aplicaciones</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Oswald:wght@500;600;700&family=Inter:wght@400;500;600;700&family=Roboto+Mono:wght@400;500&display=swap" rel="stylesheet">
@@ -12,13 +12,15 @@
 <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
 <style>
   :root{
-    --naranja-300:#e0ab7c;
-    --naranja-500:#c17a3d;
-    --naranja-600:#b5651d;
-    --naranja-700:#8a4d17;
-    --marron-900:#0f2b35;
-    --marron-800:#173e4a;
-    --negro:#0f2b35;
+    --naranja-300:#a9dcec;
+    --naranja-500:#2ab0d9;
+    --naranja-600:#0099cc;
+    --naranja-700:#00728f;
+    --verde-600:#4caf3e;
+    --verde-700:#3a8a2f;
+    --marron-900:#14181a;
+    --marron-800:#22282b;
+    --negro:#14181a;
     --gris-700:#4b4b4d;
     --gris-500:#79797f;
     --gris-300:#b4b4b9;
@@ -27,22 +29,22 @@
     --font-mono:'Roboto Mono',monospace;
     --ease:cubic-bezier(.4,0,.2,1);
 
-    --bg:#f5f8f9;
+    --bg:#f6f9fa;
     --surface:#ffffff;
-    --surface-2:#eaf1f3;
-    --text:#12262d;
-    --text-muted:#5c7079;
-    --line:#dbe6e9;
-    --line-strong:#12262d;
+    --surface-2:#eef4f6;
+    --text:#14181a;
+    --text-muted:#5f6b6e;
+    --line:#dde6e9;
+    --line-strong:#14181a;
   }
   html[data-theme="dark"]{
-    --bg:#0c1a1f;
-    --surface:#132832;
-    --surface-2:#1a333e;
-    --text:#eaf1f3;
-    --text-muted:#8ba3ac;
-    --line:#25424e;
-    --line-strong:#3a5a67;
+    --bg:#0d1113;
+    --surface:#161c1f;
+    --surface-2:#1e262a;
+    --text:#eef4f6;
+    --text-muted:#8fa0a5;
+    --line:#2c363a;
+    --line-strong:#455154;
   }
   *{box-sizing:border-box;margin:0;padding:0;}
   html{scroll-behavior:smooth;}
@@ -53,25 +55,26 @@
   @media (prefers-reduced-motion:reduce){*{animation-duration:.01ms !important;animation-iteration-count:1 !important;transition-duration:.01ms !important;}}
 
   /* ================= LOADING ================= */
-  #loading-view{position:fixed;inset:0;z-index:100;display:flex;background:#ffffff;opacity:1;visibility:visible;transition:opacity .6s var(--ease);overflow:hidden;}
+  #loading-view{position:fixed;inset:0;z-index:100;display:flex;background:linear-gradient(135deg,#0099cc 0%,#0a3d4d 45%,#1a5c33 75%,#4caf3e 100%);opacity:1;visibility:visible;transition:opacity .6s var(--ease);overflow:hidden;}
+  #loading-view::before{content:"";position:absolute;inset:0;background:radial-gradient(circle at 50% 45%, rgba(255,255,255,.22) 0%, transparent 60%);pointer-events:none;}
   #loading-view.leaving{opacity:0;pointer-events:none;}
   #loading-view.hidden{visibility:hidden;}
   .loader-stage{flex:1;display:flex;flex-direction:column;align-items:center;justify-content:center;position:relative;z-index:1;}
   .loader-core{display:flex;flex-direction:column;align-items:center;animation:loaderRise .7s var(--ease) both;}
   @keyframes loaderRise{from{opacity:0;transform:translateY(14px);}to{opacity:1;transform:translateY(0);}}
-  .gauge{position:relative;width:220px;height:220px;margin-bottom:26px;}
+  .gauge{position:relative;width:220px;height:220px;margin-bottom:26px;filter:drop-shadow(0 0 24px rgba(255,255,255,.35));}
   .gauge svg{width:100%;height:100%;transform:rotate(-90deg);}
   .gauge circle{fill:none;stroke-width:5;}
-  .gauge .track{stroke:#f0e4da;}
-  .gauge .fill{stroke:#b5651d;stroke-linecap:round;stroke-dasharray:377;stroke-dashoffset:377;transition:stroke-dashoffset .18s linear;}
+  .gauge .track{stroke:rgba(255,255,255,.25);}
+  .gauge .fill{stroke:url(#loaderGaugeGradient);stroke-linecap:round;stroke-dasharray:377;stroke-dashoffset:377;transition:stroke-dashoffset .18s linear;}
   .gauge .helmet{position:absolute;inset:0;display:flex;align-items:center;justify-content:center;}
   .gauge .helmet svg{width:130px;height:130px;animation:bob 2.4s ease-in-out infinite;}
   @keyframes bob{0%,100%{transform:translateY(0);}50%{transform:translateY(-6px);}}
-  .loader-word{font-family:var(--font-display);font-weight:700;letter-spacing:.14em;font-size:2.1rem;text-transform:uppercase;color:var(--text);}
-  .loader-word span{color:#b5651d;}
-  .loader-sub{margin-top:8px;font-size:.8rem;color:var(--text-muted);text-transform:uppercase;letter-spacing:.14em;}
-  .loader-bar-track{width:220px;height:4px;background:#f0e4da;margin-top:22px;position:relative;overflow:hidden;border-radius:999px;}
-  .loader-bar-fill{position:absolute;left:0;top:0;bottom:0;width:0;background:#b5651d;transition:width .18s linear;}
+  .loader-word{font-family:var(--font-display);font-weight:700;letter-spacing:.14em;font-size:2.3rem;text-transform:uppercase;color:#fff;text-shadow:0 3px 14px rgba(0,0,0,.35);}
+  .loader-word span{color:#c8f7a8;}
+  .loader-sub{margin-top:8px;font-size:.8rem;color:rgba(255,255,255,.85);text-transform:uppercase;letter-spacing:.14em;}
+  .loader-bar-track{width:220px;height:5px;background:rgba(255,255,255,.25);margin-top:22px;position:relative;overflow:hidden;border-radius:999px;}
+  .loader-bar-fill{position:absolute;left:0;top:0;bottom:0;width:0;background:#fff;transition:width .18s linear;box-shadow:0 0 12px rgba(255,255,255,.8);}
 
   /* ================= APP SHELL / TOPBAR ================= */
   #app-shell{min-height:100vh;opacity:0;transition:opacity .4s var(--ease);}
@@ -82,16 +85,16 @@
     display:flex;align-items:center;gap:22px;
     padding:0 clamp(18px,3vw,40px);
     height:64px;
-    background:linear-gradient(180deg,#173e4a,#0a1c22);
+    background:linear-gradient(180deg,#22282b,#0d1113);
   }
   .topbar::after{
     content:"";position:absolute;left:0;right:0;bottom:-5px;height:5px;
-    background:repeating-linear-gradient(135deg,var(--naranja-600) 0 12px, #0f2b35 12px 24px);
+    background:repeating-linear-gradient(135deg,var(--naranja-600) 0 12px, #14181a 12px 24px);
     z-index:1;
     box-shadow:0 6px 18px rgba(0,0,0,.18);
   }
   .topbar .brand{display:flex;align-items:center;gap:10px;flex-shrink:0;}
-  .topbar .brand .mark{width:18px;height:18px;background:linear-gradient(135deg,#e0ab7c,var(--naranja-600) 55%,#0f2b35);border-radius:3px;flex-shrink:0;}
+  .topbar .brand .mark{width:26px;height:auto;flex-shrink:0;object-fit:contain;}
   .topbar .brand-text{font-family:var(--font-display);font-weight:700;letter-spacing:.01em;font-size:1.02rem;white-space:nowrap;color:#fff;}
   .topbar .brand-text small{display:block;font-size:.6rem;letter-spacing:.03em;color:rgba(255,255,255,.55);font-weight:400;font-family:var(--font-body);}
 
@@ -107,25 +110,28 @@
   .nav-item:hover{color:#fff;background:rgba(255,255,255,.08);}
   .nav-item:hover svg{color:rgba(255,255,255,.8);}
   .nav-item.active{color:#fff;background:rgba(255,255,255,.14);box-shadow:inset 0 0 0 1px rgba(255,255,255,.18);}
-  .nav-item.active svg{color:#e0ab7c;}
+  .nav-item.active svg{color:#7fd8f5;}
   .nav-item.active::after{
     content:"";position:absolute;left:50%;bottom:-4px;width:4px;height:4px;border-radius:50%;
-    background:#e0ab7c;transform:translateX(-50%);
+    background:#7fd8f5;transform:translateX(-50%);
   }
   .nav-badge{position:absolute;top:2px;right:6px;background:#dc2626;color:#fff;font-size:.58rem;font-weight:700;border-radius:999px;padding:1px 5px;line-height:1.3;}
 
   .nav-bell{position:relative;display:flex;align-items:center;justify-content:center;width:38px;height:38px;border-radius:999px;color:rgba(255,255,255,.75);flex-shrink:0;}
   .nav-bell:hover{background:rgba(255,255,255,.1);color:#fff;}
   .nav-bell svg{width:18px;height:18px;}
-  .nav-bell .bell-dot{position:absolute;top:6px;right:7px;width:8px;height:8px;border-radius:50%;background:#c17a3d;border:2px solid #173e4a;}
-  .bell-dropdown{position:absolute;top:56px;right:14px;width:300px;max-height:360px;overflow-y:auto;background:var(--surface);border:1px solid var(--line);border-radius:6px;box-shadow:0 20px 40px rgba(0,0,0,.22);z-index:80;display:none;}
-  .bell-dropdown.show{display:block;}
-  .bell-dropdown h5{padding:12px 14px;font-family:var(--font-display);font-size:.8rem;border-bottom:1px solid var(--line);}
-  .bell-item{padding:10px 14px;border-bottom:1px solid var(--line);font-size:.78rem;}
+  .nav-bell .bell-dot{position:absolute;top:6px;right:7px;width:8px;height:8px;border-radius:50%;background:#4caf3e;border:2px solid #22282b;}
+  .bell-dropdown{position:absolute;top:56px;right:14px;width:310px;max-height:400px;overflow:hidden;background:var(--surface);border:1px solid var(--line);border-radius:10px;box-shadow:0 24px 48px rgba(0,0,0,.24);z-index:80;display:none;}
+  .bell-dropdown.show{display:flex;flex-direction:column;}
+  .bell-header{display:flex;align-items:center;gap:8px;padding:13px 16px;font-family:var(--font-display);font-size:.82rem;font-weight:700;color:#fff;background:linear-gradient(120deg,var(--naranja-600),var(--verde-600));letter-spacing:.02em;}
+  #bell-list{overflow-y:auto;max-height:290px;}
+  .bell-item{display:flex;align-items:center;gap:10px;padding:11px 16px;border-bottom:1px solid var(--line);font-size:.78rem;border-left:3px solid var(--naranja-600);}
   .bell-item:last-child{border-bottom:none;}
-  .bell-item b{display:block;margin-bottom:2px;}
+  .bell-item b{display:block;margin-bottom:2px;font-family:var(--font-display);}
   .bell-item span{color:var(--text-muted);font-size:.72rem;}
-  .bell-empty{padding:20px 14px;text-align:center;color:var(--text-muted);font-size:.78rem;}
+  .bell-empty{padding:26px 14px;text-align:center;color:var(--text-muted);font-size:.78rem;}
+  .bell-footer{display:block;width:100%;text-align:center;padding:11px;font-size:.76rem;font-weight:600;color:var(--naranja-600);border-top:1px solid var(--line);background:var(--surface-2);}
+  .bell-footer:hover{background:var(--surface);}
 
   .content{padding:104px clamp(20px,3vw,40px) 60px;max-width:1680px;min-width:0;margin:0 auto;}
   .panel{display:none;}
@@ -200,9 +206,14 @@
   .ih-card.accent-rojo{border-left-color:#dc2626;}
   .ih-card.accent-naranja{border-left-color:#ea580c;}
   .ih-card.accent-verde{border-left-color:#16a34a;}
-  .ih-card.accent-dorado{border-left-color:var(--naranja-600);}
+  .ih-card.accent-dorado{border-left-color:var(--verde-600);}
 
-  .ih-id-badge{font-family:var(--font-mono);font-weight:700;font-size:.86rem;color:var(--naranja-600);background:var(--surface-2);padding:9px 10px;border-radius:8px;flex-shrink:0;white-space:nowrap;text-align:center;min-width:76px;}
+  .id-card{display:inline-flex;flex-direction:column;align-items:center;justify-content:center;font-family:var(--font-display);background:var(--surface-2);border:1px solid var(--line);border-radius:9px;padding:7px 14px;flex-shrink:0;white-space:nowrap;min-width:82px;line-height:1.35;}
+  .id-card .id-card-tipo{font-family:var(--font-body);font-size:.56rem;font-weight:700;text-transform:uppercase;letter-spacing:.05em;color:var(--text-muted);}
+  .id-card .id-card-codigo{font-size:.9rem;font-weight:700;color:var(--text);}
+  .id-card-simple{display:inline-flex;align-items:center;justify-content:center;font-family:var(--font-display);font-size:.85rem;font-weight:700;color:var(--text);background:var(--surface-2);border:1px solid var(--line);border-radius:9px;padding:9px 16px;flex-shrink:0;white-space:nowrap;}
+  .ih-id-badge{font-family:var(--font-mono);font-weight:700;font-size:.86rem;color:var(--naranja-600);background:var(--surface-2);padding:7px 10px;border-radius:8px;flex-shrink:0;white-space:nowrap;text-align:center;min-width:76px;line-height:1.3;}
+  .ih-id-badge .ih-id-tipo{display:block;font-size:.56rem;font-weight:700;text-transform:uppercase;letter-spacing:.04em;color:var(--text-muted);margin-bottom:1px;}
   .ih-main{flex:1;min-width:0;}
   .ih-main .ih-top-line{display:flex;align-items:center;gap:8px;flex-wrap:wrap;margin-bottom:5px;}
   .ih-main .ih-nombre{font-family:var(--font-display);font-weight:700;font-size:.88rem;color:var(--text);white-space:nowrap;overflow:hidden;text-overflow:ellipsis;}
@@ -211,7 +222,7 @@
   .ih-badge{font-size:.6rem;font-weight:700;text-transform:uppercase;letter-spacing:.03em;padding:3px 9px;border-radius:999px;white-space:nowrap;}
   .ih-badge.urgente{background:#fee2e2;color:#b91c1c;animation:ihPulse 1.6s ease-in-out infinite;}
   @keyframes ihPulse{0%,100%{box-shadow:0 0 0 0 rgba(220,38,38,.35);}50%{box-shadow:0 0 0 5px rgba(220,38,38,0);}}
-  .ih-badge.hoy{background:#fef3c7;color:#92400e;}
+  .ih-badge.hoy{background:#dcfce7;color:#166534;}
   .ih-badge.tipo-probeta{background:#dbeafe;color:#1e40af;display:inline-flex;align-items:center;gap:4px;}
   .ih-badge.tipo-cubo{background:#ede9fe;color:#5b21b6;display:inline-flex;align-items:center;gap:4px;}
   .ih-badge.rojo{background:#dc2626;color:#fff;font-weight:700;}
@@ -275,7 +286,8 @@
   .filter-chip.active{background:var(--naranja-600);border-color:var(--naranja-600);color:#fff;}
 
   .more-wrap{position:relative;}
-  .more-menu{position:absolute;right:0;top:32px;background:var(--surface);border:1px solid var(--line);border-radius:4px;box-shadow:0 10px 24px rgba(0,0,0,.14);min-width:180px;z-index:30;display:none;overflow:hidden;padding:4px 0;}
+  .more-menu{position:absolute;right:0;top:32px;background:var(--surface);border:1px solid var(--line);border-radius:4px;box-shadow:0 10px 24px rgba(0,0,0,.14);min-width:180px;z-index:60;display:none;overflow:hidden;padding:4px 0;}
+  .menu-open-card{position:relative;z-index:55;}
   .more-menu.show{display:block;}
   .more-menu button{display:flex;align-items:center;gap:8px;width:100%;text-align:left;padding:9px 12px;font-size:.8rem;color:var(--text);}
   .more-menu button:hover{background:var(--surface-2);}
@@ -302,8 +314,8 @@
 
   .btn-add{background:var(--naranja-600);color:#fff;padding:11px 20px;border-radius:3px;font-weight:600;font-size:.82rem;white-space:nowrap;transition:background .15s;}
   .btn-add:hover{background:var(--naranja-700);}
-  .btn-fab-verde{width:42px;height:42px;border-radius:50%;background:#16a34a;color:#fff;display:flex;align-items:center;justify-content:center;flex-shrink:0;box-shadow:0 4px 12px -3px rgba(22,163,74,.5);transition:transform .15s var(--ease), background .15s;}
-  .btn-fab-verde:hover{background:#15803d;transform:scale(1.08) rotate(90deg);}
+  .btn-fab-verde{width:42px;height:42px;border-radius:50%;background:var(--verde-600);color:#fff;display:flex;align-items:center;justify-content:center;flex-shrink:0;box-shadow:0 4px 12px -3px rgba(76,175,62,.5);transition:transform .15s var(--ease), background .15s;}
+  .btn-fab-verde:hover{background:var(--verde-700);transform:scale(1.08) rotate(90deg);}
   .btn-add.ghost{background:transparent;color:var(--text);border:1.5px solid var(--line);}
   .btn-add.ghost:hover{border-color:var(--naranja-600);color:var(--naranja-600);}
   .btn-add:disabled{opacity:.5;cursor:not-allowed;}
@@ -338,9 +350,9 @@
   .btn-icon.view:hover{background:var(--text);color:#fff;border-color:var(--text);}
 
   .gallery{display:grid;grid-template-columns:repeat(auto-fill,minmax(240px,1fr));gap:14px;}
-  .design-card{border-radius:6px;background:var(--surface);border:1px solid var(--line);position:relative;box-shadow:0 1px 3px rgba(0,0,0,.04);overflow:hidden;transition:transform .15s var(--ease), box-shadow .15s var(--ease);}
+  .design-card{border-radius:6px;background:var(--surface);border:1px solid var(--line);position:relative;box-shadow:0 1px 3px rgba(0,0,0,.04);transition:transform .15s var(--ease), box-shadow .15s var(--ease);}
   .design-card:hover{transform:translateY(-2px);box-shadow:0 12px 22px -12px rgba(0,0,0,.16);}
-  .design-thumb{height:5px;background:var(--line-strong);}
+  .design-thumb{height:5px;background:var(--line-strong);border-radius:5px 5px 0 0;}
   .design-thumb.thumb-rojo{background:#dc2626;}
   .design-thumb.thumb-naranja{background:#ea580c;}
   .design-thumb.thumb-verde{background:#16a34a;}
@@ -349,15 +361,20 @@
   .design-body h4.dc-proyecto{font-family:var(--font-display);font-size:.92rem;font-weight:700;color:var(--negro);display:flex;align-items:center;gap:7px;margin-bottom:3px;}
   html[data-theme="dark"] .design-body h4.dc-proyecto{color:#fff;}
   .dc-tipo{display:inline-block;font-size:.62rem;text-transform:uppercase;letter-spacing:.04em;font-weight:700;color:var(--text-muted);margin-bottom:6px;}
-  .dc-nombre{display:block;font-family:var(--font-display);font-weight:700;color:var(--naranja-600);font-size:.86rem;margin-bottom:10px;}
+  .dc-nombre{display:block;font-family:var(--font-display);font-weight:700;color:var(--verde-700);font-size:.86rem;margin-bottom:10px;}
   .dc-stats-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:6px;padding:9px 0;margin-bottom:8px;border-top:1px solid var(--line);border-bottom:1px solid var(--line);}
   .dc-stats-grid div{text-align:center;}
   .dc-stats-grid b{display:block;font-family:var(--font-display);font-size:.78rem;font-weight:700;color:var(--text);white-space:nowrap;}
   .dc-stats-grid span{display:block;font-size:.6rem;color:var(--text-muted);text-transform:uppercase;letter-spacing:.02em;margin-top:1px;}
+  .dc-stats-row{display:flex;align-items:center;gap:12px;padding:9px 0;margin-bottom:8px;border-top:1px solid var(--line);border-bottom:1px solid var(--line);}
+  .dc-stats-mini{display:flex;flex:1;gap:14px;}
+  .dc-stats-mini div{text-align:center;flex:1;}
+  .dc-stats-mini b{display:block;font-family:var(--font-display);font-size:.8rem;font-weight:700;color:var(--text);white-space:nowrap;}
+  .dc-stats-mini span{display:block;font-size:.6rem;color:var(--text-muted);text-transform:uppercase;letter-spacing:.02em;margin-top:1px;}
   .dc-meta{margin-bottom:8px;}
   .design-body .tags{display:flex;gap:6px;flex-wrap:wrap;}
   .dc-tipo-inline{font-size:.62rem;text-transform:uppercase;color:var(--text-muted);font-weight:700;}
-  .dc-nombre-inline{display:block;font-family:var(--font-display);font-weight:700;color:var(--naranja-600);font-size:.8rem;}
+  .dc-nombre-inline{display:block;font-family:var(--font-display);font-weight:700;color:var(--verde-700);font-size:.8rem;}
   .design-actions{display:flex;gap:6px;margin-top:12px;padding-top:12px;border-top:1px solid var(--line);flex-wrap:wrap;}
 
   /* ================= DASHBOARD ================= */
@@ -479,23 +496,35 @@
 
   /* ---- Proyecto / Iteración (dentro de Calcular Diseño) ---- */
   .proyecto-picker{position:relative;border:1px solid var(--line);border-left:4px solid var(--naranja-600);border-radius:6px;padding:12px 16px;margin-bottom:18px;background:var(--surface);box-shadow:0 1px 2px rgba(0,0,0,.03);}
+
+  /* ---- Registrar Elaboración (Roturas) — tarjetas propias, con aire ---- */
+  .ro-reg-card{position:relative;border:1px solid var(--line);border-left:4px solid var(--naranja-600);border-radius:8px;padding:22px 20px 18px;margin-bottom:22px;background:var(--surface);box-shadow:0 1px 3px rgba(0,0,0,.04);}
+  .ro-reg-tag{position:absolute;top:-11px;left:16px;background:var(--naranja-600);color:#fff;font-family:var(--font-display);font-size:.66rem;font-weight:700;text-transform:uppercase;letter-spacing:.05em;padding:3px 12px;border-radius:999px;}
+  .ro-reg-section{display:flex;flex-direction:column;gap:14px;}
+  .ro-reg-section .form-row{gap:14px;}
+  .ro-reg-section .field-mini label{margin-bottom:5px;display:block;}
+  #ro-tipo-display{background:var(--surface-2);color:var(--text-muted);font-weight:600;}
   .proyecto-picker::before{content:"Proyecto e iteración";position:absolute;top:-9px;left:14px;background:var(--naranja-600);color:#fff;font-family:var(--font-display);font-size:.62rem;font-weight:700;text-transform:uppercase;letter-spacing:.04em;padding:2px 10px;border-radius:999px;}
-  .proyecto-picker .pp-row{display:flex;gap:14px;flex-wrap:wrap;margin-top:4px;}
-  .proyecto-picker .pp-field{flex:1;min-width:200px;display:flex;flex-direction:column;gap:5px;}
-  .proyecto-picker label{font-size:.66rem;text-transform:uppercase;color:var(--text-muted);font-weight:700;letter-spacing:.02em;}
-  .proyecto-picker select,.proyecto-picker input{padding:9px 11px;border-radius:3px;border:1.5px solid var(--line);font-size:.85rem;background:var(--surface);color:var(--text);}
-  .proyecto-picker select:focus,.proyecto-picker input:focus{outline:none;border-color:var(--naranja-600);}
+  .pp-row{display:flex;gap:14px;flex-wrap:wrap;margin-top:4px;}
+  .pp-field{flex:1;min-width:200px;display:flex;flex-direction:column;gap:6px;}
+  .pp-field label{font-size:.66rem;text-transform:uppercase;color:var(--text-muted);font-weight:700;letter-spacing:.02em;}
+  .pp-field select,.pp-field input{padding:9px 11px;border-radius:3px;border:1.5px solid var(--line);font-size:.85rem;background:var(--surface);color:var(--text);}
+  .pp-field select:focus,.pp-field input:focus{outline:none;border-color:var(--naranja-600);}
   .pp-numeral-row{display:flex;gap:8px;align-items:center;}
   .pp-check-inline{display:flex;align-items:center;gap:5px;font-size:.78rem;color:var(--text);white-space:nowrap;cursor:pointer;}
   .pp-check-inline input{width:15px;height:15px;flex:none;}
   .pp-numeral-row select:disabled{opacity:.4;cursor:not-allowed;}
+  .pp-nueva-iter-panel{margin-top:14px;padding-top:14px;border-top:1px dashed var(--line);}
+  .mc-unidad-toggle{display:flex;align-items:center;gap:14px;margin-bottom:14px;padding:10px 14px;background:var(--surface-2);border-radius:6px;}
+  .mc-unidad-label{font-size:.76rem;font-weight:700;color:var(--text-muted);}
+  .m-especimen-grid input:disabled{background:var(--surface-2);color:var(--text-muted);cursor:not-allowed;}
 
   /* ---- Proyectos (panel dedicado) ---- */
   .proyectos-tipo-block{margin-bottom:28px;}
   .proyectos-tipo-title{display:flex;align-items:center;gap:9px;font-family:var(--font-display);font-size:1rem;font-weight:700;margin-bottom:14px;text-transform:uppercase;letter-spacing:.02em;}
   .tipo-dot{width:10px;height:10px;border-radius:50%;display:inline-block;}
-  .tipo-dot-cubos{background:var(--naranja-600);}
-  .tipo-dot-probetas{background:var(--negro);}
+  .tipo-dot-cubos{background:var(--verde-600);}
+  .tipo-dot-probetas{background:var(--naranja-600);}
   .proyectos-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(240px,1fr));gap:14px;}
   .proyecto-card{background:var(--surface);border:1px solid var(--line);border-left:4px solid var(--naranja-600);border-radius:6px;padding:16px 18px;cursor:pointer;transition:transform .15s var(--ease), box-shadow .15s var(--ease);}
   .proyecto-card:hover{transform:translateY(-3px);box-shadow:0 14px 26px -14px rgba(0,0,0,.18);}
@@ -522,7 +551,7 @@
   #design-modal{position:fixed;inset:0;background:rgba(20,19,20,.55);z-index:200;display:none;align-items:flex-start;justify-content:center;padding:40px 18px;overflow-y:auto;}
   #proy-iter-modal{position:fixed;inset:0;background:rgba(20,19,20,.55);z-index:214;display:none;align-items:flex-start;justify-content:center;padding:40px 18px;overflow-y:auto;}
   #proy-iter-modal.show{display:flex;}
-  .proy-iter-row{display:flex;align-items:center;justify-content:space-between;padding:9px 12px;border:1px solid var(--line);border-radius:6px;margin-bottom:7px;font-size:.84rem;}
+  .proy-iter-row{display:flex;align-items:center;justify-content:space-between;padding:12px 16px;border:1px solid var(--line);border-radius:8px;margin-bottom:10px;font-size:.84rem;background:var(--surface-2);}
   .proy-iter-row .btn-icon.danger{flex-shrink:0;}
 
   #results-modal{position:fixed;inset:0;background:rgba(20,19,20,.6);z-index:205;display:none;align-items:flex-start;justify-content:center;padding:34px 16px;overflow-y:auto;}
@@ -555,7 +584,7 @@
   #informe-modal{position:fixed;inset:0;background:rgba(10,10,10,.7);z-index:206;display:none;align-items:flex-start;justify-content:center;padding:24px 14px;overflow-y:auto;}
   #informe-modal.show{display:flex;}
   .informe-card{background:var(--surface);border-radius:12px;max-width:1400px;width:100%;box-shadow:0 30px 70px -20px rgba(0,0,0,.5);}
-  .informe-head{position:relative;text-align:center;padding:20px 50px;background:linear-gradient(160deg,#0a1c22,#173e4a 65%,#b5651d);border-radius:12px 12px 0 0;}
+  .informe-head{position:relative;text-align:center;padding:20px 50px;background:linear-gradient(160deg,#0d1113,#22282b 65%,#0099cc);border-radius:12px 12px 0 0;}
   .informe-head h2{font-family:var(--font-display);font-size:1.2rem;font-weight:700;letter-spacing:.03em;color:#fff;text-transform:uppercase;}
   .informe-head .modal-close{position:absolute;right:16px;top:16px;color:#fff;}
   .informe-split{display:grid;grid-template-columns:1fr 1fr;gap:0;min-height:60vh;}
@@ -590,6 +619,11 @@
   .modal-card{background:#fff;color:#161616;border-radius:6px;max-width:960px;width:100%;box-shadow:0 30px 60px rgba(0,0,0,.35);}
   .modal-card.wide{max-width:1180px;}
   .modal-header{display:flex;justify-content:space-between;align-items:center;padding:16px 22px;border-bottom:1px solid #e7e2e1;}
+  .rc-recap{display:flex;justify-content:space-between;align-items:center;gap:14px;padding:12px 22px;background:var(--surface-2);border-bottom:1px solid var(--line);}
+  .rc-recap-info{display:flex;flex-direction:column;}
+  .rc-recap-nombre{font-family:var(--font-display);font-weight:700;font-size:.92rem;}
+  .rc-recap-meta{font-size:.76rem;color:var(--text-muted);margin-top:2px;}
+  .rc-recap-codigo{font-family:var(--font-mono);font-weight:700;font-size:.88rem;color:var(--naranja-600);background:var(--surface);border:1px solid var(--line);padding:6px 12px;border-radius:6px;flex-shrink:0;}
   .modal-header h3{font-family:var(--font-display);font-size:1.05rem;}
   .modal-close{width:30px;height:30px;border-radius:4px;display:flex;align-items:center;justify-content:center;background:#f4f0ef;color:#161616;}
   .modal-close:hover{background:var(--naranja-600);color:#fff;}
@@ -674,6 +708,8 @@
   .pendiente-row .pr-info h5{font-size:.87rem;font-weight:600;}
   .pendiente-row .pr-info span{font-size:.74rem;color:var(--text-muted);}
   .pendiente-row .pr-codigo{font-family:var(--font-mono);font-size:.76rem;color:var(--naranja-600);font-weight:700;}
+  .pr-tipo-arriba{display:block;font-size:.58rem;font-weight:700;text-transform:uppercase;letter-spacing:.04em;color:var(--text-muted);}
+  .ro-formato-tipo-title{display:flex;align-items:center;gap:9px;font-family:var(--font-display);font-size:.95rem;font-weight:700;margin-bottom:10px;text-transform:uppercase;letter-spacing:.02em;}
   .pendiente-badge{font-size:.66rem;font-weight:700;padding:3px 9px;border-radius:999px;text-transform:uppercase;}
   .pendiente-badge.vencido{background:#fee2e2;color:#991b1b;}
   .pendiente-badge.hoy{background:#fef3c7;color:#92400e;}
@@ -686,13 +722,16 @@
   .ntp-tolerancia-box{display:inline-flex;flex-direction:column;font-size:.7rem;color:var(--text-muted);background:var(--surface-2);padding:8px 10px;border-radius:4px;margin-top:4px;}
   .ntp-tolerancia-box b{color:var(--naranja-600);font-family:var(--font-mono);}
   .codigo-preview{display:inline-flex;align-items:center;gap:8px;background:var(--surface-2);border:1.5px dashed var(--naranja-300);border-radius:4px;padding:9px 14px;font-family:var(--font-mono);font-weight:700;color:var(--naranja-600);margin-bottom:14px;}
+  .codigo-preview-destacado{display:flex;flex-direction:column;align-items:center;gap:2px;background:linear-gradient(135deg,var(--verde-600),var(--naranja-600));border-radius:10px;padding:14px 24px;margin-bottom:20px;box-shadow:0 8px 20px -8px rgba(76,175,62,.5);}
+  .cpd-label{font-family:var(--font-body);font-size:.64rem;font-weight:700;text-transform:uppercase;letter-spacing:.06em;color:rgba(255,255,255,.85);}
+  .cpd-codigo{font-family:var(--font-display);font-size:1.5rem;font-weight:700;color:#fff;letter-spacing:.02em;}
   .m-especimen-block{border:1px solid var(--line);border-radius:6px;padding:12px 14px;margin-bottom:12px;}
   .m-especimen-block h5{font-family:var(--font-display);font-size:.82rem;margin-bottom:8px;}
   .m-especimen-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(120px,1fr));gap:10px;}
   .m-especimen-grid .field-mini input,.m-especimen-grid .field-mini select{padding:8px 9px;}
-  .evidencia-drop{border:1.5px dashed var(--line);border-radius:4px;padding:10px;text-align:center;font-size:.72rem;color:var(--text-muted);cursor:pointer;}
+  .evidencia-drop{border:1.5px dashed var(--line);border-radius:4px;padding:10px;text-align:center;font-size:.72rem;color:var(--text-muted);cursor:pointer;overflow:hidden;}
   .evidencia-drop:hover{border-color:var(--naranja-500);color:var(--naranja-600);}
-  .evidencia-drop img{max-height:60px;border-radius:3px;margin-top:6px;}
+  .evidencia-drop img{max-width:100%;max-height:60px;width:auto;height:auto;object-fit:cover;border-radius:3px;margin-top:6px;display:inline-block;}
   .rr-disponibles-table td, .rr-disponibles-table th{font-size:.78rem;}
   .rr-disponibles-tabs{display:flex;gap:8px;margin-bottom:12px;}
   .rr-disponibles-tabs button{padding:7px 14px;border-radius:999px;font-size:.75rem;font-weight:600;border:1px solid var(--line);color:var(--text-muted);background:var(--surface);}
@@ -716,20 +755,25 @@
     <div class="loader-core">
       <div class="gauge">
         <svg viewBox="0 0 130 130">
+          <defs>
+            <linearGradient id="loaderGaugeGradient" x1="0%" y1="0%" x2="100%" y2="100%">
+              <stop offset="0%" stop-color="#0099cc"/>
+              <stop offset="100%" stop-color="#4caf3e"/>
+            </linearGradient>
+          </defs>
           <circle class="track" cx="65" cy="65" r="60"></circle>
           <circle class="fill" id="gauge-fill" cx="65" cy="65" r="60"></circle>
         </svg>
         <div class="helmet">
-          <svg viewBox="0 0 100 100" fill="none" stroke="currentColor" stroke-width="4" stroke-linecap="round" stroke-linejoin="round" style="color:#0f2b35;">
-            <path d="M16 66 Q16 24 50 20 Q84 24 84 66" fill="#b5651d" stroke="#0f2b35"/>
-            <path d="M10 66 H90 Q92 66 92 70 Q92 74 88 74 H12 Q8 74 8 70 Q8 66 10 66 Z" fill="#0f2b35" stroke="#0f2b35"/>
-            <path d="M46 12 h8 v10 h-8 z" fill="#0f2b35"/>
-            <path d="M50 20 V44"/>
+          <svg viewBox="0 0 100 100" fill="none" stroke="currentColor" stroke-width="4" stroke-linecap="round" stroke-linejoin="round" style="color:#fff;">
+            <path d="M16 66 Q16 24 50 20 Q84 24 84 66" fill="#ffffff" stroke="#14181a"/>
+            <path d="M10 66 H90 Q92 66 92 70 Q92 74 88 74 H12 Q8 74 8 70 Q8 66 10 66 Z" fill="#4caf3e" stroke="#14181a"/>
+            <path d="M46 12 h8 v10 h-8 z" fill="#14181a"/>
+            <path d="M50 20 V44" stroke="#0099cc"/>
           </svg>
         </div>
       </div>
       <div class="loader-word">SISTEMA <span>I+D</span></div>
-      <div class="loader-sub">Laboratorio de I+D</div>
       <div class="loader-bar-track"><div class="loader-bar-fill" id="loader-bar"></div></div>
     </div>
   </div>
@@ -739,7 +783,7 @@
 <div id="app-shell">
   <header class="topbar">
     <div class="brand">
-      <span class="mark"></span>
+      <img class="mark" src="data:image/png;base64,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" alt="I+D Nexus">
       <div class="brand-text">Sistema I+D</div>
     </div>
 
@@ -783,8 +827,9 @@
       <span class="bell-dot" id="nav-bell-dot" style="display:none;"></span>
     </button>
     <div class="bell-dropdown" id="bell-dropdown">
-      <h5>Roturas Hoy</h5>
+      <div class="bell-header"><svg viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M18 8a6 6 0 0 0-12 0c0 7-3 9-3 9h18s-3-2-3-9"/><path d="M13.73 21a2 2 0 0 1-3.46 0"/></svg> Roturas Hoy</div>
       <div id="bell-list"></div>
+      <button class="bell-footer" id="bell-footer">Ver todo en Roturas →</button>
     </div>
   </header>
 
@@ -800,15 +845,6 @@
     <!-- INICIO — sin cards -->
     <section id="panel-inicio" class="panel active">
       <div class="inicio-header-centered">
-        <div class="inicio-header-icon">
-          <svg viewBox="0 0 100 100" width="76" height="76">
-            <path d="M40 10 H60" stroke="#0f2b35" stroke-width="5" stroke-linecap="round" fill="none"/>
-            <path d="M42 12 V38 L18 78 A6 6 0 0 0 23.2 87 H76.8 A6 6 0 0 0 82 78 L58 38 V12" stroke="#0f2b35" stroke-width="5" stroke-linejoin="round" stroke-linecap="round" fill="none"/>
-            <path d="M26 62 H74 L82 76 A6 6 0 0 1 76.8 85 H23.2 A6 6 0 0 1 18 76 Z" fill="#b5651d"/>
-            <circle cx="34" cy="72" r="3" fill="#ffffff" opacity=".7"/>
-            <circle cx="60" cy="76" r="2" fill="#ffffff" opacity=".5"/>
-          </svg>
-        </div>
         <h1 class="inicio-bienvenido">¡Bienvenido!</h1>
         <div class="inicio-fecha-hora" id="inicio-fecha-hora">—</div>
         <button class="btn-add btn-nuevo-diseno-grande" id="btn-calcular">+ Nuevo Diseño</button>
@@ -899,19 +935,37 @@
         <!-- PROYECTO / ITERACIÓN -->
         <div class="proyecto-picker">
           <div class="pp-row">
+            <div class="pp-field" style="flex:0 0 130px;">
+              <label>Tipo</label>
+              <select id="pp-tipo-espec">
+                <option value="Probetas">Probeta (P.)</option>
+                <option value="Cubos">Cubo (C.)</option>
+              </select>
+            </div>
             <div class="pp-field" style="flex:2;">
               <label>Proyecto</label>
               <select id="pp-proyecto"></select>
             </div>
-            <div class="pp-field" style="flex:1;">
-              <label>Iteración — Mes</label>
-              <select id="pp-mes"></select>
+            <div class="pp-field" style="flex:1.4;">
+              <label>Iteración</label>
+              <select id="pp-iteracion-select"></select>
             </div>
-            <div class="pp-field pp-numeral-check-field" style="flex:0 0 170px;">
-              <label>Complemento (opcional)</label>
-              <div class="pp-numeral-row">
-                <label class="pp-check-inline"><input type="checkbox" id="pp-usar-numeral"> Usar</label>
-                <select id="pp-numeral" disabled></select>
+          </div>
+          <div class="pp-nueva-iter-panel" id="pp-nueva-iter-panel" style="display:none;">
+            <div class="pp-row" style="margin-top:0;">
+              <div class="pp-field" style="flex:1;">
+                <label>Mes</label>
+                <select id="pp-mes"></select>
+              </div>
+              <div class="pp-field pp-numeral-check-field" style="flex:0 0 170px;">
+                <label>Complemento (opcional)</label>
+                <div class="pp-numeral-row">
+                  <label class="pp-check-inline"><input type="checkbox" id="pp-usar-numeral"> Usar</label>
+                  <select id="pp-numeral" disabled></select>
+                </div>
+              </div>
+              <div class="pp-field" style="flex:0 0 auto;align-self:flex-end;">
+                <button class="btn-add" id="pp-nueva-iter-confirmar" type="button">+ Registrar y usar</button>
               </div>
             </div>
           </div>
@@ -969,7 +1023,6 @@
         <!-- 2. PARÁMETROS DE DISEÑO -->
         <div class="card">
           <div class="section-num">2. Parámetros de diseño</div>
-          <div class="section-hint">Tocá cada bloque para abrirlo o cerrarlo.</div>
           <div class="params-grid">
             <div class="params-col" data-acc="especificaciones">
               <div class="params-col-head acc-head"><span>Especificaciones</span><svg class="acc-chevron" viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M6 9l6 6 6-6"/></svg></div>
@@ -1150,54 +1203,64 @@
 
       <!-- REGISTRAR (Momento 1: Elaboración → obtiene el Código) -->
       <div class="ro-sub" id="ro-sub-registrar" style="display:none;">
-        <div class="card">
-          <div class="section-num">Registrar Elaboración</div>
-          <div class="section-hint">Al elegir Probeta o Cubo se te muestra el código correlativo que le corresponderá.</div>
-
-          <div class="proyecto-picker">
+        <div class="ro-reg-card">
+          <div class="ro-reg-tag">Proyecto e Iteración</div>
+          <div class="ro-reg-section">
             <div class="pp-row">
               <div class="pp-field"><label>Proyecto</label><select id="ro-proyecto"></select></div>
               <div class="pp-field"><label>Diseño existente</label><select id="ro-diseno"></select></div>
               <div class="pp-field"><label>Réplica</label><select id="ro-replica"></select></div>
             </div>
           </div>
+        </div>
 
-          <div class="form-row">
-            <select id="ro-tipo">
-              <option value="">Tipo de rotura…</option>
-              <option value="Probetas">Probetas</option>
-              <option value="Cubos">Cubos</option>
-            </select>
-            <input type="text" id="ro-acargode" placeholder="A cargo de">
+        <div id="ro-codigo-preview"></div>
+
+        <div class="ro-reg-card">
+          <div class="ro-reg-tag">Datos del ensayo</div>
+          <div class="ro-reg-section">
+            <div class="form-row">
+              <div class="field-mini" style="flex:1;"><label>Tipo (según el diseño)</label><input type="text" id="ro-tipo-display" readonly placeholder="Elegí un diseño primero"></div>
+              <div class="field-mini" style="flex:1;"><label>A cargo de</label><input type="text" id="ro-acargode" placeholder="Nombre"></div>
+            </div>
+            <div class="form-row">
+              <div class="field-mini" style="flex:1;"><label>Fecha de elaboración</label><input type="date" id="ro-fecha-elab"></div>
+              <div class="field-mini" style="flex:1;"><label>Hora de elaboración</label><input type="time" id="ro-hora-elab"></div>
+            </div>
           </div>
-          <div id="ro-codigo-preview"></div>
-          <div class="form-row">
-            <input type="date" id="ro-fecha-elab">
-            <input type="time" id="ro-hora-elab">
-          </div>
-          <div class="form-row">
+        </div>
+
+        <div class="ro-reg-card">
+          <div class="ro-reg-tag">Días de rotura</div>
+          <div class="ro-reg-section">
             <select id="ro-dias-preset">
               <option value="1,3,7,28">Días predeterminado (1, 3, 7, 28)</option>
               <option value="custom">Personalizado…</option>
             </select>
-          </div>
-          <div id="ro-dias-custom-wrap" style="display:none;margin-bottom:16px;">
-            <div id="ro-dias-custom-checks" style="display:flex;gap:10px;flex-wrap:wrap;font-size:.8rem;"></div>
-          </div>
-          <div id="ro-fechas-preview"></div>
-          <div class="form-actions" style="margin-top:14px;">
-            <button class="btn-add" id="ro-registrar-btn">Registrar Elaboración</button>
+            <div id="ro-dias-custom-wrap" style="display:none;margin-top:14px;">
+              <div id="ro-dias-custom-checks" style="display:flex;gap:10px;flex-wrap:wrap;font-size:.8rem;"></div>
+            </div>
+            <div id="ro-fechas-preview" style="margin-top:14px;"></div>
           </div>
         </div>
-      </div>
+
+        <div class="form-actions" style="margin-top:14px;">
+          <button class="btn-add" id="ro-registrar-btn">Registrar Elaboración</button>
+          </div>
+        </div>
 
       <!-- FORMATO (tabla grande, editable/insertable) -->
       <div class="ro-sub" id="ro-sub-formato" style="display:none;">
         <div class="hist-toolbar" style="margin-bottom:14px;">
           <input type="text" id="ro-formato-search" placeholder="Buscar por código o nombre…">
+          <div class="view-toggle" id="ro-formato-tipo-tabs">
+            <button class="view-toggle-btn active" data-tipo="Probetas">Probetas <span class="col-count-badge" id="ro-formato-count-probetas">0</span></button>
+            <button class="view-toggle-btn" data-tipo="Cubos">Cubos <span class="col-count-badge" id="ro-formato-count-cubos">0</span></button>
+          </div>
           <button class="btn-add" id="ro-formato-nuevo" style="margin-left:auto;">+ Registrar</button>
         </div>
-        <div class="roturas-table-wrap">
+
+        <div class="roturas-table-wrap" id="ro-formato-wrap-probetas">
           <table class="roturas-table">
             <thead><tr>
               <th>Código ID</th><th>Producto</th><th>Proyecto</th><th>Iteración</th><th>A cargo de</th>
@@ -1208,7 +1271,22 @@
               <th>M1(kg/cm²)</th><th>M2(kg/cm²)</th><th>M3(kg/cm²)</th><th>Promedio f'c</th><th>Coef.Var.</th><th>Desvest</th>
               <th>Comentarios</th><th></th>
             </tr></thead>
-            <tbody id="ro-formato-tbody"></tbody>
+            <tbody id="ro-formato-tbody-probetas"></tbody>
+          </table>
+        </div>
+
+        <div class="roturas-table-wrap" id="ro-formato-wrap-cubos" style="display:none;">
+          <table class="roturas-table">
+            <thead><tr>
+              <th>Código ID</th><th>Producto</th><th>Proyecto</th><th>Iteración</th><th>A cargo de</th>
+              <th>F. Elaboración</th><th>Días</th><th>F. Ensayo</th><th>Tolerancia</th><th>Correo</th>
+              <th>Hora Ensayo</th><th>A1</th><th>A2</th><th>A3</th>
+              <th>M1(kN)</th><th>M2(kN)</th><th>M3(kN)</th><th>M1(kg)</th><th>M2(kg)</th><th>M3(kg)</th>
+              <th>Tipo M1</th><th>Tipo M2</th><th>Tipo M3</th>
+              <th>M1(kg/cm²)</th><th>M2(kg/cm²)</th><th>M3(kg/cm²)</th><th>Promedio f'c</th><th>Coef.Var.</th><th>Desvest</th>
+              <th>Comentarios</th><th></th>
+            </tr></thead>
+            <tbody id="ro-formato-tbody-cubos"></tbody>
           </table>
         </div>
       </div>
@@ -1337,14 +1415,25 @@
     <div class="confirm-icon">
       <svg viewBox="0 0 24 24" width="26" height="26" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="4" y="4" width="7" height="7" rx="1"/><rect x="13" y="4" width="7" height="7" rx="1"/><rect x="4" y="13" width="7" height="7" rx="1"/><rect x="13" y="13" width="7" height="7" rx="1"/></svg>
     </div>
-    <h3>Diseño registrado — ¿Cuántas réplicas necesita?</h3>
-    <p id="replicas-modal-name"></p>
-    <div style="display:flex;justify-content:center;margin-bottom:16px;">
-      <input type="number" id="replicas-modal-input" min="1" max="6" value="2" style="width:80px;text-align:center;padding:8px;border-radius:4px;border:1.5px solid var(--line);font-size:1rem;">
+    <div id="replicas-modal-step1">
+      <h3>Diseño registrado — ¿Cuántas réplicas necesita?</h3>
+      <p id="replicas-modal-name"></p>
+      <div style="display:flex;justify-content:center;margin-bottom:16px;">
+        <input type="number" id="replicas-modal-input" min="1" max="6" value="2" style="width:80px;text-align:center;padding:8px;border-radius:4px;border:1.5px solid var(--line);font-size:1rem;">
+      </div>
+      <div class="confirm-actions">
+        <button class="btn-ghost" id="replicas-modal-default">Usar 2 (predeterminado)</button>
+        <button class="btn-add" id="replicas-modal-confirm">Confirmar cantidad</button>
+      </div>
     </div>
-    <div class="confirm-actions">
-      <button class="btn-ghost" id="replicas-modal-default">Usar 2 (predeterminado)</button>
-      <button class="btn-add" id="replicas-modal-confirm">Confirmar cantidad</button>
+    <div id="replicas-modal-step2" style="display:none;">
+      <h3>¿A qué días se romperá?</h3>
+      <p style="margin-bottom:14px;color:var(--text-muted);font-size:.84rem;">Se crearán registros en Roturas para cada día marcado, por cada réplica.</p>
+      <div id="replicas-dias-checks" style="display:flex;gap:10px;flex-wrap:wrap;justify-content:center;margin-bottom:18px;"></div>
+      <div class="confirm-actions">
+        <button class="btn-ghost" id="replicas-dias-atras">← Atrás</button>
+        <button class="btn-add" id="replicas-dias-confirm">Crear réplicas y roturas</button>
+      </div>
     </div>
   </div>
 </div>
@@ -1398,7 +1487,7 @@
 <div id="results-modal">
   <div class="results-card">
     <div class="results-head">
-      <h2 id="results-modal-title">—</h2>
+      <div class="rc-recap-info"><span class="rc-recap-nombre" id="results-modal-title" style="font-size:1.05rem;">—</span><span class="rc-recap-meta" id="results-modal-sub"></span></div>
       <button class="modal-close" id="results-modal-close">×</button>
     </div>
     <div class="results-body" id="results-modal-body"></div>
@@ -1413,6 +1502,7 @@
 <div id="rotura-carga-modal">
   <div class="modal-card wide">
     <div class="modal-header"><h3 id="rotura-carga-title">Registrar la Rotura</h3><button class="modal-close" id="rotura-carga-close">×</button></div>
+    <div class="rc-recap" id="rotura-carga-recap"></div>
     <div class="modal-body" id="rotura-carga-body"></div>
     <div class="modal-actions">
       <button class="btn-add" id="rotura-carga-save">Guardar carga</button>
@@ -1467,22 +1557,23 @@
   <div class="modal-card">
     <div class="modal-header"><h3 id="proy-iter-modal-title">Iteraciones del proyecto</h3><button class="modal-close" id="proy-iter-modal-close">×</button></div>
     <div class="modal-body">
-      <div class="section-hint">Estas son las iteraciones ya registradas para este proyecto — se usan como catálogo al crear diseños nuevos.</div>
-      <div id="proy-iter-lista" style="margin:14px 0 18px;"></div>
-      <div class="card">
-        <div class="section-num" style="margin-bottom:12px;">Registrar nueva iteración</div>
-        <div class="pp-row">
-          <div class="pp-field" style="flex:1;"><label>Mes</label><select id="pim-mes"></select></div>
-          <div class="pp-field pp-numeral-check-field" style="flex:0 0 170px;">
-            <label>Complemento (opcional)</label>
-            <div class="pp-numeral-row">
-              <label class="pp-check-inline"><input type="checkbox" id="pim-usar-numeral"> Usar</label>
-              <select id="pim-numeral" disabled></select>
+      <div id="proy-iter-lista" style="margin-bottom:22px;"></div>
+      <div class="ro-reg-card" style="margin-bottom:0;">
+        <div class="ro-reg-tag">Registrar nueva iteración</div>
+        <div class="ro-reg-section">
+          <div class="pp-row">
+            <div class="pp-field" style="flex:1;"><label>Mes</label><select id="pim-mes"></select></div>
+            <div class="pp-field pp-numeral-check-field" style="flex:0 0 180px;">
+              <label>Complemento (opcional)</label>
+              <div class="pp-numeral-row">
+                <label class="pp-check-inline"><input type="checkbox" id="pim-usar-numeral"> Usar</label>
+                <select id="pim-numeral" disabled></select>
+              </div>
             </div>
           </div>
-        </div>
-        <div class="form-actions">
-          <button class="btn-add" id="pim-agregar">+ Registrar iteración</button>
+          <div class="form-actions" style="margin-top:4px;">
+            <button class="btn-add" id="pim-agregar">+ Registrar iteración</button>
+          </div>
         </div>
       </div>
     </div>
@@ -1590,7 +1681,7 @@
     var i = 0;
     var timer = setInterval(function(){
       var pct = STEPS[i];
-      gaugeFill.style.strokeDashoffset = CIRC - (CIRC*pct/100);
+      if(gaugeFill) gaugeFill.style.strokeDashoffset = CIRC - (CIRC*pct/100);
       loaderBar.style.width = pct + '%';
       i++;
       if(i >= STEPS.length){ clearInterval(timer); finishLoading(); }
@@ -1689,19 +1780,21 @@
   document.getElementById('ro-proyecto').addEventListener('change', function(){ rebuildRoDisenoSelect(); });
   document.getElementById('rrg-proyecto').addEventListener('change', renderRRGDisponibles);
 
-  /* ================= CÓDIGO CORRELATIVO (ID-XXX) ================= */
-  function nextCodigoRotura(){
-    var counter = load('sid10_codigo_counter', 0) + 1;
-    save('sid10_codigo_counter', counter);
-    return 'ID-' + pad4(counter);
+  /* ================= CÓDIGO CORRELATIVO (ID-XXX) — un contador independiente por Tipo (Cubos/Probetas) ================= */
+  var CODIGO_COUNTERS = load('sid10_codigo_counters', {Probetas:0, Cubos:0});
+  function nextCodigoRotura(tipo){
+    tipo = (tipo === 'Cubos') ? 'Cubos' : 'Probetas';
+    CODIGO_COUNTERS[tipo] = (CODIGO_COUNTERS[tipo]||0) + 1;
+    save('sid10_codigo_counters', CODIGO_COUNTERS);
+    return 'ID-' + pad4(CODIGO_COUNTERS[tipo]);
   }
-  function peekNextCodigoRotura(){
-    var counter = load('sid10_codigo_counter', 0) + 1;
-    return 'ID-' + pad4(counter);
+  function peekNextCodigoRotura(tipo){
+    tipo = (tipo === 'Cubos') ? 'Cubos' : 'Probetas';
+    return 'ID-' + pad4((CODIGO_COUNTERS[tipo]||0) + 1);
   }
 
   /* ================= NTP 339.034 — Tolerancia de rotura ================= */
-  var NTP_TABLE = {1:0.5, 3:2, 7:6, 28:20, 90:48};
+  var NTP_TABLE = {1:0.5, 3:2, 4:3, 7:6, 28:20, 90:48};
   function toleranciaHoras(diaEdad){
     if(NTP_TABLE[diaEdad] !== undefined) return NTP_TABLE[diaEdad];
     return +(diaEdad*24*0.02).toFixed(2);
@@ -2098,16 +2191,48 @@
   }
 
   /* ================= DISEÑOS — CALCULADORA ================= */
+  function fillPpIteracionSelect(proyNombre, selectedVal){
+    var sel = document.getElementById('pp-iteracion-select');
+    var registradas = proyNombre ? iteracionesDeProyecto(proyNombre) : [];
+    var html = '<option value="">Elegí una iteración…</option>';
+    html += registradas.map(function(it){ return '<option value="'+esc(it)+'"'+(it===selectedVal?' selected':'')+'>'+esc(it)+'</option>'; }).join('');
+    html += '<option value="__nueva__">+ Registrar nueva iteración…</option>';
+    sel.innerHTML = html;
+    document.getElementById('pp-nueva-iter-panel').style.display = 'none';
+  }
+  document.getElementById('pp-proyecto').addEventListener('change', function(){
+    fillPpIteracionSelect(proyectoNombre(this.value), '');
+  });
+  document.getElementById('pp-iteracion-select').addEventListener('change', function(){
+    var esNueva = this.value === '__nueva__';
+    document.getElementById('pp-nueva-iter-panel').style.display = esNueva ? 'block' : 'none';
+    if(esNueva){
+      fillMesSelect(document.getElementById('pp-mes'), mesActual());
+      fillNumeralSelect(document.getElementById('pp-numeral'), 'I');
+      document.getElementById('pp-usar-numeral').checked = false;
+      document.getElementById('pp-numeral').disabled = true;
+    }
+  });
+  document.getElementById('pp-nueva-iter-confirmar').addEventListener('click', function(){
+    var proyNombre = proyectoNombre(document.getElementById('pp-proyecto').value);
+    if(!proyNombre){ toast('Elegí primero el Proyecto'); return; }
+    var mes = document.getElementById('pp-mes').value;
+    if(!mes){ toast('Elegí el mes'); return; }
+    var usar = document.getElementById('pp-usar-numeral').checked;
+    var numeral = document.getElementById('pp-numeral').value;
+    var iter = construirIteracion(mes, usar, numeral);
+    registrarIteracion(proyNombre, iter);
+    fillPpIteracionSelect(proyNombre, iter);
+    toast('Iteración registrada y seleccionada');
+  });
   function showSubTab(name){
     document.getElementById('sub-calcular').style.display = name === 'calcular' ? 'block' : 'none';
     document.getElementById('sub-historico').style.display = name === 'historico' ? 'block' : 'none';
     if(name === 'historico'){ rebuildHistProyectoFiltro(); renderDisenosHistorico(); }
     if(name === 'calcular'){
-      fillProyectoCatalogoSelect(document.getElementById('pp-proyecto'), document.getElementById('pp-proyecto').value);
-      var mesActualSel = document.getElementById('pp-mes').value || mesActual();
-      var numeralActualSel = document.getElementById('pp-numeral').value || 'I';
-      fillMesSelect(document.getElementById('pp-mes'), mesActualSel);
-      fillNumeralSelect(document.getElementById('pp-numeral'), numeralActualSel);
+      var proyActual = document.getElementById('pp-proyecto').value;
+      fillProyectoCatalogoSelect(document.getElementById('pp-proyecto'), proyActual);
+      fillPpIteracionSelect(proyectoNombre(proyActual), document.getElementById('pp-iteracion-select').value);
     }    window.scrollTo({top:0, behavior:'auto'});
   }
   document.getElementById('btn-nuevo-diseno').addEventListener('click', function(){ showSubTab('calcular'); });
@@ -2177,23 +2302,23 @@
     var codigos = (d.replicaObjs||[]).map(function(r){ return r.codigo; }).filter(Boolean);
     return codigos.length ? codigos.join(', ') : '-';
   }
+  function tipoDisenoLabel(d){ return d.codigo && d.codigo.charAt(0)==='C' ? 'Cubo' : 'Probeta'; }
   function disenoCardHtml(d){
     var i = disenos.indexOf(d);
     var tagEstado = d.estado === 'Completado' ? 'tag-verde' : (d.estado === 'En desarrollo' ? 'tag-naranja' : 'tag-rojo');
     var sem = semaforoDotHtml(semaforoDiseno(d), 'Avance de roturas');
     var nRep = (d.replicaObjs && d.replicaObjs.length) || d.replicas || 0;
-    var completas = roturaCargas.filter(function(c){ return c.disenoCodigoDiseno === d.codigo && c.estado==='completado'; }).length;
-    var totalCargas = nRep * ((d.diasRotura||[]).length || 0);
     return '<div class="design-card">' +
       '<div class="design-thumb '+estadoColorClass(d.estado)+'"></div>' +
       '<div class="design-body">' +
         '<h4 class="dc-proyecto">'+sem+' '+tituloConIteracion(d)+'</h4>' +
         '<span class="dc-nombre">'+diseñoTitulo(d)+'</span>' +
-        '<div class="dc-stats-grid">' +
-          '<div><b>'+d.codigo+'</b><span>Código</span></div>' +
-          '<div><b>'+esc(d.horaElaboracion||'-')+'</b><span>Hora</span></div>' +
-          '<div><b>'+nRep+'</b><span>Réplica'+(nRep===1?'':'s')+'</span></div>' +
-          '<div><b>'+(totalCargas?completas+'/'+totalCargas:'—')+'</b><span>Roturas</span></div>' +
+        '<div class="dc-stats-row">' +
+          '<div class="id-card-simple">'+d.codigo+'</div>' +
+          '<div class="dc-stats-mini">' +
+            '<div><b>'+esc(d.horaElaboracion||'-')+'</b><span>Hora</span></div>' +
+            '<div><b>'+nRep+'</b><span>Réplica'+(nRep===1?'':'s')+'</span></div>' +
+          '</div>' +
         '</div>' +
         '<span class="mono dc-meta">'+esc(d.laboratorio||'-')+' · IDs: '+idsDeReplicasHtml(d)+'</span>' +
         '<div class="tags"><span class="tag-pill '+tagEstado+'">'+d.estado+'</span></div>' +
@@ -2283,13 +2408,15 @@
   function nextRoturaId(){ return 'rc' + Date.now() + Math.floor(Math.random()*1000); }
 
   function crearCargasParaDiseno(d, origen){
-    // Un único Código por réplica — se repite en todas sus edades (días).
+    // Un único Código por réplica — se repite en todas sus edades (días). El correlativo es independiente según Tipo (Cubos/Probetas).
     var creados = [];
+    var tipoDiseno = d.tipoRotura || 'Probetas';
     (d.replicaObjs||[]).forEach(function(rep){
-      var codigo = nextCodigoRotura();
+      var codigo = nextCodigoRotura(tipoDiseno);
       rep.codigo = codigo;
       (d.diasRotura||[]).forEach(function(dia){
-        var fechaEnsayo = calcularFechaEnsayo(d.fechaElaboracion || d.fecha ? dmyToISO(d.fecha) : todayISO(), dia);
+        var fechaBaseISO = d.fechaElaboracionISO || dmyToISO(d.fecha) || todayISO();
+        var fechaEnsayo = calcularFechaEnsayo(fechaBaseISO, dia);
         var tolH = toleranciaHoras(dia);
         var carga = {
           id: nextRoturaId(),
@@ -2297,7 +2424,7 @@
           tipo: d.tipoRotura || 'Probetas',
           disenoCodigoDiseno: d.codigo,
           replicaNombre: rep.nombre,
-          producto: diseñoTitulo(d),
+          producto: rep.nombre,
           proyecto: proyectoNombre(d.proyectoId),
           iteracion: iteracionNombre(d.iteracionId),
           aCargoDe: d.aCargoDe || '',
@@ -2356,7 +2483,22 @@
     }).join('');
     rebuildRoReplicaSelect();
   }
-  document.getElementById('ro-diseno').addEventListener('change', rebuildRoReplicaSelect);
+  document.getElementById('ro-diseno').addEventListener('change', function(){
+    rebuildRoReplicaSelect();
+    var didx = this.value;
+    var d = didx !== '' ? disenos[Number(didx)] : null;
+    var tipoEl = document.getElementById('ro-tipo-display');
+    if(d){
+      var fISO = d.fechaElaboracionISO || dmyToISO(d.fecha);
+      if(fISO) document.getElementById('ro-fecha-elab').value = fISO;
+      if(d.horaElaboracion) document.getElementById('ro-hora-elab').value = d.horaElaboracion;
+      tipoEl.value = (d.tipoRotura || 'Probetas') === 'Cubos' ? 'Cubo' : 'Probeta';
+      renderRoFechasPreview();
+    } else {
+      tipoEl.value = '';
+    }
+    renderRoCodigoPreview();
+  });
   function rebuildRoReplicaSelect(){
     var sel = document.getElementById('ro-replica');
     var didx = document.getElementById('ro-diseno').value;
@@ -2366,23 +2508,26 @@
       return '<option value="'+ri+'">'+esc(r.nombre)+'</option>';
     }).join('');
   }
+  function tipoDeDisenoActivo(){
+    var didx = document.getElementById('ro-diseno').value;
+    var d = didx !== '' ? disenos[Number(didx)] : null;
+    return d ? (d.tipoRotura || 'Probetas') : 'Probetas';
+  }
   function renderRoCodigoPreview(){
-    var tipo = document.getElementById('ro-tipo').value;
     var el = document.getElementById('ro-codigo-preview');
-    if(!tipo){ el.innerHTML = ''; return; }
     var didx = document.getElementById('ro-diseno').value;
     var repIdx = document.getElementById('ro-replica').value;
+    if(didx === ''){ el.innerHTML = ''; return; }
+    var tipo = tipoDeDisenoActivo();
     var repCodigoExistente = '';
     if(didx !== '' && repIdx !== ''){
       var d = disenos[Number(didx)];
       var rep = d && d.replicaObjs ? d.replicaObjs[Number(repIdx)] : null;
       if(rep && rep.codigo) repCodigoExistente = rep.codigo;
     }
-    el.innerHTML = repCodigoExistente
-      ? '<div class="codigo-preview">Esta réplica ya usa el código: '+repCodigoExistente+' — se reutiliza para estos días</div>'
-      : '<div class="codigo-preview">Esta réplica usará: '+peekNextCodigoRotura()+' (se repetirá en todos sus días)</div>';
+    var codigo = repCodigoExistente || peekNextCodigoRotura(tipo);
+    el.innerHTML = '<div class="codigo-preview-destacado"><span class="cpd-label">'+(repCodigoExistente?'Código de esta réplica':'Código a asignar')+'</span><span class="cpd-codigo">'+codigo+'</span></div>';
   }
-  document.getElementById('ro-tipo').addEventListener('change', renderRoCodigoPreview);
   document.getElementById('ro-diseno').addEventListener('change', renderRoCodigoPreview);
   document.getElementById('ro-replica').addEventListener('change', renderRoCodigoPreview);
 
@@ -2401,20 +2546,20 @@
   document.querySelectorAll('.ro-dia-check').forEach(function(c){ c.addEventListener('change', renderRoFechasPreview); });
 
   document.getElementById('ro-registrar-btn').addEventListener('click', function(){
-    var tipo = document.getElementById('ro-tipo').value;
     var didx = document.getElementById('ro-diseno').value;
     var repIdx = document.getElementById('ro-replica').value;
     var fechaElab = document.getElementById('ro-fecha-elab').value;
     var horaElab = document.getElementById('ro-hora-elab').value;
     var dias = getDiasSeleccionados('ro');
     var aCargoDe = document.getElementById('ro-acargode').value.trim();
-    if(!tipo || didx === '' || repIdx === '' || !fechaElab || !dias.length){
-      toast('Completá tipo, diseño, réplica, fecha de elaboración y días de rotura');
+    if(didx === '' || repIdx === '' || !fechaElab || !dias.length){
+      toast('Completá diseño, réplica, fecha de elaboración y días de rotura');
       return;
     }
     var d = disenos[Number(didx)];
+    var tipo = d.tipoRotura || 'Probetas';
     var rep = d.replicaObjs[Number(repIdx)];
-    var codigo = rep.codigo || nextCodigoRotura();
+    var codigo = rep.codigo || nextCodigoRotura(tipo);
     if(!rep.codigo){ rep.codigo = codigo; save('sid10_disenos', disenos); }
     var creados = [];
     dias.forEach(function(dia){
@@ -2422,7 +2567,7 @@
       var carga = {
         id: nextRoturaId(), codigo: codigo, tipo: tipo,
         disenoCodigoDiseno: d.codigo, replicaNombre: rep.nombre,
-        producto: diseñoTitulo(d), proyecto: proyectoNombre(d.proyectoId), iteracion: iteracionNombre(d.iteracionId),
+        producto: rep.nombre, proyecto: proyectoNombre(d.proyectoId), iteracion: iteracionNombre(d.iteracionId),
         aCargoDe: aCargoDe, fechaElaboracion: fechaElab, horaElaboracion: horaElab,
         dia: dia, fechaEnsayo: fechaEnsayo, toleranciaHoras: toleranciaHoras(dia), correoEnviado:false,
         origen:'manual', horaEnsayo:'', a1:'',a2:'',a3:'', m1kN:'',m2kN:'',m3kN:'',m1kg:'',m2kg:'',m3kg:'',
@@ -2449,10 +2594,12 @@
       var d = disenos.filter(function(x){ return x.codigo === c.disenoCodigoDiseno; })[0];
       var sem = d ? semaforoDotHtml(semaforoDiseno(d), 'Avance del diseño') : '';
       var badge = c.fechaEnsayo < todayStr ? '<span class="pendiente-badge vencido">Vencido</span>' : (c.fechaEnsayo === todayStr ? '<span class="pendiente-badge hoy">Hoy</span>' : '');
+      var tipoEsProbeta = (c.tipo||'Probetas') !== 'Cubos';
       return '<div class="pendiente-row">' +
         sem +
+        '<div class="id-card"><span class="id-card-tipo">'+(tipoEsProbeta?'Probeta':'Cubo')+'</span><span class="id-card-codigo">'+c.codigo+'</span></div>' +
         '<div class="pr-info">' +
-          '<span class="pr-codigo">'+c.codigo+'</span> ' + badge +
+          badge +
           '<h5>'+esc(c.replicaNombre)+' · día '+c.dia+'</h5>' +
           '<span>'+esc(c.proyecto||'-')+' · Ensayo: '+isoToDMY(c.fechaEnsayo)+'</span>' +
         '</div>' +
@@ -2481,15 +2628,13 @@
       var tipoEsProbeta = (c.tipo||'Probetas') !== 'Cubos';
       var accentClass = esUrgente ? 'accent-rojo' : 'accent-dorado';
       return '<div class="ih-card '+accentClass+'">' +
-        '<div class="ih-id-badge">'+c.codigo+'</div>' +
+        '<div class="id-card"><span class="id-card-tipo">'+(tipoEsProbeta?'Probeta':'Cubo')+'</span><span class="id-card-codigo">'+c.codigo+'</span></div>' +
         '<div class="ih-main">' +
           '<span class="ih-nombre">'+esc(c.replicaNombre)+' (Día '+c.dia+')</span>' +
           '<div class="ih-badges" style="margin-top:6px;">' +
             (esUrgente ? '<span class="ih-badge urgente">Urgente</span>' : '<span class="ih-badge hoy">Hoy</span>') +
-            (tipoEsProbeta ? '<span class="ih-badge tipo-probeta">'+TESTTUBE_ICON.replace('width="24" height="24"','width="11" height="11"')+' Probeta</span>' : '<span class="ih-badge tipo-cubo">'+CUBE_ICON.replace('width="24" height="24"','width="11" height="11"')+' Cubo</span>') +
           '</div>' +
         '</div>' +
-        
         '<button class="btn-add" data-act="registrar-carga-inicio" data-id="'+c.id+'">Registrar Rotura '+REGISTRAR_ICON+'</button>' +
       '</div>';
     }).join('');
@@ -2526,38 +2671,55 @@
     if(c.m1kgcm2 && c.m2kgcm2 && c.m3kgcm2) c.estado = 'completado';
   }
 
+  function filaRoturaHtml(c, i){
+    return '<tr data-i="'+i+'">' +
+      '<td class="ro-locked mono"><div class="id-card"><span class="id-card-tipo">'+((c.tipo||'Probetas')!=='Cubos'?'Probeta':'Cubo')+'</span><span class="id-card-codigo">'+c.codigo+'</span></div></td>' +
+      '<td>'+esc(c.producto)+'</td><td>'+esc(c.proyecto||'-')+'</td><td>'+esc(c.iteracion||'-')+'</td><td>'+esc(c.aCargoDe||'-')+'</td>' +
+      '<td class="ro-locked">'+isoToDMY(c.fechaElaboracion)+'</td><td class="ro-locked">'+c.dia+'</td>' +
+      '<td class="ro-locked">'+isoToDMY(c.fechaEnsayo)+'</td><td class="ro-locked">±'+c.toleranciaHoras+'h</td>' +
+      '<td><input type="checkbox" data-f="correoEnviado" '+(c.correoEnviado?'checked':'')+'></td>' +
+      '<td><input type="time" data-f="horaEnsayo" value="'+esc(c.horaEnsayo)+'"></td>' +
+      '<td><input type="text" data-f="a1" value="'+esc(c.a1)+'"></td><td><input type="text" data-f="a2" value="'+esc(c.a2)+'"></td><td><input type="text" data-f="a3" value="'+esc(c.a3)+'"></td>' +
+      '<td><input type="text" data-f="m1kN" value="'+esc(c.m1kN)+'"></td><td><input type="text" data-f="m2kN" value="'+esc(c.m2kN)+'"></td><td><input type="text" data-f="m3kN" value="'+esc(c.m3kN)+'"></td>' +
+      '<td><input type="text" data-f="m1kg" value="'+esc(c.m1kg)+'"></td><td><input type="text" data-f="m2kg" value="'+esc(c.m2kg)+'"></td><td><input type="text" data-f="m3kg" value="'+esc(c.m3kg)+'"></td>' +
+      '<td><input type="text" data-f="tipoRoturaM1" value="'+esc(c.tipoRoturaM1)+'"></td><td><input type="text" data-f="tipoRoturaM2" value="'+esc(c.tipoRoturaM2)+'"></td><td><input type="text" data-f="tipoRoturaM3" value="'+esc(c.tipoRoturaM3)+'"></td>' +
+      '<td class="ro-locked">'+(c.m1kgcm2||'-')+'</td><td class="ro-locked">'+(c.m2kgcm2||'-')+'</td><td class="ro-locked">'+(c.m3kgcm2||'-')+'</td>' +
+      '<td class="ro-locked">'+(c.promedio||'-')+'</td><td class="ro-locked">'+(c.coefVar||'-')+'</td><td class="ro-locked">'+(c.desvest||'-')+'</td>' +
+      '<td><input type="text" data-f="comentarios" value="'+esc(c.comentarios)+'" style="width:110px;"></td>' +
+      '<td><button class="btn-icon danger" data-act="del-carga" title="Eliminar">×</button></td>' +
+    '</tr>';
+  }
   function renderRoturasFormato(){
-    var tbody = document.getElementById('ro-formato-tbody');
     var searchTxt = (document.getElementById('ro-formato-search').value||'').trim().toLowerCase();
-    var list = roturaCargas.filter(function(c){
+    var filtro = function(c){
       if(!searchTxt) return true;
       return (c.codigo||'').toLowerCase().indexOf(searchTxt)>-1 || (c.producto||'').toLowerCase().indexOf(searchTxt)>-1;
+    };
+    var cubos = [], probetas = [];
+    roturaCargas.forEach(function(c, i){
+      if(!filtro(c)) return;
+      ((c.tipo||'Probetas')==='Cubos' ? cubos : probetas).push({c:c, i:i});
     });
-    if(!list.length){ tbody.innerHTML = '<tr><td colspan="30" style="color:var(--text-muted);">Sin registros.</td></tr>'; return; }
-    tbody.innerHTML = list.map(function(c){
-      var i = roturaCargas.indexOf(c);
-      return '<tr data-i="'+i+'">' +
-        '<td class="ro-locked mono">'+c.codigo+'</td>' +
-        '<td>'+esc(c.producto)+'</td><td>'+esc(c.proyecto||'-')+'</td><td>'+esc(c.iteracion||'-')+'</td><td>'+esc(c.aCargoDe||'-')+'</td>' +
-        '<td class="ro-locked">'+isoToDMY(c.fechaElaboracion)+'</td><td class="ro-locked">'+c.dia+'</td>' +
-        '<td class="ro-locked">'+isoToDMY(c.fechaEnsayo)+'</td><td class="ro-locked">±'+c.toleranciaHoras+'h</td>' +
-        '<td><input type="checkbox" data-f="correoEnviado" '+(c.correoEnviado?'checked':'')+'></td>' +
-        '<td><input type="time" data-f="horaEnsayo" value="'+esc(c.horaEnsayo)+'"></td>' +
-        '<td><input type="text" data-f="a1" value="'+esc(c.a1)+'"></td><td><input type="text" data-f="a2" value="'+esc(c.a2)+'"></td><td><input type="text" data-f="a3" value="'+esc(c.a3)+'"></td>' +
-        '<td><input type="text" data-f="m1kN" value="'+esc(c.m1kN)+'"></td><td><input type="text" data-f="m2kN" value="'+esc(c.m2kN)+'"></td><td><input type="text" data-f="m3kN" value="'+esc(c.m3kN)+'"></td>' +
-        '<td><input type="text" data-f="m1kg" value="'+esc(c.m1kg)+'"></td><td><input type="text" data-f="m2kg" value="'+esc(c.m2kg)+'"></td><td><input type="text" data-f="m3kg" value="'+esc(c.m3kg)+'"></td>' +
-        '<td><input type="text" data-f="tipoRoturaM1" value="'+esc(c.tipoRoturaM1)+'"></td><td><input type="text" data-f="tipoRoturaM2" value="'+esc(c.tipoRoturaM2)+'"></td><td><input type="text" data-f="tipoRoturaM3" value="'+esc(c.tipoRoturaM3)+'"></td>' +
-        '<td class="ro-locked">'+(c.m1kgcm2||'-')+'</td><td class="ro-locked">'+(c.m2kgcm2||'-')+'</td><td class="ro-locked">'+(c.m3kgcm2||'-')+'</td>' +
-        '<td class="ro-locked">'+(c.promedio||'-')+'</td><td class="ro-locked">'+(c.coefVar||'-')+'</td><td class="ro-locked">'+(c.desvest||'-')+'</td>' +
-        '<td><input type="text" data-f="comentarios" value="'+esc(c.comentarios)+'" style="width:110px;"></td>' +
-        '<td><button class="btn-icon danger" data-act="del-carga" title="Eliminar">×</button></td>' +
-      '</tr>';
-    }).join('');
+    document.getElementById('ro-formato-count-cubos').textContent = cubos.length;
+    document.getElementById('ro-formato-count-probetas').textContent = probetas.length;
+    document.getElementById('ro-formato-tbody-cubos').innerHTML = cubos.length
+      ? cubos.map(function(x){ return filaRoturaHtml(x.c, x.i); }).join('')
+      : '<tr><td colspan="30" style="color:var(--text-muted);">Sin registros de Cubos.</td></tr>';
+    document.getElementById('ro-formato-tbody-probetas').innerHTML = probetas.length
+      ? probetas.map(function(x){ return filaRoturaHtml(x.c, x.i); }).join('')
+      : '<tr><td colspan="30" style="color:var(--text-muted);">Sin registros de Probetas.</td></tr>';
   }
   document.getElementById('ro-formato-search').addEventListener('input', renderRoturasFormato);
-  document.getElementById('ro-formato-tbody').addEventListener('change', function(e){
+  document.getElementById('ro-formato-tipo-tabs').addEventListener('click', function(e){
+    var btn = e.target.closest('.view-toggle-btn');
+    if(!btn) return;
+    document.querySelectorAll('#ro-formato-tipo-tabs .view-toggle-btn').forEach(function(b){ b.classList.toggle('active', b===btn); });
+    document.getElementById('ro-formato-wrap-probetas').style.display = btn.dataset.tipo === 'Probetas' ? 'block' : 'none';
+    document.getElementById('ro-formato-wrap-cubos').style.display = btn.dataset.tipo === 'Cubos' ? 'block' : 'none';
+  });
+  function onFormatoChange(e){
     var tr = e.target.closest('tr');
-    if(!tr) return;
+    if(!tr || tr.dataset.i === undefined) return;
     var i = Number(tr.dataset.i);
     var c = roturaCargas[i];
     var f = e.target.dataset.f;
@@ -2570,8 +2732,8 @@
     saveRoturaCargas();
     renderRoturasFormato();
     updateNavBadges();
-  });
-  document.getElementById('ro-formato-tbody').addEventListener('click', function(e){
+  }
+  function onFormatoClick(e){
     var delBtn = e.target.closest('[data-act="del-carga"]');
     if(!delBtn) return;
     var tr = delBtn.closest('tr');
@@ -2583,6 +2745,10 @@
     saveRoturaCargas();
     renderRoturasFormato();
     toast('Registro eliminado');
+  }
+  ['ro-formato-tbody-cubos','ro-formato-tbody-probetas'].forEach(function(id){
+    document.getElementById(id).addEventListener('change', onFormatoChange);
+    document.getElementById(id).addEventListener('click', onFormatoClick);
   });
   function usaEnRRGenerado(c){
     return rrEstudios.some(function(e){ return e.tipos.some(function(t){ return t.origenDisenoCodigo === c.disenoCodigoDiseno && e.generado; }); });
@@ -2594,7 +2760,11 @@
     roturaCargaModalId = id;
     var c = roturaCargas.filter(function(x){ return x.id === id; })[0];
     if(!c) return;
-    document.getElementById('rotura-carga-title').textContent = 'Registrar la Rotura — ' + c.codigo + ' (' + c.replicaNombre + ', día ' + c.dia + ')';
+    var d = disenos.filter(function(x){ return x.codigo === c.disenoCodigoDiseno; })[0];
+    document.getElementById('rotura-carga-title').textContent = 'Registrar la Rotura';
+    document.getElementById('rotura-carga-recap').innerHTML =
+      '<div class="rc-recap-info"><span class="rc-recap-nombre">'+(d?diseñoTitulo(d):esc(c.producto))+'</span><span class="rc-recap-meta">'+esc(c.replicaNombre)+' · día '+c.dia+'</span></div>' +
+      '<div class="rc-recap-codigo">'+c.codigo+'</div>';
     function especimenBlock(mIdx, label){
       var areaKey = 'a'+mIdx, kNKey = 'm'+mIdx+'kN', kgKey = 'm'+mIdx+'kg', tipoKey = 'tipoRoturaM'+mIdx, evidKey = 'evid'+mIdx;
       return '<div class="m-especimen-block">' +
@@ -2606,7 +2776,7 @@
           '<div class="field-mini"><label>Tipo de rotura</label><select id="mc-'+tipoKey+'">' +
             ['','Tipo 1','Tipo 2','Tipo 3','Tipo 4','Tipo 5','Tipo 6'].map(function(t){ return '<option'+(c[tipoKey]===t?' selected':'')+'>'+t+'</option>'; }).join('') +
           '</select></div>' +
-          '<div class="field-mini"><label>Evidencia <span style="font-weight:400;color:var(--text-muted);">(.)</span></label><div class="evidencia-drop" id="mc-drop-'+mIdx+'" data-evid-key="'+(c[evidKey]||'')+'">'+(c[evidKey]?'Cargando…':'Subir foto')+'<input type="file" accept="image/*" id="mc-file-'+mIdx+'" style="display:none;"></div></div>' +
+          '<div class="field-mini"><label>Evidencia <span style="font-weight:400;color:var(--text-muted);">(se guarda en el navegador)</span></label><div class="evidencia-drop" id="mc-drop-'+mIdx+'" data-evid-key="'+(c[evidKey]||'')+'">'+(c[evidKey]?'Cargando…':'Subir foto')+'<input type="file" accept="image/*" id="mc-file-'+mIdx+'" style="display:none;"></div></div>' +
         '</div>' +
       '</div>';
     }
@@ -2614,6 +2784,11 @@
       '<button type="button" class="btn-add ghost" id="mc-toggle-guia" style="margin-bottom:12px;">Ver guía de tipos de fractura (1–6)</button>' +
       '<div id="mc-guia-imagen" style="display:none;margin-bottom:16px;text-align:center;">' +
         '<img src="data:image/jpeg;base64,'+TIPO_ROTURA_IMG+'" alt="Guía de tipos de fractura NTP 339.034" style="max-width:420px;width:100%;border:1px solid var(--line);border-radius:6px;">' +
+      '</div>' +
+      '<div class="mc-unidad-toggle">' +
+        '<span class="mc-unidad-label">Unidad de carga a registrar:</span>' +
+        '<label class="pp-check-inline"><input type="radio" name="mc-unidad" value="kg" checked> KG</label>' +
+        '<label class="pp-check-inline"><input type="radio" name="mc-unidad" value="kn"> KN</label>' +
       '</div>' +
       '<div class="form-row"><div class="field-mini" style="flex:1;"><label>Hora de Ensayo</label><input type="time" id="mc-horaEnsayo" value="'+esc(c.horaEnsayo)+'"></div></div>' +
       especimenBlock(1,'M1') + especimenBlock(2,'M2') + especimenBlock(3,'M3') +
@@ -2624,6 +2799,35 @@
       img.style.display = showing ? 'none' : 'block';
       this.textContent = showing ? 'Ver guía de tipos de fractura (1–6)' : 'Ocultar guía de tipos de fractura';
     });
+
+    /* Unidad KN/KG: al elegir una, se bloquea la otra y se convierte en automático (1 kN = 101.9716 kgf) */
+    var KGF_POR_KN = 101.9716;
+    function aplicarUnidadBloqueo(unidad){
+      [1,2,3].forEach(function(mIdx){
+        var kgEl = document.getElementById('mc-m'+mIdx+'kg');
+        var knEl = document.getElementById('mc-m'+mIdx+'kN');
+        kgEl.disabled = (unidad === 'kn');
+        knEl.disabled = (unidad === 'kg');
+      });
+    }
+    [1,2,3].forEach(function(mIdx){
+      var kgEl = document.getElementById('mc-m'+mIdx+'kg');
+      var knEl = document.getElementById('mc-m'+mIdx+'kN');
+      kgEl.addEventListener('input', function(){
+        if(kgEl.disabled) return;
+        var v = Number(kgEl.value);
+        knEl.value = v ? (v/KGF_POR_KN).toFixed(2) : '';
+      });
+      knEl.addEventListener('input', function(){
+        if(knEl.disabled) return;
+        var v = Number(knEl.value);
+        kgEl.value = v ? (v*KGF_POR_KN).toFixed(2) : '';
+      });
+    });
+    document.querySelectorAll('input[name="mc-unidad"]').forEach(function(radio){
+      radio.addEventListener('change', function(){ aplicarUnidadBloqueo(this.value); });
+    });
+    aplicarUnidadBloqueo('kg');
 
     [1,2,3].forEach(function(mIdx){
       var dropEl = document.getElementById('mc-drop-'+mIdx);
@@ -2697,6 +2901,11 @@
   });
   document.addEventListener('click', function(e){
     if(!e.target.closest('#bell-dropdown') && !e.target.closest('#nav-bell-btn')) document.getElementById('bell-dropdown').classList.remove('show');
+  });
+  document.getElementById('bell-footer').addEventListener('click', function(){
+    document.getElementById('bell-dropdown').classList.remove('show');
+    showPanel('roturas');
+    showRoturasSub('pendientes');
   });
 
   /* ---- Vista de diseño: modal + impresión + Excel ---- */
@@ -2851,6 +3060,7 @@
     var existing = d.resultados && d.resultados.replicas || [];
     var nombre = diseñoTitulo(d);
     document.getElementById('results-modal-title').textContent = nombre;
+    document.getElementById('results-modal-sub').textContent = d.codigo + (d.proyectoId ? (' · '+proyectoNombre(d.proyectoId)) : '');
     var body = '<div class="results-design-recap">'+mezclaTableHtml(d)+'</div><div class="results-section-label">2. Ensayos</div>';
     for(var r=0;r<numReplicas;r++){
       var data = existing[r] || emptyReplicaExtras();
@@ -3064,6 +3274,7 @@
 
   function closeAllMenus(){
     document.querySelectorAll('.more-menu.show').forEach(function(m){ m.classList.remove('show'); });
+    document.querySelectorAll('.menu-open-card').forEach(function(el){ el.classList.remove('menu-open-card'); });
   }
   document.addEventListener('click', function(e){
     if(!e.target.closest('.more-wrap')) closeAllMenus();
@@ -3094,12 +3305,10 @@
   function duplicateDesignToForm(d){
     showPanel('disenos');
     showSubTab('calcular');
+    document.getElementById('pp-tipo-espec').value = d.tipoRotura || 'Probetas';
     fillProyectoCatalogoSelect(document.getElementById('pp-proyecto'), d.proyectoId || '');
-    var partes = partesDeIteracion(d.iteracionId);
-    fillMesSelect(document.getElementById('pp-mes'), partes.mes);
-    fillNumeralSelect(document.getElementById('pp-numeral'), partes.numeral);
-    document.getElementById('pp-usar-numeral').checked = partes.tieneNumeral;
-    document.getElementById('pp-numeral').disabled = !partes.tieneNumeral;
+    registrarIteracion(proyectoNombre(d.proyectoId), d.iteracionId);
+    fillPpIteracionSelect(proyectoNombre(d.proyectoId), d.iteracionId);
     document.getElementById('dis-planta').value = d.planta || '';
     syncLaboratorio();
     if(d.uso) document.getElementById('dis-uso').value = d.uso;
@@ -3171,8 +3380,12 @@
     } else if(act === 'more'){
       var menu = btn.parentElement.querySelector('.more-menu');
       var isOpen = menu.classList.contains('show');
+      var card = btn.closest('.design-card, .design-row, .ih-card');
       closeAllMenus();
-      if(!isOpen) menu.classList.add('show');
+      if(!isOpen){
+        menu.classList.add('show');
+        if(card) card.classList.add('menu-open-card');
+      }
     } else if(act === 'copy'){
       closeAllMenus();
       copyDiseno(disenos[i]);
@@ -3356,7 +3569,7 @@
     updateStats();
     updateNavBadges();
   }
-  function nextCodigoDiseno(){ return 'DID-' + String(disenos.length + 1).padStart(4,'0'); }
+  function nextCodigoDiseno(tipoEspec){ var pre = tipoEspec === 'Cubos' ? 'C' : 'P'; return pre + '-' + String(disenos.length + 1).padStart(4,'0'); }
 
   var editIterIdx = null;
   function abrirEditIteracionModal(i){
@@ -3698,12 +3911,9 @@
     var fc = document.getElementById('dis-fc').value.trim();
     if(!tipoDef || !fc){ toast('Completá al menos Tipo de concreto y f\'c'); return; }
     var proyectoId = document.getElementById('pp-proyecto').value;
-    var mesSel = document.getElementById('pp-mes').value;
-    var usarNumeral = document.getElementById('pp-usar-numeral').checked;
-    var numeralSel = document.getElementById('pp-numeral').value;
-    var iteracionId = mesSel ? construirIteracion(mesSel, usarNumeral, numeralSel) : '';
-    if(!proyectoId || !iteracionId){ toast('Elegí el Proyecto y el Mes de la Iteración antes de registrar el diseño'); return; }
-    registrarIteracion(proyectoNombre(proyectoId), iteracionId);
+    var iteracionId = document.getElementById('pp-iteracion-select').value;
+    if(iteracionId === '__nueva__') iteracionId = '';
+    if(!proyectoId || !iteracionId){ toast('Elegí el Proyecto y la Iteración antes de registrar el diseño'); return; }
     var nombreCandidato = refreshNombrePreview();
     if(!nombreCandidato){ toast('Completá los campos necesarios para armar el nombre del diseño'); return; }
     var yaExiste = disenos.some(function(existing){ return (existing.nombreTecnico||'').trim().toLowerCase() === nombreCandidato.trim().toLowerCase(); });
@@ -3716,8 +3926,9 @@
       var r = rowCompute(item.compIndex, item.pesoSeco);
       return {nombre: comp?comp.nombre:'-', dosis: comp?comp.dosis:'', pesoSeco:item.pesoSeco, volAbs:r.volAbs, pesoSSS:r.pesoSSS, pesoHumedo:r.pesoHumedo, batch:r.batch, cvd:r.cvd};
     });
+    var tipoEspec = document.getElementById('pp-tipo-espec').value;
     var d = {
-      codigo: nextCodigoDiseno(),
+      codigo: nextCodigoDiseno(tipoEspec),
       proyectoId: proyectoId, iteracionId: iteracionId,
       nombreTecnico: nombreCandidato,
       planta: document.getElementById('dis-planta').value,
@@ -3757,7 +3968,7 @@
       estado: document.getElementById('dis-estado').value,
       replicas: Number(document.getElementById('dis-replicas').value) || 2,
       diasRotura: getDiasSeleccionados('dis'),
-      tipoRotura: 'Probetas',
+      tipoRotura: tipoEspec,
       fechaElaboracionISO: fechaISO,
       horaElaboracion: '10:00',
       fecha: fecha, ts: new Date(fechaISO).getTime() || Date.now(), favorito:false
@@ -3769,22 +3980,43 @@
     askReplicasThenPrint(d);
   });
 
-  /* ---- Flujo post-registro: réplicas → Roturas automático (con confirmación+redirect) → ¿imprimir? ---- */
+  /* ---- Flujo post-registro: réplicas → días de rotura → Roturas automático (con confirmación+redirect) → ¿imprimir? ---- */
+  var DIAS_COMUNES = [1,3,4,7,28,90];
   function askReplicasThenPrint(d){
     document.getElementById('replicas-modal-name').textContent = diseñoTitulo(d);
     document.getElementById('replicas-modal-input').value = d.replicas || 2;
+    document.getElementById('replicas-modal-step1').style.display = 'block';
+    document.getElementById('replicas-modal-step2').style.display = 'none';
     document.getElementById('replicas-modal').classList.add('show');
-    function finishReplicas(count){
-      d.replicas = count;
+    var cantidadElegida = d.replicas || 2;
+
+    function irAPasoDias(count){
+      cantidadElegida = count;
+      var yaElegidos = d.diasRotura || [1,3,7,28];
+      var todos = DIAS_COMUNES.slice();
+      yaElegidos.forEach(function(dia){ if(todos.indexOf(dia)===-1) todos.push(dia); });
+      todos.sort(function(a,b){ return a-b; });
+      document.getElementById('replicas-dias-checks').innerHTML = todos.map(function(dia){
+        var checked = yaElegidos.indexOf(dia) > -1;
+        return '<label class="pp-check-inline" style="border:1.5px solid var(--line);border-radius:6px;padding:8px 12px;">' +
+          '<input type="checkbox" class="dias-check" value="'+dia+'" '+(checked?'checked':'')+'> Día '+dia+
+        '</label>';
+      }).join('');
+      document.getElementById('replicas-modal-step1').style.display = 'none';
+      document.getElementById('replicas-modal-step2').style.display = 'block';
+    }
+    function finishReplicas(diasElegidos){
+      d.diasRotura = diasElegidos;
+      d.replicas = cantidadElegida;
       d.replicaObjs = [];
-      for(var i=1;i<=count;i++){ d.replicaObjs.push({n:i, nombre:diseñoTitulo(d)+'-R'+i, codigo:''}); }
+      for(var i=1;i<=cantidadElegida;i++){ d.replicaObjs.push({n:i, nombre:diseñoTitulo(d)+'-R'+i, codigo:''}); }
       var creados = crearCargasParaDiseno(d, 'automatico'); // ya deja el código correcto (uno por réplica) en cada rep.codigo
       save('sid10_disenos', disenos);
       document.getElementById('replicas-modal').classList.remove('show');
       renderAllDesignViews();
       renderRoturasAll();
       document.getElementById('roturas-auto-modal-text').innerHTML =
-        '<div class="rac-summary">'+creados.length+' registros creados en Roturas — '+d.diasRotura.length+' día(s) × '+count+' réplica(s), un código por réplica</div>' +
+        '<div class="rac-summary">'+creados.length+' registros creados en Roturas — '+d.diasRotura.length+' día(s) × '+cantidadElegida+' réplica(s), un código por réplica</div>' +
         d.replicaObjs.map(function(rep){
           var suyos = creados.filter(function(c){ return c.replicaNombre === rep.nombre; }).sort(function(a,b){ return a.dia-b.dia; });
           return '<div class="rac-replica-block"><b>'+esc(rep.nombre)+' <span class="rac-code">'+rep.codigo+'</span></b>' +
@@ -3793,10 +4025,19 @@
         }).join('');
       document.getElementById('roturas-auto-modal').classList.add('show');
     }
-    document.getElementById('replicas-modal-default').onclick = function(){ finishReplicas(2); };
+    document.getElementById('replicas-modal-default').onclick = function(){ irAPasoDias(2); };
     document.getElementById('replicas-modal-confirm').onclick = function(){
       var v = Number(document.getElementById('replicas-modal-input').value) || 2;
-      finishReplicas(Math.min(6, Math.max(1, v)));
+      irAPasoDias(Math.min(6, Math.max(1, v)));
+    };
+    document.getElementById('replicas-dias-atras').onclick = function(){
+      document.getElementById('replicas-modal-step1').style.display = 'block';
+      document.getElementById('replicas-modal-step2').style.display = 'none';
+    };
+    document.getElementById('replicas-dias-confirm').onclick = function(){
+      var elegidos = Array.prototype.slice.call(document.querySelectorAll('.dias-check:checked')).map(function(chk){ return Number(chk.value); }).sort(function(a,b){return a-b;});
+      if(!elegidos.length){ toast('Elegí al menos un día de rotura'); return; }
+      finishReplicas(elegidos);
     };
     document.getElementById('roturas-auto-modal-close').onclick = function(){
       document.getElementById('roturas-auto-modal').classList.remove('show');
@@ -4291,8 +4532,9 @@
       var estado = k===0 ? 'Iniciado' : estadoPool[k % estadoPool.length];
       var pid = proyectoId(proyNombre);
       var mesNombre = MES_NOMBRES[new Date(fechaISO+'T00:00:00').getMonth()];
+      var tipoEspecSeed = (k % 3 === 0) ? 'Cubos' : 'Probetas';
       var d = {
-        codigo: nextCodigoDiseno(),
+        codigo: nextCodigoDiseno(tipoEspecSeed),
         proyectoId: pid, iteracionId: mesNombre + ' ' + numeralPool[k % numeralPool.length],
         nombreTecnico: nombreTecnico,
         planta: planta.nombre, laboratorio: planta.lab,
@@ -4303,7 +4545,7 @@
         estado: estado,
         replicas: 2 + (k%2),
         diasRotura: [1,3,7,28],
-        tipoRotura: 'Probetas',
+        tipoRotura: tipoEspecSeed,
         fechaElaboracionISO: fechaISO, horaElaboracion:'10:00',
         fecha: isoToDMY(fechaISO), ts: new Date(fechaISO+'T00:00:00').getTime(), favorito: (k % 5 === 0)
       };
