@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Sistema I+D · Laboratorio de Aplicaciones</title>
+<title>Sistema I+D · Laboratorio I+D</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Oswald:wght@500;600;700&family=Inter:wght@400;500;600;700&family=Roboto+Mono:wght@400;500&display=swap" rel="stylesheet">
@@ -67,7 +67,42 @@
   @media (prefers-reduced-motion:reduce){*{animation-duration:.01ms !important;animation-iteration-count:1 !important;transition-duration:.01ms !important;}}
 
   /* ================= LOADING ================= */
+  #loading-view.not-started{opacity:0;visibility:hidden;}
   #loading-view{position:fixed;inset:0;z-index:100;display:flex;background:linear-gradient(135deg,#0099cc 0%,#0a3d4d 45%,#1a5c33 75%,#4caf3e 100%);opacity:1;visibility:visible;transition:opacity .6s var(--ease);overflow:hidden;}
+
+  /* ================= LOGIN ================= */
+  #login-view{position:fixed;inset:0;z-index:300;display:flex;align-items:center;justify-content:center;overflow:hidden;
+    background:linear-gradient(125deg,#0a3d4d 0%,#0f2b35 40%,#12181a 75%,#0a2a1e 100%);
+    transition:opacity .5s var(--ease), visibility .5s;}
+  #login-view.leaving{opacity:0;pointer-events:none;}
+  #login-view.hidden{visibility:hidden;}
+  .login-bg-shapes{position:absolute;inset:0;overflow:hidden;}
+  .lbs{position:absolute;border-radius:50%;filter:blur(2px);opacity:.16;}
+  .lbs.s1{width:420px;height:420px;background:#0099cc;top:-140px;left:-120px;animation:lbsFloat1 16s ease-in-out infinite;}
+  .lbs.s2{width:320px;height:320px;background:#4caf3e;bottom:-100px;right:-80px;animation:lbsFloat2 20s ease-in-out infinite;}
+  .lbs.s3{width:220px;height:220px;background:#fff;top:20%;right:8%;animation:lbsFloat3 13s ease-in-out infinite;opacity:.06;}
+  .lbs.s4{width:160px;height:160px;background:#0099cc;bottom:15%;left:6%;animation:lbsFloat1 18s ease-in-out infinite reverse;opacity:.1;}
+  @keyframes lbsFloat1{0%,100%{transform:translate(0,0) scale(1);}50%{transform:translate(40px,30px) scale(1.08);}}
+  @keyframes lbsFloat2{0%,100%{transform:translate(0,0) scale(1);}50%{transform:translate(-35px,-25px) scale(1.1);}}
+  @keyframes lbsFloat3{0%,100%{transform:translate(0,0);}50%{transform:translate(-20px,25px);}}
+  .login-card{position:relative;z-index:1;width:380px;max-width:88vw;background:rgba(255,255,255,.98);border-radius:16px;padding:38px 34px 32px;box-shadow:0 30px 70px -20px rgba(0,0,0,.6);text-align:center;animation:loginCardIn .6s var(--ease) both;}
+  @keyframes loginCardIn{from{opacity:0;transform:translateY(24px) scale(.97);}to{opacity:1;transform:translateY(0) scale(1);}}
+  .login-icon{width:76px;height:76px;border-radius:50%;background:var(--surface-2);display:flex;align-items:center;justify-content:center;margin:0 auto 14px;animation:loginIconPulse 2.6s ease-in-out infinite;}
+  @keyframes loginIconPulse{0%,100%{box-shadow:0 0 0 0 rgba(0,153,204,.25);}50%{box-shadow:0 0 0 12px rgba(0,153,204,0);}}
+  .login-title{font-family:var(--font-display);font-weight:700;font-size:1.3rem;color:var(--text);margin-bottom:4px;}
+  .login-sub{font-size:.76rem;color:var(--text-muted);margin-bottom:26px;}
+  .login-field{display:flex;align-items:center;gap:10px;border:1.5px solid var(--line);border-radius:8px;padding:11px 14px;margin-bottom:14px;transition:border-color .15s;background:var(--surface);}
+  .login-field:focus-within{border-color:var(--naranja-600);box-shadow:0 0 0 3px rgba(0,153,204,.12);}
+  .login-field svg{color:var(--text-muted);flex-shrink:0;}
+  .login-field input{flex:1;border:none;background:transparent;font-size:.88rem;color:var(--text);min-width:0;}
+  .login-field input:focus{outline:none;}
+  .login-eye{color:var(--text-muted);flex-shrink:0;}
+  .login-error{min-height:18px;font-size:.76rem;color:#dc2626;margin-bottom:6px;text-align:left;}
+  .login-btn{width:100%;background:linear-gradient(120deg,var(--naranja-600),var(--verde-600));color:#fff;padding:13px;border-radius:8px;font-weight:700;font-size:.9rem;display:flex;align-items:center;justify-content:center;gap:8px;margin-top:8px;transition:transform .15s var(--ease), box-shadow .15s var(--ease);box-shadow:0 10px 24px -10px rgba(0,153,204,.5);}
+  .login-btn:hover{transform:translateY(-2px);box-shadow:0 14px 30px -10px rgba(0,153,204,.6);}
+  .login-btn:active{transform:translateY(0);}
+  .login-card.shake{animation:loginShake .4s;}
+  @keyframes loginShake{0%,100%{transform:translateX(0);}20%{transform:translateX(-10px);}40%{transform:translateX(9px);}60%{transform:translateX(-6px);}80%{transform:translateX(4px);}}
   #loading-view::before{content:"";position:absolute;inset:0;background:radial-gradient(circle at 50% 45%, rgba(255,255,255,.22) 0%, transparent 60%);pointer-events:none;}
   #loading-view.leaving{opacity:0;pointer-events:none;}
   #loading-view.hidden{visibility:hidden;}
@@ -617,7 +652,7 @@
 
   #informe-modal{position:fixed;inset:0;background:rgba(10,10,10,.7);z-index:206;display:none;align-items:flex-start;justify-content:flex-start;padding:12px;overflow-y:auto;}
   #informe-modal.show{display:flex;}
-  .informe-card{background:var(--surface);border-radius:12px;max-width:96vw;width:100%;box-shadow:0 30px 70px -20px rgba(0,0,0,.5);}
+  .informe-card{background:var(--surface);border-radius:12px;max-width:1300px;width:96vw;box-shadow:0 30px 70px -20px rgba(0,0,0,.5);}
   .informe-head{position:relative;text-align:center;padding:20px 50px;background:linear-gradient(160deg,#0d1113,#22282b 65%,#0099cc);border-radius:12px 12px 0 0;}
   .informe-head h2{font-family:var(--font-display);font-size:1.2rem;font-weight:700;letter-spacing:.03em;color:#fff;text-transform:uppercase;}
   .informe-head .modal-close{position:absolute;right:16px;top:16px;color:#fff;}
@@ -629,7 +664,8 @@
   .informe-zoom-viewport{flex:1;overflow:auto;padding:8px;background:#f4f4f4;}
   .informe-zoom-content{transform-origin:top left;transition:transform .12s var(--ease);background:var(--surface);padding:14px;border-radius:6px;box-shadow:0 2px 8px rgba(0,0,0,.08);}
   .informe-right{padding:20px;display:grid;grid-template-columns:repeat(2,1fr);gap:20px;align-content:start;overflow-y:auto;max-height:88vh;}
-  .informe-chart-card{border:1px solid var(--line);border-radius:8px;padding:14px;}
+  .informe-chart-card{border:1px solid var(--line);border-radius:8px;padding:14px;display:flex;flex-direction:column;}
+  .informe-chart-card .chart-canvas-wrap{position:relative;height:280px;}
   @media(max-width:1100px){.informe-right{grid-template-columns:1fr;}}
   .informe-chart-card h4{font-family:var(--font-display);font-size:.85rem;font-weight:700;margin-bottom:10px;}
   .informe-chart-card canvas{max-width:100%;}
@@ -714,9 +750,12 @@
   .rr-print-head .rrp-grid .rrp-field{display:flex;gap:6px;}
   .rr-print-head .rrp-field b{color:var(--text-muted);font-weight:600;min-width:80px;}
   .rr-print-head .rrp-field input{flex:1;border:none;background:transparent;font-family:inherit;font-size:.8rem;color:var(--text);border-bottom:1px dotted var(--line);}
+  .rr-print-head .rrp-field span{flex:1;font-size:.8rem;color:var(--text);font-weight:600;}
   .rr-charts-grid{display:grid;grid-template-columns:repeat(2,1fr);gap:18px;}
   @media(max-width:1000px){.rr-charts-grid{grid-template-columns:1fr;}}
   .rr-chart-card{background:var(--surface);border:1px solid var(--line);border-radius:8px;padding:14px;}
+  .rr-chart-card{position:relative;height:320px;display:flex;flex-direction:column;}
+  .rr-chart-card canvas{flex:1;min-height:0;}
   .rr-chart-card h5{font-family:var(--font-display);font-size:.8rem;text-align:center;margin-bottom:10px;color:var(--naranja-700);text-transform:uppercase;}
   .rr-layout{display:grid;grid-template-columns:240px 1fr;gap:18px;align-items:start;}
   @media(max-width:1000px){.rr-layout{grid-template-columns:1fr;}}
@@ -805,8 +844,44 @@
 </head>
 <body>
 
+<!-- ============ LOGIN ============ -->
+<div id="login-view">
+  <div class="login-bg-shapes">
+    <span class="lbs s1"></span><span class="lbs s2"></span><span class="lbs s3"></span><span class="lbs s4"></span>
+  </div>
+  <div class="login-card">
+    <div class="login-icon">
+      <svg viewBox="0 0 100 100" width="56" height="56">
+        <path d="M40 10 H60" stroke="#0f2b35" stroke-width="5" stroke-linecap="round" fill="none"/>
+        <path d="M42 12 V38 L18 78 A6 6 0 0 0 23.2 87 H76.8 A6 6 0 0 0 82 78 L58 38 V12" stroke="#0f2b35" stroke-width="5" stroke-linejoin="round" stroke-linecap="round" fill="none"/>
+        <path d="M26 62 H74 L82 76 A6 6 0 0 1 76.8 85 H23.2 A6 6 0 0 1 18 76 Z" fill="#0099cc"/>
+      </svg>
+    </div>
+    <h1 class="login-title">Sistema I+D</h1>
+    <p class="login-sub">Laboratorio I+D · Gestión de Calidad</p>
+    <form id="login-form" autocomplete="off">
+      <div class="login-field">
+        <svg viewBox="0 0 24 24" width="17" height="17" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>
+        <input type="text" id="login-user" placeholder="Usuario" autocomplete="username">
+      </div>
+      <div class="login-field">
+        <svg viewBox="0 0 24 24" width="17" height="17" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="11" width="18" height="11" rx="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/></svg>
+        <input type="password" id="login-pass" placeholder="Contraseña" autocomplete="current-password">
+        <button type="button" id="login-eye" class="login-eye" tabindex="-1">
+          <svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/></svg>
+        </button>
+      </div>
+      <div class="login-error" id="login-error"></div>
+      <button type="submit" class="login-btn" id="login-btn">
+        <span>Ingresar</span>
+        <svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h14"/><path d="M13 6l6 6-6 6"/></svg>
+      </button>
+    </form>
+  </div>
+</div>
+
 <!-- ============ LOADING ============ -->
-<div id="loading-view">
+<div id="loading-view" class="not-started">
   <div class="loader-stage">
     <div class="loader-core">
       <div class="gauge">
@@ -1752,6 +1827,15 @@
 (function(){
   "use strict";
 
+  // Config global de Chart.js: texto SIEMPRE negro/legible, sin importar tema — pedido explícito.
+  if(typeof Chart !== 'undefined'){
+    Chart.defaults.color = '#14181a';
+    Chart.defaults.font.family = "'Inter', sans-serif";
+    Chart.defaults.font.size = 12;
+    Chart.defaults.plugins.legend.labels.color = '#14181a';
+    Chart.defaults.scale.grid.color = 'rgba(0,0,0,.08)';
+  }
+
   function load(key, fallback){ try{ var raw = localStorage.getItem(key); return raw ? JSON.parse(raw) : fallback; }catch(e){ return fallback; } }
   function save(key, value){ try{ localStorage.setItem(key, JSON.stringify(value)); }catch(e){} }
   function esc(s){ return (s===undefined||s===null) ? '' : String(s).replace(/"/g,'&quot;'); }
@@ -1803,7 +1887,7 @@
       setTimeout(function(){ loadingView.classList.add('hidden'); }, 520);
     }, 220);
   }
-  runLoader();
+  // runLoader() se dispara desde el login (más abajo), no automáticamente al cargar la página.
 
   /* ================= NAV ================= */
   var navItems = document.querySelectorAll('.topbar-nav .nav-item[data-panel]');
@@ -2877,7 +2961,7 @@
       return '<div class="m-especimen-block">' +
         '<h5>'+label+'</h5>' +
         '<div class="m-especimen-grid">' +
-          '<div class="field-mini"><label>Área</label><input type="text" id="mc-'+areaKey+'" value="'+esc(c[areaKey])+'"></div>' +
+          '<div class="field-mini"><label>Área (cm²)</label><input type="text" id="mc-'+areaKey+'" value="'+esc(c[areaKey]||'83')+'"></div>' +
           '<div class="field-mini"><label>Carga (kN)</label><input type="text" id="mc-'+kNKey+'" value="'+esc(c[kNKey])+'"></div>' +
           '<div class="field-mini"><label>Carga (kg)</label><input type="text" id="mc-'+kgKey+'" value="'+esc(c[kgKey])+'"></div>' +
           '<div class="field-mini"><label>Tipo de rotura</label><select id="mc-'+tipoKey+'">' +
@@ -3273,16 +3357,84 @@
   var REPLICA_COLORS = ['#c81e1e','#ea580c','#0d9488','#7c3aed'];
 
   function informeRecapHtml(d){
-    var html = mezclaTableHtml(d);
     var reps = d.replicaObjs || [];
-    reps.forEach(function(rep){
-      html += '<div class="results-section-label" style="margin-top:18px;">'+esc(rep.nombre)+' ('+esc(rep.codigo||'')+')</div>' + resistTableHtmlFromRoturas(rep.nombre);
-    });
-    var tablaReplicas = tablaPorReplicaHtml(d);
-    if(tablaReplicas){
-      html += '<div class="results-section-label" style="margin-top:18px;">Resistencia por réplica y promedio combinado</div>' + tablaReplicas;
+    var existingReplicasData = (d.resultados && d.resultados.replicas) || [];
+    var materialRows = (d.mix||[]);
+    var nCols = reps.length;
+
+    var head = '<div class="rr-print-head">' +
+      '<div class="rrp-logo"><img src="data:image/png;base64,'+DINO_LOGO_IMG+'" alt="DINO"></div>' +
+      '<div class="rrp-body">' +
+      '<div class="rrp-title">Resumen de reporte de resultados de mezclas de prueba</div>' +
+      '<div class="rrp-grid">' +
+        '<div class="rrp-field"><b>Planta</b><span>'+esc(d.planta||'-')+'</span></div>' +
+        '<div class="rrp-field"><b>Fecha</b><span>'+esc(d.fecha||'-')+'</span></div>' +
+        '<div class="rrp-field"><b>Ubicación</b><span>Laboratorio I+D</span></div>' +
+        '<div class="rrp-field"><b>Colaborador</b><span>'+esc(d.colaborador||'-')+'</span></div>' +
+        '<div class="rrp-field"><b>Proyecto</b><span>'+esc(proyectoNombre(d.proyectoId)||'-')+'</span></div>' +
+        '<div class="rrp-field"><b>Responsable</b><span>'+esc(d.responsable||'-')+'</span></div>' +
+      '</div>' +
+      '</div>' +
+    '</div>';
+
+    var theadCols = '<th>Diseño</th>' + reps.map(function(rep){ return '<th>'+esc(rep.nombre)+'</th>'; }).join('') + '<th>Observ.</th>';
+
+    var matRowsHtml = materialRows.length ? materialRows.map(function(item){
+      var esAgua = /agua/i.test(item.nombre);
+      var cells = reps.map(function(){ return '<td>'+n(item.pesoSeco).toFixed(2)+'</td>'; }).join('');
+      return '<tr'+(esAgua?' class="rr-highlight"':'')+'><td class="rr-label">'+esc(item.nombre)+' <span class="unit mono">(kg)</span></td>'+cells+'<td>-</td></tr>';
+    }).join('') : '<tr><td colspan="'+(nCols+2)+'" style="color:var(--text-muted);">Este diseño no tiene materiales de mezcla guardados.</td></tr>';
+
+    var amcRow = '<tr class="rr-highlight"><td class="rr-label">Relación a/mc</td>' + reps.map(function(){ return '<td>'+esc(d.amcEfectiva||'-')+'</td>'; }).join('') + '<td>-</td></tr>';
+    var cvdRow = '<tr><td class="rr-label">CVD <span class="unit mono">(S/.)</span></td>' + reps.map(function(){ return '<td>'+n(d.cvdTotal||0).toFixed(2)+'</td>'; }).join('') + '<td>-</td></tr>';
+
+    function paramRow(label, unit, getter){
+      var cells = reps.map(function(rep, ri){ return '<td>'+esc(getter(existingReplicasData[ri]||{}, ri))+'</td>'; }).join('');
+      return '<tr><td class="rr-label">'+label+(unit?' <span class="unit mono">('+unit+')</span>':'')+'</td>'+cells+'<td>-</td></tr>';
     }
-    return html;
+    var paramsHtml = '<tr class="rr-section"><td colspan="'+(nCols+2)+'">Parámetros de diseño</td></tr>';
+    paramsHtml += '<tr class="rr-subsection"><td colspan="'+(nCols+2)+'">Consistencia (pulg)</td></tr>';
+    SLUMP_ROWS.forEach(function(label, si){
+      paramsHtml += paramRow(label+' pulg', '', function(data){ var row=(data.slump||[])[si]; return row&&row.slump ? row.slump : '-'; });
+    });
+    paramsHtml += '<tr class="rr-subsection"><td colspan="'+(nCols+2)+'">T° Concreto</td></tr>';
+    SLUMP_ROWS.forEach(function(label, si){
+      paramsHtml += paramRow(label+' °C', '', function(data){ var row=(data.slump||[])[si]; return row&&row.tempc ? row.tempc : '-'; });
+    });
+    paramsHtml += '<tr class="rr-subsection"><td colspan="'+(nCols+2)+'">T° Ambiente</td></tr>';
+    SLUMP_ROWS.forEach(function(label, si){
+      paramsHtml += paramRow(label+' °C', '', function(data){ var row=(data.slump||[])[si]; return row&&row.tempa ? row.tempa : '-'; });
+    });
+    paramsHtml += paramRow('Peso Unitario', 'kg/m3', function(data){ return data.pesoUnitario || '-'; });
+    paramsHtml += paramRow('Fragua inicial', 'horas', function(data){ return data.thermoIni || '-'; });
+    paramsHtml += paramRow('Fragua final', 'horas', function(data){ return data.thermoFin || '-'; });
+    paramsHtml += paramRow('Contenido de Aire', '%', function(data){ return data.aire || '-'; });
+    paramsHtml += paramRow('Cohesividad', 'Visual', function(data){ return data.cohesividad || '-'; });
+    paramsHtml += paramRow('Apariencia', 'Visual', function(data){ return data.apariencia || '-'; });
+    paramsHtml += paramRow('Comentarios', '', function(data){ return data.observaciones || '-'; });
+
+    var tabla = '<div class="table-scroll"><table class="rr-table"><thead><tr>'+theadCols+'</tr></thead><tbody>' +
+      matRowsHtml + amcRow + cvdRow + paramsHtml +
+      '</tbody></table></div>';
+
+    var diasSet = {};
+    reps.forEach(function(rep){ cargasDeReplica(rep.nombre).forEach(function(c){ diasSet[c.dia]=true; }); });
+    var diasOrd = Object.keys(diasSet).map(Number).sort(function(a,b){return a-b;});
+    var edadHtml = '';
+    if(diasOrd.length){
+      var edadHead = '<th>Edad</th>' + reps.map(function(rep){ return '<th>'+esc(rep.nombre)+'</th>'; }).join('') + '<th>Requisito/Parámetro</th>';
+      var edadRows = diasOrd.map(function(dia){
+        var cells = reps.map(function(rep){
+          var c = cargasDeReplica(rep.nombre).filter(function(x){ return x.dia===dia; })[0];
+          return '<td>'+(c&&c.promedio?c.promedio:'-')+'</td>';
+        }).join('');
+        return '<tr><td>'+dia+' d</td>'+cells+'<td>-</td></tr>';
+      }).join('');
+      edadHtml = '<div class="section-title-row" style="margin-top:18px;"><h3>Edad / Resistencia</h3></div>' +
+        '<div class="table-scroll"><table class="rr-table"><thead><tr>'+edadHead+'</tr></thead><tbody>'+edadRows+'</tbody></table></div>';
+    }
+
+    return head + tabla + edadHtml;
   }
 
   function buildInformeCharts(d, intento){
@@ -3295,6 +3447,8 @@
       document.getElementById('informe-charts').innerHTML = '<div class="empty-note">No se pudieron cargar los gráficos (sin conexión a la librería). Los datos y tablas de arriba están completos igual.</div>';
       return;
     }
+    Chart.defaults.color = '#14181a';
+    Chart.defaults.plugins.legend.labels.color = '#14181a';
     var reps = d.replicaObjs || [];
     if(!reps.length){
       document.getElementById('informe-charts').innerHTML = '<div class="empty-note">Todavía no hay réplicas para graficar.</div>';
@@ -3305,42 +3459,55 @@
     function addChartCard(id, title){
       var card = document.createElement('div');
       card.className = 'informe-chart-card';
-      card.innerHTML = '<h4>'+title+'</h4><canvas id="'+id+'"></canvas><button class="informe-chart-dl" data-canvas="'+id+'">Descargar PNG</button>';
+      card.innerHTML = '<h4>'+title+'</h4><div class="chart-canvas-wrap"><canvas id="'+id+'"></canvas></div><button class="informe-chart-dl" data-canvas="'+id+'">Descargar PNG</button>';
       document.getElementById('informe-charts').appendChild(card);
     }
+    function hmToMinInforme(s){ if(!s || s.indexOf(':')===-1) return null; var p=s.split(':'); return Number(p[0])*60+Number(p[1]); }
+    function pulgToNumInforme(s){ if(!s || s==='-') return 0; s=String(s); if(s.indexOf(' ')>-1){ var pp=s.split(' '); var fr=pp[1].split('/'); return Number(pp[0])+Number(fr[0])/Number(fr[1]); } if(s.indexOf('/')>-1){ var fr2=s.split('/'); return Number(fr2[0])/Number(fr2[1]); } return Number(s)||0; }
 
-    addChartCard('chart-resistencia', 'Resistencia a la compresión vs Edad');
+    // 1) Tiempo de fragua (barras horizontales) — mismo estilo que RR
+    addChartCard('chart-fragua-inf', 'Tiempo de fragua (hh:mm)');
+    var labelsRep = reps.map(function(rep){ return rep.nombre; });
+    var iniMin = reps.map(function(rep, idx){ return hmToMinInforme((existingReplicasData[idx]||{}).thermoIni) || 0; });
+    var durMin = reps.map(function(rep, idx){ var f = hmToMinInforme((existingReplicasData[idx]||{}).thermoFin); return f!==null ? Math.max(0,f-iniMin[idx]) : 0; });
+    var hayFragua = durMin.some(function(v){ return v>0; });
+    informeCharts.push(new Chart(document.getElementById('chart-fragua-inf'), {
+      type:'bar',
+      data:{labels:labelsRep, datasets:[
+        {label:'Inicio (min)', data:iniMin, backgroundColor:'rgba(0,0,0,0)'},
+        {label:'Fragua inicial → final', data:durMin, backgroundColor:'#0099cc'}
+      ]},
+      options:{indexAxis:'y', responsive:true, maintainAspectRatio:false, scales:{x:{stacked:true, title:{display:true,text:'Minutos desde elaboración'}}, y:{stacked:true}}}
+    }));
+    if(!hayFragua){
+      document.querySelector('#chart-fragua-inf').closest('.informe-chart-card').querySelector('.chart-canvas-wrap').insertAdjacentHTML('beforeend', '<div class="empty-note" style="position:absolute;inset:0;display:flex;align-items:center;justify-content:center;text-align:center;padding:10px;">Todavía no se cargó fragua inicial/final (Cargar Resultados) para este diseño.</div>');
+    }
+
+    // 2) Resistencia vs Tiempo (líneas) — mismo estilo que RR
+    addChartCard('chart-resistencia', 'Resistencia vs Tiempo');
     var datasetsResist = reps.map(function(rep, idx){
       var pts = cargasDeReplica(rep.nombre).filter(function(c){ return c.promedio; }).map(function(c){ return {x:Number(c.dia), y:Number(c.promedio)}; }).sort(function(a,b){ return a.x-b.x; });
-      return {label:rep.nombre, data:pts, borderColor:REPLICA_COLORS[idx%4], backgroundColor:REPLICA_COLORS[idx%4], tension:.25};
+      return {label:rep.nombre, data:pts, borderColor:REPLICA_COLORS[idx%4], backgroundColor:REPLICA_COLORS[idx%4], pointRadius:5, pointHoverRadius:7, borderWidth:2.5, tension:.25};
     });
     informeCharts.push(new Chart(document.getElementById('chart-resistencia'), {
       type:'line', data:{datasets:datasetsResist},
-      options:{responsive:true, scales:{x:{type:'linear', title:{display:true,text:'Edad (días)'}}, y:{title:{display:true,text:'kg/cm²'}}}}
+      options:{responsive:true, maintainAspectRatio:false, scales:{x:{type:'linear', title:{display:true,text:'Días'}}, y:{title:{display:true,text:'Carga (kg)'}}}}
     }));
 
-    addChartCard('chart-slump', 'Pérdida de asentamiento vs tiempo');
-    var minuteLabels = SLUMP_ROWS;
-    var datasetsSlump = reps.map(function(rep, idx){
-      var data = existingReplicasData[idx] || {};
-      var pts = (data.slump||[]).map(function(row){ return n(row.slump); });
-      return {label:rep.nombre, data:pts, borderColor:REPLICA_COLORS[idx%4], backgroundColor:REPLICA_COLORS[idx%4], tension:.25};
+    // 3) Trabajabilidad (barras agrupadas por minuto) — mismo estilo que RR
+    addChartCard('chart-slump', 'Trabajabilidad (pérdida de asentamiento)');
+    var coloresMin = ['#0099cc','#0a3d4d','#4caf3e','#7c3aed','#ea580c'];
+    var datasetsSlump = SLUMP_ROWS.map(function(label, si){
+      return {label:label+"'", data: reps.map(function(rep, idx){ var row=(existingReplicasData[idx]||{}).slump; return row ? pulgToNumInforme(row[si] && row[si].slump) : 0; }), backgroundColor:coloresMin[si%5]};
     });
+    var hayDatosSlump = datasetsSlump.some(function(ds){ return ds.data.some(function(v){ return v>0; }); });
     informeCharts.push(new Chart(document.getElementById('chart-slump'), {
-      type:'line', data:{labels:minuteLabels, datasets:datasetsSlump},
-      options:{responsive:true, scales:{y:{title:{display:true,text:'Slump / Flow'}}}}
+      type:'bar', data:{labels:labelsRep, datasets:datasetsSlump},
+      options:{responsive:true, maintainAspectRatio:false, scales:{y:{title:{display:true,text:'Slump (pulgadas)'}}}}
     }));
-
-    addChartCard('chart-temp', 'Temperatura del concreto vs tiempo');
-    var datasetsTemp = reps.map(function(rep, idx){
-      var data = existingReplicasData[idx] || {};
-      var pts = (data.slump||[]).map(function(row){ return n(row.tempc); });
-      return {label:rep.nombre, data:pts, borderColor:REPLICA_COLORS[idx%4], backgroundColor:REPLICA_COLORS[idx%4], tension:.25};
-    });
-    informeCharts.push(new Chart(document.getElementById('chart-temp'), {
-      type:'line', data:{labels:minuteLabels, datasets:datasetsTemp},
-      options:{responsive:true, scales:{y:{title:{display:true,text:'Temp. Concreto °C'}}}}
-    }));
+    if(!hayDatosSlump){
+      document.querySelector('#chart-slump').closest('.informe-chart-card').querySelector('.chart-canvas-wrap').insertAdjacentHTML('beforeend', '<div class="empty-note" style="position:absolute;inset:0;display:flex;align-items:center;justify-content:center;text-align:center;padding:10px;">Todavía no se cargaron resultados de consistencia (Cargar Resultados) para este diseño.</div>');
+    }
   }
 
   document.getElementById('informe-charts').addEventListener('click', function(e){
@@ -4396,7 +4563,7 @@
 
   var rrEstudios = load('sid10_rr', [{
     id:'e1', nombre:'TIPO I VS HE', fecha:'10/08/2026', proyectoId:'ESTUDIO HE', generado:true,
-    cabecera:{planta:'Trujillo', ubicacion:'Laboratorio de Aplicaciones I+D', colaborador:'JPA/WC', responsable:'KVR', fecha:'2026-08-10'},
+    cabecera:{planta:'Trujillo', ubicacion:'Laboratorio I+D', colaborador:'JPA/WC', responsable:'KVR', fecha:'2026-08-10'},
     tipos:[
       {id:'t1', nombre:'EST HE 0.85 TIPO I', origenDisenoCodigo:'R-23', valores:{ipac:'231',hepac:'-',agua:'194',arena_qsc:'496',arena_lvd:'502',piedra_h67:'971',mrb2025:'3',mrb1201:'2.87',iddnhe:'-',sika:'-',ac:'0.85',cvd:'171.76',d_mrb2025:'1.30%',d_mrb1201:'1.24%',d_iddnhe:'-',d_sika:'-',cons_0:'8 1/2',cons_30:'8',cons_60:'7 1/2',cons_90:'6 1/2',cons_120:'-',tc_0:'25.75',tc_30:'25.7',tc_60:'25.5',tc_90:'25',tc_120:'-',ta_0:'25.85',ta_30:'26.2',ta_60:'26.15',ta_90:'26',ta_120:'-',pu:'2352',fragua_i:'08:29',fragua_f:'10:31',aire:'1.85',cohesividad:'Conforme',apariencia:'Normal',comentarios:'-'}},
       {id:'t2', nombre:'EST HE 0.85 TIPO HE', origenDisenoCodigo:'R-24', valores:{ipac:'-',hepac:'231',agua:'195',arena_qsc:'497',arena_lvd:'502',piedra_h67:'972',mrb2025:'-',mrb1201:'-',iddnhe:'3.79',sika:'0.58',ac:'0.85',cvd:'181.69',d_mrb2025:'-',d_mrb1201:'-',d_iddnhe:'1.64%',d_sika:'0.25%',cons_0:'8 1/2',cons_30:'7 1/2',cons_60:'4 1/4',cons_90:'2 1/4',cons_120:'-',tc_0:'26.25',tc_30:'25.75',tc_60:'25.25',tc_90:'25.25',tc_120:'-',ta_0:'26.25',ta_30:'26.15',ta_60:'26.5',ta_90:'26.7',ta_120:'-',pu:'2354.5',fragua_i:'05:50',fragua_f:'07:38',aire:'1.9',cohesividad:'Conforme',apariencia:'Normal',comentarios:'-'}},
@@ -4412,7 +4579,7 @@
   },
   {
     id:'e2', nombre:'TIPO I VS HE (SIN ADITIVO)', fecha:'15/08/2026', proyectoId:'ESTUDIO HE', generado:true,
-    cabecera:{planta:'Trujillo', ubicacion:'Laboratorio de Aplicaciones I+D', colaborador:'JPA/WC', responsable:'KVR', fecha:'2026-08-15'},
+    cabecera:{planta:'Trujillo', ubicacion:'Laboratorio I+D', colaborador:'JPA/WC', responsable:'KVR', fecha:'2026-08-15'},
     tipos:[
       {id:'t1', nombre:'EST HE 0.70 TIPO I (S/A)', origenDisenoCodigo:'R-27', valores:{ipac:'330',hepac:'-',agua:'220',arena_qsc:'-',arena_lvd:'861',piedra_h67:'986',mrb2025:'-',mrb1201:'-',iddnhe:'-',sika:'-',ac:'0.70',cvd:'0.00',cons_0:'4 3/4',cons_30:'-',cons_60:'-',cons_90:'-',cons_120:'-',tc_0:'25',tc_30:'-',tc_60:'-',tc_90:'-',tc_120:'-',ta_0:'23.4',ta_30:'-',ta_60:'-',ta_90:'-',ta_120:'-',pu:'2348',fragua_i:'04:38',fragua_f:'06:18',aire:'0.9',cohesividad:'Conforme',apariencia:'Normal',comentarios:'-'}},
       {id:'t2', nombre:'EST HE 0.70 TIPO HE (S/A)', origenDisenoCodigo:'R-28', valores:{ipac:'-',hepac:'330',agua:'220',arena_qsc:'-',arena_lvd:'861',piedra_h67:'986',mrb2025:'-',mrb1201:'-',iddnhe:'-',sika:'-',ac:'0.70',cvd:'0.00',cons_0:'4',cons_30:'-',cons_60:'-',cons_90:'-',cons_120:'-',tc_0:'26',tc_30:'-',tc_60:'-',tc_90:'-',tc_120:'-',ta_0:'24.2',ta_30:'-',ta_60:'-',ta_90:'-',ta_120:'-',pu:'2359',fragua_i:'04:24',fragua_f:'06:12',aire:'1.4',cohesividad:'Conforme',apariencia:'Normal',comentarios:'-'}},
@@ -4427,7 +4594,7 @@
   },
   {
     id:'e3', nombre:'TIPO I (TRUJILLO VS MOCHE)', fecha:'14/08/2026', proyectoId:'ESTUDIO HE', generado:true,
-    cabecera:{planta:'Trujillo', ubicacion:'Laboratorio de Aplicaciones I+D', colaborador:'JPA/WC', responsable:'KVR', fecha:'2026-08-14'},
+    cabecera:{planta:'Trujillo', ubicacion:'Laboratorio I+D', colaborador:'JPA/WC', responsable:'KVR', fecha:'2026-08-14'},
     tipos:[
       {id:'t1', nombre:'EST HE 0.70 TIPO I (TRUJILLO)', origenDisenoCodigo:'R-30', valores:{ipac:'281',hepac:'-',agua:'194',arena_qsc:'516',arena_lvd:'501',piedra_h67:'913',mrb2025:'2.81',mrb1201:'2.1',iddnhe:'-',sika:'-',ac:'0.70',cvd:'0.00',d_mrb2025:'1.00%',d_mrb1201:'0.75%',cons_0:'9',cons_30:'8',cons_60:'7 1/4',cons_90:'7',cons_120:'-',tc_0:'26',tc_30:'25',tc_60:'25',tc_90:'24',tc_120:'-',ta_0:'24.4',ta_30:'24.2',ta_60:'23.8',ta_90:'23.8',ta_120:'-',pu:'2345',fragua_i:'10:05',fragua_f:'11:55',aire:'2.1',cohesividad:'Conforme',apariencia:'Normal',comentarios:'-'}},
       {id:'t2', nombre:'EST HE 0.70 TIPO I (MOCHE)', origenDisenoCodigo:'R-31', valores:{ipac:'281',hepac:'-',agua:'194',arena_qsc:'516',arena_lvd:'501',piedra_h67:'913',mrb2025:'2.81',mrb1201:'2.1',iddnhe:'-',sika:'-',ac:'0.70',cvd:'0.00',d_mrb2025:'1.00%',d_mrb1201:'0.75%',cons_0:'8 1/2',cons_30:'7 1/2',cons_60:'4 3/4',cons_90:'4 1/2',cons_120:'-',tc_0:'26',tc_30:'25.5',tc_60:'24.5',tc_90:'24.5',tc_120:'-',ta_0:'24.2',ta_30:'23.8',ta_60:'23.8',ta_90:'23.6',ta_120:'-',pu:'2345',fragua_i:'07:40',fragua_f:'09:34',aire:'2.4',cohesividad:'Conforme',apariencia:'Normal',comentarios:'-'}}
@@ -4441,7 +4608,7 @@
   },
   {
     id:'e4', nombre:'COMPARATIVO HE', fecha:'14/08/2026', proyectoId:'ESTUDIO HE', generado:true,
-    cabecera:{planta:'Trujillo', ubicacion:'Laboratorio de Aplicaciones I+D', colaborador:'WC/JPA', responsable:'KVR', fecha:'2026-08-14'},
+    cabecera:{planta:'Trujillo', ubicacion:'Laboratorio I+D', colaborador:'WC/JPA', responsable:'KVR', fecha:'2026-08-14'},
     tipos:[
       {id:'t1', nombre:'EST HE 0.70 TIPO HE (M3 - M10)', origenDisenoCodigo:'R-33', valores:{ipac:'-',hepac:'281',agua:'194',arena_qsc:'516',arena_lvd:'501',piedra_h67:'913',mrb2025:'-',mrb1201:'-',iddnhe:'3.15',sika:'1.12',ac:'0.70',cvd:'198.70',d_iddnhe:'1.12%',d_sika:'0.40%',cons_0:'8 1/4',cons_30:'4',cons_60:'3',cons_90:'-',cons_120:'-',tc_0:'26',tc_30:'26',tc_60:'25.5',tc_90:'-',tc_120:'-',ta_0:'24.7',ta_30:'25',ta_60:'25',ta_90:'-',ta_120:'-',pu:'2365',fragua_i:'06:14',fragua_f:'08:06',aire:'2.1',cohesividad:'Conforme',apariencia:'Normal',comentarios:'-'}},
       {id:'t2', nombre:'EST HE 0.70 TIPO HE (M1 - M2)', origenDisenoCodigo:'R-34', valores:{ipac:'-',hepac:'281',agua:'194',arena_qsc:'516',arena_lvd:'501',piedra_h67:'913',mrb2025:'-',mrb1201:'-',iddnhe:'3.15',sika:'1.12',ac:'0.70',cvd:'198.70',d_iddnhe:'1.12%',d_sika:'0.40%',cons_0:'6',cons_30:'3 1/4',cons_60:'-',cons_90:'-',cons_120:'-',tc_0:'26.5',tc_30:'25.5',tc_60:'-',tc_90:'-',tc_120:'-',ta_0:'25',ta_30:'25.1',ta_60:'-',ta_90:'-',ta_120:'-',pu:'2350',fragua_i:'05:58',fragua_f:'07:48',aire:'2.5',cohesividad:'Conforme',apariencia:'Normal',comentarios:'-'}}
@@ -4455,7 +4622,7 @@
   },
   {
     id:'e5', nombre:'TIPO HE + FA', fecha:'14/07/2026', proyectoId:'ESTUDIO HE + FLY ASH', generado:true,
-    cabecera:{planta:'Trujillo', ubicacion:'Laboratorio de Aplicaciones I+D', colaborador:'GAL/WC', responsable:'KVR', fecha:'2026-07-14'},
+    cabecera:{planta:'Trujillo', ubicacion:'Laboratorio I+D', colaborador:'GAL/WC', responsable:'KVR', fecha:'2026-07-14'},
     tipos:[
       {id:'t1', nombre:'EST HE 0.40 HEV2.0 PATRON', origenDisenoCodigo:'R-15', valores:{hepac:'490',agua:'194',arena_qsc:'521',arena_lvd:'366',piedra_h67:'864',iddnhe:'2.36',sikaplast740:'1.23',ac:'0.40',cvd:'282.49',cons_0:'8.63',cons_30:'7.63',cons_60:'6.13',cons_90:'5.25',tc_0:'24.5',tc_30:'24.5',tc_60:'24.5',tc_90:'24.5',ta_0:'24.4',ta_30:'24.8',ta_60:'25.45',ta_90:'25.75',pu:'2381',fragua_i:'08:09',fragua_f:'10:09',aire:'1.9',cohesividad:'Conforme',apariencia:'Normal',comentarios:'-'}},
       {id:'t2', nombre:'EST HE 0.40 HEV2.0 + FA', origenDisenoCodigo:'R-16', valores:{hepac:'431',flyash:'59',agua:'194',arena_qsc:'515',arena_lvd:'362',piedra_h67:'854',iddnhe:'2.7',sika:'1.23',ac:'0.40',cvd:'261.49',cons_0:'8.63',cons_30:'7.13',cons_60:'5',cons_90:'2.75',tc_0:'24.5',tc_30:'24.75',tc_60:'24.75',tc_90:'24.75',ta_0:'24.65',ta_30:'25.1',ta_60:'25.4',ta_90:'26.1',pu:'2322',fragua_i:'07:38',fragua_f:'09:42',aire:'3.4',cohesividad:'Conforme',apariencia:'Normal',comentarios:'-'}},
@@ -4525,7 +4692,7 @@
     titleEl.textContent = estudio.nombre;
     addTipoBtn.style.display = 'inline-block';
 
-    if(!estudio.cabecera) estudio.cabecera = {planta:'', ubicacion:'Laboratorio de Aplicaciones I+D', colaborador:'', responsable:'', fecha:todayISO()};
+    if(!estudio.cabecera) estudio.cabecera = {planta:'', ubicacion:'Laboratorio I+D', colaborador:'', responsable:'', fecha:todayISO()};
     var cab = estudio.cabecera;
     document.getElementById('rr-print-head').innerHTML =
       '<div class="rrp-logo"><img src="data:image/png;base64,'+DINO_LOGO_IMG+'" alt="DINO"></div>' +
@@ -4600,6 +4767,8 @@
       wrap.innerHTML = '<div class="empty-note">Completá al menos un tipo con datos para ver los gráficos.</div>';
       return;
     }
+    Chart.defaults.color = '#14181a';
+    Chart.defaults.plugins.legend.labels.color = '#14181a';
     wrap.innerHTML =
       rrChartCanvas('rr-chart-fragua', 'Tiempo de fragua (hh:mm)') +
       rrChartCanvas('rr-chart-resist', 'Resistencia vs Tiempo') +
@@ -4618,17 +4787,17 @@
         {label:'Inicio (min)', data:iniMin, backgroundColor:'rgba(0,0,0,0)'},
         {label:'Fragua inicial → final', data:durMin, backgroundColor:colores[0]}
       ]},
-      options:{indexAxis:'y', responsive:true, scales:{x:{stacked:true, title:{display:true,text:'Minutos desde elaboración'}}, y:{stacked:true}}}
+      options:{indexAxis:'y', responsive:true, maintainAspectRatio:false, scales:{x:{stacked:true, title:{display:true,text:'Minutos desde elaboración'}}, y:{stacked:true}}}
     }));
 
     // Resistencia vs Tiempo (línea) — usa la tabla de Edad
     var datasetsResist = estudio.tipos.map(function(t, ti){
       var pts = estudio.edades.map(function(e){ return {x:Number((e.edad||'0').replace(/[^\d.]/g,'')) || 0, y:Number(e.valores[t.id])||0}; }).sort(function(a,b){return a.x-b.x;});
-      return {label:t.nombre, data:pts, borderColor:colores[ti%5], backgroundColor:colores[ti%5], tension:.3};
+      return {label:t.nombre, data:pts, borderColor:colores[ti%5], backgroundColor:colores[ti%5], pointRadius:5, pointHoverRadius:7, borderWidth:2.5, tension:.3};
     });
     rrCharts.push(new Chart(document.getElementById('rr-chart-resist'), {
       type:'line', data:{datasets:datasetsResist},
-      options:{responsive:true, scales:{x:{type:'linear', title:{display:true,text:'Días'}}, y:{title:{display:true,text:'Carga (kg)'}}}}
+      options:{responsive:true, maintainAspectRatio:false, scales:{x:{type:'linear', title:{display:true,text:'Días'}}, y:{title:{display:true,text:'Carga (kg)'}}}}
     }));
 
     // Trabajabilidad — consistencia a 0/30/60/90 min por tipo
@@ -4640,7 +4809,7 @@
     });
     rrCharts.push(new Chart(document.getElementById('rr-chart-slump'), {
       type:'bar', data:{labels:labelsFragua, datasets:datasetsSlump},
-      options:{responsive:true, scales:{y:{title:{display:true,text:'Slump (pulgadas)'}}}}
+      options:{responsive:true, maintainAspectRatio:false, scales:{y:{title:{display:true,text:'Slump (pulgadas)'}}}}
     }));
   }
 
@@ -4962,6 +5131,8 @@
   }
   function upsertChart(canvasId, type, data, extraOptions){
     if(typeof Chart === 'undefined') return;
+    Chart.defaults.color = '#14181a';
+    Chart.defaults.plugins.legend.labels.color = '#14181a';
     var canvas = document.getElementById(canvasId);
     if(!canvas) return;
     if(dashCharts[canvasId]){
@@ -5110,6 +5281,42 @@
   actualizarRelojInicio();
   applySettingsToUI();
   showSubTab('calcular');
+
+  /* ================= LOGIN ================= */
+  var LOGIN_USER = 'FSANTOS';
+  var LOGIN_PASS = '12345678';
+  var loginView = document.getElementById('login-view');
+  var loadingViewEl = document.getElementById('loading-view');
+  if(sessionStorage.getItem('sid10_logged_in') === '1'){
+    loginView.classList.add('hidden');
+    loadingViewEl.classList.remove('not-started');
+    runLoader();
+  } else {
+    document.getElementById('login-user').focus();
+  }
+  document.getElementById('login-eye').addEventListener('click', function(){
+    var inp = document.getElementById('login-pass');
+    inp.type = inp.type === 'password' ? 'text' : 'password';
+  });
+  document.getElementById('login-form').addEventListener('submit', function(e){
+    e.preventDefault();
+    var user = document.getElementById('login-user').value.trim().toUpperCase();
+    var pass = document.getElementById('login-pass').value.trim();
+    var errEl = document.getElementById('login-error');
+    if(user === LOGIN_USER && pass === LOGIN_PASS){
+      errEl.textContent = '';
+      sessionStorage.setItem('sid10_logged_in', '1');
+      document.getElementById('login-btn').disabled = true;
+      loginView.classList.add('leaving');
+      loadingViewEl.classList.remove('not-started');
+      runLoader();
+      setTimeout(function(){ loginView.classList.add('hidden'); }, 520);
+    } else {
+      errEl.textContent = 'Usuario o contraseña incorrectos.';
+      var card = document.querySelector('.login-card');
+      card.classList.remove('shake'); void card.offsetWidth; card.classList.add('shake');
+    }
+  });
 })();
 </script>
 </body>
