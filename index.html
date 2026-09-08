@@ -3387,8 +3387,10 @@ if(typeof Chart === 'undefined'){
       if(meta1 && meta1.data && ds1){
         meta1.data.forEach(function(bar, idx){
           var dur = ds1.data[idx];
-          if(dur > 0 && Math.abs(bar.x - bar.base) > 34){
-            var text = minToHm(dur);
+          if(dur > 0 && Math.abs(bar.x - bar.base) > 22){
+            var iniVal = (ds0 && ds0.data && !isNaN(ds0.data[idx])) ? ds0.data[idx] : 0;
+            var totalFinal = iniVal + dur;
+            var text = minToHm(totalFinal);
             var centerX = (bar.base + bar.x) / 2;
             ctx.fillText(text, centerX, bar.y);
           }
