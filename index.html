@@ -198,7 +198,7 @@
   #btn-ver-roturas-inicio,#btn-ver-todos-disenos-inicio{display:block;margin:14px auto 0;text-align:center;}
 
   /* ---- Tarjeta única compartida por AMBAS columnas (mismo formato, mismo peso visual) ---- */
-  .ih-card{display:flex;align-items:center;gap:14px;background:var(--surface);border:1px solid var(--line);border-radius:10px;padding:14px 18px;margin-bottom:12px;box-shadow:0 1px 3px rgba(0,0,0,.05);border-left:4px solid var(--line-strong);opacity:0;animation:ihCardIn .45s var(--ease) both;transition:transform .18s var(--ease), box-shadow .18s var(--ease);}
+  .ih-card{display:flex;align-items:center;gap:12px;background:var(--surface);border:1px solid var(--line);border-radius:10px;padding:11px 16px;margin-bottom:8px;box-shadow:0 1px 3px rgba(0,0,0,.05);border-left:4px solid var(--line-strong);opacity:0;animation:ihCardIn .45s var(--ease) both;transition:transform .18s var(--ease), box-shadow .18s var(--ease);}
   .ih-card:hover{transform:translateY(-3px) scale(1.01);box-shadow:0 14px 26px -14px rgba(0,0,0,.18);}
   .ih-card:nth-child(1){animation-delay:.06s;} .ih-card:nth-child(2){animation-delay:.12s;} .ih-card:nth-child(3){animation-delay:.18s;}
   .ih-card:nth-child(4){animation-delay:.24s;} .ih-card:nth-child(5){animation-delay:.3s;} .ih-card:nth-child(6){animation-delay:.36s;}
@@ -396,6 +396,14 @@
 
   .dash-grid{display:grid;grid-template-columns:repeat(2,1fr);gap:16px;}
   @media(max-width:900px){.dash-grid{grid-template-columns:1fr;}}
+  .dash-avance-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(260px,1fr));gap:14px;}
+  .dash-avance-card{background:var(--surface);border:1px solid var(--line);border-radius:8px;padding:14px 16px;}
+  .dash-avance-card .dac-top{display:flex;justify-content:space-between;align-items:baseline;margin-bottom:8px;}
+  .dash-avance-card .dac-nombre{font-family:var(--font-display);font-weight:700;font-size:.84rem;}
+  .dash-avance-card .dac-pct{font-family:var(--font-display);font-weight:700;color:var(--naranja-600);font-size:.9rem;}
+  .dash-avance-card .dac-bar-track{height:8px;background:var(--surface-2);border-radius:999px;overflow:hidden;margin-bottom:8px;}
+  .dash-avance-card .dac-bar-fill{height:100%;background:linear-gradient(90deg,var(--naranja-600),var(--verde-600));border-radius:999px;transition:width .3s var(--ease);}
+  .dash-avance-card .dac-meta{font-size:.7rem;color:var(--text-muted);display:flex;justify-content:space-between;}
   .chart-card{background:var(--surface);border:1px solid var(--line);border-radius:8px;padding:18px 20px;box-shadow:0 1px 3px rgba(0,0,0,.04);}
   .chart-card.span-2{grid-column:span 2;}
   @media(max-width:900px){.chart-card.span-2{grid-column:span 1;}}
@@ -473,7 +481,7 @@
   .params-field:last-child{border-bottom:none;}
   .params-field label{font-size:.66rem;color:var(--text);font-weight:700;line-height:1.15;}
   .params-field input,.params-field select{width:100%;padding:4px 6px;font-size:.7rem;border:1px solid var(--line);border-radius:2px;background:var(--surface);color:var(--text);}
-  .params-field input[readonly]{background:var(--surface-2);color:var(--naranja-600);font-weight:600;font-family:var(--font-mono);}
+  .params-field input[readonly]{background:var(--surface-2);color:var(--text-muted);font-weight:600;}
   .params-field input.yellow,.params-field select.yellow{background:#fff6c9;border-color:#e8d44d;color:#5c4a00;font-weight:700;}
   .params-field .val-pair{display:flex;gap:4px;}
   .params-field .val-pair input{width:50%;}
@@ -504,9 +512,9 @@
   .proyecto-picker{position:relative;border:1px solid var(--line);border-left:4px solid var(--naranja-600);border-radius:6px;padding:12px 16px;margin-bottom:18px;background:var(--surface);box-shadow:0 1px 2px rgba(0,0,0,.03);}
 
   /* ---- Registrar Elaboración (Roturas) — tarjetas propias, con aire ---- */
-  .ro-reg-card{position:relative;border:1px solid var(--line);border-left:4px solid var(--naranja-600);border-radius:8px;padding:22px 20px 18px;margin-bottom:22px;background:var(--surface);box-shadow:0 1px 3px rgba(0,0,0,.04);}
+  .ro-reg-card{position:relative;border:1px solid var(--line);border-left:4px solid var(--naranja-600);border-radius:8px;padding:16px 18px 14px;margin-bottom:14px;background:var(--surface);box-shadow:0 1px 3px rgba(0,0,0,.04);}
   .ro-reg-tag{position:absolute;top:-11px;left:16px;background:var(--naranja-600);color:#fff;font-family:var(--font-display);font-size:.66rem;font-weight:700;text-transform:uppercase;letter-spacing:.05em;padding:3px 12px;border-radius:999px;}
-  .ro-reg-section{display:flex;flex-direction:column;gap:14px;}
+  .ro-reg-section{display:flex;flex-direction:column;gap:10px;}
   .ro-reg-section .form-row{gap:14px;}
   .ro-reg-section .field-mini label{margin-bottom:5px;display:block;}
   #ro-tipo-display{background:var(--surface-2);color:var(--text-muted);font-weight:600;}
@@ -595,21 +603,22 @@
   .resist-toolbar button:hover{color:var(--naranja-600);border-color:var(--naranja-300);}
   .resist-toolbar .resist-hint{font-size:.68rem;color:var(--text-muted);}
 
-  #informe-modal{position:fixed;inset:0;background:rgba(10,10,10,.7);z-index:206;display:none;align-items:flex-start;justify-content:center;padding:24px 14px;overflow-y:auto;}
+  #informe-modal{position:fixed;inset:0;background:rgba(10,10,10,.7);z-index:206;display:none;align-items:flex-start;justify-content:flex-start;padding:12px;overflow-y:auto;}
   #informe-modal.show{display:flex;}
-  .informe-card{background:var(--surface);border-radius:12px;max-width:1400px;width:100%;box-shadow:0 30px 70px -20px rgba(0,0,0,.5);}
+  .informe-card{background:var(--surface);border-radius:12px;max-width:96vw;width:100%;box-shadow:0 30px 70px -20px rgba(0,0,0,.5);}
   .informe-head{position:relative;text-align:center;padding:20px 50px;background:linear-gradient(160deg,#0d1113,#22282b 65%,#0099cc);border-radius:12px 12px 0 0;}
   .informe-head h2{font-family:var(--font-display);font-size:1.2rem;font-weight:700;letter-spacing:.03em;color:#fff;text-transform:uppercase;}
   .informe-head .modal-close{position:absolute;right:16px;top:16px;color:#fff;}
-  .informe-split{display:grid;grid-template-columns:1fr 1fr;gap:0;min-height:60vh;}
+  .informe-split{display:grid;grid-template-columns:380px 1fr;gap:0;min-height:88vh;}
   .informe-left{border-right:1px solid var(--line);display:flex;flex-direction:column;}
   .informe-zoom-bar{display:flex;align-items:center;gap:10px;padding:10px 14px;border-bottom:1px solid var(--line);background:var(--surface-2);}
   .informe-zoom-bar button{width:26px;height:26px;border-radius:4px;border:1px solid var(--line);background:var(--surface);font-weight:700;}
   .informe-zoom-bar button:hover{border-color:var(--naranja-500);color:var(--naranja-600);}
   .informe-zoom-viewport{flex:1;overflow:auto;padding:8px;background:#f4f4f4;}
   .informe-zoom-content{transform-origin:top left;transition:transform .12s var(--ease);background:var(--surface);padding:14px;border-radius:6px;box-shadow:0 2px 8px rgba(0,0,0,.08);}
-  .informe-right{padding:20px;display:flex;flex-direction:column;gap:22px;overflow-y:auto;max-height:80vh;}
+  .informe-right{padding:20px;display:grid;grid-template-columns:repeat(2,1fr);gap:20px;align-content:start;overflow-y:auto;max-height:88vh;}
   .informe-chart-card{border:1px solid var(--line);border-radius:8px;padding:14px;}
+  @media(max-width:1100px){.informe-right{grid-template-columns:1fr;}}
   .informe-chart-card h4{font-family:var(--font-display);font-size:.85rem;font-weight:700;margin-bottom:10px;}
   .informe-chart-card canvas{max-width:100%;}
   .informe-chart-dl{margin-top:10px;font-size:.72rem;padding:6px 12px;border-radius:3px;border:1px solid var(--line);color:var(--text-muted);background:var(--surface);}
@@ -666,6 +675,12 @@
   /* ---- Reporte RR ---- */
   .comp-cat-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(200px,1fr));gap:18px;}
   .comp-cat-tile{background:var(--surface);border:1.5px solid var(--line);border-radius:12px;padding:36px 22px;text-align:center;transition:transform .18s var(--ease), border-color .18s var(--ease), box-shadow .18s var(--ease);}
+  .archivador-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(190px,1fr));gap:16px;}
+  .archivador-carpeta{background:var(--surface);border:1.5px solid var(--line);border-radius:12px;padding:28px 18px;text-align:center;display:flex;flex-direction:column;align-items:center;gap:8px;color:var(--naranja-600);transition:transform .18s var(--ease), border-color .18s var(--ease), box-shadow .18s var(--ease);}
+  .archivador-carpeta:hover{transform:translateY(-3px);border-color:var(--naranja-600);box-shadow:0 12px 24px -14px rgba(0,0,0,.18);}
+  .archivador-carpeta .ac-nombre{font-family:var(--font-display);font-weight:700;color:var(--text);font-size:.86rem;}
+  .archivador-carpeta .ac-count{font-size:.7rem;color:var(--text-muted);}
+  .archivador-lista{display:flex;flex-direction:column;}
   .comp-cat-tile:hover{transform:translateY(-4px);border-color:var(--naranja-500);box-shadow:0 16px 30px -12px rgba(0,0,0,.14);}
   .comp-cat-tile .icon-wrap{width:68px;height:68px;border-radius:50%;background:var(--surface-2);display:flex;align-items:center;justify-content:center;margin:0 auto 16px;color:var(--naranja-600);}
   .comp-cat-tile .icon-wrap svg{width:32px;height:32px;}
@@ -676,6 +691,15 @@
   .back-home-btn{display:inline-flex;align-items:center;gap:8px;font-size:.8rem;font-weight:600;color:var(--text-muted);padding:7px 14px;border-radius:999px;border:1px solid var(--line);background:var(--surface);margin-bottom:18px;transition:color .15s, border-color .15s, background .15s;}
   .back-home-btn:hover{color:var(--naranja-600);border-color:var(--naranja-300);background:var(--surface-2);}
 
+  .rr-print-head{background:var(--surface);border:1px solid var(--line);border-radius:6px;padding:14px 16px;margin-bottom:14px;display:grid;grid-template-columns:1fr 1fr;gap:6px 24px;font-size:.8rem;}
+  .rr-print-head .rrp-title{grid-column:1/-1;font-family:var(--font-display);font-weight:700;font-size:.95rem;text-align:center;padding-bottom:8px;margin-bottom:6px;border-bottom:2px solid var(--negro);text-transform:uppercase;}
+  .rr-print-head .rrp-field{display:flex;gap:6px;}
+  .rr-print-head .rrp-field b{color:var(--text-muted);font-weight:600;min-width:80px;}
+  .rr-print-head .rrp-field input{flex:1;border:none;background:transparent;font-family:inherit;font-size:.8rem;color:var(--text);border-bottom:1px dotted var(--line);}
+  .rr-charts-grid{display:grid;grid-template-columns:repeat(2,1fr);gap:18px;}
+  @media(max-width:1000px){.rr-charts-grid{grid-template-columns:1fr;}}
+  .rr-chart-card{background:var(--surface);border:1px solid var(--line);border-radius:8px;padding:14px;}
+  .rr-chart-card h5{font-family:var(--font-display);font-size:.8rem;text-align:center;margin-bottom:10px;color:var(--naranja-700);text-transform:uppercase;}
   .rr-layout{display:grid;grid-template-columns:240px 1fr;gap:18px;align-items:start;}
   @media(max-width:1000px){.rr-layout{grid-template-columns:1fr;}}
   .rr-study-card{background:var(--surface);border:1px solid var(--line);border-radius:3px;padding:12px 14px;margin-bottom:8px;cursor:pointer;}
@@ -716,7 +740,7 @@
   .semaforo-rojo{background:#dc2626;box-shadow:0 0 0 3px rgba(220,38,38,.15);}
   .semaforo-naranja{background:#ea580c;box-shadow:0 0 0 3px rgba(234,88,12,.15);}
   .semaforo-verde{background:#16a34a;box-shadow:0 0 0 3px rgba(22,163,74,.15);animation:none;}
-  .pendiente-row{display:flex;align-items:center;gap:12px;padding:12px 14px;border:1px solid var(--line);border-left:3px solid var(--line);border-radius:4px;background:var(--surface);margin-bottom:8px;flex-wrap:wrap;transition:border-color .15s, box-shadow .15s;}
+  .pendiente-row{display:flex;align-items:center;gap:10px;padding:9px 12px;border:1px solid var(--line);border-left:3px solid var(--line);border-radius:4px;background:var(--surface);margin-bottom:6px;flex-wrap:wrap;transition:border-color .15s, box-shadow .15s;}
   .pendiente-row:hover{border-left-color:var(--naranja-500);box-shadow:0 3px 10px rgba(0,0,0,.05);}
   .pendiente-row .pr-info{flex:1;min-width:180px;}
   .pendiente-row .pr-info h5{font-size:.87rem;font-weight:600;}
@@ -736,7 +760,7 @@
   .ntp-tolerancia-box{display:inline-flex;flex-direction:column;font-size:.7rem;color:var(--text-muted);background:var(--surface-2);padding:8px 10px;border-radius:4px;margin-top:4px;}
   .ntp-tolerancia-box b{color:var(--naranja-600);font-family:var(--font-mono);}
   .codigo-preview{display:inline-flex;align-items:center;gap:8px;background:var(--surface-2);border:1.5px dashed var(--naranja-300);border-radius:4px;padding:9px 14px;font-family:var(--font-mono);font-weight:700;color:var(--naranja-600);margin-bottom:14px;}
-  .codigo-preview-destacado{display:flex;flex-direction:column;align-items:center;gap:2px;background:linear-gradient(135deg,var(--verde-600),var(--naranja-600));border-radius:10px;padding:14px 24px;margin-bottom:20px;box-shadow:0 8px 20px -8px rgba(76,175,62,.5);}
+  .codigo-preview-destacado{display:flex;flex-direction:column;align-items:center;gap:1px;background:linear-gradient(135deg,var(--verde-600),var(--naranja-600));border-radius:8px;padding:9px 20px;margin-bottom:14px;box-shadow:0 6px 16px -8px rgba(76,175,62,.5);}
   .cpd-label{font-family:var(--font-body);font-size:.64rem;font-weight:700;text-transform:uppercase;letter-spacing:.06em;color:rgba(255,255,255,.85);}
   .cpd-codigo{font-family:var(--font-display);font-size:1.5rem;font-weight:700;color:#fff;letter-spacing:.02em;}
   .m-especimen-block{border:1px solid var(--line);border-radius:6px;padding:12px 14px;margin-bottom:12px;}
@@ -825,6 +849,10 @@
       <button class="nav-item" data-panel="reporte-rr">
         <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M9 3h6a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2H9a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2z"/><path d="M9 8h6"/><path d="M9 12h6"/><path d="M9 16h3"/></svg>
         <span class="label">Reporte RR</span>
+      </button>
+      <button class="nav-item" data-panel="archivador">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M22 19a2 2 0 0 1-2 2H4a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h5l2 3h9a2 2 0 0 1 2 2z"/></svg>
+        <span class="label">Archivador</span>
       </button>
       <button class="nav-item" data-panel="reportes">
         <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 3v18h18"/><rect x="7" y="12" width="3" height="6"/><rect x="12" y="8" width="3" height="10"/><rect x="17" y="5" width="3" height="13"/></svg>
@@ -985,23 +1013,22 @@
             <div class="hoja-title">Dosificación de mezclas de concreto</div>
             <div class="hoja-code"><b>Código:</b> D-CC-F-148 &nbsp; <b>Versión:</b> 01<br><b>Sistema:</b> I+D digital &nbsp; <b>Página:</b> 1/1</div>
           </div>
-          <div class="hoja-nombre" id="nombre-preview-text">—</div>
+          <div class="hoja-nombre-row">
+            <div class="hoja-nombre" id="nombre-preview-text">—</div>
+            <button type="button" class="btn-icon" id="nombre-editar-btn" title="Agregar información al nombre">
+              <svg viewBox="0 0 24 24" width="15" height="15" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"/><path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"/></svg>
+            </button>
+          </div>
+          <div class="hoja-nombre-editar" id="hoja-nombre-editar-wrap" style="display:none;">
+            <label>Agregar al nombre (sufijo)</label>
+            <input type="text" id="dis-sufijo" placeholder="Ej. A1, revisión, ensayo especial…">
+          </div>
           <div class="hoja-meta">
             <div class="hoja-meta-cell"><label>Planta de producción</label>
               <select id="dis-planta"></select>
             </div>
-            <div class="hoja-meta-cell"><label>Laboratorio (auto)</label><input type="text" id="dis-laboratorio" readonly></div>
-            <div class="hoja-meta-cell"><label>Uso / aplicación</label>
-              <select id="dis-uso">
-                <option>General / Radio local</option>
-                <option>General / larga distancia</option>
-                <option>Específico / Pavimentos y losas</option>
-                <option>Específico / E. esbeltos</option>
-                <option>Específico / Tremie</option>
-                <option>Específico / autoconstrucción</option>
-              </select>
-            </div>
-            <div class="hoja-meta-cell"><label>N° Diseño (auto)</label><input type="text" id="dis-ndiseno" readonly></div>
+            <div class="hoja-meta-cell"><label>Laboratorio</label><input type="text" id="dis-laboratorio" readonly></div>
+            <div class="hoja-meta-cell"><label>N° Diseño</label><input type="text" id="dis-ndiseno" readonly></div>
             <div class="hoja-meta-cell"><label>Colaborador *</label><input type="text" id="dis-colaborador" placeholder="Iniciales del colaborador…"></div>
             <div class="hoja-meta-cell"><label>Responsable *</label><input type="text" id="dis-responsable" placeholder="Nombre del responsable…"></div>
             <div class="hoja-meta-cell">
@@ -1035,17 +1062,14 @@
             <div class="params-col" data-acc="especificaciones">
               <div class="params-col-head acc-head"><span>Especificaciones</span><svg class="acc-chevron" viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M6 9l6 6 6-6"/></svg></div>
               <div class="params-col-body">
-                <div class="params-field"><label>Negocio</label><input type="text" id="dis-negocio" value="Pacasmayo Profesional" readonly></div>
                 <div class="params-field"><label>Tipo de concreto</label><select id="dis-tipo-concreto"></select></div>
                 <div class="params-field"><label>f'c (Resistencia especificada)</label><div class="val-pair"><input type="number" id="dis-fc" class="yellow" placeholder="kg/cm²"><input type="text" id="dis-fc-mpa" placeholder="MPa"></div></div>
                 <div class="params-field"><label>f't — flexión (kg/cm²)</label><input type="text" id="dis-ft" class="yellow" placeholder="37"></div>
                 <div class="params-field"><label>Huso granul. TMN (AG)</label><input type="text" id="dis-tmn" class="yellow" placeholder="67"></div>
                 <div class="params-field"><label>Consistencia (slump/slump flow)</label><input type="text" id="dis-slump" class="yellow" placeholder="3" data-key="consistencia"></div>
                 <div class="params-field"><label>Edad del f'c (días)</label><input type="number" id="dis-edad" placeholder="3"></div>
-                <div class="params-field"><label>Tipo de cemento</label><input type="text" id="dis-cemento-tipo" placeholder="I"></div>
-                <div class="params-field"><label>Cemento (material)</label><select id="dis-cemento-mat"></select></div>
+                <div class="params-field"><label>Cemento</label><select id="dis-cemento-mat"></select></div>
                 <div class="params-field"><label>Peso seco cemento (kg/m3)</label><input type="number" id="dis-cemento-peso" placeholder="546"></div>
-                <div class="params-field"><label>Tipo de agregado grueso</label><select id="dis-agregado-grueso"></select></div>
                 <div class="params-field"><label>Viscosidad T50</label><input type="text" id="dis-t50" placeholder="-" data-key="t50"></div>
                 <div class="params-field"><label>Exposición</label><input type="text" id="dis-exposicion" placeholder="Ambiente"></div>
                 <div class="params-field"><label>Relación a/mc máxima</label><input type="text" id="dis-amc-max" placeholder="-" data-key="amcMax"></div>
@@ -1067,7 +1091,6 @@
                 <div class="params-field"><label>a/mc calculada</label><input type="text" id="dis-amc-calc" placeholder="0.54" data-key="amcCalc"></div>
                 <div class="params-field"><label>a/mc requerida</label><input type="text" id="dis-amc-req" placeholder="0.37" data-key="amcReq"></div>
                 <div class="params-field"><label>a/mc efectiva</label><input type="text" id="dis-amc-efectiva" placeholder="0.37"></div>
-                <div class="params-field"><label>Base de datos (a/mc)</label><input type="text" id="dis-amc-base" placeholder="P.C.A" data-key="amcBase"></div>
                 <div class="params-field span-2" style="border-top:1px dashed var(--line);padding-top:6px;margin-top:2px;"><label>Consumo de agua por m3</label></div>
                 <div class="params-field"><label>Agua calculada (L)</label><input type="text" id="dis-agua-calc" placeholder="-" data-key="aguaCalc"></div>
                 <div class="params-field"><label>Agua requerida (L)</label><input type="text" id="dis-agua-req-val" placeholder="202" data-key="aguaReqVal"></div>
@@ -1088,13 +1111,14 @@
                 <div class="params-field"><label>PUCF requerido (kg/m3)</label><input type="text" id="dis-pucf-req" placeholder="2459" data-key="pucfReq"></div>
                 <div class="params-field"><label>PUCF diseño (kg/m3)</label><input type="text" id="dis-pucf-diseno" placeholder="2260" data-key="pucfDiseno"></div>
                 <div class="params-field"><label>CVD Base (referencial, S/.)</label><input type="text" id="dis-cvd-base" placeholder="288.07"></div>
-                <div class="params-field"><label>Sufijo del nombre técnico</label><input type="text" id="dis-sufijo" placeholder="A1"></div>
+                <div class="params-field"><label>Estado del diseño</label><input type="text" id="dis-estado-view" readonly value="Iniciado" style="font-weight:700;color:var(--naranja-600);"></div>
               </div>
             </div>
 
             <div class="params-col collapsed" data-acc="agregados">
               <div class="params-col-head acc-head"><span>Proporcionamiento de agregados</span><svg class="acc-chevron" viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M6 9l6 6 6-6"/></svg></div>
               <div class="params-col-body">
+                <div class="params-field"><label>Tipo de agregado grueso</label><select id="dis-agregado-grueso"></select></div>
                 <div class="params-field"><label>Límite de gradación</label><input type="text" id="dis-lim-gradacion" placeholder="DIN 1045"></div>
                 <div class="params-field"><label>TMN (A.G.) — especificación</label><input type="text" id="dis-tmn-spec" placeholder="3/4" data-key="tmnSpec"></div>
                 <div class="params-field"><label>% Agregado fino</label><input type="text" id="dis-pct-fino" placeholder="41"></div>
@@ -1140,7 +1164,6 @@
         <div class="ro-reg-card">
           <div class="ro-reg-tag">Componentes adicionales (opcional)</div>
           <div class="ro-reg-section">
-            <p class="mono" style="color:var(--text-muted);font-size:.76rem;">Si el diseño usa más de un cemento, adición o aditivo, agregalos acá — se suman solos a la tabla de Composición de Mezcla, jalando datos de Registro.</p>
             <div id="comp-adic-lista"></div>
             <div class="pp-row" style="align-items:flex-end;">
               <div class="pp-field" style="flex:0 0 150px;">
@@ -1340,21 +1363,45 @@
             <h4 id="rr-current-title">—</h4>
             <button class="btn-add ghost rr-add-tipo-btn" id="rr-add-tipo" style="display:none;">+ Agregar tipo</button>
           </div>
+          <div class="rr-print-head" id="rr-print-head"></div>
           <div class="rr-table-wrap" id="rr-table-holder"></div>
           <div class="section-title-row" style="margin-top:20px;">
             <h3>Edad / Resistencia</h3>
             <button class="link-mono" id="rr-add-edad">+ Agregar edad</button>
           </div>
           <div class="rr-table-wrap" id="rr-edad-holder"></div>
+          <div class="section-title-row" style="margin-top:26px;">
+            <h3>Representaciones gráficas</h3>
+          </div>
+          <div class="rr-charts-grid" id="rr-charts-grid"></div>
         </div>
       </div>
+    </section>
+
+    <!-- ARCHIVADOR -->
+    <section id="panel-archivador" class="panel">
+      <div class="content-header">
+        <div><h2>Archivador</h2></div>
+        <span class="badge-pill" id="archivador-count">0 diseños completados</span>
+      </div>
+      <div id="archivador-carpetas"></div>
+      <div id="archivador-detalle" style="display:none;"></div>
     </section>
 
     <!-- REPORTES -->
     <section id="panel-reportes" class="panel">
       <div class="content-header">
         <div><h2>Dashboard</h2></div>
-        <span class="badge-pill live-badge"><span class="live-dot"></span> En vivo · <span id="dash-updated">ahora</span></span>
+        <div style="display:flex;gap:10px;align-items:center;flex-wrap:wrap;">
+          <select id="dash-filtro-anio"></select>
+          <select id="dash-filtro-rango">
+            <option value="todo">Todo el histórico</option>
+            <option value="30">Últimos 30 días</option>
+            <option value="90">Últimos 90 días</option>
+            <option value="anio">Año seleccionado</option>
+          </select>
+          <span class="badge-pill live-badge"><span class="live-dot"></span> En vivo · <span id="dash-updated">ahora</span></span>
+        </div>
       </div>
 
       <div class="kpi-grid">
@@ -1376,7 +1423,12 @@
         </div>
       </div>
 
-      <div class="dash-grid">
+      <div class="section-title-row" style="margin-top:6px;">
+        <h3>Avance por proyecto</h3>
+      </div>
+      <div id="dash-avance-proyecto" class="dash-avance-grid"></div>
+
+      <div class="dash-grid" style="margin-top:22px;">
         <div class="chart-card span-2">
           <h4>Resistencia promedio por edad <span class="chart-sub">(todas las cargas registradas)</span></h4>
           <canvas id="chart-dash-resistencia" height="90"></canvas>
@@ -1400,6 +1452,10 @@
         <div class="chart-card">
           <h4>Cumplimiento de plazos (Roturas)</h4>
           <canvas id="chart-dash-plazos" height="150"></canvas>
+        </div>
+        <div class="chart-card">
+          <h4>Costo promedio por m³ (S/.) <span class="chart-sub">por proyecto</span></h4>
+          <canvas id="chart-dash-costo" height="150"></canvas>
         </div>
       </div>
     </section>
@@ -1463,7 +1519,6 @@
     </div>
     <div id="replicas-modal-step2" style="display:none;">
       <h3>¿A qué días se romperá?</h3>
-      <p style="margin-bottom:14px;color:var(--text-muted);font-size:.84rem;">Se crearán registros en Roturas para cada día marcado, por cada réplica.</p>
       <div id="replicas-dias-checks" style="display:flex;gap:10px;flex-wrap:wrap;justify-content:center;margin-bottom:18px;"></div>
       <div class="confirm-actions">
         <button class="btn-ghost" id="replicas-dias-atras">← Atrás</button>
@@ -1580,6 +1635,7 @@
     </div>
     <h3>¿Desea duplicar el diseño?</h3>
     <p id="confirm-modal-name"></p>
+    <p class="mono" style="font-size:.76rem;color:var(--text-muted);margin-top:8px;">⚠ Vas a entrar a la calculadora con estos mismos datos. Como el nombre técnico se arma solo, tenés que cambiar algún dato de la fórmula (f'c, a/mc, cemento, piedra) o agregar algo al final para que el nombre no se repita.</p>
     <div class="confirm-actions">
       <button class="btn-ghost" id="confirm-cancel">Cancelar</button>
       <button class="btn-add" id="confirm-accept">Sí, duplicar</button>
@@ -1740,6 +1796,7 @@
     if(name === 'reportes') animateReportes();
     if(name === 'inicio'){ renderInicioKpis(); renderInicioRecientes(); renderInicioFavoritos(); renderPendientesHoyInicio(); }
     if(name === 'roturas'){ renderRoturasAll(); }
+    if(name === 'archivador'){ renderArchivador(); }
     window.scrollTo({top:0, behavior:'auto'});
   }
   document.getElementById('btn-back-home').addEventListener('click', function(){ showPanel('inicio'); });
@@ -2808,7 +2865,7 @@
           '<div class="field-mini"><label>Tipo de rotura</label><select id="mc-'+tipoKey+'">' +
             ['','Tipo 1','Tipo 2','Tipo 3','Tipo 4','Tipo 5','Tipo 6'].map(function(t){ return '<option'+(c[tipoKey]===t?' selected':'')+'>'+t+'</option>'; }).join('') +
           '</select></div>' +
-          '<div class="field-mini"><label>Evidencia <span style="font-weight:400;color:var(--text-muted);">(se guarda en el navegador)</span></label><div class="evidencia-drop" id="mc-drop-'+mIdx+'" data-evid-key="'+(c[evidKey]||'')+'">'+(c[evidKey]?'Cargando…':'Subir foto')+'<input type="file" accept="image/*" id="mc-file-'+mIdx+'" style="display:none;"></div></div>' +
+          '<div class="field-mini"><label>Evidencia</label><div class="evidencia-drop" id="mc-drop-'+mIdx+'" data-evid-key="'+(c[evidKey]||'')+'">'+(c[evidKey]?'Cargando…':'Subir foto')+'<input type="file" accept="image/*" id="mc-file-'+mIdx+'" style="display:none;"></div></div>' +
         '</div>' +
       '</div>';
     }
@@ -3057,7 +3114,7 @@
         '<div class="replica-row"><label>Thermocrete — F. final</label><input type="text" data-rf="thermoFin" data-r="'+idx+'" value="'+esc(data.thermoFin)+'" placeholder="hh:mm"></div>' +
         '<div class="replica-row"><label>Cohesividad</label><input type="text" data-rf="cohesividad" data-r="'+idx+'" value="'+esc(data.cohesividad)+'"></div>' +
         '<div class="replica-row"><label>Apariencia</label><input type="text" data-rf="apariencia" data-r="'+idx+'" value="'+esc(data.apariencia)+'"></div>' +
-        '<label style="font-size:.72rem;font-weight:700;display:block;margin-bottom:6px;">Resistencia a la compresión <span style="font-weight:400;color:var(--text-muted);">(jalado de Roturas por código)</span></label>' +
+        '<label style="font-size:.72rem;font-weight:700;display:block;margin-bottom:6px;">Resistencia a la compresión</label>' +
         '<div class="resist-toolbar">' +
           '<button data-act="actualizar-resist" data-r="'+idx+'" data-replica="'+esc(nombreReplica)+'">Actualizar</button>' +
           '<span class="resist-hint">Se completa desde Roturas — no se edita a mano acá.</span>' +
@@ -3084,6 +3141,26 @@
     });
     return out;
   }
+  function tablaPorReplicaHtml(d){
+    var reps = d.replicaObjs || [];
+    if(!reps.length) return '';
+    var dias = {};
+    var porReplicaDia = reps.map(function(rep){
+      var mapa = {};
+      cargasDeReplica(rep.nombre).forEach(function(c){ mapa[c.dia] = c.promedio || ''; dias[c.dia] = true; });
+      return mapa;
+    });
+    var diasOrdenados = Object.keys(dias).map(Number).sort(function(a,b){return a-b;});
+    if(!diasOrdenados.length) return '';
+    var combinado = nombreUnificadoPromedio(d);
+    var head = '<th>Edad</th>' + reps.map(function(rep){ return '<th>'+esc(rep.nombre.split('-').pop())+'</th>'; }).join('') + '<th>Promedio</th><th>Coef. Var.</th><th>Desvest.</th>';
+    var rows = diasOrdenados.map(function(dia){
+      var cells = porReplicaDia.map(function(mapa){ return '<td class="resist-readonly">'+(mapa[dia]||'-')+'</td>'; }).join('');
+      var st = combinado[dia] || {};
+      return '<tr><td class="resist-readonly">'+dia+' d</td>'+cells+'<td class="resist-readonly">'+(st.promedio||'-')+'</td><td class="resist-readonly">'+(st.coefVar||'-')+'</td><td class="resist-readonly">'+(st.desvest||'-')+'</td></tr>';
+    }).join('');
+    return '<table class="resist-table"><thead><tr>'+head+'</tr></thead><tbody>'+rows+'</tbody></table>';
+  }
   function openResultsModal(d, i){
     currentResultsDesign = d;
     currentResultsIndex = i;
@@ -3099,15 +3176,9 @@
       if(!data.slump) data = emptyReplicaExtras();
       body += replicaBlockHtml(r, nombre, data);
     }
-    var combinado = nombreUnificadoPromedio(d);
-    var edadesKeys = Object.keys(combinado);
-    if(edadesKeys.length){
-      body += '<div class="results-section-label" style="margin-top:16px;">Nombre Unificado — promedio combinado ('+esc(nombre)+')</div>' +
-        '<table class="resist-table"><thead><tr><th>Edad</th><th>Promedio (kg/cm²)</th><th>Coef. Variación</th><th>Desvest.</th></tr></thead><tbody>' +
-        edadesKeys.sort(function(a,b){return a-b;}).map(function(dia){
-          var st = combinado[dia];
-          return '<tr><td class="resist-readonly">'+dia+' d</td><td class="resist-readonly">'+(st.promedio||'-')+'</td><td class="resist-readonly">'+(st.coefVar||'-')+'</td><td class="resist-readonly">'+(st.desvest||'-')+'</td></tr>';
-        }).join('') + '</tbody></table>';
+    var tablaReplicas = tablaPorReplicaHtml(d);
+    if(tablaReplicas){
+      body += '<div class="results-section-label" style="margin-top:16px;">Resistencia por réplica y promedio combinado</div>' + tablaReplicas;
     }
     document.getElementById('results-modal-body').innerHTML = body;
     document.getElementById('results-modal').classList.add('show');
@@ -3189,14 +3260,23 @@
     reps.forEach(function(rep){
       html += '<div class="results-section-label" style="margin-top:18px;">'+esc(rep.nombre)+' ('+esc(rep.codigo||'')+')</div>' + resistTableHtmlFromRoturas(rep.nombre);
     });
+    var tablaReplicas = tablaPorReplicaHtml(d);
+    if(tablaReplicas){
+      html += '<div class="results-section-label" style="margin-top:18px;">Resistencia por réplica y promedio combinado</div>' + tablaReplicas;
+    }
     return html;
   }
 
-  function buildInformeCharts(d){
+  function buildInformeCharts(d, intento){
+    intento = intento || 0;
     document.getElementById('informe-charts').innerHTML = '';
     informeCharts.forEach(function(c){ c.destroy(); });
     informeCharts = [];
-    if(typeof Chart === 'undefined'){ toast('No se pudo cargar la librería de gráficos'); return; }
+    if(typeof Chart === 'undefined'){
+      if(intento < 25){ setTimeout(function(){ buildInformeCharts(d, intento+1); }, 200); return; }
+      document.getElementById('informe-charts').innerHTML = '<div class="empty-note">No se pudieron cargar los gráficos (sin conexión a la librería). Los datos y tablas de arriba están completos igual.</div>';
+      return;
+    }
     var reps = d.replicaObjs || [];
     if(!reps.length){
       document.getElementById('informe-charts').innerHTML = '<div class="empty-note">Todavía no hay réplicas para graficar.</div>';
@@ -3314,9 +3394,14 @@
 
   var pendingDuplicate = null;
   function askConfirmDuplicate(d){
-    pendingDuplicate = d;
-    document.getElementById('confirm-modal-name').textContent = diseñoTitulo(d);
-    document.getElementById('confirm-modal').classList.add('show');
+    try{
+      pendingDuplicate = d;
+      document.getElementById('confirm-modal-name').textContent = diseñoTitulo(d);
+      document.getElementById('confirm-modal').classList.add('show');
+    }catch(err){
+      console.error('Error al abrir confirmación de duplicado:', err);
+      toast('No se pudo abrir la confirmación de duplicado — probá de nuevo o avisá si persiste');
+    }
   }
   document.getElementById('confirm-cancel').addEventListener('click', function(){
     pendingDuplicate = null;
@@ -3330,7 +3415,14 @@
   });
   document.getElementById('confirm-accept').addEventListener('click', function(){
     document.getElementById('confirm-modal').classList.remove('show');
-    if(pendingDuplicate) duplicateDesignToForm(pendingDuplicate);
+    if(pendingDuplicate){
+      try{
+        duplicateDesignToForm(pendingDuplicate);
+      }catch(err){
+        console.error('Error al duplicar diseño:', err);
+        toast('Ocurrió un error al duplicar — revisá la consola o avisá si persiste');
+      }
+    }
     pendingDuplicate = null;
   });
 
@@ -3346,14 +3438,12 @@
     renderComponentesAdicionales();
     document.getElementById('dis-planta').value = d.planta || '';
     syncLaboratorio();
-    if(d.uso) document.getElementById('dis-uso').value = d.uso;
     document.getElementById('dis-ndiseno').value = disenos.length + 1;
     var tipoIdx = selectedTipoConcretoIndexByLabel(d.tipo);
     document.getElementById('dis-tipo-concreto').value = tipoIdx >= 0 ? tipoIdx : '';
     document.getElementById('dis-fc').value = d.fc || '';
     document.getElementById('dis-ft').value = d.ft || '';
     document.getElementById('dis-edad').value = d.edad || '';
-    document.getElementById('dis-cemento-tipo').value = d.cementoTipo || '';
     document.getElementById('dis-tmn').value = d.tmn || '';
     if(d.agregadoGrueso){
       var aggIdx = -1;
@@ -3369,7 +3459,8 @@
     document.getElementById('dis-pct-fino').value = d.pctFino || '';
     document.getElementById('dis-pct-grueso').value = d.pctGrueso || '';
     document.getElementById('dis-sufijo').value = '';
-    document.getElementById('dis-estado').value = 'Iniciado';
+    document.getElementById('hoja-nombre-editar-wrap').style.display = 'block';
+    document.getElementById('dis-estado-view').value = 'Iniciado';
     if(d.extra){
       document.querySelectorAll('#sub-calcular [data-key]').forEach(function(el){
         if(d.extra[el.dataset.key] !== undefined) el.value = d.extra[el.dataset.key];
@@ -3636,6 +3727,69 @@
     renderAllDesignViews();
   });
 
+  /* ================= ARCHIVADOR — diseños Completados organizados por Proyecto ================= */
+  var archivadorProyectoAbierto = null;
+  function renderArchivador(){
+    var completados = disenos.filter(function(d){ return d.estado === 'Completado'; });
+    document.getElementById('archivador-count').textContent = completados.length + ' diseño' + (completados.length===1?'':'s') + ' completado' + (completados.length===1?'':'s');
+    document.getElementById('archivador-detalle').style.display = 'none';
+    document.getElementById('archivador-carpetas').style.display = 'grid';
+    var porProyecto = {};
+    completados.forEach(function(d){
+      var nombre = proyectoNombre(d.proyectoId) || 'Sin proyecto';
+      if(!porProyecto[nombre]) porProyecto[nombre] = [];
+      porProyecto[nombre].push(d);
+    });
+    var nombres = Object.keys(porProyecto).sort();
+    var wrap = document.getElementById('archivador-carpetas');
+    wrap.className = 'archivador-grid';
+    if(!nombres.length){ wrap.innerHTML = '<div class="empty-note">Todavía no hay diseños Completados para archivar.</div>'; return; }
+    wrap.innerHTML = nombres.map(function(nombre){
+      return '<button class="archivador-carpeta" data-proy="'+esc(nombre)+'">' +
+        '<svg viewBox="0 0 24 24" width="34" height="34" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><path d="M22 19a2 2 0 0 1-2 2H4a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h5l2 3h9a2 2 0 0 1 2 2z"/></svg>' +
+        '<span class="ac-nombre">'+esc(nombre)+'</span>' +
+        '<span class="ac-count">'+porProyecto[nombre].length+' diseño'+(porProyecto[nombre].length===1?'':'s')+'</span>' +
+      '</button>';
+    }).join('');
+    wrap.dataset.porProyecto = '1';
+    window._archivadorData = porProyecto;
+  }
+  document.getElementById('archivador-carpetas').addEventListener('click', function(e){
+    var btn = e.target.closest('.archivador-carpeta');
+    if(!btn) return;
+    archivadorProyectoAbierto = btn.dataset.proy;
+    renderArchivadorDetalle();
+  });
+  function renderArchivadorDetalle(){
+    var lista = (window._archivadorData || {})[archivadorProyectoAbierto] || [];
+    document.getElementById('archivador-carpetas').style.display = 'none';
+    var wrap = document.getElementById('archivador-detalle');
+    wrap.style.display = 'block';
+    wrap.innerHTML =
+      '<button class="link-mono" id="archivador-atras" style="margin-bottom:16px;">← Volver a carpetas</button>' +
+      '<h3 style="font-family:var(--font-display);margin-bottom:16px;">'+esc(archivadorProyectoAbierto)+'</h3>' +
+      '<div class="archivador-lista">' + lista.map(function(d){
+        var i = disenos.indexOf(d);
+        return '<div class="ih-card accent-verde">' +
+          '<div class="id-card-simple">'+d.codigo+'</div>' +
+          '<div class="ih-main"><span class="ih-nombre">'+diseñoTitulo(d)+'</span><span class="ih-meta">'+esc(iteracionNombre(d.iteracionId))+' · '+d.fecha+'</span></div>' +
+          '<button class="btn-add" data-act="informe" data-i="'+i+'">Ver informe</button>' +
+          '<button class="btn-add ghost" data-act="pdf" data-i="'+i+'">Descargar PDF</button>' +
+        '</div>';
+      }).join('') + '</div>';
+  }
+  document.getElementById('archivador-detalle').addEventListener('click', function(e){
+    if(e.target.id === 'archivador-atras'){ renderArchivador(); return; }
+    var btnInforme = e.target.closest('[data-act="informe"]');
+    if(btnInforme){ openInformeModal(disenos[Number(btnInforme.dataset.i)]); return; }
+    var btnPdf = e.target.closest('[data-act="pdf"]');
+    if(btnPdf){
+      openDesignModal(disenos[Number(btnPdf.dataset.i)]);
+      setTimeout(function(){ window.print(); }, 300);
+      return;
+    }
+  });
+
   /* ---- Tipo de concreto ---- */
   var TIPO_CONCRETO_DEFS = [
     {label:'Concreto convencional', code:'C'},
@@ -3685,11 +3839,17 @@
   document.getElementById('dis-fc-mpa').addEventListener('input', onFcMpaInput);
   document.getElementById('dis-desv-std').addEventListener('input', recalcFcr);
 
+  function cementoTipoDesdeCatalogo(){
+    var idx = document.getElementById('dis-cemento-mat').value;
+    if(idx === '') return '';
+    var c = componentes[Number(idx)];
+    return c && c.tipo ? c.tipo.trim() : '';
+  }
   function refreshNombrePreview(){
     var tipoIdx = document.getElementById('dis-tipo-concreto').value;
     var tipoDef = tipoIdx !== '' ? TIPO_CONCRETO_DEFS[Number(tipoIdx)] : null;
     var amc = document.getElementById('dis-amc-efectiva').value.trim();
-    var cemento = document.getElementById('dis-cemento-tipo').value.trim();
+    var cemento = cementoTipoDesdeCatalogo();
     var aggCode = agregadoGruesoCode();
     var sufijo = document.getElementById('dis-sufijo').value.trim();
     var parts = [];
@@ -3702,9 +3862,15 @@
     document.getElementById('mezcla-nombre-echo').textContent = nombre;
     return nombre;
   }
-  ['dis-tipo-concreto','dis-amc-efectiva','dis-cemento-tipo','dis-sufijo'].forEach(function(id){
+  ['dis-tipo-concreto','dis-amc-efectiva','dis-cemento-mat','dis-sufijo'].forEach(function(id){
     var el = document.getElementById(id);
     el.addEventListener(el.tagName === 'SELECT' ? 'change' : 'input', refreshNombrePreview);
+  });
+  document.getElementById('nombre-editar-btn').addEventListener('click', function(){
+    var wrap = document.getElementById('hoja-nombre-editar-wrap');
+    var showing = wrap.style.display !== 'none';
+    wrap.style.display = showing ? 'none' : 'block';
+    if(!showing) document.getElementById('dis-sufijo').focus();
   });
 
   document.getElementById('toggle-propiedades').addEventListener('change', function(e){
@@ -3964,7 +4130,7 @@
 
   function resetCalcForm(){
     ['dis-fc','dis-fc-mpa','dis-ft','dis-edad',
-     'dis-cemento-tipo','dis-cemento-peso','dis-tmn','dis-slump','dis-exposicion','dis-aire',
+     'dis-cemento-peso','dis-tmn','dis-slump','dis-exposicion','dis-aire',
      'dis-otras-esp','dis-desv-std','dis-fcr','dis-amc-efectiva',
      'dis-agua-req','dis-vol-diseno','dis-cvd-base','dis-lim-gradacion','dis-pct-fino','dis-pct-grueso','dis-sufijo',
      'dis-aditivo-peso','dis-colaborador','dis-responsable'
@@ -3980,6 +4146,8 @@
     document.getElementById('dis-batch-vol').value = '30';
     document.getElementById('dis-fecha-mezcla').value = todayISO();
     document.getElementById('dis-ndiseno').value = disenos.length + 1;
+    document.getElementById('dis-estado-view').value = 'Iniciado';
+    document.getElementById('hoja-nombre-editar-wrap').style.display = 'none';
     componentesAdicionales = [];
     renderComponentesAdicionales();
     rebuildIncidenciaTable();
@@ -3992,6 +4160,13 @@
     var tipoDef = tipoIdxSel !== '' ? TIPO_CONCRETO_DEFS[Number(tipoIdxSel)] : null;
     var fc = document.getElementById('dis-fc').value.trim();
     if(!tipoDef || !fc){ toast('Completá al menos Tipo de concreto y f\'c'); return; }
+    if(!/^\d+(\.\d+)?$/.test(fc)){ toast('f\'c debe ser un número (ej. 210)'); return; }
+    var ft = document.getElementById('dis-ft').value.trim();
+    if(ft && !/^\d+(\.\d+)?$/.test(ft)){ toast('f\'t (flexión) debe ser un número'); return; }
+    var edad = document.getElementById('dis-edad').value.trim();
+    if(edad && !/^\d+$/.test(edad)){ toast('Edad del f\'c debe ser un número entero (días)'); return; }
+    var amc = document.getElementById('dis-amc-efectiva').value.trim();
+    if(amc && !/^\d+(\.\d+)?$/.test(amc)){ toast('a/mc efectiva debe ser un número (ej. 0.55)'); return; }
     var proyectoId = document.getElementById('pp-proyecto').value;
     var iteracionId = document.getElementById('pp-iteracion-select').value;
     if(iteracionId === '__nueva__') iteracionId = '';
@@ -3999,6 +4174,8 @@
     var colaborador = document.getElementById('dis-colaborador').value.trim();
     var responsable = document.getElementById('dis-responsable').value.trim();
     if(!colaborador || !responsable){ toast('Completá Colaborador y Responsable'); return; }
+    if(!/^[A-Za-zÀ-ÿ .]+$/.test(colaborador)){ toast('Colaborador solo debe tener letras (iniciales)'); return; }
+    if(!/^[A-Za-zÀ-ÿ .]+$/.test(responsable)){ toast('Responsable solo debe tener letras (nombre)'); return; }
     var nombreCandidato = refreshNombrePreview();
     if(!nombreCandidato){ toast('Completá los campos necesarios para armar el nombre del diseño'); return; }
     var yaExiste = disenos.some(function(existing){ return (existing.nombreTecnico||'').trim().toLowerCase() === nombreCandidato.trim().toLowerCase(); });
@@ -4019,15 +4196,13 @@
       responsable: responsable,
       planta: document.getElementById('dis-planta').value,
       laboratorio: document.getElementById('dis-laboratorio').value,
-      uso: document.getElementById('dis-uso').value,
       ndiseno: document.getElementById('dis-ndiseno').value.trim(),
-      negocio: document.getElementById('dis-negocio').value,
       tipo: tipoDef.label,
       fc: fc,
       resistencia: document.getElementById('dis-fc-mpa').value || fc,
       ft: document.getElementById('dis-ft').value.trim(),
       edad: document.getElementById('dis-edad').value.trim(),
-      cementoTipo: document.getElementById('dis-cemento-tipo').value.trim(),
+      cementoTipo: cementoTipoDesdeCatalogo(),
       tmn: document.getElementById('dis-tmn').value.trim(),
       agregadoGrueso: (function(){ var idx=document.getElementById('dis-agregado-grueso').value; var c=idx!==''?componentes[Number(idx)]:null; return c?c.nombre:''; })(),
       slump: document.getElementById('dis-slump').value.trim(),
@@ -4052,7 +4227,7 @@
       mix: mixSnapshot,
       componentesAdicionales: componentesAdicionales.slice(),
       cvdTotal: Number(totals.cvd.toFixed(2)),
-      estado: document.getElementById('dis-estado').value,
+      estado: 'Iniciado',
       replicas: 2,
       diasRotura: [1,3,7,28],
       tipoRotura: '',
@@ -4145,8 +4320,7 @@
     };
     document.getElementById('print-confirm-yes').onclick = function(){
       document.getElementById('print-confirm-modal').classList.remove('show');
-      var idx = disenos.indexOf(d);
-      openResultsModal(d, idx);
+      openDesignModal(d);
       setTimeout(function(){ window.print(); }, 300);
     };
   }
@@ -4262,6 +4436,17 @@
     titleEl.textContent = estudio.nombre;
     addTipoBtn.style.display = 'inline-block';
 
+    if(!estudio.cabecera) estudio.cabecera = {planta:'', ubicacion:'Laboratorio de Aplicaciones I+D', colaborador:'', responsable:'', fecha:todayISO()};
+    var cab = estudio.cabecera;
+    document.getElementById('rr-print-head').innerHTML =
+      '<div class="rrp-title">Resumen de reporte de resultados de mezclas de prueba</div>' +
+      '<div class="rrp-field"><b>Planta</b><input data-cab="planta" value="'+esc(cab.planta||'')+'" placeholder="Ej. Trujillo"></div>' +
+      '<div class="rrp-field"><b>Fecha</b><input type="date" data-cab="fecha" value="'+esc(cab.fecha||'')+'"></div>' +
+      '<div class="rrp-field"><b>Ubicación</b><input data-cab="ubicacion" value="'+esc(cab.ubicacion||'')+'"></div>' +
+      '<div class="rrp-field"><b>Colaborador</b><input data-cab="colaborador" value="'+esc(cab.colaborador||'')+'" placeholder="Iniciales"></div>' +
+      '<div class="rrp-field"><b>Proyecto</b><input value="'+esc(estudio.proyectoId ? proyectoNombre(estudio.proyectoId) : estudio.nombre)+'" readonly></div>' +
+      '<div class="rrp-field"><b>Responsable</b><input data-cab="responsable" value="'+esc(cab.responsable||'')+'" placeholder="Nombre"></div>';
+
     var theadCols = '<th>Diseño</th>' + estudio.tipos.map(function(t,ti){
       return '<th><div class="rr-th-inner">' +
         '<input class="rr-tipo-name" data-ti="'+ti+'" value="'+esc(t.nombre)+'">' +
@@ -4298,6 +4483,71 @@
     document.getElementById('rr-edad-holder').innerHTML = estudio.edades.length
       ? '<table class="rr-table"><thead><tr>'+edadHead+'</tr></thead><tbody>'+edadRows+'</tbody></table>'
       : '<div class="empty-note">Sin edades registradas todavía.</div>';
+
+    renderRRCharts(estudio);
+  }
+
+  document.getElementById('rr-print-head').addEventListener('input', function(e){
+    var estudio = rrFind(rrActiveId);
+    if(!estudio || !e.target.dataset.cab) return;
+    estudio.cabecera[e.target.dataset.cab] = e.target.value;
+    save('sid10_rr', rrEstudios);
+  });
+
+  var rrCharts = [];
+  function rrChartCanvas(id, titulo){
+    return '<div class="rr-chart-card"><h5>'+titulo+'</h5><canvas id="'+id+'"></canvas></div>';
+  }
+  function renderRRCharts(estudio){
+    var wrap = document.getElementById('rr-charts-grid');
+    rrCharts.forEach(function(c){ c.destroy(); });
+    rrCharts = [];
+    if(typeof Chart === 'undefined' || !estudio.tipos.length){
+      wrap.innerHTML = '<div class="empty-note">Completá al menos un tipo con datos para ver los gráficos.</div>';
+      return;
+    }
+    wrap.innerHTML =
+      rrChartCanvas('rr-chart-fragua', 'Tiempo de fragua (hh:mm)') +
+      rrChartCanvas('rr-chart-resist', 'Resistencia vs Tiempo') +
+      rrChartCanvas('rr-chart-slump', 'Trabajabilidad (pérdida de asentamiento)');
+
+    var colores = ['#0099cc','#0a3d4d','#4caf3e','#7c3aed','#ea580c'];
+    function hmToMin(s){ if(!s || s.indexOf(':')===-1) return null; var p=s.split(':'); return Number(p[0])*60+Number(p[1]); }
+
+    // Tiempo de fragua: barras horizontales apiladas (inicial + duración hasta final)
+    var labelsFragua = estudio.tipos.map(function(t){ return t.nombre; });
+    var iniMin = estudio.tipos.map(function(t){ return hmToMin(t.valores.fragua_i) || 0; });
+    var durMin = estudio.tipos.map(function(t,i){ var f = hmToMin(t.valores.fragua_f); return f!==null ? Math.max(0,f-iniMin[i]) : 0; });
+    rrCharts.push(new Chart(document.getElementById('rr-chart-fragua'), {
+      type:'bar',
+      data:{labels:labelsFragua, datasets:[
+        {label:'Inicio (min)', data:iniMin, backgroundColor:'rgba(0,0,0,0)'},
+        {label:'Fragua inicial → final', data:durMin, backgroundColor:colores[0]}
+      ]},
+      options:{indexAxis:'y', responsive:true, scales:{x:{stacked:true, title:{display:true,text:'Minutos desde elaboración'}}, y:{stacked:true}}}
+    }));
+
+    // Resistencia vs Tiempo (línea) — usa la tabla de Edad
+    var datasetsResist = estudio.tipos.map(function(t, ti){
+      var pts = estudio.edades.map(function(e){ return {x:Number((e.edad||'0').replace(/[^\d.]/g,'')) || 0, y:Number(e.valores[t.id])||0}; }).sort(function(a,b){return a.x-b.x;});
+      return {label:t.nombre, data:pts, borderColor:colores[ti%5], backgroundColor:colores[ti%5], tension:.3};
+    });
+    rrCharts.push(new Chart(document.getElementById('rr-chart-resist'), {
+      type:'line', data:{datasets:datasetsResist},
+      options:{responsive:true, scales:{x:{type:'linear', title:{display:true,text:'Días'}}, y:{title:{display:true,text:'Carga (kg)'}}}}
+    }));
+
+    // Trabajabilidad — consistencia a 0/30/60/90 min por tipo
+    var minutos = ['cons_0','cons_30','cons_60','cons_90'];
+    var minutosLbl = ['0','30','60','90'];
+    function pulgToNum(s){ if(!s || s==='-') return 0; if(s.indexOf(' ')>-1){ var pp=s.split(' '); var fr=pp[1].split('/'); return Number(pp[0])+Number(fr[0])/Number(fr[1]); } if(s.indexOf('/')>-1){ var fr2=s.split('/'); return Number(fr2[0])/Number(fr2[1]); } return Number(s)||0; }
+    var datasetsSlump = minutos.map(function(key, mi){
+      return {label:minutosLbl[mi]+"'", data: estudio.tipos.map(function(t){ return pulgToNum(t.valores[key]); }), backgroundColor: colores[mi%5]};
+    });
+    rrCharts.push(new Chart(document.getElementById('rr-chart-slump'), {
+      type:'bar', data:{labels:labelsFragua, datasets:datasetsSlump},
+      options:{responsive:true, scales:{y:{title:{display:true,text:'Slump (pulgadas)'}}}}
+    }));
   }
 
   document.getElementById('rr-table-holder').addEventListener('input', function(e){
@@ -4312,6 +4562,7 @@
       estudio.tipos[Number(el.dataset.ti)].valores[el.dataset.row] = el.value;
     }
     save('sid10_rr', rrEstudios);
+    renderRRCharts(estudio);
   });
   document.getElementById('rr-table-holder').addEventListener('click', function(e){
     var btn = e.target.closest('.rr-del-col');
@@ -4339,6 +4590,7 @@
     else if(el.dataset.edadReq !== undefined){ estudio.edades[Number(el.dataset.edadReq)].requisito = el.value; }
     else if(el.dataset.edad !== undefined){ estudio.edades[Number(el.dataset.edad)].valores[el.dataset.tid] = el.value; }
     save('sid10_rr', rrEstudios);
+    renderRRCharts(estudio);
   });
   document.getElementById('rr-add-edad').addEventListener('click', function(){
     var estudio = rrFind(rrActiveId);
@@ -4461,12 +4713,63 @@
       scales:{}
     };
   }
+  function poblarFiltroAnioDashboard(){
+    var sel = document.getElementById('dash-filtro-anio');
+    var anios = {};
+    disenos.forEach(function(d){ if(d.ts) anios[new Date(d.ts).getFullYear()] = true; });
+    var actual = new Date().getFullYear();
+    anios[actual] = true;
+    var lista = Object.keys(anios).map(Number).sort(function(a,b){return b-a;});
+    var prev = sel.value;
+    sel.innerHTML = lista.map(function(a){ return '<option value="'+a+'">'+a+'</option>'; }).join('');
+    sel.value = prev || String(actual);
+  }
+  function disenosFiltradosDashboard(){
+    var rango = document.getElementById('dash-filtro-rango').value;
+    var anio = Number(document.getElementById('dash-filtro-anio').value);
+    if(rango === 'todo') return disenos;
+    if(rango === 'anio') return disenos.filter(function(d){ return d.ts && new Date(d.ts).getFullYear() === anio; });
+    var dias = Number(rango);
+    var limite = Date.now() - dias*DAY;
+    return disenos.filter(function(d){ return (d.ts||0) >= limite; });
+  }
+  document.getElementById('dash-filtro-anio').addEventListener('change', function(){ buildDashboard(false); });
+  document.getElementById('dash-filtro-rango').addEventListener('change', function(){ buildDashboard(false); });
+
+  function renderAvanceProyecto(disenosF){
+    var wrap = document.getElementById('dash-avance-proyecto');
+    var porProyecto = {};
+    disenosF.forEach(function(d){
+      var nombre = proyectoNombre(d.proyectoId) || 'Sin proyecto';
+      if(!porProyecto[nombre]) porProyecto[nombre] = [];
+      porProyecto[nombre].push(d);
+    });
+    var nombres = Object.keys(porProyecto).sort();
+    if(!nombres.length){ wrap.innerHTML = '<div class="empty-note">Sin diseños en el rango seleccionado.</div>'; return; }
+    wrap.innerHTML = nombres.map(function(nombre){
+      var lista = porProyecto[nombre];
+      var completos = lista.filter(function(d){ return d.estado==='Completado'; }).length;
+      var pct = lista.length ? Math.round(completos/lista.length*100) : 0;
+      var iteraciones = {};
+      lista.forEach(function(d){ iteraciones[iteracionNombre(d.iteracionId)] = true; });
+      var nIter = Object.keys(iteraciones).length;
+      return '<div class="dash-avance-card">' +
+        '<div class="dac-top"><span class="dac-nombre">'+esc(nombre)+'</span><span class="dac-pct">'+pct+'%</span></div>' +
+        '<div class="dac-bar-track"><div class="dac-bar-fill" style="width:'+pct+'%;"></div></div>' +
+        '<div class="dac-meta"><span>'+completos+'/'+lista.length+' diseños completados</span><span>'+nIter+' iteración'+(nIter===1?'':'es')+'</span></div>' +
+      '</div>';
+    }).join('');
+  }
+
   function buildDashboard(first){
     var todayStr = todayISO();
+    if(first) poblarFiltroAnioDashboard();
+    var disenosF = disenosFiltradosDashboard();
+    renderAvanceProyecto(disenosF);
 
     // ---- KPIs ----
-    var totalDisenos = disenos.length;
-    var completados = disenos.filter(function(d){ return d.estado==='Completado'; }).length;
+    var totalDisenos = disenosF.length;
+    var completados = disenosF.filter(function(d){ return d.estado==='Completado'; }).length;
     var pct = totalDisenos ? Math.round(completados/totalDisenos*100) : 0;
     var roturasPend = roturaCargas.filter(function(c){ return c.estado==='pendiente' && c.fechaEnsayo<=todayStr; }).length;
     var proyectosActivos = todosLosProyectoIds().filter(function(pid){ var l = diseñosDeProyecto(pid); return l.length>0 && l.some(function(d){ return d.estado!=='Completado'; }); }).length;
@@ -4547,6 +4850,21 @@
       labels:['Completadas','En plazo','Vencidas'],
       datasets:[{data:[aTiempo, enPlazo, vencidas], backgroundColor:['#16a34a','#f5c518','#dc2626'], borderWidth:0}]
     }, {cutout:'62%', plugins:{legend:{position:'bottom', labels:{boxWidth:10,padding:10}}}});
+
+    // ---- 7. Costo promedio por m³ por proyecto (nueva métrica) ----
+    var costoPorProyecto = {};
+    disenosF.forEach(function(d){
+      var nombre = proyectoNombre(d.proyectoId) || 'Sin proyecto';
+      if(d.cvdTotal){ costoPorProyecto[nombre] = costoPorProyecto[nombre] || []; costoPorProyecto[nombre].push(Number(d.cvdTotal)); }
+    });
+    var costoStats = Object.keys(costoPorProyecto).map(function(nombre){
+      var arr = costoPorProyecto[nombre];
+      return {nombre:nombre, prom: arr.reduce(function(a,b){return a+b;},0)/arr.length};
+    }).sort(function(a,b){return b.prom-a.prom;}).slice(0,6);
+    upsertChart('chart-dash-costo', 'bar', {
+      labels: costoStats.map(function(p){ return p.nombre; }),
+      datasets:[{data: costoStats.map(function(p){ return +p.prom.toFixed(2); }), backgroundColor:'#0099cc', borderRadius:5, maxBarThickness:26}]
+    }, {indexAxis:'y', plugins:{legend:{display:false}}, scales:{x:{beginAtZero:true}}});
   }
   function upsertChart(canvasId, type, data, extraOptions){
     if(typeof Chart === 'undefined') return;
@@ -4595,7 +4913,7 @@
 
   /* ================= DATOS DE MUESTRA (siembra única, para ver el sistema con contenido real) ================= */
   function seedMoreDesigns(){
-    if(load('sid10_seed_v4', false)) return;
+    if(load('sid10_seed_v5', false)) return;
     var proyectoPool = ['Aditivos in House','Adhesivo Cementante','Benchmarking Ad. Cementante','P.I. Adhesivo Cementante','Estudio HE','Estudio HE + Fly Ash','Estudio HE Aditivado','Estudio LH','Estudio Aditivo','Estudio Escoria','Aditivos Chiclayo'];
     var tipoIdxPool = [0,4,1,3,0,4];
     var fcPool = [175,210,245,280,350,210,280];
@@ -4655,11 +4973,22 @@
           c.horaEnsayo = '10:00';
           recalcCarga(c);
         });
+        // Datos de slump/temperatura de muestra, para que el informe tenga gráficos reales.
+        var slumpBase = 6 + (k%4);
+        d.resultados = { replicas: d.replicaObjs.map(function(rep, ri){
+          return {
+            contacto:'10:0'+ri, pesoUnitario:String(2380+ri*15), aire:'1.'+(5+ri), thermoIni:String(24+ri), thermoFin:String(22+ri),
+            cohesividad:'Buena', apariencia:'Homogénea', observaciones:'-',
+            slump: SLUMP_ROWS.map(function(_,rowIdx){
+              return { hora:String(rowIdx*30), slump:(slumpBase-rowIdx*0.5-ri*0.2).toFixed(1), tempc:String(24-rowIdx+ri), tempa:String(21+rowIdx) };
+            })
+          };
+        })};
       }
     }
     save('sid10_disenos', disenos);
     saveRoturaCargas();
-    save('sid10_seed_v4', true);
+    save('sid10_seed_v5', true);
   }
   seedMoreDesigns();
 
