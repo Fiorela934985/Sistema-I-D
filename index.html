@@ -8,8 +8,20 @@
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Oswald:wght@500;600;700&family=Inter:wght@400;500;600;700&family=Roboto+Mono:wght@400;500&display=swap" rel="stylesheet">
 <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
-<script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.4/chart.umd.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.4/chart.umd.min.js" onerror="this.dataset.failed='1'"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+<script>
+  // Respaldo: si el CDN principal de Chart.js no cargó (bloqueo/red), probar con un CDN alternativo.
+  window.addEventListener('load', function(){
+    setTimeout(function(){
+      if(typeof Chart === 'undefined'){
+        var s = document.createElement('script');
+        s.src = 'https://cdn.jsdelivr.net/npm/chart.js@4.4.4/dist/chart.umd.min.js';
+        document.head.appendChild(s);
+      }
+    }, 1500);
+  });
+</script>
 <style>
   :root{
     --naranja-300:#a9dcec;
@@ -655,7 +667,9 @@
   .mezcla-title-row{display:flex;justify-content:space-between;align-items:baseline;flex-wrap:wrap;gap:8px;margin-bottom:12px;}
   .mezcla-title-row h4{color:var(--naranja-600);font-family:var(--font-display);font-size:1rem;text-transform:uppercase;}
   .mezcla-title-row .mono{color:#6c6c70;}
-  .mezcla-specs{display:grid;grid-template-columns:repeat(auto-fill,minmax(160px,1fr));gap:10px;margin-bottom:18px;font-size:.8rem;}
+  .mezcla-specs{display:flex;flex-direction:column;gap:4px;margin-bottom:16px;font-size:.78rem;border-bottom:1px solid var(--line);padding-bottom:12px;}
+  .mezcla-specs div{display:flex;justify-content:space-between;gap:10px;}
+  .mezcla-specs div b{color:var(--text-muted);font-weight:600;flex-shrink:0;}
   .mezcla-specs div{padding:8px 10px;background:#faf4f4;border-radius:3px;}
   .mezcla-specs b{display:block;font-size:.66rem;text-transform:uppercase;color:#6c6c70;margin-bottom:2px;}
 
@@ -691,9 +705,13 @@
   .back-home-btn{display:inline-flex;align-items:center;gap:8px;font-size:.8rem;font-weight:600;color:var(--text-muted);padding:7px 14px;border-radius:999px;border:1px solid var(--line);background:var(--surface);margin-bottom:18px;transition:color .15s, border-color .15s, background .15s;}
   .back-home-btn:hover{color:var(--naranja-600);border-color:var(--naranja-300);background:var(--surface-2);}
 
-  .rr-print-head{background:var(--surface);border:1px solid var(--line);border-radius:6px;padding:14px 16px;margin-bottom:14px;display:grid;grid-template-columns:1fr 1fr;gap:6px 24px;font-size:.8rem;}
-  .rr-print-head .rrp-title{grid-column:1/-1;font-family:var(--font-display);font-weight:700;font-size:.95rem;text-align:center;padding-bottom:8px;margin-bottom:6px;border-bottom:2px solid var(--negro);text-transform:uppercase;}
-  .rr-print-head .rrp-field{display:flex;gap:6px;}
+  .rr-print-head{background:var(--surface);border:1px solid var(--line);border-radius:6px;padding:14px 16px;margin-bottom:14px;display:flex;gap:16px;align-items:flex-start;font-size:.8rem;}
+  .rr-print-head .rrp-logo{flex-shrink:0;display:flex;align-items:center;justify-content:center;padding-top:4px;}
+  .rr-print-head .rrp-logo img{width:56px;height:auto;}
+  .rr-print-head .rrp-body{flex:1;min-width:0;}
+  .rr-print-head .rrp-title{font-family:var(--font-display);font-weight:700;font-size:.95rem;text-align:center;padding-bottom:8px;margin-bottom:8px;border-bottom:2px solid var(--negro);text-transform:uppercase;}
+  .rr-print-head .rrp-grid{display:grid;grid-template-columns:1fr 1fr;gap:6px 24px;}
+  .rr-print-head .rrp-grid .rrp-field{display:flex;gap:6px;}
   .rr-print-head .rrp-field b{color:var(--text-muted);font-weight:600;min-width:80px;}
   .rr-print-head .rrp-field input{flex:1;border:none;background:transparent;font-family:inherit;font-size:.8rem;color:var(--text);border-bottom:1px dotted var(--line);}
   .rr-charts-grid{display:grid;grid-template-columns:repeat(2,1fr);gap:18px;}
@@ -2682,7 +2700,7 @@
     wrap.innerHTML = pend.map(function(c){
       var d = disenos.filter(function(x){ return x.codigo === c.disenoCodigoDiseno; })[0];
       var sem = d ? semaforoDotHtml(semaforoDiseno(d), 'Avance del diseño') : '';
-      var badge = c.fechaEnsayo < todayStr ? '<span class="pendiente-badge vencido">Vencido</span>' : (c.fechaEnsayo === todayStr ? '<span class="pendiente-badge hoy">Hoy</span>' : '');
+      var badge = c.fechaEnsayo === todayStr ? '<span class="pendiente-badge hoy">Hoy</span>' : '';
       var tipoEsProbeta = (c.tipo||'Probetas') !== 'Cubos';
       return '<div class="pendiente-row">' +
         sem +
@@ -3027,9 +3045,9 @@
         '<div><b>% Fino / Grueso</b>'+esc(d.pctFino||'-')+'% / '+esc(d.pctGrueso||'-')+'%</div>' +
         '<div><b>Estado</b>'+esc(d.estado||'-')+'</div>' +
       '</div>' +
-      '<table class="mezcla-table"><thead><tr><th style="text-align:left;">Materiales</th><th>D</th><th>Peso Seco (kg/m3)</th><th>Vol. Abs. (m3)</th><th>Peso SSS (kg/m3)</th><th>Peso Húmedo (kg/m3)</th><th>Batch (kg)</th><th>CVD (S/.)</th></tr></thead>' +
+      '<div class="table-scroll"><table class="mezcla-table"><thead><tr><th style="text-align:left;">Materiales</th><th>D</th><th>Peso Seco (kg/m3)</th><th>Vol. Abs. (m3)</th><th>Peso SSS (kg/m3)</th><th>Peso Húmedo (kg/m3)</th><th>Batch (kg)</th><th>CVD (S/.)</th></tr></thead>' +
       '<tbody>'+(rows || '<tr><td colspan="8" style="color:#6c6c70;">Este diseño no tiene materiales de mezcla guardados.</td></tr>')+'</tbody>' +
-      '<tfoot><tr class="mezcla-total"><td style="text-align:left;">Total</td><td></td><td>'+totals.peso.toFixed(2)+'</td><td>'+totals.vol.toFixed(3)+'</td><td>'+totals.sss.toFixed(2)+'</td><td>'+totals.hum.toFixed(2)+'</td><td>'+totals.batch.toFixed(3)+'</td><td>'+totals.cvd.toFixed(2)+'</td></tr></tfoot></table>';
+      '<tfoot><tr class="mezcla-total"><td style="text-align:left;">Total</td><td></td><td>'+totals.peso.toFixed(2)+'</td><td>'+totals.vol.toFixed(3)+'</td><td>'+totals.sss.toFixed(2)+'</td><td>'+totals.hum.toFixed(2)+'</td><td>'+totals.batch.toFixed(3)+'</td><td>'+totals.cvd.toFixed(2)+'</td></tr></tfoot></table></div>';
   }
   function openDesignModal(d){
     currentModalDesign = d;
@@ -3080,14 +3098,14 @@
   function resistTableHtmlFromRoturas(nombreReplica){
     var cargas = cargasDeReplica(nombreReplica).sort(function(a,b){ return a.dia-b.dia; });
     if(!cargas.length){
-      return '<table class="resist-table"><thead><tr><th>Edad</th><th>Carga</th><th>kg/cm2</th></tr></thead>' +
-        '<tbody><tr><td colspan="3" style="color:var(--text-muted);">Todavía no hay cargas registradas en Roturas para esta réplica.</td></tr></tbody></table>';
+      return '<div class="table-scroll"><table class="resist-table"><thead><tr><th>Edad</th><th>Carga</th><th>kg/cm2</th></tr></thead>' +
+        '<tbody><tr><td colspan="3" style="color:var(--text-muted);">Todavía no hay cargas registradas en Roturas para esta réplica.</td></tr></tbody></table></div>';
     }
     var rows = cargas.map(function(c){
       var cargaTxt = [c.m1kg,c.m2kg,c.m3kg].filter(function(v){return v;}).join(' / ') || [c.m1kN,c.m2kN,c.m3kN].filter(function(v){return v;}).join(' / ') || '-';
       return '<tr><td class="resist-readonly">'+c.dia+' d</td><td class="resist-readonly">'+cargaTxt+'</td><td class="resist-readonly">'+(c.promedio||'-')+'</td></tr>';
     }).join('');
-    return '<table class="resist-table"><thead><tr><th>Edad</th><th>Carga</th><th>kg/cm2</th></tr></thead><tbody>'+rows+'</tbody></table>';
+    return '<div class="table-scroll"><table class="resist-table"><thead><tr><th>Edad</th><th>Carga</th><th>kg/cm2</th></tr></thead><tbody>'+rows+'</tbody></table></div>';
   }
 
   function replicaBlockHtml(idx, nombreBase, data){
@@ -3159,7 +3177,7 @@
       var st = combinado[dia] || {};
       return '<tr><td class="resist-readonly">'+dia+' d</td>'+cells+'<td class="resist-readonly">'+(st.promedio||'-')+'</td><td class="resist-readonly">'+(st.coefVar||'-')+'</td><td class="resist-readonly">'+(st.desvest||'-')+'</td></tr>';
     }).join('');
-    return '<table class="resist-table"><thead><tr>'+head+'</tr></thead><tbody>'+rows+'</tbody></table>';
+    return '<div class="table-scroll"><table class="resist-table"><thead><tr>'+head+'</tr></thead><tbody>'+rows+'</tbody></table></div>';
   }
   function openResultsModal(d, i){
     currentResultsDesign = d;
@@ -3273,7 +3291,7 @@
     informeCharts.forEach(function(c){ c.destroy(); });
     informeCharts = [];
     if(typeof Chart === 'undefined'){
-      if(intento < 25){ setTimeout(function(){ buildInformeCharts(d, intento+1); }, 200); return; }
+      if(intento < 40){ setTimeout(function(){ buildInformeCharts(d, intento+1); }, 200); return; }
       document.getElementById('informe-charts').innerHTML = '<div class="empty-note">No se pudieron cargar los gráficos (sin conexión a la librería). Los datos y tablas de arriba están completos igual.</div>';
       return;
     }
@@ -4326,9 +4344,11 @@
   }
 
   /* ================= REPORTE RR ================= */
+  var DINO_LOGO_IMG = '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';
   var RR_ROWS = [
     {t:'row', key:'ipac', label:'I-PAC', unit:'kg'},
     {t:'row', key:'hepac', label:'HE-PAC', unit:'kg'},
+    {t:'row', key:'flyash', label:'Fly Ash', unit:'kg'},
     {t:'row', key:'agua', label:'Agua', unit:'kg', hl:true},
     {t:'row', key:'arena_qsc', label:'VI-ARENA(0/4.75)-R-QSC-(J)-V', unit:'kg'},
     {t:'row', key:'arena_lvd', label:'VI-ARENA(0/4.75)-R-LVD-(B)-V', unit:'kg'},
@@ -4337,6 +4357,7 @@
     {t:'row', key:'mrb1201', label:'Master Rheobuild 1201', unit:'kg'},
     {t:'row', key:'iddnhe', label:'ID-DNHE-10-25', unit:'kg'},
     {t:'row', key:'sika', label:'Sika Plastiment R175', unit:'kg'},
+    {t:'row', key:'sikaplast740', label:'Sikaplast 740', unit:'kg'},
     {t:'row', key:'ac', label:'Relación a/c', unit:'', hl:true},
     {t:'row', key:'cvd', label:'CVD', unit:'S/.'},
     {t:'section', label:'Dosis aditivo (% masa cemento)'},
@@ -4344,6 +4365,7 @@
     {t:'row', key:'d_mrb1201', label:'Master Rheobuild 1201', unit:'%'},
     {t:'row', key:'d_iddnhe', label:'ID-DNHE-10-25', unit:'%'},
     {t:'row', key:'d_sika', label:'Sika Plastiment R175', unit:'%'},
+    {t:'row', key:'d_sikaplast740', label:'Sikaplast 740', unit:'%'},
     {t:'section', label:'Parámetros de diseño'},
     {t:'subsection', label:'Consistencia (pulg)'},
     {t:'row', key:'cons_0', label:'0 pulg'},
@@ -4373,16 +4395,83 @@
   ];
 
   var rrEstudios = load('sid10_rr', [{
-    id:'e1', nombre:'Estudio HE 0.70', fecha:'20/08/2026', proyectoId:'p1', generado:false,
+    id:'e1', nombre:'TIPO I VS HE', fecha:'10/08/2026', proyectoId:'ESTUDIO HE', generado:true,
+    cabecera:{planta:'Trujillo', ubicacion:'Laboratorio de Aplicaciones I+D', colaborador:'JPA/WC', responsable:'KVR', fecha:'2026-08-10'},
     tipos:[
-      {id:'t1', nombre:'EST HE 0.70 TIPO I', valores:{ipac:'281',hepac:'-',agua:'194',arena_qsc:'516',arena_lvd:'501',piedra_h67:'913',mrb2025:'2.81',mrb1201:'2.1',iddnhe:'-',sika:'-',ac:'0.70',cvd:'189.39',d_mrb2025:'1.00%',d_mrb1201:'0.75%',d_iddnhe:'-',d_sika:'-',cons_0:'8 1/2',cons_30:'7 3/4',cons_60:'7 1/2',cons_90:'5 1/2',cons_120:'-',tc_0:'26',tc_30:'26',tc_60:'25.5',tc_90:'25.25',tc_120:'-',ta_0:'25.9',ta_30:'26.15',ta_60:'26.25',ta_90:'26.1',ta_120:'-',pu:'2361.5',fragua_i:'08:30',fragua_f:'10:26',aire:'2.1',cohesividad:'Conforme',apariencia:'Normal',comentarios:'-'}},
-      {id:'t2', nombre:'EST HE 0.70 TIPO HE', valores:{ipac:'-',hepac:'281',agua:'194',arena_qsc:'516',arena_lvd:'501',piedra_h67:'913',mrb2025:'-',mrb1201:'-',iddnhe:'3.15',sika:'1.12',ac:'0.70',cvd:'198.70',d_mrb2025:'-',d_mrb1201:'-',d_iddnhe:'1.12%',d_sika:'0.40%',cons_0:'8 1/2',cons_30:'5 1/2',cons_60:'3 3/4',cons_90:'2 3/4',cons_120:'-',tc_0:'26.5',tc_30:'26.25',tc_60:'24.75',tc_90:'25.25',tc_120:'-',ta_0:'26.25',ta_30:'26.15',ta_60:'26.2',ta_90:'26.2',ta_120:'-',pu:'2378',fragua_i:'07:40',fragua_f:'09:34',aire:'2.25',cohesividad:'Conforme',apariencia:'Normal',comentarios:'-'}},
-      {id:'t3', nombre:'EST HE 0.70 HE 650', valores:{ipac:'-',hepac:'281',agua:'194',arena_qsc:'516',arena_lvd:'501',piedra_h67:'913',mrb2025:'-',mrb1201:'-',iddnhe:'3.15',sika:'1.12',ac:'0.70',cvd:'0.00',d_mrb2025:'-',d_mrb1201:'-',d_iddnhe:'1.12%',d_sika:'0.40%',cons_0:'8 1/2',cons_30:'7',cons_60:'5',cons_90:'3 3/4',cons_120:'-',tc_0:'25',tc_30:'24',tc_60:'23.5',tc_90:'23.5',tc_120:'-',ta_0:'22.8',ta_30:'23.2',ta_60:'23.3',ta_90:'23.5',ta_120:'-',pu:'2350',fragua_i:'07:43',fragua_f:'09:49',aire:'2.3',cohesividad:'Conforme',apariencia:'Normal',comentarios:'-'}}
+      {id:'t1', nombre:'EST HE 0.85 TIPO I', origenDisenoCodigo:'R-23', valores:{ipac:'231',hepac:'-',agua:'194',arena_qsc:'496',arena_lvd:'502',piedra_h67:'971',mrb2025:'3',mrb1201:'2.87',iddnhe:'-',sika:'-',ac:'0.85',cvd:'171.76',d_mrb2025:'1.30%',d_mrb1201:'1.24%',d_iddnhe:'-',d_sika:'-',cons_0:'8 1/2',cons_30:'8',cons_60:'7 1/2',cons_90:'6 1/2',cons_120:'-',tc_0:'25.75',tc_30:'25.7',tc_60:'25.5',tc_90:'25',tc_120:'-',ta_0:'25.85',ta_30:'26.2',ta_60:'26.15',ta_90:'26',ta_120:'-',pu:'2352',fragua_i:'08:29',fragua_f:'10:31',aire:'1.85',cohesividad:'Conforme',apariencia:'Normal',comentarios:'-'}},
+      {id:'t2', nombre:'EST HE 0.85 TIPO HE', origenDisenoCodigo:'R-24', valores:{ipac:'-',hepac:'231',agua:'195',arena_qsc:'497',arena_lvd:'502',piedra_h67:'972',mrb2025:'-',mrb1201:'-',iddnhe:'3.79',sika:'0.58',ac:'0.85',cvd:'181.69',d_mrb2025:'-',d_mrb1201:'-',d_iddnhe:'1.64%',d_sika:'0.25%',cons_0:'8 1/2',cons_30:'7 1/2',cons_60:'4 1/4',cons_90:'2 1/4',cons_120:'-',tc_0:'26.25',tc_30:'25.75',tc_60:'25.25',tc_90:'25.25',tc_120:'-',ta_0:'26.25',ta_30:'26.15',ta_60:'26.5',ta_90:'26.7',ta_120:'-',pu:'2354.5',fragua_i:'05:50',fragua_f:'07:38',aire:'1.9',cohesividad:'Conforme',apariencia:'Normal',comentarios:'-'}},
+      {id:'t3', nombre:'EST HE 0.70 TIPO I', origenDisenoCodigo:'R-25', valores:{ipac:'281',hepac:'-',agua:'194',arena_qsc:'516',arena_lvd:'501',piedra_h67:'913',mrb2025:'2.81',mrb1201:'2.1',iddnhe:'-',sika:'-',ac:'0.70',cvd:'189.39',d_mrb2025:'1.00%',d_mrb1201:'0.75%',d_iddnhe:'-',d_sika:'-',cons_0:'8 1/2',cons_30:'7 3/4',cons_60:'7 1/2',cons_90:'5 1/2',cons_120:'-',tc_0:'26',tc_30:'26',tc_60:'25.5',tc_90:'25.25',tc_120:'-',ta_0:'25.9',ta_30:'26.15',ta_60:'26.25',ta_90:'26.1',ta_120:'-',pu:'2361.5',fragua_i:'08:30',fragua_f:'10:26',aire:'2.1',cohesividad:'Conforme',apariencia:'Normal',comentarios:'-'}},
+      {id:'t4', nombre:'EST HE 0.70 TIPO HE', origenDisenoCodigo:'R-26', valores:{ipac:'-',hepac:'281',agua:'194',arena_qsc:'516',arena_lvd:'501',piedra_h67:'913',mrb2025:'-',mrb1201:'-',iddnhe:'3.15',sika:'1.12',ac:'0.70',cvd:'198.70',d_mrb2025:'-',d_mrb1201:'-',d_iddnhe:'1.12%',d_sika:'0.40%',cons_0:'8 1/2',cons_30:'5 1/2',cons_60:'3 3/4',cons_90:'2 3/4',cons_120:'-',tc_0:'26.5',tc_30:'26.25',tc_60:'24.75',tc_90:'25.25',tc_120:'-',ta_0:'26.25',ta_30:'26.15',ta_60:'26.2',ta_90:'26.2',ta_120:'-',pu:'2378',fragua_i:'07:40',fragua_f:'09:34',aire:'2.25',cohesividad:'Conforme',apariencia:'Normal',comentarios:'-'}}
     ],
     obs:{},
     edades:[
-      {edad:'1 d', requisito:'', valores:{t1:'125', t2:'121', t3:'157'}},
-      {edad:'3 d', requisito:'', valores:{t1:'193', t2:'199', t3:'185'}}
+      {edad:'1 d', requisito:'', valores:{t1:'87', t2:'82', t3:'125', t4:'121'}},
+      {edad:'3 d', requisito:'', valores:{t1:'152', t2:'140', t3:'193', t4:'199'}},
+      {edad:'7 d', requisito:'', valores:{t1:'176', t2:'167', t3:'237', t4:'228'}}
+    ]
+  },
+  {
+    id:'e2', nombre:'TIPO I VS HE (SIN ADITIVO)', fecha:'15/08/2026', proyectoId:'ESTUDIO HE', generado:true,
+    cabecera:{planta:'Trujillo', ubicacion:'Laboratorio de Aplicaciones I+D', colaborador:'JPA/WC', responsable:'KVR', fecha:'2026-08-15'},
+    tipos:[
+      {id:'t1', nombre:'EST HE 0.70 TIPO I (S/A)', origenDisenoCodigo:'R-27', valores:{ipac:'330',hepac:'-',agua:'220',arena_qsc:'-',arena_lvd:'861',piedra_h67:'986',mrb2025:'-',mrb1201:'-',iddnhe:'-',sika:'-',ac:'0.70',cvd:'0.00',cons_0:'4 3/4',cons_30:'-',cons_60:'-',cons_90:'-',cons_120:'-',tc_0:'25',tc_30:'-',tc_60:'-',tc_90:'-',tc_120:'-',ta_0:'23.4',ta_30:'-',ta_60:'-',ta_90:'-',ta_120:'-',pu:'2348',fragua_i:'04:38',fragua_f:'06:18',aire:'0.9',cohesividad:'Conforme',apariencia:'Normal',comentarios:'-'}},
+      {id:'t2', nombre:'EST HE 0.70 TIPO HE (S/A)', origenDisenoCodigo:'R-28', valores:{ipac:'-',hepac:'330',agua:'220',arena_qsc:'-',arena_lvd:'861',piedra_h67:'986',mrb2025:'-',mrb1201:'-',iddnhe:'-',sika:'-',ac:'0.70',cvd:'0.00',cons_0:'4',cons_30:'-',cons_60:'-',cons_90:'-',cons_120:'-',tc_0:'26',tc_30:'-',tc_60:'-',tc_90:'-',tc_120:'-',ta_0:'24.2',ta_30:'-',ta_60:'-',ta_90:'-',ta_120:'-',pu:'2359',fragua_i:'04:24',fragua_f:'06:12',aire:'1.4',cohesividad:'Conforme',apariencia:'Normal',comentarios:'-'}},
+      {id:'t3', nombre:'EST HE 0.70 HE 500 (S/A)', origenDisenoCodigo:'R-29', valores:{ipac:'-',hepac:'330',agua:'220',arena_qsc:'-',arena_lvd:'861',piedra_h67:'986',mrb2025:'-',mrb1201:'-',iddnhe:'-',sika:'-',ac:'0.70',cvd:'0.00',cons_0:'4 1/2',cons_30:'-',cons_60:'-',cons_90:'-',cons_120:'-',tc_0:'25',tc_30:'-',tc_60:'-',tc_90:'-',tc_120:'-',ta_0:'22.5',ta_30:'-',ta_60:'-',ta_90:'-',ta_120:'-',pu:'2350',fragua_i:'04:52',fragua_f:'06:46',aire:'1.2',cohesividad:'Conforme',apariencia:'Normal',comentarios:'-'}}
+    ],
+    obs:{},
+    edades:[
+      {edad:'1 d', requisito:'', valores:{t1:'66', t2:'98', t3:'116'}},
+      {edad:'3 d', requisito:'', valores:{t1:'127', t2:'171', t3:'129'}},
+      {edad:'7 d', requisito:'', valores:{t1:'164', t2:'208', t3:''}}
+    ]
+  },
+  {
+    id:'e3', nombre:'TIPO I (TRUJILLO VS MOCHE)', fecha:'14/08/2026', proyectoId:'ESTUDIO HE', generado:true,
+    cabecera:{planta:'Trujillo', ubicacion:'Laboratorio de Aplicaciones I+D', colaborador:'JPA/WC', responsable:'KVR', fecha:'2026-08-14'},
+    tipos:[
+      {id:'t1', nombre:'EST HE 0.70 TIPO I (TRUJILLO)', origenDisenoCodigo:'R-30', valores:{ipac:'281',hepac:'-',agua:'194',arena_qsc:'516',arena_lvd:'501',piedra_h67:'913',mrb2025:'2.81',mrb1201:'2.1',iddnhe:'-',sika:'-',ac:'0.70',cvd:'0.00',d_mrb2025:'1.00%',d_mrb1201:'0.75%',cons_0:'9',cons_30:'8',cons_60:'7 1/4',cons_90:'7',cons_120:'-',tc_0:'26',tc_30:'25',tc_60:'25',tc_90:'24',tc_120:'-',ta_0:'24.4',ta_30:'24.2',ta_60:'23.8',ta_90:'23.8',ta_120:'-',pu:'2345',fragua_i:'10:05',fragua_f:'11:55',aire:'2.1',cohesividad:'Conforme',apariencia:'Normal',comentarios:'-'}},
+      {id:'t2', nombre:'EST HE 0.70 TIPO I (MOCHE)', origenDisenoCodigo:'R-31', valores:{ipac:'281',hepac:'-',agua:'194',arena_qsc:'516',arena_lvd:'501',piedra_h67:'913',mrb2025:'2.81',mrb1201:'2.1',iddnhe:'-',sika:'-',ac:'0.70',cvd:'0.00',d_mrb2025:'1.00%',d_mrb1201:'0.75%',cons_0:'8 1/2',cons_30:'7 1/2',cons_60:'4 3/4',cons_90:'4 1/2',cons_120:'-',tc_0:'26',tc_30:'25.5',tc_60:'24.5',tc_90:'24.5',tc_120:'-',ta_0:'24.2',ta_30:'23.8',ta_60:'23.8',ta_90:'23.6',ta_120:'-',pu:'2345',fragua_i:'07:40',fragua_f:'09:34',aire:'2.4',cohesividad:'Conforme',apariencia:'Normal',comentarios:'-'}}
+    ],
+    obs:{},
+    edades:[
+      {edad:'1 d', requisito:'', valores:{t1:'101', t2:'108'}},
+      {edad:'3 d', requisito:'', valores:{t1:'189', t2:'203'}},
+      {edad:'7 d', requisito:'', valores:{t1:'234', t2:'231'}}
+    ]
+  },
+  {
+    id:'e4', nombre:'COMPARATIVO HE', fecha:'14/08/2026', proyectoId:'ESTUDIO HE', generado:true,
+    cabecera:{planta:'Trujillo', ubicacion:'Laboratorio de Aplicaciones I+D', colaborador:'WC/JPA', responsable:'KVR', fecha:'2026-08-14'},
+    tipos:[
+      {id:'t1', nombre:'EST HE 0.70 TIPO HE (M3 - M10)', origenDisenoCodigo:'R-33', valores:{ipac:'-',hepac:'281',agua:'194',arena_qsc:'516',arena_lvd:'501',piedra_h67:'913',mrb2025:'-',mrb1201:'-',iddnhe:'3.15',sika:'1.12',ac:'0.70',cvd:'198.70',d_iddnhe:'1.12%',d_sika:'0.40%',cons_0:'8 1/4',cons_30:'4',cons_60:'3',cons_90:'-',cons_120:'-',tc_0:'26',tc_30:'26',tc_60:'25.5',tc_90:'-',tc_120:'-',ta_0:'24.7',ta_30:'25',ta_60:'25',ta_90:'-',ta_120:'-',pu:'2365',fragua_i:'06:14',fragua_f:'08:06',aire:'2.1',cohesividad:'Conforme',apariencia:'Normal',comentarios:'-'}},
+      {id:'t2', nombre:'EST HE 0.70 TIPO HE (M1 - M2)', origenDisenoCodigo:'R-34', valores:{ipac:'-',hepac:'281',agua:'194',arena_qsc:'516',arena_lvd:'501',piedra_h67:'913',mrb2025:'-',mrb1201:'-',iddnhe:'3.15',sika:'1.12',ac:'0.70',cvd:'198.70',d_iddnhe:'1.12%',d_sika:'0.40%',cons_0:'6',cons_30:'3 1/4',cons_60:'-',cons_90:'-',cons_120:'-',tc_0:'26.5',tc_30:'25.5',tc_60:'-',tc_90:'-',tc_120:'-',ta_0:'25',ta_30:'25.1',ta_60:'-',ta_90:'-',ta_120:'-',pu:'2350',fragua_i:'05:58',fragua_f:'07:48',aire:'2.5',cohesividad:'Conforme',apariencia:'Normal',comentarios:'-'}}
+    ],
+    obs:{},
+    edades:[
+      {edad:'1 d', requisito:'', valores:{t1:'106', t2:'105'}},
+      {edad:'3 d', requisito:'', valores:{t1:'205', t2:'205'}},
+      {edad:'7 d', requisito:'', valores:{t1:'242', t2:'234'}}
+    ]
+  },
+  {
+    id:'e5', nombre:'TIPO HE + FA', fecha:'14/07/2026', proyectoId:'ESTUDIO HE + FLY ASH', generado:true,
+    cabecera:{planta:'Trujillo', ubicacion:'Laboratorio de Aplicaciones I+D', colaborador:'GAL/WC', responsable:'KVR', fecha:'2026-07-14'},
+    tipos:[
+      {id:'t1', nombre:'EST HE 0.40 HEV2.0 PATRON', origenDisenoCodigo:'R-15', valores:{hepac:'490',agua:'194',arena_qsc:'521',arena_lvd:'366',piedra_h67:'864',iddnhe:'2.36',sikaplast740:'1.23',ac:'0.40',cvd:'282.49',cons_0:'8.63',cons_30:'7.63',cons_60:'6.13',cons_90:'5.25',tc_0:'24.5',tc_30:'24.5',tc_60:'24.5',tc_90:'24.5',ta_0:'24.4',ta_30:'24.8',ta_60:'25.45',ta_90:'25.75',pu:'2381',fragua_i:'08:09',fragua_f:'10:09',aire:'1.9',cohesividad:'Conforme',apariencia:'Normal',comentarios:'-'}},
+      {id:'t2', nombre:'EST HE 0.40 HEV2.0 + FA', origenDisenoCodigo:'R-16', valores:{hepac:'431',flyash:'59',agua:'194',arena_qsc:'515',arena_lvd:'362',piedra_h67:'854',iddnhe:'2.7',sika:'1.23',ac:'0.40',cvd:'261.49',cons_0:'8.63',cons_30:'7.13',cons_60:'5',cons_90:'2.75',tc_0:'24.5',tc_30:'24.75',tc_60:'24.75',tc_90:'24.75',ta_0:'24.65',ta_30:'25.1',ta_60:'25.4',ta_90:'26.1',pu:'2322',fragua_i:'07:38',fragua_f:'09:42',aire:'3.4',cohesividad:'Conforme',apariencia:'Normal',comentarios:'-'}},
+      {id:'t3', nombre:'EST HE 0.55 HEV2.0 PATRON', origenDisenoCodigo:'R-17', valores:{hepac:'356',agua:'194',arena_qsc:'576',arena_lvd:'388',piedra_h67:'902',iddnhe:'2.74',sika:'0.89',ac:'0.55',cvd:'227.40',cons_0:'8 3/4',cons_30:'7.63',cons_60:'6.25',cons_90:'4.5',tc_0:'26.25',tc_30:'26',tc_60:'26',tc_90:'25.5',ta_0:'25.6',ta_30:'25.85',ta_60:'25.75',ta_90:'25.65',pu:'2361',fragua_i:'07:52',fragua_f:'09:56',aire:'2.15',cohesividad:'Conforme',apariencia:'Normal',comentarios:'-'}},
+      {id:'t4', nombre:'EST HE 0.55 HE + FA', origenDisenoCodigo:'R-18', valores:{hepac:'313',flyash:'43',agua:'194',arena_qsc:'572',arena_lvd:'386',piedra_h67:'896',iddnhe:'2.74',sika:'0.89',ac:'0.55',cvd:'210.28',cons_0:'8 3/4',cons_30:'7.75',cons_60:'7.38',cons_90:'4.38',tc_0:'26.25',tc_30:'26',tc_60:'25.5',tc_90:'25',ta_0:'25.6',ta_30:'25.6',ta_60:'25.8',ta_90:'25.45',pu:'2292',fragua_i:'07:24',fragua_f:'09:32',aire:'3.9',cohesividad:'Conforme',apariencia:'Normal',comentarios:'-'}},
+      {id:'t5', nombre:'EST HE 0.70 HEV2.0 PATRON', origenDisenoCodigo:'R-19', valores:{hepac:'281',agua:'194',arena_qsc:'516',arena_lvd:'501',piedra_h67:'913',iddnhe:'3.4',sika:'0.7',ac:'0.70',cvd:'201.61',cons_0:'8.25',cons_30:'6.5',cons_60:'4',cons_90:'2.38',tc_0:'27.25',tc_30:'26.5',tc_60:'25.75',tc_90:'25.5',ta_0:'26.8',ta_30:'26.35',ta_60:'26.05',ta_90:'25.65',pu:'2342.5',fragua_i:'06:03',fragua_f:'07:57',aire:'2.3',cohesividad:'Conforme',apariencia:'Normal',comentarios:'-'}},
+      {id:'t6', nombre:'EST HE 0.70 HEV2.0 + FA', origenDisenoCodigo:'R-20', valores:{hepac:'247',flyash:'34',agua:'194',arena_qsc:'513',arena_lvd:'499',piedra_h67:'908',iddnhe:'3.4',sika:'0.7',ac:'0.70',cvd:'188.10',cons_0:'8 1/2',cons_30:'7.25',cons_60:'4',cons_90:'2.38',tc_0:'27',tc_30:'26.5',tc_60:'25.75',tc_90:'25.5',ta_0:'26.4',ta_30:'26.05',ta_60:'25.75',ta_90:'25.15',pu:'2282',fragua_i:'06:09',fragua_f:'08:15',aire:'3.9',cohesividad:'Conforme',apariencia:'Normal',comentarios:'-'}},
+      {id:'t7', nombre:'EST HE 0.85 HE PATRON', origenDisenoCodigo:'R-21', valores:{hepac:'231',agua:'195',arena_qsc:'528',arena_lvd:'534',piedra_h67:'909',iddnhe:'3.12',sika:'0.81',ac:'0.85',cvd:'176.21',cons_0:'8 63/100',cons_30:'8.13',cons_60:'6.38',cons_90:'3.75',tc_0:'25',tc_30:'24.5',tc_60:'24.75',tc_90:'24.75',ta_0:'23.85',ta_30:'24.15',ta_60:'24.45',ta_90:'24.85',pu:'2337',fragua_i:'07:03',fragua_f:'08:54',aire:'2',cohesividad:'Conforme',apariencia:'Normal',comentarios:'-'}},
+      {id:'t8', nombre:'EST HE 0.85 HEV2.0 + FA', origenDisenoCodigo:'R-22', valores:{hepac:'203',flyash:'28',agua:'194',arena_qsc:'525',arena_lvd:'531',piedra_h67:'903',iddnhe:'4.77',sika:'0.81',ac:'0.85',cvd:'177.27',cons_0:'8 1/2',cons_30:'8',cons_60:'7',cons_90:'3.25',tc_0:'25',tc_30:'24.75',tc_60:'24.5',tc_90:'24.5',ta_0:'23.95',ta_30:'24.2',ta_60:'24.65',ta_90:'24.75',pu:'2305.5',fragua_i:'06:59',fragua_f:'08:58',aire:'2.95',cohesividad:'Conforme',apariencia:'Normal',comentarios:'-'}}
+    ],
+    obs:{},
+    edades:[
+      {edad:'1 d', requisito:'', valores:{t1:'270', t2:'229', t3:'160', t4:'128', t5:'106', t6:'86', t7:'69', t8:'56'}},
+      {edad:'3 d', requisito:'', valores:{t1:'337', t2:'311', t3:'247', t4:'232', t5:'191', t6:'156', t7:'135', t8:'110'}},
+      {edad:'7 d', requisito:'', valores:{t1:'393', t2:'353', t3:'299', t4:'264', t5:'215', t6:'196', t7:'155', t8:'128'}},
+      {edad:'28 d', requisito:'', valores:{t1:'445', t2:'430', t3:'315', t4:'342', t5:'257', t6:'233', t7:'195', t8:'177'}}
     ]
   }]);
   var rrActiveId = rrEstudios.length ? rrEstudios[0].id : null;
@@ -4439,13 +4528,18 @@
     if(!estudio.cabecera) estudio.cabecera = {planta:'', ubicacion:'Laboratorio de Aplicaciones I+D', colaborador:'', responsable:'', fecha:todayISO()};
     var cab = estudio.cabecera;
     document.getElementById('rr-print-head').innerHTML =
-      '<div class="rrp-title">Resumen de reporte de resultados de mezclas de prueba</div>' +
-      '<div class="rrp-field"><b>Planta</b><input data-cab="planta" value="'+esc(cab.planta||'')+'" placeholder="Ej. Trujillo"></div>' +
-      '<div class="rrp-field"><b>Fecha</b><input type="date" data-cab="fecha" value="'+esc(cab.fecha||'')+'"></div>' +
-      '<div class="rrp-field"><b>Ubicación</b><input data-cab="ubicacion" value="'+esc(cab.ubicacion||'')+'"></div>' +
-      '<div class="rrp-field"><b>Colaborador</b><input data-cab="colaborador" value="'+esc(cab.colaborador||'')+'" placeholder="Iniciales"></div>' +
-      '<div class="rrp-field"><b>Proyecto</b><input value="'+esc(estudio.proyectoId ? proyectoNombre(estudio.proyectoId) : estudio.nombre)+'" readonly></div>' +
-      '<div class="rrp-field"><b>Responsable</b><input data-cab="responsable" value="'+esc(cab.responsable||'')+'" placeholder="Nombre"></div>';
+      '<div class="rrp-logo"><img src="data:image/png;base64,'+DINO_LOGO_IMG+'" alt="DINO"></div>' +
+      '<div class="rrp-body">' +
+        '<div class="rrp-title">Resumen de reporte de resultados de mezclas de prueba</div>' +
+        '<div class="rrp-grid">' +
+          '<div class="rrp-field"><b>Planta</b><input data-cab="planta" value="'+esc(cab.planta||'')+'" placeholder="Ej. Trujillo"></div>' +
+          '<div class="rrp-field"><b>Fecha</b><input type="date" data-cab="fecha" value="'+esc(cab.fecha||'')+'"></div>' +
+          '<div class="rrp-field"><b>Ubicación</b><input data-cab="ubicacion" value="'+esc(cab.ubicacion||'')+'"></div>' +
+          '<div class="rrp-field"><b>Colaborador</b><input data-cab="colaborador" value="'+esc(cab.colaborador||'')+'" placeholder="Iniciales"></div>' +
+          '<div class="rrp-field"><b>Proyecto</b><input value="'+esc(estudio.proyectoId ? proyectoNombre(estudio.proyectoId) : estudio.nombre)+'" readonly></div>' +
+          '<div class="rrp-field"><b>Responsable</b><input data-cab="responsable" value="'+esc(cab.responsable||'')+'" placeholder="Nombre"></div>' +
+        '</div>' +
+      '</div>';
 
     var theadCols = '<th>Diseño</th>' + estudio.tipos.map(function(t,ti){
       return '<th><div class="rr-th-inner">' +
@@ -4878,7 +4972,9 @@
     var opts = Object.assign({responsive:true, maintainAspectRatio:false, animation:{duration:900, easing:'easeOutQuart'}}, extraOptions||{});
     dashCharts[canvasId] = new Chart(canvas, {type:type, data:data, options:opts});
   }
-  function animateReportes(){
+  function animateReportes(intento){
+    intento = intento || 0;
+    if(typeof Chart === 'undefined' && intento < 25){ setTimeout(function(){ animateReportes(intento+1); }, 300); return; }
     buildDashboard(true);
     clearInterval(dashInterval);
     dashInterval = setInterval(function(){
