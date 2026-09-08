@@ -8,20 +8,13 @@
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Oswald:wght@500;600;700&family=Inter:wght@400;500;600;700&family=Roboto+Mono:wght@400;500&display=swap" rel="stylesheet">
 <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
-<script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.4/chart.umd.min.js" onerror="this.dataset.failed='1'"></script>
-<script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.4/dist/chart.umd.min.js"></script>
 <script>
-  // Respaldo: si el CDN principal de Chart.js no cargó (bloqueo/red), probar con un CDN alternativo.
-  window.addEventListener('load', function(){
-    setTimeout(function(){
-      if(typeof Chart === 'undefined'){
-        var s = document.createElement('script');
-        s.src = 'https://cdn.jsdelivr.net/npm/chart.js@4.4.4/dist/chart.umd.min.js';
-        document.head.appendChild(s);
-      }
-    }, 1500);
-  });
+if(typeof Chart === 'undefined'){
+  document.write('<script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.1/chart.umd.min.js"><\/script>');
+}
 </script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
 <style>
   :root{
     --naranja-300:#a9dcec;
@@ -650,19 +643,19 @@
   .resist-toolbar button:hover{color:var(--naranja-600);border-color:var(--naranja-300);}
   .resist-toolbar .resist-hint{font-size:.68rem;color:var(--text-muted);}
 
-  #informe-modal{position:fixed;inset:0;background:rgba(10,10,10,.7);z-index:206;display:none;align-items:flex-start;justify-content:flex-start;padding:12px;overflow-y:auto;}
+  #informe-modal{position:fixed;inset:0;background:rgba(10,10,10,.7);z-index:206;display:none;align-items:flex-start;justify-content:center;padding:12px 18px;overflow-y:auto;}
   #informe-modal.show{display:flex;}
-  .informe-card{background:var(--surface);border-radius:12px;max-width:1300px;width:96vw;box-shadow:0 30px 70px -20px rgba(0,0,0,.5);}
+  .informe-card{background:var(--surface);border-radius:12px;max-width:98vw;width:100%;box-shadow:0 30px 70px -20px rgba(0,0,0,.5);margin:0 auto;}
   .informe-head{position:relative;text-align:center;padding:20px 50px;background:linear-gradient(160deg,#0d1113,#22282b 65%,#0099cc);border-radius:12px 12px 0 0;}
   .informe-head h2{font-family:var(--font-display);font-size:1.2rem;font-weight:700;letter-spacing:.03em;color:#fff;text-transform:uppercase;}
   .informe-head .modal-close{position:absolute;right:16px;top:16px;color:#fff;}
-  .informe-split{display:grid;grid-template-columns:380px 1fr;gap:0;min-height:88vh;}
-  .informe-left{border-right:1px solid var(--line);display:flex;flex-direction:column;}
+  .informe-split{display:grid;grid-template-columns:485px 1fr;gap:0;min-height:88vh;}
+  .informe-left{border-right:1px solid var(--line);display:flex;flex-direction:column;background:var(--surface-2);}
   .informe-zoom-bar{display:flex;align-items:center;gap:10px;padding:10px 14px;border-bottom:1px solid var(--line);background:var(--surface-2);}
   .informe-zoom-bar button{width:26px;height:26px;border-radius:4px;border:1px solid var(--line);background:var(--surface);font-weight:700;}
   .informe-zoom-bar button:hover{border-color:var(--naranja-500);color:var(--naranja-600);}
-  .informe-zoom-viewport{flex:1;overflow:auto;padding:8px;background:#f4f4f4;}
-  .informe-zoom-content{transform-origin:top left;transition:transform .12s var(--ease);background:var(--surface);padding:14px;border-radius:6px;box-shadow:0 2px 8px rgba(0,0,0,.08);}
+  .informe-zoom-viewport{flex:1;overflow:auto;padding:14px;background:#f0f2f5;}
+  .informe-zoom-content{transform-origin:top left;transition:transform .12s var(--ease);background:var(--surface);padding:18px 20px;border-radius:8px;box-shadow:0 4px 16px rgba(0,0,0,.08);width:750px;min-width:750px;box-sizing:border-box;}
   .informe-right{padding:20px;display:grid;grid-template-columns:repeat(2,1fr);gap:20px;align-content:start;overflow-y:auto;max-height:88vh;}
   .informe-chart-card{border:1px solid var(--line);border-radius:8px;padding:14px;display:flex;flex-direction:column;}
   .informe-chart-card .chart-canvas-wrap{position:relative;height:280px;}
@@ -3356,6 +3349,54 @@
   var informeCharts = [];
   var REPLICA_COLORS = ['#c81e1e','#ea580c','#0d9488','#7c3aed'];
 
+  function minToHm(min){
+    if(min === null || min === undefined || isNaN(min) || min <= 0) return '';
+    var h = Math.floor(min / 60);
+    var m = Math.round(min % 60);
+    return (h < 10 ? '0' : '') + h + ':' + (m < 10 ? '0' : '') + m;
+  }
+
+  var fraguaDataLabelsPlugin = {
+    id: 'fraguaDataLabelsPlugin',
+    afterDatasetsDraw: function(chart){
+      var ctx = chart.ctx;
+      ctx.save();
+      ctx.font = 'bold 11px Inter, sans-serif';
+      ctx.fillStyle = '#ffffff';
+      ctx.textAlign = 'center';
+      ctx.textBaseline = 'middle';
+
+      var ds0 = chart.data.datasets[0];
+      var ds1 = chart.data.datasets[1];
+      var meta0 = chart.getDatasetMeta(0);
+      var meta1 = chart.getDatasetMeta(1);
+
+      if(meta0 && meta0.data && ds0){
+        meta0.data.forEach(function(bar, idx){
+          var val = ds0.data[idx];
+          if(val > 0 && Math.abs(bar.x - bar.base) > 34){
+            var text = minToHm(val);
+            var centerX = (bar.base + bar.x) / 2;
+            ctx.fillText(text, centerX, bar.y);
+          }
+        });
+      }
+
+      if(meta1 && meta1.data && ds1){
+        meta1.data.forEach(function(bar, idx){
+          var dur = ds1.data[idx];
+          if(dur > 0 && Math.abs(bar.x - bar.base) > 34){
+            var text = minToHm(dur);
+            var centerX = (bar.base + bar.x) / 2;
+            ctx.fillText(text, centerX, bar.y);
+          }
+        });
+      }
+
+      ctx.restore();
+    }
+  };
+
   function informeRecapHtml(d){
     var reps = d.replicaObjs || [];
     var existingReplicasData = (d.resultados && d.resultados.replicas) || [];
@@ -3462,25 +3503,108 @@
       card.innerHTML = '<h4>'+title+'</h4><div class="chart-canvas-wrap"><canvas id="'+id+'"></canvas></div><button class="informe-chart-dl" data-canvas="'+id+'">Descargar PNG</button>';
       document.getElementById('informe-charts').appendChild(card);
     }
-    function hmToMinInforme(s){ if(!s || s.indexOf(':')===-1) return null; var p=s.split(':'); return Number(p[0])*60+Number(p[1]); }
+    function hmToMinInforme(s){
+      if(s === null || s === undefined || s === '' || s === '-') return null;
+      s = String(s).trim();
+      if(!s || s === '-') return null;
+      if(s.indexOf(':') > -1){
+        var p = s.split(':');
+        var h = parseFloat(p[0]) || 0;
+        var m = parseFloat(p[1]) || 0;
+        return h * 60 + m;
+      }
+      var val = parseFloat(s);
+      if(!isNaN(val) && val > 0){
+        return val * 60;
+      }
+      return null;
+    }
     function pulgToNumInforme(s){ if(!s || s==='-') return 0; s=String(s); if(s.indexOf(' ')>-1){ var pp=s.split(' '); var fr=pp[1].split('/'); return Number(pp[0])+Number(fr[0])/Number(fr[1]); } if(s.indexOf('/')>-1){ var fr2=s.split('/'); return Number(fr2[0])/Number(fr2[1]); } return Number(s)||0; }
 
-    // 1) Tiempo de fragua (barras horizontales) — mismo estilo que RR
-    addChartCard('chart-fragua-inf', 'Tiempo de fragua (hh:mm)');
+    // 1) Tiempo de fragua (barras horizontales) — diseño bimodal con etiquetas
+    addChartCard('chart-fragua-inf', 'TIEMPO DE FRAGUA (hh:mm)');
     var labelsRep = reps.map(function(rep){ return rep.nombre; });
     var iniMin = reps.map(function(rep, idx){ return hmToMinInforme((existingReplicasData[idx]||{}).thermoIni) || 0; });
-    var durMin = reps.map(function(rep, idx){ var f = hmToMinInforme((existingReplicasData[idx]||{}).thermoFin); return f!==null ? Math.max(0,f-iniMin[idx]) : 0; });
-    var hayFragua = durMin.some(function(v){ return v>0; });
+    var durMin = reps.map(function(rep, idx){
+      var f = hmToMinInforme((existingReplicasData[idx]||{}).thermoFin);
+      if(f === null) return 0;
+      return f > iniMin[idx] ? f - iniMin[idx] : f;
+    });
+    var hayFragua = iniMin.some(function(v){ return v>0; }) || durMin.some(function(v){ return v>0; });
     informeCharts.push(new Chart(document.getElementById('chart-fragua-inf'), {
       type:'bar',
-      data:{labels:labelsRep, datasets:[
-        {label:'Inicio (min)', data:iniMin, backgroundColor:'rgba(0,0,0,0)'},
-        {label:'Fragua inicial → final', data:durMin, backgroundColor:'#0099cc'}
-      ]},
-      options:{indexAxis:'y', responsive:true, maintainAspectRatio:false, scales:{x:{stacked:true, title:{display:true,text:'Minutos desde elaboración'}}, y:{stacked:true}}}
+      data:{
+        labels:labelsRep,
+        datasets:[
+          {
+            label:'Fragua Inicial',
+            data:iniMin,
+            backgroundColor:'#1688fe',
+            hoverBackgroundColor:'#1273d8'
+          },
+          {
+            label:'Fragua Final',
+            data:durMin,
+            backgroundColor:'#0c2288',
+            hoverBackgroundColor:'#091a6d'
+          }
+        ]
+      },
+      options:{
+        indexAxis:'y',
+        responsive:true,
+        maintainAspectRatio:false,
+        plugins:{
+          legend:{
+            display:true,
+            position:'top',
+            labels:{
+              usePointStyle:true,
+              pointStyle:'circle',
+              boxWidth:8,
+              boxHeight:8,
+              padding:14,
+              font:{weight:600, size:11}
+            }
+          },
+          tooltip:{
+            callbacks:{
+              label:function(ctx){
+                var dIdx = ctx.datasetIndex;
+                var i = ctx.dataIndex;
+                var ini = iniMin[i];
+                var dur = durMin[i];
+                if(dIdx === 0){
+                  return 'Fragua Inicial: ' + minToHm(ini);
+                } else {
+                  return 'Fragua Final: ' + minToHm(ini + dur) + ' (Lapso: ' + minToHm(dur) + ')';
+                }
+              }
+            }
+          }
+        },
+        scales:{
+          x:{
+            stacked:true,
+            title:{display:true, text:'Minutos desde elaboración', font:{weight:600}},
+            ticks:{
+              callback:function(val){
+                var h = Math.floor(val/60);
+                var m = Math.round(val%60);
+                return (h<10?'0':'')+h+':'+(m<10?'0':'')+m;
+              }
+            }
+          },
+          y:{
+            stacked:true,
+            title:{display:true, text:'DISEÑO', font:{weight:700}}
+          }
+        }
+      },
+      plugins:[fraguaDataLabelsPlugin]
     }));
     if(!hayFragua){
-      document.querySelector('#chart-fragua-inf').closest('.informe-chart-card').querySelector('.chart-canvas-wrap').insertAdjacentHTML('beforeend', '<div class="empty-note" style="position:absolute;inset:0;display:flex;align-items:center;justify-content:center;text-align:center;padding:10px;">Todavía no se cargó fragua inicial/final (Cargar Resultados) para este diseño.</div>');
+      document.querySelector('#chart-fragua-inf').closest('.informe-chart-card').querySelector('.chart-canvas-wrap').insertAdjacentHTML('beforeend', '<div class="empty-note" style="position:absolute;inset:0;display:flex;align-items:center;justify-content:center;text-align:center;padding:14px;background:rgba(255,255,255,0.92);backdrop-filter:blur(2px);border-radius:6px;z-index:2;color:var(--text-muted);font-weight:500;">Todavía no se cargó fragua inicial/final (Cargar Resultados) para este diseño.</div>');
     }
 
     // 2) Resistencia vs Tiempo (líneas) — mismo estilo que RR
@@ -3506,7 +3630,7 @@
       options:{responsive:true, maintainAspectRatio:false, scales:{y:{title:{display:true,text:'Slump (pulgadas)'}}}}
     }));
     if(!hayDatosSlump){
-      document.querySelector('#chart-slump').closest('.informe-chart-card').querySelector('.chart-canvas-wrap').insertAdjacentHTML('beforeend', '<div class="empty-note" style="position:absolute;inset:0;display:flex;align-items:center;justify-content:center;text-align:center;padding:10px;">Todavía no se cargaron resultados de consistencia (Cargar Resultados) para este diseño.</div>');
+      document.querySelector('#chart-slump').closest('.informe-chart-card').querySelector('.chart-canvas-wrap').insertAdjacentHTML('beforeend', '<div class="empty-note" style="position:absolute;inset:0;display:flex;align-items:center;justify-content:center;text-align:center;padding:14px;background:rgba(255,255,255,0.92);backdrop-filter:blur(2px);border-radius:6px;z-index:2;color:var(--text-muted);font-weight:500;">Todavía no se cargaron resultados de consistencia (Cargar Resultados) para este diseño.</div>');
     }
   }
 
@@ -4775,19 +4899,80 @@
       rrChartCanvas('rr-chart-slump', 'Trabajabilidad (pérdida de asentamiento)');
 
     var colores = ['#0099cc','#0a3d4d','#4caf3e','#7c3aed','#ea580c'];
-    function hmToMin(s){ if(!s || s.indexOf(':')===-1) return null; var p=s.split(':'); return Number(p[0])*60+Number(p[1]); }
+    function hmToMin(s){
+      if(s === null || s === undefined || s === '' || s === '-') return null;
+      s = String(s).trim();
+      if(!s || s === '-') return null;
+      if(s.indexOf(':') > -1){
+        var p = s.split(':');
+        var h = parseFloat(p[0]) || 0;
+        var m = parseFloat(p[1]) || 0;
+        return h * 60 + m;
+      }
+      var val = parseFloat(s);
+      if(!isNaN(val) && val > 0) return val * 60;
+      return null;
+    }
 
-    // Tiempo de fragua: barras horizontales apiladas (inicial + duración hasta final)
+    // Tiempo de fragua: barras horizontales apiladas bicolores con etiquetas
     var labelsFragua = estudio.tipos.map(function(t){ return t.nombre; });
     var iniMin = estudio.tipos.map(function(t){ return hmToMin(t.valores.fragua_i) || 0; });
-    var durMin = estudio.tipos.map(function(t,i){ var f = hmToMin(t.valores.fragua_f); return f!==null ? Math.max(0,f-iniMin[i]) : 0; });
+    var durMin = estudio.tipos.map(function(t,i){
+      var f = hmToMin(t.valores.fragua_f);
+      if(f === null) return 0;
+      return f > iniMin[i] ? f - iniMin[i] : f;
+    });
     rrCharts.push(new Chart(document.getElementById('rr-chart-fragua'), {
       type:'bar',
-      data:{labels:labelsFragua, datasets:[
-        {label:'Inicio (min)', data:iniMin, backgroundColor:'rgba(0,0,0,0)'},
-        {label:'Fragua inicial → final', data:durMin, backgroundColor:colores[0]}
-      ]},
-      options:{indexAxis:'y', responsive:true, maintainAspectRatio:false, scales:{x:{stacked:true, title:{display:true,text:'Minutos desde elaboración'}}, y:{stacked:true}}}
+      data:{
+        labels:labelsFragua,
+        datasets:[
+          {label:'Fragua Inicial', data:iniMin, backgroundColor:'#1688fe', hoverBackgroundColor:'#1273d8'},
+          {label:'Fragua Final', data:durMin, backgroundColor:'#0c2288', hoverBackgroundColor:'#091a6d'}
+        ]
+      },
+      options:{
+        indexAxis:'y',
+        responsive:true,
+        maintainAspectRatio:false,
+        plugins:{
+          legend:{
+            display:true,
+            position:'top',
+            labels:{usePointStyle:true, pointStyle:'circle', boxWidth:8, boxHeight:8, padding:12, font:{weight:600, size:11}}
+          },
+          tooltip:{
+            callbacks:{
+              label:function(ctx){
+                var dIdx = ctx.datasetIndex;
+                var i = ctx.dataIndex;
+                var ini = iniMin[i];
+                var dur = durMin[i];
+                if(dIdx === 0){
+                  return 'Fragua Inicial: ' + minToHm(ini);
+                } else {
+                  return 'Fragua Final: ' + minToHm(ini + dur) + ' (Lapso: ' + minToHm(dur) + ')';
+                }
+              }
+            }
+          }
+        },
+        scales:{
+          x:{
+            stacked:true,
+            title:{display:true, text:'Minutos desde elaboración', font:{weight:600}},
+            ticks:{
+              callback:function(val){
+                var h = Math.floor(val/60);
+                var m = Math.round(val%60);
+                return (h<10?'0':'')+h+':'+(m<10?'0':'')+m;
+              }
+            }
+          },
+          y:{stacked:true, title:{display:true, text:'DISEÑO', font:{weight:700}}}
+        }
+      },
+      plugins:[fraguaDataLabelsPlugin]
     }));
 
     // Resistencia vs Tiempo (línea) — usa la tabla de Edad
