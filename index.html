@@ -1091,6 +1091,7 @@ if(typeof Chart === 'undefined'){
     <div class="modal-header"><h3>Etiquetas de identificación</h3><button class="modal-close" data-close="etiquetas-modal">×</button></div>
     <div class="modal-body">
       <p id="etq-diseno-nombre" class="mono" style="margin-bottom:10px;"></p>
+      <div id="etq-opciones">
       <div class="form-row" style="align-items:center;">
         <label class="pp-check-inline"><input type="radio" name="etq-modo" value="especimen" checked> Una por espécimen (réplica × edad × M1–M3)</label>
         <label class="pp-check-inline"><input type="radio" name="etq-modo" value="rotura"> Una por rotura (réplica × edad)</label>
@@ -1099,6 +1100,7 @@ if(typeof Chart === 'undefined'){
       <div class="form-row" style="align-items:center;">
         <label class="pp-check-inline"><input type="checkbox" id="etq-solo-pendientes" checked> Solo roturas pendientes</label>
         <span class="nota-sm" id="etq-cuenta"></span>
+      </div>
       </div>
       <div class="etq-preview" id="etq-preview"></div>
     </div>

@@ -45,7 +45,7 @@ function etiquetaHtml(e){
   return '<div class="etq">' +
     '<div class="etq-qr">'+qrSvg(e.qr)+'</div>' +
     '<div class="etq-txt"><div class="etq-cod">'+esc(e.codigo)+'</div><div class="etq-tit">'+esc(e.titulo)+'</div>' +
-      '<div class="etq-l">'+esc(e.linea1)+'</div><div class="etq-l">'+esc(e.linea2)+'</div><div class="etq-p">'+esc(e.proyecto||'')+' · Lab. I+D</div></div>' +
+      '<div class="etq-l">'+esc(e.linea1)+'</div><div class="etq-l">'+esc(e.linea2)+'</div><div class="etq-p">'+esc([e.proyecto, 'Lab. I+D'].filter(Boolean).join(' · '))+'</div></div>' +
   '</div>';
 }
 function opcionesEtiquetas(){
@@ -65,14 +65,34 @@ function renderEtiquetasPreview(){
 function abrirEtiquetas(codigo){
   var d = disenoPorCodigo(codigo);
   if(!d){ toast('No se encontró el diseño'); return; }
-  if(!cargasDeDiseno(d).length && !(d.replicaObjs || []).length){ toast('Este diseño aún no tiene réplicas ni roturas programadas'); return; }
   etiquetasDisenoCodigo = codigo;
   document.getElementById('etq-diseno-nombre').textContent = d.codigo + ' · ' + diseñoTitulo(d) + ' · ' + (proyectoNombre(d.proyectoId) || 'Sin proyecto');
+  // Sin réplicas ni roturas no hay qué etiquetar: se explica y se ofrece programarlas desde acá.
+  var sinRoturas = !cargasDeDiseno(d).length && !(d.replicaObjs || []).length;
+  document.getElementById('etq-opciones').style.display = sinRoturas ? 'none' : '';
+  document.getElementById('etq-imprimir').style.display = sinRoturas ? 'none' : '';
+  if(sinRoturas){
+    document.getElementById('etq-cuenta').textContent = '';
+    document.getElementById('etq-preview').innerHTML =
+      '<div class="etq-vacio"><b>Este diseño todavía no tiene réplicas ni roturas programadas.</b>' +
+      '<p>Las etiquetas se generan a partir de los códigos de cada réplica (ID-0001, ID-0002…). Programá las réplicas y los días de rotura y vas a poder imprimirlas.</p>' +
+      '<button class="btn-add" id="etq-programar" data-perm="roturas:registrar">Programar réplicas y roturas</button></div>';
+    abrirModal('etiquetas-modal');
+    return;
+  }
   var hayPend = cargasDeDiseno(d).some(function(c){ return c.estado !== 'completado'; });
   document.getElementById('etq-solo-pendientes').checked = hayPend;
   renderEtiquetasPreview();
   abrirModal('etiquetas-modal');
 }
+document.getElementById('etiquetas-modal').addEventListener('click', function(e){
+  if(!e.target.closest('#etq-programar')) return;
+  if(!exigir('roturas:registrar')) return;
+  var d = disenoPorCodigo(etiquetasDisenoCodigo);
+  cerrarModal('etiquetas-modal');
+  // Abre el mismo flujo del registro de diseño: réplicas → días → roturas creadas → "Imprimir etiquetas".
+  if(d) askReplicasThenPrint(d);
+});
 document.getElementById('etiquetas-modal').addEventListener('change', function(e){
   if(e.target.name === 'etq-modo' || e.target.id === 'etq-solo-pendientes') renderEtiquetasPreview();
 });
