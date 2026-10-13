@@ -27,6 +27,17 @@ function registrarIteracion(nombreProyecto, iteracionStr){
   }
 }
 function proyectoId(nombre){ return nombre; }
+/* Al renombrar un proyecto se actualizan todas las entidades que lo referencian por nombre. */
+function renombrarProyectoEnTodo(viejo, nuevo){
+  roturaCargas.forEach(function(c){ if(c.proyecto === viejo) c.proyecto = nuevo; });
+  saveRoturaCargas();
+  rrEstudios.forEach(function(e){ if(e.proyectoId === viejo) e.proyectoId = nuevo; });
+  save('sid10_rr', rrEstudios);
+  evidenciasIdx.forEach(function(ev){ if(ev.proyecto === viejo) ev.proyecto = nuevo; });
+  saveEvidenciasIdx();
+  historial.forEach(function(h){ if(h.proyecto === viejo) h.proyecto = nuevo; });
+  saveHistorial();
+}
 function proyectoNombre(pid){ if(!pid) return ''; var idx = pid.indexOf('::'); return idx>-1 ? pid.slice(idx+2) : pid; }
 function iteracionNombre(val){ return val || ''; }
 function todosLosProyectoIds(){ return PROYECTO_CATALOGO.slice(); }
@@ -72,10 +83,10 @@ function renderProyCrud(){
     return '<tr>' +
       '<td>'+esc(nombre)+'</td>' +
       '<td class="mono">'+nDis+'</td>' +
-      '<td><button class="btn-add ghost" data-nombre="'+esc(nombre)+'" data-act="iter" style="font-size:.72rem;padding:6px 12px;">'+nIter+' registrada'+(nIter===1?'':'s')+' →</button></td>' +
+      '<td><button class="btn-add ghost" data-perm="proyectos:editar" data-nombre="'+esc(nombre)+'" data-act="iter" style="font-size:.72rem;padding:6px 12px;">'+nIter+' registrada'+(nIter===1?'':'s')+' →</button></td>' +
       '<td><div class="row-actions">' +
-        '<button class="btn-icon edit" data-nombre="'+esc(nombre)+'" data-act="edit" title="Editar"><svg viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"/><path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"/></svg></button>' +
-        '<button class="btn-icon danger" data-nombre="'+esc(nombre)+'" data-act="del" title="Eliminar">×</button>' +
+        '<button class="btn-icon edit" data-perm="proyectos:editar" data-nombre="'+esc(nombre)+'" data-act="edit" title="Editar"><svg viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"/><path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"/></svg></button>' +
+        '<button class="btn-icon danger" data-perm="proyectos:editar" data-nombre="'+esc(nombre)+'" data-act="del" title="Eliminar">×</button>' +
       '</div></td>' +
     '</tr>';
   });
@@ -85,6 +96,7 @@ document.getElementById('proy-tbody').addEventListener('click', function(e){
   var btn = e.target.closest('.btn-icon, .btn-add');
   if(!btn) return;
   var nombre = btn.dataset.nombre;
+  if(!exigir('proyectos:editar')) return;
   if(btn.dataset.act === 'iter'){
     abrirProyIterModal(nombre);
     return;
@@ -101,6 +113,7 @@ document.getElementById('proy-tbody').addEventListener('click', function(e){
     saveCatalogo();
     delete PROYECTO_ITERACIONES[nombre];
     saveProyectoIteraciones();
+    registrarHistorial('Eliminó', 'Proyecto', nombre, {proyecto:nombre});
     renderProyCrud();
     renderCompCatGrid();
     refreshAllProyectoSelects();
@@ -116,6 +129,7 @@ document.getElementById('proy-cancel').addEventListener('click', function(e){
   document.getElementById('proy-cancel').style.display = 'none';
 });
 document.getElementById('proy-add').addEventListener('click', function(){
+  if(!exigir('proyectos:editar')) return;
   var nombre = document.getElementById('proy-nombre').value.trim();
   if(!nombre){ toast('Ingresá el nombre del proyecto'); return; }
   var yaExiste = PROYECTO_CATALOGO.some(function(x){ return x.toLowerCase()===nombre.toLowerCase() && x !== proyEditing; });
@@ -132,9 +146,12 @@ document.getElementById('proy-add').addEventListener('click', function(){
     }
     var idx = PROYECTO_CATALOGO.indexOf(proyEditing);
     if(idx > -1) PROYECTO_CATALOGO[idx] = nombre;
+    if(proyEditing !== nombre) renombrarProyectoEnTodo(proyEditing, nombre);
+    registrarHistorial('Editó', 'Proyecto', proyEditing === nombre ? nombre : (proyEditing+' → '+nombre), {proyecto:nombre});
     toast('Proyecto actualizado');
   } else {
     PROYECTO_CATALOGO.push(nombre);
+    registrarHistorial('Creó', 'Proyecto', nombre, {proyecto:nombre});
     toast('Proyecto agregado');
   }
   saveCatalogo();
@@ -182,6 +199,7 @@ document.getElementById('pim-agregar').addEventListener('click', function(){
   var iter = construirIteracion(mes, usar, numeral);
   if(iteracionesDeProyecto(proyIterAbierto).indexOf(iter) > -1){ toast('Esa iteración ya está registrada'); return; }
   registrarIteracion(proyIterAbierto, iter);
+  registrarHistorial('Creó', 'Iteración', proyIterAbierto+' — '+iter, {proyecto:proyIterAbierto});
   renderProyIterLista();
   renderProyCrud();
   toast('Iteración registrada');
@@ -194,6 +212,7 @@ document.getElementById('proy-iter-lista').addEventListener('click', function(e)
   if(nUsos > 0 && !confirm('Esta iteración tiene '+nUsos+' diseño(s) asociados. ¿Quitarla igual de la lista? (los diseños no se tocan)')) return;
   PROYECTO_ITERACIONES[proyIterAbierto] = PROYECTO_ITERACIONES[proyIterAbierto].filter(function(x){ return x!==it; });
   saveProyectoIteraciones();
+  registrarHistorial('Eliminó', 'Iteración', proyIterAbierto+' — '+it, {proyecto:proyIterAbierto});
   renderProyIterLista();
   renderProyCrud();
   toast('Iteración quitada de la lista');

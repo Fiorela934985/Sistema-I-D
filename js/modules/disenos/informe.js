@@ -4,7 +4,7 @@
 /* ================= INFORME (visor: resultados + gráficas) ================= */
 var informeZoom = 1;
 var informeCharts = [];
-var REPLICA_COLORS = ['#c81e1e','#ea580c','#0d9488','#7c3aed'];
+var REPLICA_COLORS = ['#0396c8','#2e9e57','#0b5f7a','#7cc96b'];
 
 function minToHm(min){
   if(min === null || min === undefined || isNaN(min) || min <= 0) return '';
@@ -274,12 +274,12 @@ function buildInformeCharts(d, intento){
   });
   informeCharts.push(new Chart(document.getElementById('chart-resistencia'), {
     type:'line', data:{datasets:datasetsResist},
-    options:{responsive:true, maintainAspectRatio:false, scales:{x:{type:'linear', title:{display:true,text:'Días'}}, y:{title:{display:true,text:'Carga (kg)'}}}}
+    options:{responsive:true, maintainAspectRatio:false, scales:{x:{type:'linear', title:{display:true,text:'Días'}}, y:{title:{display:true,text:'Resistencia (kg/cm²)'}}}}
   }));
 
   // 3) Trabajabilidad (barras agrupadas por minuto) — mismo estilo que RR
   addChartCard('chart-slump', 'Trabajabilidad (pérdida de asentamiento)');
-  var coloresMin = ['#0099cc','#0a3d4d','#4caf3e','#7c3aed','#ea580c'];
+  var coloresMin = ['#0396c8','#0b5f7a','#2e9e57','#38bdf8','#7cc96b'];
   var datasetsSlump = SLUMP_ROWS.map(function(label, si){
     return {label:label+"'", data: reps.map(function(rep, idx){ var row=(existingReplicasData[idx]||{}).slump; return row ? pulgToNumInforme(row[si] && row[si].slump) : 0; }), backgroundColor:coloresMin[si%5]};
   });

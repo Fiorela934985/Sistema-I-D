@@ -158,8 +158,12 @@ function collectResultsFromModal(nReplicas){
   }
   return replicas;
 }
+function registrarResultadosEnHistorial(d){
+  registrarHistorial('Registró', 'Resultados', d.codigo + ' · ' + diseñoTitulo(d) + ' · estado ' + d.estado, {proyecto: proyectoNombre(d.proyectoId), ref: d.codigo});
+}
 document.getElementById('results-save').addEventListener('click', function(){
   if(!currentResultsDesign) return;
+  if(!exigir('resultados:registrar')) return;
   var numReplicas = (currentResultsDesign.replicaObjs && currentResultsDesign.replicaObjs.length) || currentResultsDesign.replicas || 1;
   currentResultsDesign.resultados = { replicas: collectResultsFromModal(numReplicas) };
   currentResultsDesign.editedAt = Date.now();
@@ -167,6 +171,7 @@ document.getElementById('results-save').addEventListener('click', function(){
     document.getElementById('completos-confirm-modal').classList.add('show');
   } else {
     save('sid10_disenos', disenos);
+    registrarResultadosEnHistorial(currentResultsDesign);
     document.getElementById('results-modal').classList.remove('show');
     toast('Resultados guardados');
     renderAllDesignViews();
@@ -175,6 +180,7 @@ document.getElementById('results-save').addEventListener('click', function(){
 document.getElementById('completos-confirm-yes').addEventListener('click', function(){
   if(currentResultsDesign) currentResultsDesign.estado = 'Completado';
   save('sid10_disenos', disenos);
+  if(currentResultsDesign) registrarResultadosEnHistorial(currentResultsDesign);
   document.getElementById('completos-confirm-modal').classList.remove('show');
   document.getElementById('results-modal').classList.remove('show');
   toast('Resultados guardados — diseño Completado');
@@ -183,6 +189,7 @@ document.getElementById('completos-confirm-yes').addEventListener('click', funct
 document.getElementById('completos-confirm-no').addEventListener('click', function(){
   if(currentResultsDesign) currentResultsDesign.estado = 'En desarrollo';
   save('sid10_disenos', disenos);
+  if(currentResultsDesign) registrarResultadosEnHistorial(currentResultsDesign);
   document.getElementById('completos-confirm-modal').classList.remove('show');
   document.getElementById('results-modal').classList.remove('show');
   toast('Resultados guardados — diseño En desarrollo');

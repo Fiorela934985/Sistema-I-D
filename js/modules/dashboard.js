@@ -17,7 +17,7 @@ function updateStats(){ /* usado por otras pantallas para refrescar badges/conta
 
 var dashCharts = {};
 var dashInterval = null;
-var DASH_PALETTE = ['#c81e1e','#ea580c','#f5c518','#16a34a','#0d9488','#7c3aed'];
+var DASH_PALETTE = PALETA;
 
 function destroyDashCharts(){
   Object.keys(dashCharts).forEach(function(k){ dashCharts[k].destroy(); });
@@ -101,6 +101,7 @@ function buildDashboard(first){
     document.getElementById('kpi-roturas-pendientes').textContent = roturasPend;
     document.getElementById('kpi-proyectos-activos').textContent = proyectosActivos;
   }
+  renderKpisCalidad(disenosF);
   document.getElementById('dash-updated').textContent = new Date().toLocaleTimeString('es-PE',{hour:'2-digit',minute:'2-digit',second:'2-digit'});
 
   // ---- 1. Resistencia promedio por edad (agregado real) ----
@@ -117,12 +118,12 @@ function buildDashboard(first){
   });
   upsertChart('chart-dash-resistencia', 'line', {
     labels: edadesOrdenadas.map(function(d){ return d+'d'; }),
-    datasets:[{label:'kg/cm² promedio', data:resistData, borderColor:'#c81e1e', backgroundColor:'rgba(200,30,30,.12)', fill:true, tension:.35, pointRadius:4, pointBackgroundColor:'#c81e1e'}]
+    datasets:[{label:'kg/cm² promedio', data:resistData, borderColor:COLOR_PRIMARIO, backgroundColor:'rgba(3,150,200,.14)', fill:true, tension:.35, pointRadius:4, pointBackgroundColor:COLOR_PRIMARIO}]
   }, {scales:{y:{beginAtZero:false, title:{display:true,text:'kg/cm²'}}}});
 
   // ---- 2. Diseños por estado (donut) ----
   var estados = ['Iniciado','En desarrollo','Completado'];
-  var estadoColors = ['#dc2626','#ea580c','#16a34a'];
+  var estadoColors = ['#38bdf8','#f59e0b','#2e9e57'];
   var estadoCounts = estados.map(function(e){ return disenos.filter(function(d){ return d.estado===e; }).length; });
   upsertChart('chart-dash-estado', 'doughnut', {
     labels: estados,
@@ -134,7 +135,7 @@ function buildDashboard(first){
   disenos.forEach(function(d){ semCounts[semaforoDiseno(d)]++; });
   upsertChart('chart-dash-semaforo', 'bar', {
     labels:['Sin iniciar','En proceso','Completo'],
-    datasets:[{data:[semCounts.rojo, semCounts.naranja, semCounts.verde], backgroundColor:['#dc2626','#ea580c','#16a34a'], borderRadius:6, maxBarThickness:46}]
+    datasets:[{data:[semCounts.rojo, semCounts.naranja, semCounts.verde], backgroundColor:['#dc2626','#f59e0b','#2e9e57'], borderRadius:6, maxBarThickness:46}]
   }, {plugins:{legend:{display:false}}, scales:{y:{beginAtZero:true, ticks:{precision:0}}}});
 
   // ---- 4. Timeline últimos 14 días ----
@@ -147,7 +148,7 @@ function buildDashboard(first){
   });
   upsertChart('chart-dash-timeline', 'bar', {
     labels: dayLabels,
-    datasets:[{label:'Diseños registrados', data:dayCounts, backgroundColor:'#ea580c', borderRadius:5, maxBarThickness:28}]
+    datasets:[{label:'Diseños registrados', data:dayCounts, backgroundColor:COLOR_PRIMARIO, borderRadius:5, maxBarThickness:28}]
   }, {plugins:{legend:{display:false}}, scales:{y:{beginAtZero:true, ticks:{precision:0}}}});
 
   // ---- 5. Diseños por proyecto (top 6) ----
@@ -155,7 +156,7 @@ function buildDashboard(first){
     .sort(function(a,b){ return b.n-a.n; }).slice(0,6);
   upsertChart('chart-dash-proyectos', 'bar', {
     labels: proyStats.map(function(p){ return p.nombre; }),
-    datasets:[{data: proyStats.map(function(p){ return p.n; }), backgroundColor:'#161616', borderRadius:5, maxBarThickness:26}]
+    datasets:[{data: proyStats.map(function(p){ return p.n; }), backgroundColor:'#0b5f7a', borderRadius:5, maxBarThickness:26}]
   }, {indexAxis:'y', plugins:{legend:{display:false}}, scales:{x:{beginAtZero:true, ticks:{precision:0}}}});
 
   // ---- 6. Cumplimiento de plazos ----
@@ -164,7 +165,7 @@ function buildDashboard(first){
   var enPlazo = roturaCargas.filter(function(c){ return c.estado==='pendiente' && c.fechaEnsayo >= todayStr; }).length;
   upsertChart('chart-dash-plazos', 'doughnut', {
     labels:['Completadas','En plazo','Vencidas'],
-    datasets:[{data:[aTiempo, enPlazo, vencidas], backgroundColor:['#16a34a','#f5c518','#dc2626'], borderWidth:0}]
+    datasets:[{data:[aTiempo, enPlazo, vencidas], backgroundColor:['#2e9e57','#38bdf8','#dc2626'], borderWidth:0}]
   }, {cutout:'62%', plugins:{legend:{position:'bottom', labels:{boxWidth:10,padding:10}}}});
 
   // ---- 7. Costo promedio por m³ por proyecto (nueva métrica) ----
@@ -179,7 +180,7 @@ function buildDashboard(first){
   }).sort(function(a,b){return b.prom-a.prom;}).slice(0,6);
   upsertChart('chart-dash-costo', 'bar', {
     labels: costoStats.map(function(p){ return p.nombre; }),
-    datasets:[{data: costoStats.map(function(p){ return +p.prom.toFixed(2); }), backgroundColor:'#0099cc', borderRadius:5, maxBarThickness:26}]
+    datasets:[{data: costoStats.map(function(p){ return +p.prom.toFixed(2); }), backgroundColor:COLOR_VERDE, borderRadius:5, maxBarThickness:26}]
   }, {indexAxis:'y', plugins:{legend:{display:false}}, scales:{x:{beginAtZero:true}}});
 }
 function upsertChart(canvasId, type, data, extraOptions){
@@ -206,3 +207,77 @@ function animateReportes(intento){
     buildDashboard(false);
   }, 4000);
 }
+
+/* ---- KPIs de calidad (segunda fila) ---- */
+function kpisCalidad(disenosF){
+  var hoy = todayISO();
+  var codigos = {}; disenosF.forEach(function(d){ codigos[d.codigo] = true; });
+  var cargas = roturaCargas.filter(function(c){ return codigos[c.disenoCodigoDiseno]; });
+  var r28 = cargas.filter(function(c){ return Number(c.dia) === 28; }).map(function(c){ return promedio(valoresKgCm2(c)); }).filter(isFinite);
+  var cvs = cargas.filter(function(c){ return c.estado === 'completado' && c.coefVar; }).map(function(c){ return parseFloat(c.coefVar); }).filter(isFinite);
+  var evaluados = disenosF.filter(function(d){ return n(d.fc) > 0 && isFinite(resistenciaPorEdad(d)[28]); });
+  var cumplen = evaluados.filter(function(d){ return resistenciaPorEdad(d)[28] >= n(d.fc); });
+  var vencen = cargas.filter(function(c){ return c.fechaEnsayo && c.fechaEnsayo <= hoy; });
+  var alDia = vencen.filter(function(c){ return c.estado === 'completado' || c.fechaEnsayo === hoy; });
+  return {
+    r28: r28.length ? promedio(r28) : NaN, n28: r28.length,
+    cv: cvs.length ? promedio(cvs) : NaN,
+    cumplimiento: evaluados.length ? Math.round(cumplen.length / evaluados.length * 100) : NaN, evaluados: evaluados.length, cumplen: cumplen.length,
+    alDia: vencen.length ? Math.round(alDia.length / vencen.length * 100) : 100
+  };
+}
+function renderKpisCalidad(disenosF){
+  var k = kpisCalidad(disenosF);
+  document.getElementById('dash-kpis-2').innerHTML =
+    kpiCard('kpi-naranja', ICO_RESIST, isFinite(k.r28) ? fmt(k.r28,0) : '-', 'Resistencia prom. a 28 d (kg/cm²) · ' + k.n28 + ' roturas') +
+    kpiCard('kpi-verde', ICO_ACTIVO, isFinite(k.cumplimiento) ? k.cumplimiento + '%' : '-', 'Cumplen f\'c a 28 d (' + k.cumplen + ' de ' + k.evaluados + ' diseños)') +
+    kpiCard('kpi-negro', ICO_DISENO, isFinite(k.cv) ? fmt(k.cv,1) + '%' : '-', 'Coef. de variación promedio entre especímenes') +
+    kpiCard('kpi-rojo', ICO_ALERTA, k.alDia + '%', 'Roturas al día (sin vencer)');
+}
+
+/* ---- Exportar reporte completo ---- */
+document.getElementById('dash-excel').addEventListener('click', function(){
+  var disenosF = disenosFiltradosDashboard();
+  var k = kpisCalidad(disenosF);
+  var completados = disenosF.filter(function(d){ return d.estado === 'Completado'; }).length;
+  var kpis = [['Reporte completo — Laboratorio I+D'], ['Generado', fechaHora(Date.now())], ['Rango', document.getElementById('dash-filtro-rango').selectedOptions[0].text], [],
+    ['Indicador', 'Valor'], ['Diseños totales', disenosF.length], ['% completados', disenosF.length ? Math.round(completados/disenosF.length*100) + '%' : '-'],
+    ['Roturas pendientes (hasta hoy)', roturaCargas.filter(function(c){ return c.estado === 'pendiente' && c.fechaEnsayo <= todayISO(); }).length],
+    ['Resistencia promedio a 28 d (kg/cm²)', isFinite(k.r28) ? +k.r28.toFixed(1) : '-'], ['Cumplimiento de f\'c a 28 d', isFinite(k.cumplimiento) ? k.cumplimiento + '%' : '-'],
+    ['Coef. de variación promedio', isFinite(k.cv) ? k.cv.toFixed(1) + '%' : '-'], ['Roturas al día', k.alDia + '%']];
+  var proy = [['Proyecto','Estado','Diseños','Completados','Avance %','Roturas registradas','Roturas pendientes','Vencidas','Resist. máx (kg/cm²)','CVD prom. (S/.)']]
+    .concat(metricasTodosLosProyectos().filter(function(m){ return m.nDisenos; }).map(function(m){
+      return [m.nombre, m.estado, m.nDisenos, m.completados, m.avancePct, m.cargasCompletas, m.cargasPendientes, m.vencidas, isFinite(m.resistMax) ? +m.resistMax.toFixed(1) : '', isFinite(m.costoProm) ? +m.costoProm.toFixed(2) : ''];
+    }));
+  if(exportarExcel('Reporte KPIs I+D - ' + todayISO() + '.xlsx', [{nombre:'KPIs', filas:kpis}, {nombre:'Proyectos', filas:proy}])){
+    registrarHistorial('Exportó', 'Dashboard', 'Reporte de KPIs (Excel)');
+    toast('Reporte exportado');
+  }
+});
+document.getElementById('dash-pdf').addEventListener('click', function(){
+  if(typeof html2canvas === 'undefined' || typeof window.jspdf === 'undefined'){ toast('No se pudieron cargar las librerías de PDF'); return; }
+  var panel = document.getElementById('panel-reportes');
+  toast('Generando PDF…');
+  panel.classList.add('capturando');
+  html2canvas(panel, {scale: 1.5, backgroundColor: getComputedStyle(document.body).backgroundColor, useCORS: true}).then(function(canvas){
+    panel.classList.remove('capturando');
+    var doc = new window.jspdf.jsPDF('l', 'mm', 'a4');
+    var pageW = 297, pageH = 210, margin = 8;
+    var imgW = pageW - margin*2;
+    var pxPorMm = canvas.width / imgW;
+    var altoPagPx = (pageH - margin*2) * pxPorMm;
+    var y = 0, pagina = 0;
+    while(y < canvas.height){
+      var trozo = document.createElement('canvas');
+      trozo.width = canvas.width;
+      trozo.height = Math.min(altoPagPx, canvas.height - y);
+      trozo.getContext('2d').drawImage(canvas, 0, y, canvas.width, trozo.height, 0, 0, canvas.width, trozo.height);
+      if(pagina) doc.addPage();
+      doc.addImage(trozo.toDataURL('image/png'), 'PNG', margin, margin, imgW, trozo.height / pxPorMm);
+      y += altoPagPx; pagina++;
+    }
+    doc.save('Reporte KPIs I+D - ' + todayISO() + '.pdf');
+    registrarHistorial('Exportó', 'Dashboard', 'Reporte de KPIs (PDF)');
+    toast('Reporte PDF descargado');
+  }).catch(function(){ panel.classList.remove('capturando'); toast('No se pudo generar el PDF'); });
+});

@@ -27,23 +27,27 @@ function semaforoDotHtml(color, title){
 }
 function disenoActionsHtml(d,i){
   return '<button class="btn-icon view" data-act="view" data-i="'+i+'" title="Ver diseño">'+EYE_ICON+'</button>' +
-    '<button class="btn-icon results" data-act="results" data-i="'+i+'" title="Cargar resultados">'+RESULTS_ICON+'</button>' +
+    '<button class="btn-icon results" data-perm="resultados:registrar" data-act="results" data-i="'+i+'" title="Cargar resultados">'+RESULTS_ICON+'</button>' +
     '<button class="btn-icon fav'+(d.favorito?' active':'')+'" data-act="fav" data-i="'+i+'" title="Favorito">'+(d.favorito?STAR_FILLED:STAR_OUTLINE)+'</button>' +
     '<div class="more-wrap">' +
       '<button class="btn-icon more" data-act="more" data-i="'+i+'" title="Más opciones">'+KEBAB_ICON+'</button>' +
       '<div class="more-menu" data-menu-i="'+i+'">' +
         '<span class="more-menu-label">Consultar</span>' +
         '<button data-act="informe" data-i="'+i+'">'+CHART_ICON+' Ver informe</button>' +
+        '<button data-act="expediente" data-i="'+i+'">'+FOLDER_ICON+' Expediente del proyecto</button>' +
         '<button data-act="copy" data-i="'+i+'">'+CLIPBOARD_ICON+' Copiar datos</button>' +
-        '<span class="more-menu-label">Editar</span>' +
-        '<button data-act="edit-iter" data-i="'+i+'">'+EDIT_ICON+' Editar iteración</button>' +
-        '<button data-act="dup" data-i="'+i+'">'+DUP_ICON+' Duplicar</button>' +
-        '<div class="more-menu-divider"></div>' +
-        '<button class="danger" data-act="del" data-i="'+i+'">'+TRASH_ICON+' Eliminar</button>' +
+        '<span class="more-menu-label">Laboratorio</span>' +
+        '<button data-act="etiquetas" data-i="'+i+'">'+TAG_ICON+' Imprimir etiquetas</button>' +
+        '<button data-act="evidencia" data-perm="evidencias:subir" data-i="'+i+'">'+CAMERA_ICON+' Subir evidencia</button>' +
+        '<span class="more-menu-label" data-perm="disenos:crear">Editar</span>' +
+        '<button data-act="edit-iter" data-perm="disenos:crear" data-i="'+i+'">'+EDIT_ICON+' Editar iteración</button>' +
+        '<button data-act="dup" data-perm="disenos:crear" data-i="'+i+'">'+DUP_ICON+' Duplicar</button>' +
+        '<div class="more-menu-divider" data-perm="disenos:eliminar"></div>' +
+        '<button class="danger" data-act="del" data-perm="disenos:eliminar" data-i="'+i+'">'+TRASH_ICON+' Eliminar</button>' +
       '</div>' +
     '</div>';
 }
-function estadoColorClass(estado){ return estado === 'Completado' ? 'thumb-verde' : (estado === 'En desarrollo' ? 'thumb-naranja' : 'thumb-rojo'); }
+function estadoColorClass(estado){ return estado === 'Completado' ? 'thumb-verde' : (estado === 'En desarrollo' ? 'thumb-naranja' : 'thumb-celeste'); }
 function tituloConIteracion(d){
   var proyLabel = d.proyectoId ? esc(proyectoNombre(d.proyectoId)) : 'Sin proyecto';
   return proyLabel + (d.iteracionId ? ' - ' + esc(iteracionNombre(d.iteracionId)) : '');
@@ -55,7 +59,7 @@ function idsDeReplicasHtml(d){
 function tipoDisenoLabel(d){ return d.codigo && d.codigo.charAt(0)==='C' ? 'Cubo' : 'Probeta'; }
 function disenoCardHtml(d){
   var i = disenos.indexOf(d);
-  var tagEstado = d.estado === 'Completado' ? 'tag-verde' : (d.estado === 'En desarrollo' ? 'tag-naranja' : 'tag-rojo');
+  var tagEstado = d.estado === 'Completado' ? 'tag-verde' : (d.estado === 'En desarrollo' ? 'tag-naranja' : 'tag-celeste');
   var sem = semaforoDotHtml(semaforoDiseno(d), 'Avance de roturas');
   var nRep = (d.replicaObjs && d.replicaObjs.length) || d.replicas || 0;
   return '<div class="design-card">' +
@@ -78,7 +82,7 @@ function disenoCardHtml(d){
 }
 function disenoRowHtml(d){
   var i = disenos.indexOf(d);
-  var tagEstado = d.estado === 'Completado' ? 'tag-verde' : (d.estado === 'En desarrollo' ? 'tag-naranja' : 'tag-rojo');
+  var tagEstado = d.estado === 'Completado' ? 'tag-verde' : (d.estado === 'En desarrollo' ? 'tag-naranja' : 'tag-celeste');
   var sem = semaforoDotHtml(semaforoDiseno(d), 'Avance de roturas');
   return '<div class="design-row">' +
     '<div class="drow-thumb"></div>' +
@@ -213,11 +217,22 @@ function handleCardAction(e){
   if(act === 'view'){
     openDesignModal(disenos[i]);
   } else if(act === 'results'){
+    if(!exigir('resultados:registrar')) return;
     openResultsModal(disenos[i], i);
+  } else if(act === 'expediente'){
+    closeAllMenus();
+    abrirExpediente(proyectoNombre(disenos[i].proyectoId));
+  } else if(act === 'etiquetas'){
+    closeAllMenus();
+    abrirEtiquetas(disenos[i].codigo);
+  } else if(act === 'evidencia'){
+    closeAllMenus();
+    abrirModalEvidencia(proyectoNombre(disenos[i].proyectoId), disenos[i].codigo);
   } else if(act === 'informe'){
     openInformeModal(disenos[i]);
   } else if(act === 'dup'){
     closeAllMenus();
+    if(!exigir('disenos:crear')) return;
     askConfirmDuplicate(disenos[i]);
   } else if(act === 'fav'){
     disenos[i].favorito = !disenos[i].favorito;
@@ -238,13 +253,12 @@ function handleCardAction(e){
     copyDiseno(disenos[i]);
   } else if(act === 'edit-iter'){
     closeAllMenus();
+    if(!exigir('disenos:crear')) return;
     abrirEditIteracionModal(i);
   } else if(act === 'del'){
     closeAllMenus();
-    disenos.splice(i, 1);
-    save('sid10_disenos', disenos);
-    toast('Diseño eliminado');
-    renderAllDesignViews();
+    if(!exigir('disenos:eliminar')) return;
+    eliminarDiseno(disenos[i]);
   }
 }
 document.getElementById('dis-gallery').addEventListener('click', function(e){
@@ -344,7 +358,7 @@ function renderInicioRecientes(){
   var LIMITE = 6;
   wrap.innerHTML = recientes.slice(0, LIMITE).map(function(d){
     var i = disenos.indexOf(d);
-    var estColor = d.estado === 'Completado' ? 'verde' : (d.estado === 'En desarrollo' ? 'naranja' : 'rojo');
+    var estColor = d.estado === 'Completado' ? 'verde' : (d.estado === 'En desarrollo' ? 'naranja' : 'celeste');
     return '<div class="ih-card accent-'+estColor+'">' +
       '<div class="ih-main">' +
         '<div class="ih-top-line"><span class="ih-nombre">'+diseñoTitulo(d)+'</span><span class="ih-badge '+estColor+'">'+d.estado+'</span></div>' +
@@ -403,7 +417,7 @@ function renderInicioFavoritos(){
         '<span class="ih-meta">'+d.codigo+' · '+res.completadas+'/'+(res.total||'—')+' roturas · '+res.promedioReal+' kg/cm² real</span>' +
       '</div>' +
       '<button class="btn-icon view" data-act="view" data-i="'+i+'" title="Ver ficha">'+EYE_ICON+'</button>' +
-      '<button class="btn-icon edit" data-act="dup" data-i="'+i+'" title="Duplicar">'+DUP_ICON+'</button>' +
+      '<button class="btn-icon edit" data-perm="disenos:crear" data-act="dup" data-i="'+i+'" title="Duplicar">'+DUP_ICON+'</button>' +
     '</div>';
   }).join('');
 }
@@ -416,7 +430,30 @@ function renderAllDesignViews(){
   updateStats();
   updateNavBadges();
 }
-function nextCodigoDiseno(){ return 'DID-' + String(disenos.length + 1).padStart(4,'0'); }
+/* El correlativo sale del número más alto existente (no de la cantidad): así no se repite tras eliminar. */
+function nextCodigoDiseno(){
+  var max = disenos.reduce(function(m, d){ var x = parseInt(String(d.codigo||'').replace(/[^0-9]/g,''), 10); return isNaN(x) ? m : Math.max(m, x); }, 0);
+  return 'DID-' + String(max + 1).padStart(4,'0');
+}
+/* Eliminar un diseño también elimina sus roturas y fotos asociadas (antes quedaban huérfanas). */
+function eliminarDiseno(d){
+  var cargas = roturaCargas.filter(function(c){ return c.disenoCodigoDiseno === d.codigo; });
+  var msg = '¿Eliminar el diseño "' + diseñoTitulo(d) + '" (' + d.codigo + ')?';
+  if(cargas.length) msg += '\n\nTambién se eliminarán sus ' + cargas.length + ' registros de rotura.';
+  if(!confirm(msg)) return;
+  cargas.forEach(function(c){ [1,2,3].forEach(function(m){ if(c['evid'+m]) deleteEvidencia(c['evid'+m]).catch(function(){}); }); });
+  roturaCargas = roturaCargas.filter(function(c){ return c.disenoCodigoDiseno !== d.codigo; });
+  saveRoturaCargas();
+  evidenciasIdx.filter(function(ev){ return ev.disenoCodigo === d.codigo; }).forEach(function(ev){ deleteEvidencia(ev.key).catch(function(){}); });
+  evidenciasIdx = evidenciasIdx.filter(function(ev){ return ev.disenoCodigo !== d.codigo; });
+  saveEvidenciasIdx();
+  disenos.splice(disenos.indexOf(d), 1);
+  save('sid10_disenos', disenos);
+  registrarHistorial('Eliminó', 'Diseño', d.codigo + ' · ' + diseñoTitulo(d) + (cargas.length ? ' (+' + cargas.length + ' roturas)' : ''), {proyecto: proyectoNombre(d.proyectoId), ref: d.codigo});
+  toast('Diseño eliminado');
+  renderAllDesignViews();
+  renderRoturasAll();
+}
 
 var editIterIdx = null;
 function abrirEditIteracionModal(i){
@@ -442,8 +479,10 @@ document.getElementById('ei-guardar').addEventListener('click', function(){
   if(!mes){ toast('Elegí el mes'); return; }
   var nuevaIteracion = construirIteracion(mes, usarNumeral, numeral);
   registrarIteracion(proyectoNombre(disenos[editIterIdx].proyectoId), nuevaIteracion);
+  var iterAnterior = disenos[editIterIdx].iteracionId;
   disenos[editIterIdx].iteracionId = nuevaIteracion;
   save('sid10_disenos', disenos);
+  registrarHistorial('Editó', 'Diseño', disenos[editIterIdx].codigo + ' · iteración ' + (iterAnterior||'-') + ' → ' + nuevaIteracion, {proyecto: proyectoNombre(disenos[editIterIdx].proyectoId), ref: disenos[editIterIdx].codigo});
   document.getElementById('edit-iter-modal').classList.remove('show');
   toast('Iteración actualizada');
   renderAllDesignViews();

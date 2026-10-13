@@ -1,4 +1,4 @@
-/* Sistema I+D — Arranque de la aplicación */
+/* Sistema I+D — Arranque de la aplicación: inicialización, inicio y cierre de sesión */
 'use strict';
 
 /* ================= INIT ================= */
@@ -11,6 +11,7 @@ refreshAllProyectoSelects();
 document.querySelectorAll('.acc-head').forEach(function(head){
   head.addEventListener('click', function(){ head.closest('.params-col').classList.toggle('collapsed'); });
 });
+sincronizarEvidenciasRoturas();
 renderAllDesignViews();
 syncLaboratorio();
 document.getElementById('dis-fecha-mezcla').value = todayISO();
@@ -25,13 +26,19 @@ applySettingsToUI();
 showSubTab('calcular');
 
 /* ================= LOGIN ================= */
-var LOGIN_USER = 'FSANTOS';
-var LOGIN_PASS = '12345678';
 var loginView = document.getElementById('login-view');
 var loadingViewEl = document.getElementById('loading-view');
-if(sessionStorage.getItem('sid10_logged_in') === '1'){
+
+function entrarAlSistema(){
+  aplicarPermisos();
+  renderUsuarioShell();
+  showPanel('inicio');
+  renderRRDetail();
+}
+if(restaurarSesion()){
   loginView.classList.add('hidden');
   loadingViewEl.classList.remove('not-started');
+  entrarAlSistema();
   runLoader();
 } else {
   document.getElementById('login-user').focus();
@@ -42,20 +49,30 @@ document.getElementById('login-eye').addEventListener('click', function(){
 });
 document.getElementById('login-form').addEventListener('submit', function(e){
   e.preventDefault();
-  var user = document.getElementById('login-user').value.trim().toUpperCase();
-  var pass = document.getElementById('login-pass').value.trim();
+  var user = document.getElementById('login-user').value.trim();
+  var pass = document.getElementById('login-pass').value;
   var errEl = document.getElementById('login-error');
-  if(user === LOGIN_USER && pass === LOGIN_PASS){
+  var u = iniciarSesion(user, pass);
+  if(u){
     errEl.textContent = '';
-    sessionStorage.setItem('sid10_logged_in', '1');
+    registrarHistorial('Ingresó', 'Sesión', u.usuario + ' (' + rolLabel(u.rol) + ')');
     document.getElementById('login-btn').disabled = true;
+    document.getElementById('login-pass').value = '';
+    entrarAlSistema();
     loginView.classList.add('leaving');
     loadingViewEl.classList.remove('not-started');
     runLoader();
     setTimeout(function(){ loginView.classList.add('hidden'); }, 520);
   } else {
-    errEl.textContent = 'Usuario o contraseña incorrectos.';
+    var existe = usuarioPorNombre(user);
+    errEl.textContent = existe && !existe.activo ? 'Usuario desactivado. Consultá con el administrador.' : 'Usuario o contraseña incorrectos.';
     var card = document.querySelector('.login-card');
     card.classList.remove('shake'); void card.offsetWidth; card.classList.add('shake');
   }
+});
+document.getElementById('btn-logout').addEventListener('click', function(){
+  if(!confirm('¿Cerrar sesión?')) return;
+  registrarHistorial('Salió', 'Sesión', usuarioActual ? usuarioActual.usuario : '');
+  cerrarSesion();
+  location.reload();
 });

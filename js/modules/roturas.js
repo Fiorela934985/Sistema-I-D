@@ -72,7 +72,11 @@ function showRoturasSub(name){
   document.getElementById('ro-sub-formato').style.display = name === 'formato' ? 'block' : 'none';
   if(name === 'formato') renderRoturasFormato();
   if(name === 'pendientes') renderRoturasPendientes();
-  if(name === 'registrar') { refreshAllProyectoSelects(); rebuildRoDisenoSelect(); renderRoCodigoPreview(); renderRoFechasPreview(); }
+  if(name === 'registrar') {
+    refreshAllProyectoSelects(); rebuildRoDisenoSelect(); renderRoCodigoPreview(); renderRoFechasPreview();
+    var aCargo = document.getElementById('ro-acargode');
+    if(!aCargo.value && usuarioActual) aCargo.value = usuarioActual.nombre || usuarioActual.usuario;
+  }
 }
 document.querySelectorAll('#roturas-subtabs .subtab').forEach(function(btn){
   btn.addEventListener('click', function(){ showRoturasSub(btn.dataset.rosub); });
@@ -159,6 +163,7 @@ function renderRoFechasPreview(){
 document.querySelectorAll('.ro-dia-check').forEach(function(c){ c.addEventListener('change', renderRoFechasPreview); });
 
 document.getElementById('ro-registrar-btn').addEventListener('click', function(){
+  if(!exigir('roturas:registrar')) return;
   var didx = document.getElementById('ro-diseno').value;
   var repIdx = document.getElementById('ro-replica').value;
   var fechaElab = document.getElementById('ro-fecha-elab').value;
@@ -191,6 +196,7 @@ document.getElementById('ro-registrar-btn').addEventListener('click', function()
     creados.push(carga);
   });
   saveRoturaCargas();
+  registrarHistorial('Registró', 'Rotura', 'Elaboración ' + codigo + ' · ' + rep.nombre + ' · días ' + dias.join(', '), {proyecto: proyectoNombre(d.proyectoId), ref: d.codigo});
   document.getElementById('ro-acargode').value = '';
   toast('Registrado correctamente — códigos: ' + creados.map(function(c){ return c.codigo; }).join(', '));
   renderRoturasAll();
@@ -206,7 +212,8 @@ function renderRoturasPendientes(){
   wrap.innerHTML = pend.map(function(c){
     var d = disenos.filter(function(x){ return x.codigo === c.disenoCodigoDiseno; })[0];
     var sem = d ? semaforoDotHtml(semaforoDiseno(d), 'Avance del diseño') : '';
-    var badge = c.fechaEnsayo === todayStr ? '<span class="pendiente-badge hoy">Hoy</span>' : '';
+    var badge = c.fechaEnsayo === todayStr ? '<span class="pendiente-badge hoy">Hoy</span>' :
+      (c.fechaEnsayo < todayStr ? '<span class="pendiente-badge vencido">Vencida</span>' : '');
     var tipoEsProbeta = (c.tipo||'Probetas') !== 'Cubos';
     return '<div class="pendiente-row">' +
       sem +
@@ -216,13 +223,17 @@ function renderRoturasPendientes(){
         '<h5>'+esc(c.replicaNombre)+' · día '+c.dia+'</h5>' +
         '<span>'+esc(c.proyecto||'-')+' · Ensayo: '+isoToDMY(c.fechaEnsayo)+'</span>' +
       '</div>' +
-      '<button class="btn-add" data-act="registrar-carga" data-id="'+c.id+'">+ Registrar carga</button>' +
+      '<button class="btn-add ghost" data-act="etiquetas" data-codigo="'+esc(c.disenoCodigoDiseno)+'" title="Imprimir etiquetas">Etiquetas</button>' +
+      '<button class="btn-add" data-perm="roturas:registrar" data-act="registrar-carga" data-id="'+c.id+'">+ Registrar carga</button>' +
     '</div>';
   }).join('');
 }
 document.getElementById('roturas-pendientes-list').addEventListener('click', function(e){
+  var etq = e.target.closest('[data-act="etiquetas"]');
+  if(etq){ abrirEtiquetas(etq.dataset.codigo); return; }
   var btn = e.target.closest('[data-act="registrar-carga"]');
   if(!btn) return;
+  if(!exigir('roturas:registrar')) return;
   openRoturaCargaModal(btn.dataset.id);
 });
 
@@ -246,7 +257,7 @@ function renderPendientesHoyInicio(){
           (esUrgente ? '<span class="ih-badge urgente">Urgente</span>' : '<span class="ih-badge hoy">Hoy</span>') +
         '</div>' +
       '</div>' +
-      '<button class="btn-add" data-act="registrar-carga-inicio" data-id="'+c.id+'">Registrar Rotura '+REGISTRAR_ICON+'</button>' +
+      '<button class="btn-add" data-perm="roturas:registrar" data-act="registrar-carga-inicio" data-id="'+c.id+'">Registrar Rotura '+REGISTRAR_ICON+'</button>' +
     '</div>';
   }).join('');
 }
@@ -297,7 +308,7 @@ function filaRoturaHtml(c, i){
     '<td class="ro-locked">'+(c.m1kgcm2||'-')+'</td><td class="ro-locked">'+(c.m2kgcm2||'-')+'</td><td class="ro-locked">'+(c.m3kgcm2||'-')+'</td>' +
     '<td class="ro-locked">'+(c.promedio||'-')+'</td><td class="ro-locked">'+(c.coefVar||'-')+'</td><td class="ro-locked">'+(c.desvest||'-')+'</td>' +
     '<td><input type="text" data-f="comentarios" value="'+esc(c.comentarios)+'" style="width:110px;"></td>' +
-    '<td><button class="btn-icon danger" data-act="del-carga" title="Eliminar">×</button></td>' +
+    '<td><button class="btn-icon danger" data-perm="roturas:eliminar" data-act="del-carga" title="Eliminar">×</button></td>' +
   '</tr>';
 }
 function renderRoturasFormato(){
@@ -335,25 +346,32 @@ function onFormatoChange(e){
   var c = roturaCargas[i];
   var f = e.target.dataset.f;
   if(!f) return;
+  if(!exigir('roturas:registrar')){ renderRoturasFormato(); return; }
   if(usaEnRRGenerado(c) ){
     if(!confirm('Este resultado ya fue incluido en un reporte RR generado. ¿Deseás continuar con la edición?')) { renderRoturasFormato(); return; }
   }
   c[f] = e.target.type === 'checkbox' ? e.target.checked : e.target.value;
+  var estadoAntes = c.estado;
   recalcCarga(c);
   saveRoturaCargas();
+  registrarHistorial('Editó', 'Rotura', c.codigo + ' · día ' + c.dia + ' · campo ' + f + (c.estado !== estadoAntes ? ' (rotura completada)' : ''), {proyecto: c.proyecto, ref: c.disenoCodigoDiseno});
   renderRoturasFormato();
   updateNavBadges();
 }
 function onFormatoClick(e){
   var delBtn = e.target.closest('[data-act="del-carga"]');
   if(!delBtn) return;
+  if(!exigir('roturas:eliminar')) return;
   var tr = delBtn.closest('tr');
   var i = Number(tr.dataset.i);
+  if(!confirm('¿Eliminar el registro ' + roturaCargas[i].codigo + ' · día ' + roturaCargas[i].dia + '?')) return;
   if(usaEnRRGenerado(roturaCargas[i]) && !confirm('Este resultado ya fue incluido en un reporte RR generado. ¿Deseás eliminarlo igual?')) return;
   var removedCarga = roturaCargas[i];
   [1,2,3].forEach(function(mIdx){ if(removedCarga['evid'+mIdx]) deleteEvidencia(removedCarga['evid'+mIdx]); });
   roturaCargas.splice(i,1);
   saveRoturaCargas();
+  sincronizarEvidenciasRoturas();
+  registrarHistorial('Eliminó', 'Rotura', removedCarga.codigo + ' · ' + removedCarga.replicaNombre + ' · día ' + removedCarga.dia, {proyecto: removedCarga.proyecto, ref: removedCarga.disenoCodigoDiseno});
   renderRoturasFormato();
   toast('Registro eliminado');
 }
@@ -474,6 +492,7 @@ document.getElementById('rotura-carga-cancel').addEventListener('click', functio
 document.getElementById('rotura-carga-save').addEventListener('click', function(){
   var c = roturaCargas.filter(function(x){ return x.id === roturaCargaModalId; })[0];
   if(!c) return;
+  if(!exigir('roturas:registrar')) return;
   c.horaEnsayo = document.getElementById('mc-horaEnsayo').value;
   c.comentarios = document.getElementById('mc-comentarios').value;
   [1,2,3].forEach(function(mIdx){
@@ -486,6 +505,8 @@ document.getElementById('rotura-carga-save').addEventListener('click', function(
   });
   recalcCarga(c);
   saveRoturaCargas();
+  sincronizarEvidenciasRoturas();
+  registrarHistorial('Registró', 'Rotura', 'Carga ' + c.codigo + ' · ' + c.replicaNombre + ' · día ' + c.dia + (c.promedio ? ' · ' + c.promedio + ' kg/cm²' : ''), {proyecto: c.proyecto, ref: c.disenoCodigoDiseno});
   document.getElementById('rotura-carga-modal').classList.remove('show');
   toast('Carga registrada — ' + c.codigo);
   renderRoturasAll();
@@ -500,11 +521,18 @@ function updateNavBadges(){
   badge.style.display = countBacklog ? 'inline-block' : 'none';
   badge.textContent = countBacklog;
   var listaHoy = roturaCargas.filter(function(c){ return c.estado==='pendiente' && c.fechaEnsayo === todayStr; });
-  document.getElementById('nav-bell-dot').style.display = listaHoy.length ? 'block' : 'none';
+  var vencidas = roturaCargas.filter(function(c){ return c.estado==='pendiente' && c.fechaEnsayo < todayStr; });
+  var notifOn = typeof settings === 'undefined' || settings.notif !== false;
+  document.getElementById('nav-bell-dot').style.display = (notifOn && (listaHoy.length || vencidas.length)) ? 'block' : 'none';
   var bellList = document.getElementById('bell-list');
-  bellList.innerHTML = listaHoy.length ? listaHoy.map(function(c){
+  if(!notifOn){ bellList.innerHTML = '<div class="bell-empty">Las notificaciones están desactivadas en Ajustes.</div>'; return; }
+  var html = listaHoy.map(function(c){
     return '<div class="bell-item"><b>'+c.codigo+' · '+esc(c.replicaNombre)+'</b><span>'+esc(c.proyecto||'-')+' · día '+c.dia+' · hoy '+isoToDMY(c.fechaEnsayo)+'</span></div>';
-  }).join('') : '<div class="bell-empty">Hoy no toca romper nada.</div>';
+  }).join('');
+  if(vencidas.length){
+    html += '<div class="bell-item bell-vencida"><b>'+vencidas.length+' rotura'+(vencidas.length===1?'':'s')+' vencida'+(vencidas.length===1?'':'s')+'</b><span>Pendientes con fecha de ensayo pasada — revisalas en Roturas.</span></div>';
+  }
+  bellList.innerHTML = html || '<div class="bell-empty">Hoy no toca romper nada.</div>';
 }
 document.getElementById('nav-bell-btn').addEventListener('click', function(e){
   e.stopPropagation();

@@ -124,8 +124,8 @@ function renderComponentesPanel(){
       '<td class="mono">'+esc(c.peso||'-')+'</td>' +
       cells +
       '<td><div class="row-actions">' +
-        '<button class="btn-icon edit" data-i="'+i+'" title="Editar"><svg viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"/><path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"/></svg></button>' +
-        '<button class="btn-icon del" data-i="'+i+'" title="Eliminar">×</button>' +
+        '<button class="btn-icon edit" data-perm="componentes:editar" data-i="'+i+'" title="Editar"><svg viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"/><path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"/></svg></button>' +
+        '<button class="btn-icon del" data-perm="componentes:editar" data-i="'+i+'" title="Eliminar">×</button>' +
       '</div></td>' +
     '</tr>';
   }).join('');
@@ -149,7 +149,10 @@ document.getElementById('comp-tbody').addEventListener('click', function(e){
     document.getElementById('comp-cancel').style.display = 'inline';
     document.getElementById('comp-body').scrollIntoView({behavior:'smooth', block:'start'});
   } else if(delBtn){
+    if(!exigir('componentes:editar')) return;
     var idx = Number(delBtn.dataset.i);
+    if(!confirm('¿Eliminar el componente "'+componentes[idx].nombre+'"?')) return;
+    registrarHistorial('Eliminó', 'Componente', componentes[idx].categoria+': '+componentes[idx].nombre);
     componentes.splice(idx, 1);
     save('sid10_componentes', componentes);
     if(compEditingIndex === idx) resetCompForm();
@@ -165,6 +168,7 @@ document.getElementById('comp-cancel').addEventListener('click', function(e){
 document.getElementById('comp-add').addEventListener('click', function(){
   var def = catDef(activeCompCat);
   if(!def) return;
+  if(!exigir('componentes:editar')) return;
   var nombre = document.getElementById('comp-nombre').value.trim();
   var peso = document.getElementById('comp-peso').value.trim();
   if(!nombre){ toast('Ingresá el nombre del componente'); return; }
@@ -175,9 +179,11 @@ document.getElementById('comp-add').addEventListener('click', function(){
   });
   if(compEditingIndex === null){
     componentes.push(data);
+    registrarHistorial('Creó', 'Componente', def.id+': '+nombre);
     toast('Componente agregado en ' + def.id);
   } else {
     componentes[compEditingIndex] = data;
+    registrarHistorial('Editó', 'Componente', def.id+': '+nombre);
     toast('Componente actualizado');
   }
   save('sid10_componentes', componentes);

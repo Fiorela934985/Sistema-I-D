@@ -156,6 +156,7 @@ document.getElementById('rr-new-btn').addEventListener('click', function(){
   var input = document.getElementById('rr-new-name');
   var nombre = input.value.trim();
   if(!nombre){ toast('Ingresá el nombre del estudio'); return; }
+  if(!exigir('rr:editar')) return;
   var hoy = new Date();
   var fecha = String(hoy.getDate()).padStart(2,'0') + '/' + String(hoy.getMonth()+1).padStart(2,'0') + '/' + hoy.getFullYear();
   var newId = 'e' + Date.now();
@@ -163,6 +164,7 @@ document.getElementById('rr-new-btn').addEventListener('click', function(){
   save('sid10_rr', rrEstudios);
   rrActiveId = newId;
   input.value = '';
+  registrarHistorial('Creó', 'Reporte RR', 'Estudio ' + nombre);
   renderRRStudyList();
   renderRRDetail();
   toast('Estudio creado');
@@ -201,7 +203,7 @@ function renderRRDetail(){
   var theadCols = '<th>Diseño</th>' + estudio.tipos.map(function(t,ti){
     return '<th><div class="rr-th-inner">' +
       '<input class="rr-tipo-name" data-ti="'+ti+'" value="'+esc(t.nombre)+'">' +
-      (estudio.tipos.length>1 ? '<button class="rr-del-col" data-ti="'+ti+'" title="Eliminar tipo">×</button>' : '') +
+      (estudio.tipos.length>1 ? '<button class="rr-del-col" data-perm="rr:editar" data-ti="'+ti+'" title="Eliminar tipo">×</button>' : '') +
     '</div></th>';
   }).join('') + '<th>Observ.</th>';
 
@@ -235,6 +237,9 @@ function renderRRDetail(){
     ? '<table class="rr-table"><thead><tr>'+edadHead+'</tr></thead><tbody>'+edadRows+'</tbody></table>'
     : '<div class="empty-note">Sin edades registradas todavía.</div>';
 
+  // Solo quien puede editar RR modifica las celdas; el resto lo ve como visor.
+  var soloLectura = !can('rr:editar');
+  document.querySelectorAll('#rr-zoom-area input').forEach(function(inp){ inp.readOnly = soloLectura; });
   renderRRCharts(estudio);
 }
 
@@ -264,7 +269,7 @@ function renderRRCharts(estudio){
     rrChartCanvas('rr-chart-resist', 'Resistencia vs Tiempo') +
     rrChartCanvas('rr-chart-slump', 'Trabajabilidad (pérdida de asentamiento)');
 
-  var colores = ['#0099cc','#0a3d4d','#4caf3e','#7c3aed','#ea580c'];
+  var colores = ['#0396c8','#0b5f7a','#2e9e57','#38bdf8','#7cc96b'];
   function hmToMin(s){
     if(s === null || s === undefined || s === '' || s === '-') return null;
     s = String(s).trim();
@@ -348,7 +353,7 @@ function renderRRCharts(estudio){
   });
   rrCharts.push(new Chart(document.getElementById('rr-chart-resist'), {
     type:'line', data:{datasets:datasetsResist},
-    options:{responsive:true, maintainAspectRatio:false, scales:{x:{type:'linear', title:{display:true,text:'Días'}}, y:{title:{display:true,text:'Carga (kg)'}}}}
+    options:{responsive:true, maintainAspectRatio:false, scales:{x:{type:'linear', title:{display:true,text:'Días'}}, y:{title:{display:true,text:'Resistencia (kg/cm²)'}}}}
   }));
 
   // Trabajabilidad — consistencia a 0/30/60/90 min por tipo
@@ -381,8 +386,11 @@ document.getElementById('rr-table-holder').addEventListener('input', function(e)
 document.getElementById('rr-table-holder').addEventListener('click', function(e){
   var btn = e.target.closest('.rr-del-col');
   if(!btn) return;
+  if(!exigir('rr:editar')) return;
   var estudio = rrFind(rrActiveId);
+  if(!confirm('¿Eliminar la columna "' + estudio.tipos[Number(btn.dataset.ti)].nombre + '" del estudio?')) return;
   var removed = estudio.tipos.splice(Number(btn.dataset.ti), 1)[0];
+  registrarHistorial('Editó', 'Reporte RR', estudio.nombre + ' · quitó ' + removed.nombre, {proyecto: estudio.proyectoId ? proyectoNombre(estudio.proyectoId) : ''});
   estudio.edades.forEach(function(ed){ delete ed.valores[removed.id]; });
   save('sid10_rr', rrEstudios);
   renderRRDetail();
@@ -493,8 +501,47 @@ document.getElementById('rrg-generar-btn').addEventListener('click', function(){
   document.getElementById('rrg-nombre').value = '';
   document.getElementById('rrg-requisito').value = '';
   document.getElementById('rr-generar-modal').classList.remove('show');
+  registrarHistorial('Generó', 'Reporte RR', nombre + ' · ' + tipos.length + ' diseños', {proyecto: proyectoNombre(document.getElementById('rrg-proyecto').value)});
   renderRRStudyList();
   renderRRDetail();
   toast('Reporte RR generado');
   showPanel('reporte-rr');
+});
+
+/* ---- Visor RR: zoom (− +) y exportación a Excel ---- */
+var rrZoom = 1;
+function setRRZoom(z){
+  rrZoom = Math.max(.5, Math.min(1.6, Math.round(z*10)/10));
+  document.getElementById('rr-zoom-area').style.zoom = rrZoom;
+  document.getElementById('rr-zoom-pct').textContent = Math.round(rrZoom*100) + '%';
+}
+document.getElementById('rr-zoom-in').addEventListener('click', function(){ setRRZoom(rrZoom + .1); });
+document.getElementById('rr-zoom-out').addEventListener('click', function(){ setRRZoom(rrZoom - .1); });
+document.getElementById('rr-exportar').addEventListener('click', function(){
+  var estudio = rrFind(rrActiveId);
+  if(!estudio){ toast('Elegí un estudio'); return; }
+  var cab = estudio.cabecera || {};
+  var filas = [
+    ['Resumen de reporte de resultados de mezclas de prueba'],
+    ['Estudio', estudio.nombre, 'Fecha', estudio.fecha],
+    ['Planta', cab.planta||'', 'Proyecto', estudio.proyectoId ? proyectoNombre(estudio.proyectoId) : ''],
+    ['Colaborador', cab.colaborador||'', 'Responsable', cab.responsable||''],
+    [],
+    ['Diseño'].concat(estudio.tipos.map(function(t){ return t.nombre; })).concat(['Observ.'])
+  ];
+  RR_ROWS.forEach(function(r){
+    if(r.t !== 'row'){ filas.push([r.label]); return; }
+    filas.push([r.label + (r.unit ? ' (' + r.unit + ')' : '')]
+      .concat(estudio.tipos.map(function(t){ return t.valores[r.key] !== undefined ? t.valores[r.key] : ''; }))
+      .concat([estudio.obs[r.key] || '']));
+  });
+  filas.push([]);
+  filas.push(['Edad'].concat(estudio.tipos.map(function(t){ return t.nombre; })).concat(['Requisito']));
+  estudio.edades.forEach(function(e){
+    filas.push([e.edad].concat(estudio.tipos.map(function(t){ var v = e.valores[t.id]; return v === '' || v === undefined ? '' : (isNaN(Number(v)) ? v : Number(v)); })).concat([e.requisito||'']));
+  });
+  if(exportarExcel('RR - ' + estudio.nombre + '.xlsx', [{nombre:'Reporte RR', filas:filas}])){
+    registrarHistorial('Exportó', 'Reporte RR', estudio.nombre);
+    toast('Reporte RR exportado a Excel');
+  }
 });

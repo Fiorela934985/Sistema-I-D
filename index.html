@@ -13,6 +13,8 @@
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Oswald:wght@500;600;700&family=Inter:wght@400;500;600;700&family=Roboto+Mono:wght@400;500&display=swap" rel="stylesheet">
 <link rel="stylesheet" href="css/styles.css">
+<link rel="stylesheet" href="css/tema.css">
+<link rel="stylesheet" href="css/modulos.css">
 <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.4/dist/chart.umd.min.js"></script>
 <script>
@@ -21,6 +23,8 @@ if(typeof Chart === 'undefined'){
 }
 </script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/qrcode-generator/1.4.4/qrcode.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
 </head>
 <body>
 
@@ -92,79 +96,146 @@ if(typeof Chart === 'undefined'){
 
 <!-- ============ APP SHELL ============ -->
 <div id="app-shell">
-  <header class="topbar">
-    <div class="brand">
+  <div class="sidebar-backdrop" id="sidebar-backdrop"></div>
+  <aside class="sidebar" id="sidebar">
+    <div class="sb-brand">
       <img class="mark" src="assets/logo-nexus.png" alt="I+D Nexus">
-      <div class="brand-text">Sistema I+D</div>
+      <div class="sb-brand-text">Sistema I+D<small>Laboratorio · Gestión de Calidad</small></div>
     </div>
 
-    <nav class="topbar-nav">
-      <button class="nav-item active" data-panel="inicio">
-        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 11l9-8 9 8"/><path d="M5 10v10h14V10"/></svg>
-        <span class="label">Inicio</span>
-      </button>
+    <nav class="side-nav" id="side-nav">
+      <div class="sn-group">
+        <span class="sn-label">General</span>
+        <button class="nav-item active" data-panel="inicio">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 11l9-8 9 8"/><path d="M5 10v10h14V10"/></svg>
+          <span class="label">Inicio</span>
+        </button>
+        <button class="nav-item" data-panel="reportes">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 3v18h18"/><rect x="7" y="12" width="3" height="6"/><rect x="12" y="8" width="3" height="10"/><rect x="17" y="5" width="3" height="13"/></svg>
+          <span class="label">Dashboard y KPIs</span>
+        </button>
+      </div>
 
-      <button class="nav-item" data-panel="disenos">
-        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="4" y="2" width="16" height="20" rx="2"/><line x1="8" y1="7" x2="16" y2="7"/><line x1="8" y1="12" x2="16" y2="12"/><line x1="8" y1="17" x2="12" y2="17"/></svg>
-        <span class="label">Diseños</span>
-      </button>
+      <div class="sn-group">
+        <span class="sn-label">Operación</span>
+        <button class="nav-item" data-panel="proyectos">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 7a2 2 0 0 1 2-2h4l2 2h8a2 2 0 0 1 2 2v9a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V7z"/><path d="M8 13h8"/></svg>
+          <span class="label">Proyectos</span>
+        </button>
+        <button class="nav-item" data-panel="disenos">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="4" y="2" width="16" height="20" rx="2"/><line x1="8" y1="7" x2="16" y2="7"/><line x1="8" y1="12" x2="16" y2="12"/><line x1="8" y1="17" x2="12" y2="17"/></svg>
+          <span class="label">Diseños</span>
+        </button>
+        <button class="nav-item" data-panel="roturas">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 2l3 6-5 4 6 2-8 8 2-7-5-2 4-4-3-5z"/></svg>
+          <span class="label">Roturas</span>
+          <span class="nav-badge" id="nav-roturas-badge" style="display:none;">0</span>
+        </button>
+        <button class="nav-item" data-panel="calendario">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="4" width="18" height="18" rx="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/></svg>
+          <span class="label">Calendario de roturas</span>
+        </button>
+        <button class="nav-item" data-panel="componentes">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 8l-9-5-9 5 9 5 9-5z"/><path d="M3 8v8l9 5 9-5V8"/></svg>
+          <span class="label">Registro (componentes)</span>
+        </button>
+      </div>
 
-      <button class="nav-item" data-panel="componentes">
-        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 8l-9-5-9 5 9 5 9-5z"/><path d="M3 8v8l9 5 9-5V8"/></svg>
-        <span class="label">Registro</span>
-      </button>
+      <div class="sn-group">
+        <span class="sn-label">Resultados</span>
+        <button class="nav-item" data-panel="reporte-rr">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M9 3h6a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2H9a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2z"/><path d="M9 8h6"/><path d="M9 12h6"/><path d="M9 16h3"/></svg>
+          <span class="label">Reporte RR</span>
+        </button>
+        <button class="nav-item" data-panel="archivador">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M22 19a2 2 0 0 1-2 2H4a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h5l2 3h9a2 2 0 0 1 2 2z"/></svg>
+          <span class="label">Archivador</span>
+        </button>
+        <button class="nav-item" data-panel="base-historica">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><ellipse cx="12" cy="5" rx="9" ry="3"/><path d="M21 12c0 1.66-4 3-9 3s-9-1.34-9-3"/><path d="M3 5v14c0 1.66 4 3 9 3s9-1.34 9-3V5"/></svg>
+          <span class="label">Base histórica</span>
+        </button>
+      </div>
 
-      <button class="nav-item" data-panel="roturas">
-        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 2l3 6-5 4 6 2-8 8 2-7-5-2 4-4-3-5z"/></svg>
-        <span class="label">Roturas</span>
-        <span class="nav-badge" id="nav-roturas-badge" style="display:none;">0</span>
-      </button>
-      <button class="nav-item" data-panel="reporte-rr">
-        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M9 3h6a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2H9a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2z"/><path d="M9 8h6"/><path d="M9 12h6"/><path d="M9 16h3"/></svg>
-        <span class="label">Reporte RR</span>
-      </button>
-      <button class="nav-item" data-panel="archivador">
-        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M22 19a2 2 0 0 1-2 2H4a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h5l2 3h9a2 2 0 0 1 2 2z"/></svg>
-        <span class="label">Archivador</span>
-      </button>
-      <button class="nav-item" data-panel="reportes">
-        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 3v18h18"/><rect x="7" y="12" width="3" height="6"/><rect x="12" y="8" width="3" height="10"/><rect x="17" y="5" width="3" height="13"/></svg>
-        <span class="label">Dashboard</span>
-      </button>
-      <button class="nav-item" data-panel="ajustes">
-        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 1 1-2.83 2.83l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-4 0v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 1 1-2.83-2.83l.06-.06A1.65 1.65 0 0 0 4.6 15a1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1 0-4h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 1 1 2.83-2.83l.06.06A1.65 1.65 0 0 0 9 4.6a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 4 0v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 1 1 2.83 2.83l-.06.06A1.65 1.65 0 0 0 19.4 9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 0 4h-.09a1.65 1.65 0 0 0-1.51 1z"/></svg>
-        <span class="label">Ajustes</span>
-      </button>
+      <div class="sn-group">
+        <span class="sn-label">Inteligencia</span>
+        <button class="nav-item" data-panel="prediccion">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 17l6-6 4 4 8-8"/><path d="M14 7h7v7"/></svg>
+          <span class="label">Predicción</span>
+        </button>
+        <button class="nav-item" data-panel="asistente">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/><path d="M8 9h8"/><path d="M8 13h5"/></svg>
+          <span class="label">Asistente I+D</span>
+        </button>
+      </div>
+
+      <div class="sn-group">
+        <span class="sn-label">Administración</span>
+        <button class="nav-item" data-panel="usuarios">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/></svg>
+          <span class="label">Usuarios y roles</span>
+        </button>
+        <button class="nav-item" data-panel="historial">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 12a9 9 0 1 0 3-6.7"/><path d="M3 4v5h5"/><path d="M12 7v5l3 3"/></svg>
+          <span class="label">Historial</span>
+        </button>
+        <button class="nav-item" data-panel="ajustes">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 1 1-2.83 2.83l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-4 0v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 1 1-2.83-2.83l.06-.06A1.65 1.65 0 0 0 4.6 15a1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1 0-4h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 1 1 2.83-2.83l.06.06A1.65 1.65 0 0 0 9 4.6a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 4 0v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 1 1 2.83 2.83l-.06.06A1.65 1.65 0 0 0 19.4 9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 0 4h-.09a1.65 1.65 0 0 0-1.51 1z"/></svg>
+          <span class="label">Ajustes</span>
+        </button>
+      </div>
     </nav>
 
-    <button class="nav-bell" id="nav-bell-btn" title="Notificaciones">
-      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M18 8a6 6 0 0 0-12 0c0 7-3 9-3 9h18s-3-2-3-9"/><path d="M13.73 21a2 2 0 0 1-3.46 0"/></svg>
-      <span class="bell-dot" id="nav-bell-dot" style="display:none;"></span>
-    </button>
-    <div class="bell-dropdown" id="bell-dropdown">
-      <div class="bell-header"><svg viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M18 8a6 6 0 0 0-12 0c0 7-3 9-3 9h18s-3-2-3-9"/><path d="M13.73 21a2 2 0 0 1-3.46 0"/></svg> Roturas Hoy</div>
-      <div id="bell-list"></div>
-      <button class="bell-footer" id="bell-footer">Ver todo en Roturas →</button>
-    </div>
-  </header>
-
-  <main class="content">
-
-    <div id="back-home-bar" style="display:none;">
-      <button class="back-home-btn" id="btn-back-home">
-        <svg viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M19 12H5"/><path d="M12 19l-7-7 7-7"/></svg>
-        Volver a Inicio
+    <div class="sb-footer">
+      <div class="sb-user">
+        <span class="sb-avatar" id="sb-avatar">—</span>
+        <div class="sb-user-text"><b id="sb-user-nombre">—</b><span id="sb-user-rol">—</span></div>
+      </div>
+      <button class="sb-logout" id="btn-logout" title="Cerrar sesión">
+        <svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"/><polyline points="16 17 21 12 16 7"/><line x1="21" y1="12" x2="9" y2="12"/></svg>
       </button>
     </div>
+  </aside>
+
+  <div class="main-col">
+    <header class="topbar">
+      <button class="tb-menu" id="tb-menu" title="Menú">
+        <svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><line x1="3" y1="6" x2="21" y2="6"/><line x1="3" y1="12" x2="21" y2="12"/><line x1="3" y1="18" x2="21" y2="18"/></svg>
+      </button>
+      <div class="tb-title">
+        <span class="tb-crumb" id="tb-crumb">General</span>
+        <h1 id="tb-panel-title">Inicio</h1>
+      </div>
+      <div class="tb-actions">
+        <button class="tb-btn" id="tb-asistente" title="Asistente I+D" data-perm="ver:asistente">
+          <svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/></svg>
+        </button>
+        <button class="nav-bell" id="nav-bell-btn" title="Notificaciones">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M18 8a6 6 0 0 0-12 0c0 7-3 9-3 9h18s-3-2-3-9"/><path d="M13.73 21a2 2 0 0 1-3.46 0"/></svg>
+          <span class="bell-dot" id="nav-bell-dot" style="display:none;"></span>
+        </button>
+        <div class="bell-dropdown" id="bell-dropdown">
+          <div class="bell-header"><svg viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M18 8a6 6 0 0 0-12 0c0 7-3 9-3 9h18s-3-2-3-9"/><path d="M13.73 21a2 2 0 0 1-3.46 0"/></svg> Roturas Hoy</div>
+          <div id="bell-list"></div>
+          <button class="bell-footer" id="bell-footer">Ver todo en Roturas →</button>
+        </div>
+        <span class="tb-rol-chip" id="tb-rol-chip">—</span>
+      </div>
+    </header>
+
+  <main class="content">
 
     <!-- INICIO — sin cards -->
     <section id="panel-inicio" class="panel active">
       <div class="inicio-header-centered">
-        <h1 class="inicio-bienvenido">¡Bienvenido!</h1>
+        <h1 class="inicio-bienvenido" id="inicio-bienvenido">¡Bienvenido!</h1>
         <div class="inicio-fecha-hora" id="inicio-fecha-hora">—</div>
-        <button class="btn-add btn-nuevo-diseno-grande" id="btn-calcular">+ Nuevo Diseño</button>
+        <button class="btn-add btn-nuevo-diseno-grande" id="btn-calcular" data-perm="disenos:crear">+ Nuevo Diseño</button>
       </div>
 
+      <div class="accesos-rapidos" id="inicio-accesos"></div>
+      <div class="inicio-kpi-strip" id="inicio-kpi-strip"></div>
+      <div class="semana-strip" id="inicio-semana"></div>
 
 
       <div class="inicio-grid inicio-grid-3">
@@ -200,7 +271,7 @@ if(typeof Chart === 'undefined'){
           <svg viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M19 12H5"/><path d="M12 19l-7-7 7-7"/></svg>
           Volver a categorías
         </button>
-        <div class="card">
+        <div class="card" data-perm="componentes:editar">
           <div class="form-row">
             <input type="text" id="comp-nombre" placeholder="Nombre del componente">
             <input type="text" id="comp-peso" placeholder="Peso (kg)">
@@ -222,7 +293,7 @@ if(typeof Chart === 'undefined'){
           <svg viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M19 12H5"/><path d="M12 19l-7-7 7-7"/></svg>
           Volver a categorías
         </button>
-        <div class="card">
+        <div class="card" data-perm="proyectos:editar">
           <div class="form-row">
             <input type="text" id="proy-nombre" placeholder="Nombre del proyecto">
           </div>
@@ -482,7 +553,7 @@ if(typeof Chart === 'undefined'){
           </div>
         </div>
 
-        <button class="btn-add" id="dis-add" style="font-size:.92rem;padding:14px 26px;">Registrar Diseño</button>
+        <button class="btn-add" id="dis-add" data-perm="disenos:crear" style="font-size:.92rem;padding:14px 26px;">Registrar Diseño</button>
       </div>
 
       <!-- ===== HISTÓRICO ===== -->
@@ -499,7 +570,7 @@ if(typeof Chart === 'undefined'){
               <svg viewBox="0 0 24 24" width="15" height="15" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="4" y1="6" x2="20" y2="6"/><line x1="4" y1="12" x2="20" y2="12"/><line x1="4" y1="18" x2="20" y2="18"/></svg>
             </button>
           </div>
-          <button class="btn-fab-verde" id="btn-nuevo-diseno" style="margin-left:auto;" title="Nuevo Diseño"><svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg></button>
+          <button class="btn-fab-verde" id="btn-nuevo-diseno" data-perm="disenos:crear" style="margin-left:auto;" title="Nuevo Diseño"><svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg></button>
         </div>
         <div id="dis-gallery" style="margin-top:14px;"></div>
       </div>
@@ -514,7 +585,7 @@ if(typeof Chart === 'undefined'){
 
       <div class="roturas-subtabs" id="roturas-subtabs">
         <button class="subtab active" data-rosub="pendientes">Pendientes</button>
-        <button class="subtab" data-rosub="registrar">Registrar</button>
+        <button class="subtab" data-rosub="registrar" data-perm="roturas:registrar">Registrar</button>
         <button class="subtab" data-rosub="formato">Formato de Roturas I+D</button>
       </div>
 
@@ -579,7 +650,7 @@ if(typeof Chart === 'undefined'){
             <button class="view-toggle-btn active" data-tipo="Probetas">Probetas <span class="col-count-badge" id="ro-formato-count-probetas">0</span></button>
             <button class="view-toggle-btn" data-tipo="Cubos">Cubos <span class="col-count-badge" id="ro-formato-count-cubos">0</span></button>
           </div>
-          <button class="btn-add" id="ro-formato-nuevo" style="margin-left:auto;">+ Registrar</button>
+          <button class="btn-add" id="ro-formato-nuevo" data-perm="roturas:registrar" style="margin-left:auto;">+ Registrar</button>
         </div>
 
         <div class="roturas-table-wrap" id="ro-formato-wrap-probetas">
@@ -620,13 +691,13 @@ if(typeof Chart === 'undefined'){
         <div><h2>Reporte RR</h2></div>
         <div style="display:flex;gap:10px;align-items:center;">
           <span class="badge-pill" id="rr-count">0 estudios</span>
-          <button class="btn-add" id="btn-generar-rr">Generar Reporte RR</button>
+          <button class="btn-add" id="btn-generar-rr" data-perm="rr:editar">Generar Reporte RR</button>
         </div>
       </div>
       <div class="rr-layout">
         <div>
           <div id="rr-study-list"></div>
-          <div class="rr-new-study">
+          <div class="rr-new-study" data-perm="rr:editar">
             <input type="text" id="rr-new-name" placeholder="Nuevo estudio (ej. HE 0.65)">
             <button id="rr-new-btn">+ Crear</button>
           </div>
@@ -634,15 +705,25 @@ if(typeof Chart === 'undefined'){
         <div>
           <div class="rr-toolbar">
             <h4 id="rr-current-title">—</h4>
-            <button class="btn-add ghost rr-add-tipo-btn" id="rr-add-tipo" style="display:none;">+ Agregar tipo</button>
+            <div class="rr-toolbar-actions">
+              <div class="informe-zoom-bar rr-zoom-bar">
+                <button id="rr-zoom-out" title="Alejar">−</button>
+                <span id="rr-zoom-pct">100%</span>
+                <button id="rr-zoom-in" title="Acercar">+</button>
+              </div>
+              <button class="btn-add ghost" id="rr-exportar" data-perm="datos:exportar">Excel</button>
+              <button class="btn-add ghost rr-add-tipo-btn" id="rr-add-tipo" data-perm="rr:editar" style="display:none;">+ Agregar tipo</button>
+            </div>
           </div>
-          <div class="rr-print-head" id="rr-print-head"></div>
-          <div class="rr-table-wrap" id="rr-table-holder"></div>
-          <div class="section-title-row" style="margin-top:20px;">
-            <h3>Edad / Resistencia</h3>
-            <button class="link-mono" id="rr-add-edad">+ Agregar edad</button>
+          <div class="rr-zoom-area" id="rr-zoom-area">
+            <div class="rr-print-head" id="rr-print-head"></div>
+            <div class="rr-table-wrap" id="rr-table-holder"></div>
+            <div class="section-title-row" style="margin-top:20px;">
+              <h3>Edad / Resistencia</h3>
+              <button class="link-mono" id="rr-add-edad" data-perm="rr:editar">+ Agregar edad</button>
+            </div>
+            <div class="rr-table-wrap" id="rr-edad-holder"></div>
           </div>
-          <div class="rr-table-wrap" id="rr-edad-holder"></div>
           <div class="section-title-row" style="margin-top:26px;">
             <h3>Representaciones gráficas</h3>
           </div>
@@ -664,8 +745,10 @@ if(typeof Chart === 'undefined'){
     <!-- REPORTES -->
     <section id="panel-reportes" class="panel">
       <div class="content-header">
-        <div><h2>Dashboard</h2></div>
+        <div><h2>Dashboard y KPIs</h2><p>Reporte completo del laboratorio: avance, calidad de resultados y cumplimiento.</p></div>
         <div style="display:flex;gap:10px;align-items:center;flex-wrap:wrap;">
+          <button class="btn-add ghost" id="dash-excel" data-perm="datos:exportar">Excel</button>
+          <button class="btn-add" id="dash-pdf">Descargar reporte PDF</button>
           <select id="dash-filtro-anio"></select>
           <select id="dash-filtro-rango">
             <option value="todo">Todo el histórico</option>
@@ -688,13 +771,14 @@ if(typeof Chart === 'undefined'){
         </div>
         <div class="kpi-card kpi-rojo">
           <div class="kpi-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 2l3 6-5 4 6 2-8 8 2-7-5-2 4-4-3-5z"/></svg></div>
-          <div><div class="kpi-num" id="kpi-roturas-pendientes">0</div><div class="kpi-label">Roturas pendientes hoy</div></div>
+          <div><div class="kpi-num" id="kpi-roturas-pendientes">0</div><div class="kpi-label">Roturas pendientes (hoy y vencidas)</div></div>
         </div>
         <div class="kpi-card kpi-negro">
           <div class="kpi-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 7a2 2 0 0 1 2-2h4l2 2h8a2 2 0 0 1 2 2v9a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V7z"/></svg></div>
           <div><div class="kpi-num" id="kpi-proyectos-activos">0</div><div class="kpi-label">Proyectos activos</div></div>
         </div>
       </div>
+      <div class="kpi-grid kpi-calidad" id="dash-kpis-2"></div>
 
       <div class="section-title-row" style="margin-top:6px;">
         <h3>Avance por proyecto</h3>
@@ -733,21 +817,323 @@ if(typeof Chart === 'undefined'){
       </div>
     </section>
 
+    <!-- ============ PROYECTOS: expediente, avance y radar ============ -->
+    <section id="panel-proyectos" class="panel">
+      <div id="proy-vista-principal">
+        <div class="content-header">
+          <div><h2>Proyectos</h2><p>Cada proyecto tiene su expediente: iteraciones, diseños, resultados, evidencias y reportes.</p></div>
+          <div class="ch-actions">
+            <div class="view-toggle" id="proy-vista-toggle">
+              <button class="view-toggle-btn active" data-vista="lista">Proyectos</button>
+              <button class="view-toggle-btn" data-vista="radar">Radar</button>
+            </div>
+            <button class="btn-add" id="proy-nuevo-btn" data-perm="proyectos:editar">+ Nuevo proyecto</button>
+          </div>
+        </div>
+        <div class="kpi-grid" id="proy-kpis"></div>
+
+        <div id="proy-vista-lista">
+          <div class="hist-toolbar">
+            <input type="text" id="proy-buscar" placeholder="Buscar proyecto…">
+            <select id="proy-filtro-estado">
+              <option value="">Todos los estados</option>
+              <option value="En curso">En curso</option>
+              <option value="Completado">Completado</option>
+              <option value="Sin diseños">Sin diseños</option>
+            </select>
+            <select id="proy-orden">
+              <option value="actividad">Más reciente primero</option>
+              <option value="nombre">Nombre (A–Z)</option>
+              <option value="avance">Mayor avance</option>
+              <option value="disenos">Más diseños</option>
+            </select>
+          </div>
+          <div class="proy-grid" id="proy-grid"></div>
+        </div>
+
+        <div id="proy-vista-radar" style="display:none;">
+          <div class="radar-layout">
+            <div class="chart-card">
+              <h4>Radar de proyectos <span class="chart-sub">(0–100 en cada eje)</span></h4>
+              <div class="radar-picker" id="radar-picker"></div>
+              <div class="radar-wrap"><canvas id="chart-radar-proyectos"></canvas></div>
+              <p class="nota-sm">Ejes: <b>Avance</b> (diseños completados), <b>Roturas</b> (cargas registradas), <b>Puntualidad</b> (roturas no vencidas), <b>Resistencia</b> (máxima alcanzada vs. el mejor proyecto), <b>Actividad</b> (diseños en los últimos 30 días) y <b>Costo</b> (CVD más bajo = mejor).</p>
+            </div>
+            <div class="chart-card">
+              <h4>Seguimiento de proyectos</h4>
+              <div class="table-scroll"><table class="data-table" id="radar-tabla"></table></div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div id="proy-expediente" style="display:none;"></div>
+    </section>
+
+    <!-- ============ CALENDARIO DE ROTURAS ============ -->
+    <section id="panel-calendario" class="panel">
+      <div class="content-header">
+        <div><h2>Calendario de roturas</h2><p>Proyección de las roturas programadas para planificar la semana del laboratorio.</p></div>
+        <div class="ch-actions">
+          <select id="cal-proyecto"><option value="">Todos los proyectos</option></select>
+          <select id="cal-tipo"><option value="">Probetas y cubos</option><option value="Probetas">Solo probetas</option><option value="Cubos">Solo cubos</option></select>
+          <div class="view-toggle" id="cal-vista">
+            <button class="view-toggle-btn active" data-vista="mes">Mes</button>
+            <button class="view-toggle-btn" data-vista="semana">Semana</button>
+          </div>
+        </div>
+      </div>
+      <div class="cal-toolbar">
+        <button class="cal-nav" id="cal-prev" title="Anterior">‹</button>
+        <h3 id="cal-titulo">—</h3>
+        <button class="cal-nav" id="cal-next" title="Siguiente">›</button>
+        <button class="btn-ghost" id="cal-hoy">Hoy</button>
+        <div class="cal-leyenda">
+          <span><i class="cal-dot pend"></i>Pendiente</span>
+          <span><i class="cal-dot venc"></i>Vencida</span>
+          <span><i class="cal-dot comp"></i>Registrada</span>
+        </div>
+      </div>
+      <div class="cal-layout">
+        <div id="cal-grid"></div>
+        <aside class="cal-dia card" id="cal-dia"></aside>
+      </div>
+    </section>
+
+    <!-- ============ BASE HISTÓRICA ============ -->
+    <section id="panel-base-historica" class="panel">
+      <div class="content-header">
+        <div><h2>Base histórica</h2><p>Todos los resultados unidos a los parámetros de su diseño: una fila por réplica y edad. Es la fuente para reportes, comparaciones y predicción.</p></div>
+        <div class="ch-actions">
+          <button class="btn-add ghost" id="bh-export-csv">CSV (Colab / XGBoost)</button>
+          <button class="btn-add" id="bh-export-xlsx">Exportar Excel</button>
+        </div>
+      </div>
+      <div class="kpi-grid" id="bh-kpis"></div>
+      <div class="card">
+        <div class="hist-toolbar">
+          <input type="text" id="bh-buscar" placeholder="Buscar por diseño, código o réplica…">
+          <select id="bh-proyecto"><option value="">Todos los proyectos</option></select>
+          <select id="bh-edad"><option value="">Todas las edades</option></select>
+          <select id="bh-estado"><option value="">Con y sin resultado</option><option value="completado">Solo con resultado</option><option value="pendiente">Solo pendientes</option></select>
+        </div>
+        <div class="table-scroll" style="margin-top:14px;"><table class="data-table" id="bh-tabla"></table></div>
+        <div class="paginacion" id="bh-paginacion"></div>
+      </div>
+      <div class="card" data-perm="datos:respaldo">
+        <div class="section-num">Respaldo y restauración</div>
+        <p class="nota-sm">Los datos viven en este navegador. Descargá un respaldo periódicamente; con él podés restaurar todo en otro equipo. Las fotos de evidencia no se incluyen en el respaldo.</p>
+        <div class="form-actions" style="margin-top:12px;">
+          <button class="btn-add" id="bh-respaldo-descargar">Descargar respaldo completo (.json)</button>
+          <label class="btn-add ghost" for="bh-respaldo-archivo" style="cursor:pointer;">Restaurar desde archivo…</label>
+          <input type="file" id="bh-respaldo-archivo" accept="application/json,.json" style="display:none;">
+          <button class="btn-add ghost" id="bh-quitar-demo" style="margin-left:auto;">Quitar datos de demostración…</button>
+        </div>
+        <p class="nota-sm" id="bh-demo-nota" style="margin-top:8px;"></p>
+      </div>
+    </section>
+
+    <!-- ============ PREDICCIÓN ============ -->
+    <section id="panel-prediccion" class="panel">
+      <div class="content-header">
+        <div><h2>Predicción</h2><p>Modelos que aprenden de la base histórica para anticipar resultados antes de romper.</p></div>
+        <div class="roturas-subtabs" id="pred-tabs" style="margin-bottom:0;border-bottom:none;">
+          <button class="subtab active" data-predtab="madurez">Curva de madurez</button>
+          <button class="subtab" data-predtab="simulador">Simulador de diseño</button>
+        </div>
+      </div>
+
+      <div id="pred-madurez">
+        <div class="pred-layout">
+          <div class="card">
+            <div class="section-num">Proyección a 28 días desde edades tempranas</div>
+            <p class="nota-sm">Ajusta f(t) = a + b·ln(t) con las roturas ya registradas del diseño y proyecta la resistencia a 28, 56 y 90 días.</p>
+            <div class="pp-field" style="margin-top:10px;"><label>Diseño</label><select id="pred-diseno"></select></div>
+            <div id="pred-madurez-resultado"></div>
+          </div>
+          <div class="chart-card"><h4>Resistencia vs. edad <span class="chart-sub">(puntos medidos y curva ajustada)</span></h4><div class="dash-chart-wrap"><canvas id="chart-pred-madurez"></canvas></div></div>
+        </div>
+        <div class="card" style="margin-top:18px;">
+          <div class="section-num">Diseños en curso — 28 días proyectados</div>
+          <div class="table-scroll"><table class="data-table" id="pred-tabla-encurso"></table></div>
+        </div>
+      </div>
+
+      <div id="pred-simulador" style="display:none;">
+        <div class="pred-layout">
+          <div class="card">
+            <div class="section-num">Simular un diseño nuevo</div>
+            <div class="pred-form">
+              <div class="pp-field"><label>Relación a/mc</label><input type="number" id="sim-amc" step="0.01" value="0.55"></div>
+              <div class="pp-field"><label>Tipo de cemento</label><select id="sim-cemento"><option value="I">Tipo I</option><option value="HE">HE</option></select></div>
+              <div class="pp-field"><label>Cemento (kg/m³)</label><input type="number" id="sim-cemento-kg" value="350"></div>
+              <div class="pp-field"><label>Con ceniza volante (Fly Ash)</label><select id="sim-flyash"><option value="0">No</option><option value="1">Sí</option></select></div>
+              <div class="pp-field"><label>Edad (días)</label><input type="number" id="sim-edad" value="28"></div>
+            </div>
+            <div id="sim-resultado"></div>
+            <div id="sim-modelo-info"></div>
+          </div>
+          <div class="chart-card"><h4>Curva estimada <span class="chart-sub">(1 a 90 días)</span></h4><div class="dash-chart-wrap"><canvas id="chart-pred-sim"></canvas></div></div>
+        </div>
+        <div class="nota-box">
+          <b>Sobre XGBoost:</b> este simulador usa una regresión lineal regularizada que corre en el navegador. Para entrenar un modelo XGBoost, exportá el dataset desde <i>Base histórica → CSV</i> y abrilo en Google Colab; las columnas ya vienen listas como variables de entrada y la resistencia como objetivo.
+        </div>
+      </div>
+    </section>
+
+    <!-- ============ ASISTENTE I+D ============ -->
+    <section id="panel-asistente" class="panel">
+      <div class="content-header">
+        <div><h2>Asistente I+D</h2><p>Preguntá en lenguaje natural sobre proyectos, diseños, roturas y resultados registrados.</p></div>
+      </div>
+      <div class="chat-card card">
+        <div class="chat-log" id="chat-log"></div>
+        <div class="chat-sugerencias" id="chat-sugerencias"></div>
+        <form class="chat-form" id="chat-form" autocomplete="off">
+          <input type="text" id="chat-input" placeholder="Ej. ¿Qué roturas tengo esta semana?">
+          <button class="btn-add" type="submit">Enviar</button>
+        </form>
+        <p class="nota-sm">El asistente responde con los datos guardados en este navegador (búsqueda local, sin enviar información a internet).</p>
+      </div>
+    </section>
+
+    <!-- ============ USUARIOS Y ROLES ============ -->
+    <section id="panel-usuarios" class="panel">
+      <div class="content-header">
+        <div><h2>Usuarios y roles</h2><p>Perfiles de acceso según el rol: Administrador, Jefatura y Técnico.</p></div>
+        <button class="btn-add" id="usr-nuevo">+ Nuevo usuario</button>
+      </div>
+      <div class="card table-scroll"><table class="data-table" id="usr-tabla"></table></div>
+      <div class="card">
+        <div class="section-num">Funciones por rol</div>
+        <div class="table-scroll"><table class="data-table matriz-roles" id="usr-matriz"></table></div>
+      </div>
+    </section>
+
+    <!-- ============ HISTORIAL ============ -->
+    <section id="panel-historial" class="panel">
+      <div class="content-header">
+        <div><h2>Historial</h2><p>Movimientos del sistema: quién hizo qué y cuándo.</p></div>
+        <button class="btn-add ghost" id="his-exportar">Exportar Excel</button>
+      </div>
+      <div class="kpi-grid" id="his-kpis"></div>
+      <div class="card">
+        <div class="hist-toolbar">
+          <input type="text" id="his-buscar" placeholder="Buscar en el detalle…">
+          <select id="his-usuario"><option value="">Todos los usuarios</option></select>
+          <select id="his-entidad"><option value="">Todas las entidades</option></select>
+          <input type="date" id="his-desde" title="Desde">
+          <input type="date" id="his-hasta" title="Hasta">
+        </div>
+        <div class="table-scroll" style="margin-top:14px;"><table class="data-table" id="his-tabla"></table></div>
+        <div class="paginacion" id="his-paginacion"></div>
+      </div>
+    </section>
+
     <!-- AJUSTES -->
     <section id="panel-ajustes" class="panel">
-      <div class="content-header"><div><h2>Ajustes</h2></div></div>
-      <div class="card">
-        <div class="settings-list">
-          <div class="setting-row"><div><h4>Modo oscuro</h4></div><label class="switch"><input type="checkbox" id="set-darkmode"><span class="slider"></span></label></div>
-          <div class="setting-row"><div><h4>Notificaciones</h4></div><label class="switch"><input type="checkbox" id="set-notif" checked><span class="slider"></span></label></div>
-          <div class="setting-row"><div><h4>Autoguardado</h4></div><label class="switch"><input type="checkbox" id="set-autosave" checked><span class="slider"></span></label></div>
-          <div class="setting-row"><div><h4>Idioma</h4></div><select class="lang-select" id="set-lang"><option value="es">Español</option><option value="en">English</option></select></div>
+      <div class="content-header"><div><h2>Ajustes</h2><p>Preferencias de este equipo y de tu cuenta.</p></div></div>
+      <div class="ajustes-grid">
+        <div class="card">
+          <div class="section-num">Preferencias</div>
+          <div class="settings-list">
+            <div class="setting-row"><div><h4>Modo oscuro</h4><p>Cambia la apariencia de la interfaz.</p></div><label class="switch"><input type="checkbox" id="set-darkmode"><span class="slider"></span></label></div>
+            <div class="setting-row"><div><h4>Notificaciones de roturas</h4><p>Aviso en la campana cuando hay roturas para hoy.</p></div><label class="switch"><input type="checkbox" id="set-notif" checked><span class="slider"></span></label></div>
+          </div>
         </div>
-        <div class="settings-actions"><button class="btn-add" id="set-save">Guardar cambios</button></div>
+        <div class="card">
+          <div class="section-num">Mi cuenta</div>
+          <div class="cuenta-resumen" id="cuenta-resumen"></div>
+          <div class="pred-form" style="margin-top:12px;">
+            <div class="pp-field"><label>Contraseña actual</label><input type="password" id="cta-actual" autocomplete="current-password"></div>
+            <div class="pp-field"><label>Nueva contraseña</label><input type="password" id="cta-nueva" autocomplete="new-password"></div>
+            <div class="pp-field"><label>Repetir nueva</label><input type="password" id="cta-repetir" autocomplete="new-password"></div>
+          </div>
+          <div class="form-actions" style="margin-top:12px;"><button class="btn-add" id="cta-guardar">Cambiar contraseña</button></div>
+        </div>
+        <div class="card">
+          <div class="section-num">Acerca del sistema</div>
+          <div class="acerca-lista" id="acerca-lista"></div>
+        </div>
       </div>
     </section>
 
   </main>
+  </div>
+</div>
+
+<!-- ============ MODAL: Usuario (crear / editar) ============ -->
+<div id="usuario-modal" class="sid-modal">
+  <div class="modal-card">
+    <div class="modal-header"><h3 id="usuario-modal-title">Nuevo usuario</h3><button class="modal-close" data-close="usuario-modal">×</button></div>
+    <div class="modal-body">
+      <div class="pred-form">
+        <div class="pp-field"><label>Usuario (para ingresar)</label><input type="text" id="um-usuario" placeholder="Ej. JPEREZ" autocomplete="off"></div>
+        <div class="pp-field"><label>Nombre completo</label><input type="text" id="um-nombre" placeholder="Ej. Juan Pérez"></div>
+        <div class="pp-field"><label>Iniciales</label><input type="text" id="um-iniciales" placeholder="Ej. JP" maxlength="8"></div>
+        <div class="pp-field"><label>Rol</label><select id="um-rol"></select></div>
+        <div class="pp-field"><label id="um-pass-label">Contraseña</label><input type="password" id="um-pass" autocomplete="new-password" placeholder="Mínimo 6 caracteres"></div>
+        <div class="pp-field"><label>Estado</label><select id="um-activo"><option value="1">Activo</option><option value="0">Inactivo</option></select></div>
+      </div>
+      <p class="nota-sm" id="um-rol-desc"></p>
+    </div>
+    <div class="modal-actions">
+      <button class="btn-add" id="um-guardar">Guardar</button>
+      <button class="btn-add ghost" data-close="usuario-modal">Cancelar</button>
+    </div>
+  </div>
+</div>
+
+<!-- ============ MODAL: Etiquetas de identificación ============ -->
+<div id="etiquetas-modal" class="sid-modal">
+  <div class="modal-card wide">
+    <div class="modal-header"><h3>Etiquetas de identificación</h3><button class="modal-close" data-close="etiquetas-modal">×</button></div>
+    <div class="modal-body">
+      <p id="etq-diseno-nombre" class="mono" style="margin-bottom:10px;"></p>
+      <div class="form-row" style="align-items:center;">
+        <label class="pp-check-inline"><input type="radio" name="etq-modo" value="especimen" checked> Una por espécimen (réplica × edad × M1–M3)</label>
+        <label class="pp-check-inline"><input type="radio" name="etq-modo" value="rotura"> Una por rotura (réplica × edad)</label>
+        <label class="pp-check-inline"><input type="radio" name="etq-modo" value="replica"> Una por réplica</label>
+      </div>
+      <div class="form-row" style="align-items:center;">
+        <label class="pp-check-inline"><input type="checkbox" id="etq-solo-pendientes" checked> Solo roturas pendientes</label>
+        <span class="nota-sm" id="etq-cuenta"></span>
+      </div>
+      <div class="etq-preview" id="etq-preview"></div>
+    </div>
+    <div class="modal-actions">
+      <button class="btn-add" id="etq-imprimir">Imprimir etiquetas</button>
+      <button class="btn-add ghost" data-close="etiquetas-modal">Cerrar</button>
+    </div>
+  </div>
+</div>
+
+<!-- ============ MODAL: Subir evidencia ============ -->
+<div id="evidencia-modal" class="sid-modal">
+  <div class="modal-card">
+    <div class="modal-header"><h3>Subir evidencia fotográfica</h3><button class="modal-close" data-close="evidencia-modal">×</button></div>
+    <div class="modal-body">
+      <div class="pred-form">
+        <div class="pp-field"><label>Diseño</label><select id="ev-diseno"></select></div>
+        <div class="pp-field"><label>Sección</label><select id="ev-seccion"></select></div>
+        <div class="pp-field span-2"><label>Descripción (opcional)</label><input type="text" id="ev-descripcion" placeholder="Ej. Slump inicial, apariencia de la mezcla…"></div>
+        <div class="pp-field span-2"><label>Fotos</label><input type="file" id="ev-archivos" accept="image/*" multiple></div>
+      </div>
+    </div>
+    <div class="modal-actions">
+      <button class="btn-add" id="ev-guardar">Guardar evidencia</button>
+      <button class="btn-add ghost" data-close="evidencia-modal">Cancelar</button>
+    </div>
+  </div>
+</div>
+
+<!-- ============ VISOR DE FOTO ============ -->
+<div id="lightbox" class="sid-modal">
+  <div class="lightbox-card">
+    <button class="modal-close" data-close="lightbox">×</button>
+    <img id="lightbox-img" alt="Evidencia">
+    <div class="lightbox-pie" id="lightbox-pie"></div>
+  </div>
 </div>
 
 <!-- ============ MODAL: Vista de diseño ============ -->
@@ -811,6 +1197,7 @@ if(typeof Chart === 'undefined'){
     <div id="roturas-auto-modal-text" class="rac-wrap"></div>
     <div class="confirm-actions">
       <button class="btn-ghost" id="roturas-auto-modal-close">Seguir aquí</button>
+      <button class="btn-add ghost" id="roturas-auto-modal-etiquetas">Imprimir etiquetas</button>
       <button class="btn-add" id="roturas-auto-modal-go">Ir a Roturas</button>
     </div>
   </div>
@@ -855,7 +1242,7 @@ if(typeof Chart === 'undefined'){
     </div>
     <div class="results-body" id="results-modal-body"></div>
     <div class="modal-actions">
-      <button class="btn-add" id="results-save">Guardar resultados</button>
+      <button class="btn-add" id="results-save" data-perm="resultados:registrar">Guardar resultados</button>
       <button class="btn-add ghost" id="results-print">Imprimir formato</button>
     </div>
   </div>
@@ -868,7 +1255,7 @@ if(typeof Chart === 'undefined'){
     <div class="rc-recap" id="rotura-carga-recap"></div>
     <div class="modal-body" id="rotura-carga-body"></div>
     <div class="modal-actions">
-      <button class="btn-add" id="rotura-carga-save">Guardar carga</button>
+      <button class="btn-add" id="rotura-carga-save" data-perm="roturas:registrar">Guardar carga</button>
       <button class="btn-add ghost" id="rotura-carga-cancel">Cancelar</button>
     </div>
   </div>
@@ -1005,6 +1392,8 @@ if(typeof Chart === 'undefined'){
 
 <script src="data/disenos-reales.js"></script>
 <script src="js/core/utils.js"></script>
+<script src="js/core/auth.js"></script>
+<script src="js/core/historial.js"></script>
 <script src="js/core/icons.js"></script>
 <script src="js/core/shell.js"></script>
 <script src="js/modules/catalogos.js"></script>
@@ -1019,9 +1408,20 @@ if(typeof Chart === 'undefined'){
 <script src="js/modules/disenos/calculadora.js"></script>
 <script src="js/modules/archivador.js"></script>
 <script src="js/modules/reporte-rr.js"></script>
+<script src="js/core/analitica.js"></script>
+<script src="js/modules/proyectos-panel.js"></script>
+<script src="js/modules/calendario.js"></script>
+<script src="js/modules/etiquetas.js"></script>
+<script src="js/modules/base-historica.js"></script>
+<script src="js/modules/prediccion.js"></script>
+<script src="js/modules/asistente.js"></script>
+<script src="js/modules/usuarios.js"></script>
+<script src="js/modules/historial-panel.js"></script>
 <script src="js/modules/dashboard.js"></script>
 <script src="js/modules/ajustes.js"></script>
+<script src="js/modules/inicio.js"></script>
 <script src="js/data/seed.js"></script>
+<script src="js/data/reparaciones.js"></script>
 <script src="js/main.js"></script>
 <script src="js/pwa.js"></script>
 </body>

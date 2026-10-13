@@ -44,8 +44,13 @@ function showSubTab(name){
     var proyActual = document.getElementById('pp-proyecto').value;
     fillProyectoCatalogoSelect(document.getElementById('pp-proyecto'), proyActual);
     fillPpIteracionSelect(proyectoNombre(proyActual), document.getElementById('pp-iteracion-select').value);
-    if(!document.getElementById('dis-ndiseno').value) document.getElementById('dis-ndiseno').value = disenos.length + 1;
-  }    window.scrollTo({top:0, behavior:'auto'});
+    if(!document.getElementById('dis-ndiseno').value) document.getElementById('dis-ndiseno').value = parseInt(nextCodigoDiseno().slice(4), 10);
+    if(usuarioActual){
+      var colab = document.getElementById('dis-colaborador');
+      if(!colab.value) colab.value = inicialesUsuario(usuarioActual);
+    }
+  }
+  window.scrollTo({top:0, behavior:'auto'});
 }
 document.getElementById('btn-nuevo-diseno').addEventListener('click', function(){ showSubTab('calcular'); });
 document.getElementById('pp-usar-numeral').addEventListener('change', function(){
@@ -391,6 +396,7 @@ function resetCalcForm(){
 }
 
 document.getElementById('dis-add').addEventListener('click', function(){
+  if(!exigir('disenos:crear')) return;
   var tipoIdxSel = document.getElementById('dis-tipo-concreto').value;
   var tipoDef = tipoIdxSel !== '' ? TIPO_CONCRETO_DEFS[Number(tipoIdxSel)] : null;
   var fc = document.getElementById('dis-fc').value.trim();
@@ -472,6 +478,7 @@ document.getElementById('dis-add').addEventListener('click', function(){
   };
   disenos.push(d);
   save('sid10_disenos', disenos);
+  registrarHistorial('Creó', 'Diseño', d.codigo + ' · ' + d.nombreTecnico + ' · ' + proyectoNombre(d.proyectoId) + ' / ' + d.iteracionId, {proyecto: proyectoNombre(d.proyectoId), ref: d.codigo});
   resetCalcForm();
   renderAllDesignViews();
   askReplicasThenPrint(d);
@@ -513,6 +520,7 @@ function askReplicasThenPrint(d){
     for(var i=1;i<=cantidadElegida;i++){ d.replicaObjs.push({n:i, nombre:diseñoTitulo(d)+'-R'+i, codigo:''}); }
     var creados = crearCargasParaDiseno(d, 'automatico'); // ya deja el código correcto (uno por réplica) en cada rep.codigo
     save('sid10_disenos', disenos);
+    registrarHistorial('Registró', 'Rotura', creados.length + ' roturas programadas para ' + d.codigo + ' (' + cantidadElegida + ' réplicas · días ' + diasElegidos.join(', ') + ')', {proyecto: proyectoNombre(d.proyectoId), ref: d.codigo});
     document.getElementById('replicas-modal').classList.remove('show');
     renderAllDesignViews();
     renderRoturasAll();
@@ -543,6 +551,10 @@ function askReplicasThenPrint(d){
   document.getElementById('roturas-auto-modal-close').onclick = function(){
     document.getElementById('roturas-auto-modal').classList.remove('show');
     document.getElementById('print-confirm-modal').classList.add('show');
+  };
+  document.getElementById('roturas-auto-modal-etiquetas').onclick = function(){
+    document.getElementById('roturas-auto-modal').classList.remove('show');
+    abrirEtiquetas(d.codigo);
   };
   document.getElementById('roturas-auto-modal-go').onclick = function(){
     document.getElementById('roturas-auto-modal').classList.remove('show');
