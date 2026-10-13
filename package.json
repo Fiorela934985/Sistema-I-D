@@ -1,0 +1,10 @@
+{
+  "name": "sistema-i-d",
+  "version": "1.0.0",
+  "private": true,
+  "description": "Sistema I+D — Laboratorio I+D · Gestión de Calidad",
+  "scripts": {
+    "start": "npx --yes http-server@14.1.1 . -p 8080 -c-1 -o",
+    "check": "node --check js/app.js && node --check data/disenos-reales.js && node --check js/pwa.js && node --check sw.js"
+  }
+}
