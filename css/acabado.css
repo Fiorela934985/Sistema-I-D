@@ -1,0 +1,151 @@
+/* Sistema I+D — Acabado profesional (se carga al final).
+   1) Escala fluida: todo el sistema usa rem, así que ajustar la raíz adapta letras, espacios y
+      controles al ancho de la pantalla, con un mínimo y un máximo para que nunca sea ni diminuto ni enorme.
+   2) Fondo blanco en el área de trabajo; se conservan el celeste, el verde y la barra lateral.
+   3) Tipografía corporativa (Inter) en títulos; Oswald queda solo para la marca. */
+
+html{font-size:clamp(13.5px, 0.42vw + 9.6px, 16px);}
+:root{
+  --font-display:'Inter',sans-serif;
+  --font-marca:'Oswald',sans-serif;
+  --bg:#ffffff;
+  --surface:#ffffff;
+  --surface-2:#f4f8fa;
+  --line:#e3ecf0;
+  --text:#0f2530;
+  --text-muted:#5d717a;
+  --sombra-suave:0 1px 2px rgba(15,37,48,.04), 0 4px 14px -6px rgba(15,37,48,.10);
+  --sombra-hover:0 2px 4px rgba(15,37,48,.05), 0 14px 30px -12px rgba(3,118,158,.28);
+  --radio:12px;
+  --sidebar-w:clamp(224px, 16vw, 264px);
+}
+html[data-theme="dark"]{ --bg:#0a1519; --surface:#0f1f26; --surface-2:#152a33; }
+body{background:var(--bg);font-size:.9375rem;line-height:1.5;-webkit-font-smoothing:antialiased;text-rendering:optimizeLegibility;}
+
+/* ---------- Marca: conserva Oswald ---------- */
+.sb-brand-text,.loader-word,.login-title{font-family:var(--font-marca);}
+
+/* ---------- Estructura y espacios ---------- */
+.content{max-width:1520px;padding:clamp(18px,2.2vw,32px) clamp(16px,2.6vw,40px) 56px;}
+.topbar{height:clamp(56px,4.4vw,64px);background:rgba(255,255,255,.92);}
+html[data-theme="dark"] .topbar{background:rgba(15,31,38,.92);}
+.tb-title h1{font-size:1.15rem;font-weight:700;letter-spacing:-.01em;}
+.tb-crumb{font-size:.66rem;letter-spacing:.1em;}
+.side-nav .nav-item{height:2.5rem;font-size:.875rem;}
+.sn-label{font-size:.66rem;}
+
+.content-header{margin-bottom:1.5rem;padding-bottom:1.1rem;border-bottom:1px solid var(--line);align-items:center;}
+.content-header h2{font-size:1.5rem;font-weight:700;letter-spacing:-.02em;line-height:1.2;}
+.content-header p{font-size:.9rem;margin-top:.35rem;}
+
+/* ---------- Títulos de sección: sobrios, sin mayúsculas forzadas ---------- */
+.section-num{font-size:1rem;font-weight:700;letter-spacing:-.01em;text-transform:none;color:var(--celeste-800);margin-bottom:.6rem;}
+.chart-card h4,.inicio-col-title,.rr-chart-card h5,.ev-seccion h5{text-transform:none;letter-spacing:-.005em;font-weight:700;}
+.chart-card h4{font-size:.95rem;color:var(--text);}
+.inicio-col-title{font-size:1rem;}
+.section-title-row h3,.rr-toolbar h4,.exp-iter-head h4,.pc-head h4,.cal-dia h4,.cal-toolbar h3{font-weight:700;letter-spacing:-.01em;}
+.exp-header h2{font-size:1.65rem;font-weight:800;letter-spacing:-.02em;}
+.inicio-bienvenido{font-size:clamp(1.6rem,2.4vw,2.1rem);font-weight:800;letter-spacing:-.025em;}
+.inicio-fecha-hora{font-size:.95rem;}
+
+/* ---------- Tarjetas: blancas con borde fino y sombra suave ---------- */
+.card,.chart-card,.kpi-card,.proy-card,.acceso,.ih-card,.design-card,.dash-avance-card,.rr-chart-card,.cal-celda,.sem-dia,.ro-reg-card,.pendiente-row,.comp-cat-tile,.archivador-carpeta,.hoja{
+  background:var(--surface);border:1px solid var(--line);box-shadow:var(--sombra-suave);
+}
+.card,.chart-card,.kpi-card,.proy-card,.rr-chart-card,.dash-avance-card,.ro-reg-card,.hoja{border-radius:var(--radio);}
+.card{padding:clamp(16px,1.6vw,24px);}
+.chart-card{padding:clamp(14px,1.4vw,22px);}
+.proy-card:hover,.acceso:hover,.design-card:hover,.comp-cat-tile:hover,.archivador-carpeta:hover,.ih-card:hover{box-shadow:var(--sombra-hover);border-color:var(--celeste-100);}
+.inicio-header-centered{border:1px solid var(--line);padding:clamp(22px,2.6vw,36px) 20px;}
+
+/* KPIs: número protagonista, etiqueta discreta */
+.kpi-grid{gap:clamp(10px,1.1vw,16px);}
+.kpi-card{padding:clamp(14px,1.2vw,20px) clamp(14px,1.3vw,22px);}
+.kpi-card::after{width:3px;}
+.kpi-num{font-size:1.65rem;font-weight:800;letter-spacing:-.02em;font-variant-numeric:tabular-nums;color:var(--text);}
+.kpi-label{font-size:.78rem;line-height:1.35;}
+.kpi-icon{width:2.6rem;height:2.6rem;border-radius:10px;}
+.kpi-icon svg{width:1.2rem;height:1.2rem;}
+
+/* ---------- Controles con la misma altura y foco visible ---------- */
+.btn-add,.btn-ghost{min-height:2.4rem;padding:0 1.1rem;display:inline-flex;align-items:center;justify-content:center;gap:.45rem;font-size:.84rem;font-weight:600;border-radius:9px;letter-spacing:.005em;}
+.btn-add{background:linear-gradient(180deg,var(--celeste-500),var(--celeste-600));box-shadow:0 1px 2px rgba(3,118,158,.25), 0 6px 14px -8px rgba(3,150,200,.7);}
+.btn-add:hover{background:linear-gradient(180deg,var(--celeste-600),var(--celeste-700));}
+.btn-add.ghost{background:var(--surface);color:var(--text);border:1px solid var(--line);box-shadow:0 1px 2px rgba(15,37,48,.04);}
+.btn-add.ghost:hover{border-color:var(--celeste-300);color:var(--celeste-700);background:var(--celeste-50);}
+.btn-nuevo-diseno-grande{min-height:2.9rem;padding:0 1.8rem;font-size:.95rem;background:var(--grad-marca);}
+.btn-icon{width:2rem;height:2rem;border-radius:8px;}
+input,select,textarea{font-size:.875rem;}
+.form-row input,.form-row select,.field-mini input,.field-mini select,.pp-field input,.pp-field select,
+.hist-toolbar input[type="text"],.hist-toolbar input[type="date"],.hist-toolbar select,.ch-actions select,.content-header select{
+  min-height:2.4rem;border:1px solid #d5e2e8;border-radius:9px;background:#fff;transition:border-color .15s, box-shadow .15s;
+}
+html[data-theme="dark"] .form-row input,html[data-theme="dark"] .form-row select,html[data-theme="dark"] .field-mini input,html[data-theme="dark"] .field-mini select,
+html[data-theme="dark"] .pp-field input,html[data-theme="dark"] .pp-field select,html[data-theme="dark"] .hist-toolbar input,html[data-theme="dark"] .hist-toolbar select,
+html[data-theme="dark"] .ch-actions select,html[data-theme="dark"] .content-header select{background:var(--surface-2);border-color:var(--line);}
+.form-row input:focus,.form-row select:focus,.field-mini input:focus,.field-mini select:focus,.pp-field input:focus,.pp-field select:focus,
+.hist-toolbar input:focus,.hist-toolbar select:focus,.chat-form input:focus{outline:none;border-color:var(--celeste-500);box-shadow:0 0 0 3px rgba(31,176,224,.16);}
+button:focus-visible,a:focus-visible{outline:2px solid var(--celeste-500);outline-offset:2px;}
+.pp-field label,.field-mini label{font-size:.68rem;letter-spacing:.04em;}
+.view-toggle{border:1px solid var(--line);border-radius:9px;background:var(--surface-2);padding:3px;gap:2px;}
+.view-toggle-btn{border-radius:7px;padding:.4rem .8rem;font-size:.8rem;font-weight:600;background:transparent;}
+.view-toggle-btn.active{background:#fff;color:var(--celeste-700);box-shadow:0 1px 3px rgba(15,37,48,.12);}
+html[data-theme="dark"] .view-toggle-btn.active{background:var(--surface);color:var(--celeste-300);}
+
+/* Pestañas */
+.subtab{font-size:.86rem;padding:.7rem 1.1rem;}
+.roturas-subtabs{border-bottom:1px solid var(--line);}
+
+/* ---------- Tablas ---------- */
+table.data-table,table.rr-table,table.roturas-table{font-variant-numeric:tabular-nums;}
+table.data-table thead th{background:#f7fafb;color:#4a5f68;font-size:.68rem;font-weight:700;letter-spacing:.05em;padding:.7rem .85rem;}
+html[data-theme="dark"] table.data-table thead th{background:var(--surface-2);color:var(--text-muted);}
+table.data-table td{padding:.7rem .85rem;font-size:.84rem;}
+table.data-table tbody tr:hover td{background:#fafcfd;}
+html[data-theme="dark"] table.data-table tbody tr:hover td{background:var(--surface-2);}
+thead th{font-size:.68rem;}
+.table-scroll{border-radius:10px;}
+
+/* Etiquetas de estado más finas */
+.tag-pill{font-size:.66rem;font-weight:700;letter-spacing:.03em;padding:.25rem .65rem;}
+
+/* ---------- Inicio ---------- */
+.accesos-rapidos{gap:clamp(10px,1vw,14px);}
+.accesos-rapidos{grid-template-columns:repeat(auto-fit,minmax(140px,1fr));}
+.acceso{flex-direction:column;align-items:flex-start;gap:.7rem;padding:clamp(12px,1.1vw,16px);border-radius:var(--radio);}
+.acceso-ico{width:2.4rem;height:2.4rem;border-radius:10px;}
+.acceso-txt{min-width:0;width:100%;}
+.acceso-txt b{font-size:.88rem;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;}
+.acceso-txt small{white-space:nowrap;overflow:hidden;text-overflow:ellipsis;}
+.sem-dia{border-radius:var(--radio);padding:.8rem .4rem;}
+.sem-dia b{font-family:var(--font-display);font-weight:800;font-size:1.4rem;}
+
+/* ---------- Encabezado del expediente ---------- */
+.exp-header{border-radius:16px;padding:clamp(16px,1.8vw,26px);box-shadow:0 18px 40px -24px rgba(10,61,79,.6);}
+
+/* ---------- Gráficos: altura proporcional a la pantalla ---------- */
+/* Alto fijo (proporcional a la pantalla) en height, min y max: si no, Chart.js entra en un ciclo de crecimiento. */
+.dash-chart-wrap{flex:none;height:clamp(220px,19vw,290px);min-height:clamp(220px,19vw,290px);max-height:clamp(220px,19vw,290px);}
+.chart-card.span-2 .dash-chart-wrap,.dash-chart-wrap.alto{flex:none;height:clamp(240px,21vw,330px);min-height:clamp(240px,21vw,330px);max-height:clamp(240px,21vw,330px);}
+.radar-wrap{height:clamp(300px,26vw,400px);}
+
+/* ---------- Modales ---------- */
+.modal-card,.confirm-card,.results-card,.informe-card{box-shadow:0 30px 70px -20px rgba(6,30,38,.45);}
+.modal-header{background:#fff;border-bottom:1px solid var(--line);}
+.modal-header h3{font-weight:700;letter-spacing:-.01em;}
+.sid-modal,#design-modal{backdrop-filter:blur(3px);-webkit-backdrop-filter:blur(3px);}
+
+/* ---------- Pantallas grandes y pequeñas ---------- */
+@media (min-width:1800px){ .content{max-width:1640px;} }
+@media (max-width:600px){
+  body{font-size:.9rem;}
+  .content-header{padding-bottom:.8rem;}
+  .content-header h2{font-size:1.3rem;}
+  .kpi-num{font-size:1.35rem;}
+}
+
+/* ---------- Hoja de dosificación y resultados: encabezados con la paleta (antes gris) ---------- */
+table.hoja-table th,table.mezcla-table th,.params-col-head,.replica-head{background:var(--celeste-900);}
+table.mezcla-table tr.mezcla-total td{background:var(--celeste-800);}
+.params-col-head{border-radius:10px 10px 0 0;letter-spacing:.03em;}
+.sem-head .link-mono{white-space:nowrap;}
