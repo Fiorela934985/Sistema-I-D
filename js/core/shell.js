@@ -78,6 +78,27 @@ function cerrarMenuMovil(){ document.body.classList.remove('sidebar-open'); }
 document.getElementById('tb-menu').addEventListener('click', function(){ document.body.classList.toggle('sidebar-open'); });
 document.getElementById('sidebar-backdrop').addEventListener('click', cerrarMenuMovil);
 
+/* Menú lateral contraído: quedan solo los íconos fijos. La preferencia se recuerda en este equipo. */
+function aplicarMenuContraido(contraido){
+  document.body.classList.toggle('sidebar-mini', contraido);
+  var btn = document.getElementById('sb-toggle');
+  btn.title = contraido ? 'Mostrar menú' : 'Ocultar menú';
+  btn.setAttribute('aria-label', btn.title);
+}
+document.querySelectorAll('.side-nav .nav-item').forEach(function(b){
+  var lbl = b.querySelector('.label');
+  if(lbl) b.dataset.tip = lbl.textContent;
+});
+document.getElementById('btn-logout').dataset.tip = 'Cerrar sesión';
+aplicarMenuContraido(load('sid_menu_contraido', false));
+document.getElementById('sb-toggle').addEventListener('click', function(){
+  var contraido = !document.body.classList.contains('sidebar-mini');
+  aplicarMenuContraido(contraido);
+  save('sid_menu_contraido', contraido);
+  // Los gráficos se reacomodan al nuevo ancho
+  setTimeout(function(){ window.dispatchEvent(new Event('resize')); }, 260);
+});
+
 /* Navegación genérica: cualquier elemento con data-goto="panel" lleva a ese panel */
 document.addEventListener('click', function(e){
   var el = e.target.closest('[data-goto]');
@@ -103,3 +124,18 @@ function renderUsuarioShell(){
   var saludo = document.getElementById('inicio-bienvenido');
   if(saludo) saludo.textContent = '¡Hola, ' + (usuarioActual.nombre || usuarioActual.usuario).split(' ')[0] + '!';
 }
+
+/* Globo con el nombre de la sección cuando el menú está contraído */
+var sbTip = document.createElement('div');
+sbTip.className = 'sb-tip';
+document.body.appendChild(sbTip);
+document.getElementById('sidebar').addEventListener('mouseover', function(e){
+  var el = e.target.closest('[data-tip]');
+  if(!el || !document.body.classList.contains('sidebar-mini') || window.innerWidth <= 980){ sbTip.classList.remove('show'); return; }
+  var r = el.getBoundingClientRect();
+  sbTip.textContent = el.dataset.tip;
+  sbTip.style.left = (r.right + 12) + 'px';
+  sbTip.style.top = (r.top + r.height / 2) + 'px';
+  sbTip.classList.add('show');
+});
+document.getElementById('sidebar').addEventListener('mouseleave', function(){ sbTip.classList.remove('show'); });

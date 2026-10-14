@@ -197,16 +197,29 @@ function upsertChart(canvasId, type, data, extraOptions){
   var opts = Object.assign({responsive:true, maintainAspectRatio:false, animation:{duration:900, easing:'easeOutQuart'}}, extraOptions||{});
   dashCharts[canvasId] = new Chart(canvas, {type:type, data:data, options:opts});
 }
-function animateReportes(intento){
-  intento = intento || 0;
-  if(typeof Chart === 'undefined' && intento < 25){ setTimeout(function(){ animateReportes(intento+1); }, 300); return; }
-  buildDashboard(true);
+var DASH_INTERVALO_MS = 2 * 60 * 1000; // actualización automática cada 2 minutos
+function programarActualizacionDashboard(){
   clearInterval(dashInterval);
   dashInterval = setInterval(function(){
     if(!document.getElementById('panel-reportes').classList.contains('active')){ clearInterval(dashInterval); return; }
     buildDashboard(false);
-  }, 4000);
+  }, DASH_INTERVALO_MS);
 }
+function animateReportes(intento){
+  intento = intento || 0;
+  if(typeof Chart === 'undefined' && intento < 25){ setTimeout(function(){ animateReportes(intento+1); }, 300); return; }
+  buildDashboard(true);
+  programarActualizacionDashboard();
+}
+/* Actualizar a mano; el conteo de 2 minutos vuelve a empezar desde ahí. */
+document.getElementById('dash-actualizar').addEventListener('click', function(){
+  var btn = this;
+  btn.classList.add('girando');
+  buildDashboard(false);
+  programarActualizacionDashboard();
+  setTimeout(function(){ btn.classList.remove('girando'); }, 600);
+  toast('Dashboard actualizado');
+});
 
 /* ---- KPIs de calidad (segunda fila) ---- */
 function kpisCalidad(disenosF){
