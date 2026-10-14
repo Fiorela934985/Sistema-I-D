@@ -1,0 +1,155 @@
+/* Sistema I+D — Rediseño general (se carga al final): barra superior con migas y buscador,
+   encabezado de Inicio corporativo, listas de roturas por urgencia, registro y archivador con datos. */
+
+/* ================= BARRA SUPERIOR ================= */
+.topbar{gap:clamp(10px,1.4vw,20px);}
+.tb-title{flex:0 1 auto;display:flex;align-items:center;gap:6px;min-width:0;}
+.tb-crumb{font-size:.8rem;font-weight:600;letter-spacing:0;text-transform:none;color:var(--text-muted);white-space:nowrap;}
+.tb-sep{color:#9fb3bb;flex-shrink:0;}
+.tb-title h1{font-size:.95rem;font-weight:700;letter-spacing:-.005em;}
+.tb-search{position:relative;flex:1;max-width:520px;margin-left:auto;display:flex;align-items:center;gap:8px;
+  height:2.4rem;padding:0 .75rem;border:1px solid var(--line);border-radius:10px;background:var(--surface-2);color:var(--text-muted);transition:border-color .15s, box-shadow .15s, background .15s;}
+.tb-search:focus-within{background:var(--surface);border-color:var(--celeste-500);box-shadow:0 0 0 3px rgba(31,176,224,.15);}
+.tb-search input{flex:1;min-width:0;border:none;background:transparent;font-size:.85rem;color:var(--text);outline:none;}
+.tb-search input::-webkit-search-cancel-button{display:none;}
+.tb-search kbd{font-family:var(--font-body);font-size:.66rem;font-weight:600;color:var(--text-muted);border:1px solid var(--line);border-bottom-width:2px;border-radius:5px;padding:1px 6px;background:var(--surface);white-space:nowrap;}
+.tb-search-res{position:absolute;top:calc(100% + 6px);left:0;right:0;max-height:min(70vh,460px);overflow-y:auto;display:none;z-index:90;
+  background:var(--surface);border:1px solid var(--line);border-radius:12px;box-shadow:0 24px 48px -16px rgba(6,30,38,.35);padding:6px;}
+.tb-search-res.show{display:block;}
+.tsr-grupo{font-size:.64rem;font-weight:700;letter-spacing:.08em;text-transform:uppercase;color:var(--celeste-700);padding:8px 10px 4px;}
+.tsr-item{display:flex;flex-direction:column;align-items:flex-start;width:100%;text-align:left;padding:8px 10px;border-radius:8px;gap:1px;}
+.tsr-item b{font-size:.84rem;color:var(--text);font-weight:600;}
+.tsr-item span{font-size:.74rem;color:var(--text-muted);}
+.tsr-item:hover,.tsr-item.sel{background:var(--celeste-50);}
+html[data-theme="dark"] .tsr-item:hover,html[data-theme="dark"] .tsr-item.sel{background:var(--surface-2);}
+.tsr-vacio{padding:14px;font-size:.82rem;color:var(--text-muted);text-align:center;}
+.tb-actions{margin-left:0;}
+.tb-user{display:flex;align-items:center;gap:9px;padding-left:12px;margin-left:4px;border-left:1px solid var(--line);}
+.tb-user .sb-avatar{box-shadow:none;}
+.tb-user-text{display:flex;flex-direction:column;align-items:flex-start;line-height:1.15;}
+.tb-user-text b{font-size:.8rem;color:var(--text);white-space:nowrap;}
+.tb-user .tb-rol-chip{height:auto;padding:0;border:none;background:none !important;font-size:.68rem;font-weight:600;color:var(--text-muted);}
+@media (max-width:1180px){ .tb-search kbd{display:none;} .tb-user-text{display:none;} }
+@media (max-width:980px){ .tb-title{display:none;} .tb-search{max-width:none;margin-left:0;} .tb-user{border-left:none;padding-left:0;} }
+@media (max-width:520px){ .tb-search input::placeholder{color:transparent;} #tb-asistente{display:none;} }
+
+/* ================= ENCABEZADOS DE SECCIÓN ================= */
+.content-header{gap:16px;}
+.content-header h2{font-size:1.45rem;}
+.badge-pill{background:var(--surface-2);border:1px solid var(--line);color:var(--text-muted);font-weight:600;font-size:.74rem;padding:.35rem .8rem;}
+
+/* ================= INICIO: encabezado corporativo ================= */
+.inicio-header-centered{
+  display:grid;grid-template-columns:1fr auto;grid-template-areas:"saludo accion" "fecha accion";align-items:center;column-gap:24px;
+  text-align:left;padding:clamp(20px,2.2vw,30px) clamp(20px,2.4vw,34px);margin-bottom:20px;border-radius:16px;
+  background:radial-gradient(520px 200px at 100% 0%, rgba(46,158,87,.10), transparent 70%), radial-gradient(520px 200px at 0% 100%, rgba(31,176,224,.10), transparent 70%), var(--surface);
+}
+.inicio-bienvenido{grid-area:saludo;margin-bottom:4px;}
+.inicio-fecha-hora{grid-area:fecha;margin-bottom:0;font-family:var(--font-body);font-size:.92rem;}
+.inicio-fecha-hora b{font-family:var(--font-mono);}
+#btn-calcular{grid-area:accion;}
+@media (max-width:640px){
+  .inicio-header-centered{grid-template-columns:1fr;grid-template-areas:"saludo" "fecha" "accion";row-gap:10px;}
+  #btn-calcular{justify-self:start;}
+}
+.inicio-grid{gap:clamp(16px,2vw,28px);}
+
+/* ================= ROTURAS PENDIENTES ================= */
+.filtro-chips{display:flex;gap:8px;flex-wrap:wrap;margin-bottom:18px;}
+.filtro-chip{display:inline-flex;align-items:center;gap:8px;padding:.45rem .9rem;border-radius:999px;border:1px solid var(--line);background:var(--surface);font-size:.82rem;font-weight:600;color:var(--text-muted);}
+.filtro-chip b{min-width:22px;padding:1px 7px;border-radius:999px;background:var(--surface-2);color:var(--text);font-size:.72rem;text-align:center;}
+.filtro-chip:hover{border-color:var(--celeste-300);}
+.filtro-chip.on{background:var(--celeste-900);border-color:var(--celeste-900);color:#fff;}
+.filtro-chip.on b{background:rgba(255,255,255,.18);color:#fff;}
+.filtro-chip.f-vencidas b{background:#fde8e8;color:#b91c1c;}
+.filtro-chip.f-hoy b{background:var(--celeste-50);color:var(--celeste-700);}
+.pend-grupo{margin-bottom:22px;}
+.pend-grupo-head{display:flex;align-items:baseline;gap:10px;margin-bottom:10px;}
+.pend-grupo-head h4{font-size:.95rem;font-weight:700;display:flex;align-items:center;gap:8px;}
+.pend-grupo-head h4 span{font-size:.72rem;padding:1px 8px;border-radius:999px;background:var(--surface-2);color:var(--text-muted);}
+.pend-grupo-head small{font-size:.76rem;color:var(--text-muted);}
+.pend-grupo.g-vencidas .pend-grupo-head h4{color:#b91c1c;}
+.pend-grupo.g-hoy .pend-grupo-head h4{color:var(--celeste-700);}
+.pendiente-row{gap:12px;padding:.65rem .9rem;margin-bottom:8px;border-radius:12px;border-left-width:4px;flex-wrap:nowrap;}
+.pendiente-row.g-vencidas{border-left-color:#ef4444;}
+.pendiente-row.g-hoy{border-left-color:var(--celeste-500);}
+.pendiente-row.g-proximas{border-left-color:#cbd5e1;}
+.pendiente-row .id-card{padding:5px 10px;min-width:88px;}
+.pendiente-row .pr-info{min-width:0;}
+.pendiente-row .pr-info h5{font-size:.88rem;display:flex;align-items:center;gap:8px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;}
+.pendiente-row .pr-info span{display:block;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;}
+.pr-dia{flex-shrink:0;font-size:.68rem;font-weight:700;padding:2px 8px;border-radius:6px;background:var(--surface-2);color:var(--text-muted);}
+.pendiente-row .btn-add{min-height:2.15rem;font-size:.8rem;padding:0 .95rem;flex-shrink:0;}
+.pendiente-row .btn-icon{flex-shrink:0;}
+.pendiente-badge{flex-shrink:0;}
+@media (max-width:700px){
+  .pendiente-row{flex-wrap:wrap;}
+  .pendiente-row .pr-info{flex:1 1 60%;}
+}
+
+/* ================= REGISTRO: tarjetas con descripción ================= */
+.comp-cat-grid{grid-template-columns:repeat(auto-fill,minmax(260px,1fr));gap:14px;}
+.comp-cat-tile{display:flex;align-items:center;gap:14px;text-align:left;padding:18px;border-radius:14px;}
+.comp-cat-tile .icon-wrap{width:48px;height:48px;margin:0;flex-shrink:0;border-radius:12px;background:var(--celeste-50);}
+.comp-cat-tile .icon-wrap svg{width:22px;height:22px;}
+.comp-cat-tile[data-cat="Proyecto"] .icon-wrap{background:var(--verde-50);color:var(--verde-600);}
+.cct-txt{flex:1;min-width:0;}
+.comp-cat-tile .cct-txt h4{font-size:.95rem;margin-bottom:3px;}
+.cct-txt small{display:block;font-size:.76rem;line-height:1.35;color:var(--text-muted);}
+.cct-count{flex-shrink:0;min-width:34px;height:34px;padding:0 8px;border-radius:10px;display:flex;align-items:center;justify-content:center;
+  font-weight:800;font-size:.95rem;color:var(--celeste-800);background:var(--surface-2);font-variant-numeric:tabular-nums;}
+html[data-theme="dark"] .comp-cat-tile .icon-wrap{background:var(--surface-2);}
+
+/* ================= ARCHIVADOR: carpetas con datos ================= */
+.archivador-grid{grid-template-columns:repeat(auto-fill,minmax(250px,1fr));gap:14px;}
+.archivador-carpeta{align-items:flex-start;text-align:left;gap:10px;padding:18px;border-radius:14px;color:var(--text);}
+.ac-ico{width:42px;height:42px;border-radius:11px;display:flex;align-items:center;justify-content:center;color:#fff;background:var(--grad-marca);}
+.archivador-carpeta .ac-nombre{font-size:.95rem;line-height:1.25;}
+.ac-stats{display:grid;grid-template-columns:repeat(3,1fr);gap:6px;width:100%;padding:10px 0;border-top:1px solid var(--line);border-bottom:1px solid var(--line);}
+.ac-stats span{display:flex;flex-direction:column;font-size:.64rem;color:var(--text-muted);text-transform:uppercase;letter-spacing:.03em;}
+.ac-stats b{font-size:1.05rem;font-weight:800;color:var(--text);text-transform:none;letter-spacing:-.01em;font-variant-numeric:tabular-nums;}
+.archivador-carpeta .ac-count{font-size:.74rem;}
+
+/* ================= REPORTE RR ================= */
+table.rr-table thead th{min-width:140px;}
+table.rr-table thead th:first-child{min-width:200px;}
+th input.rr-tipo-name{min-width:110px;}
+.rr-study-card{border-radius:12px;padding:12px 14px;}
+.rr-study-card.active{border-color:var(--celeste-500);background:var(--celeste-50);box-shadow:inset 3px 0 0 var(--celeste-500);}
+html[data-theme="dark"] .rr-study-card.active{background:var(--surface-2);}
+.rr-new-study input{border-radius:9px;}
+.rr-new-study button{border-radius:9px;}
+
+/* ================= AJUSTES ================= */
+.cuenta-fila .sb-avatar{color:#fff;font-size:.8rem;}
+.cuenta-fila div span{font-size:.76rem;color:var(--text-muted);}
+
+/* ================= Responsive: evitar desbordes ================= */
+.rr-layout > div{min-width:0;}
+.pred-layout > *{min-width:0;}
+#pred-tabs{flex-wrap:wrap;}
+@media (max-width:600px){
+  .rr-toolbar{flex-direction:column;align-items:flex-start;}
+  .rr-print-head{flex-direction:column;}
+  .rr-print-head .rrp-grid{grid-template-columns:1fr;}
+  .pred-res-grid{grid-template-columns:repeat(3,minmax(0,1fr));}
+  .pred-res b{font-size:1.25rem;}
+}
+
+/* Inicio: tarjetas de las columnas (roturas de hoy, actividad, favoritos) sin superposiciones */
+.inicio-grid .ih-card{flex-wrap:wrap;row-gap:8px;}
+.inicio-grid .ih-card .ih-main{flex:1 1 150px;min-width:0;}
+.inicio-grid .ih-card .ih-nombre{display:block;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;}
+.inicio-grid .ih-card .btn-add{margin-left:auto;min-height:2.1rem;font-size:.78rem;padding:0 .9rem;}
+.inicio-col-title{gap:10px;}
+
+/* Login con el logo I+D Nexus */
+.login-icon{width:84px;height:84px;background:linear-gradient(135deg,var(--celeste-50),var(--verde-50));}
+.login-icon img{width:56px;height:auto;}
+.login-card{border-radius:18px;padding:40px 36px 34px;}
+.login-sub{margin-bottom:24px;}
+
+/* Modo oscuro: íconos de KPI sin fondos claros */
+html[data-theme="dark"] .kpi-card .kpi-icon{background:var(--surface-2);}
+html[data-theme="dark"] .tb-search{background:var(--surface-2);}
+html[data-theme="dark"] .tb-search kbd{background:var(--surface);}

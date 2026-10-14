@@ -33,6 +33,8 @@ function disenosConResultados(){ return disenos.filter(function(d){ return Objec
 function renderPrediccionMadurez(){
   var sel = document.getElementById('pred-diseno');
   var lista = disenosConResultados().sort(function(a,b){ return (b.ts||0)-(a.ts||0); });
+  var demoCod = {}; disenosDeDemostracion().forEach(function(d){ demoCod[d.codigo] = true; });
+  lista.sort(function(a,b){ return (demoCod[a.codigo]?1:0) - (demoCod[b.codigo]?1:0); });
   var actual = sel.value;
   sel.innerHTML = lista.length ? lista.map(function(d){
     return '<option value="'+esc(d.codigo)+'"'+(d.codigo===actual?' selected':'')+'>'+esc(d.codigo+' · '+diseñoTitulo(d)+' ('+(proyectoNombre(d.proyectoId)||'-')+')')+'</option>';

@@ -39,13 +39,13 @@ function renderCompCatGrid(){
     var count = componentes.filter(function(x){ return x.categoria === c.id; }).length;
     return '<button class="comp-cat-tile" data-cat="'+c.id+'">' +
       '<span class="icon-wrap"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">'+c.icon+'</svg></span>' +
-      '<h4>'+c.id+'</h4><span>'+count+' registrado'+(count===1?'':'s')+'</span>' +
+      '<span class="cct-txt"><h4>'+c.id+'</h4><small>'+esc(c.desc)+'</small></span><span class="cct-count">'+count+'</span>' +
     '</button>';
   }).join('');
   var proyCount = todosLosProyectoIds().length;
   tiles += '<button class="comp-cat-tile" data-cat="Proyecto">' +
     '<span class="icon-wrap"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 7a2 2 0 0 1 2-2h4l2 2h8a2 2 0 0 1 2 2v9a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V7z"/></svg></span>' +
-    '<h4>Proyecto</h4><span>'+proyCount+' registrado'+(proyCount===1?'':'s')+'</span>' +
+    '<span class="cct-txt"><h4>Proyecto</h4><small>Proyectos de investigación y sus iteraciones mensuales.</small></span><span class="cct-count">'+proyCount+'</span>' +
   '</button>';
   grid.innerHTML = tiles;
 }

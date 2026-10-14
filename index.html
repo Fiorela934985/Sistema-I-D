@@ -16,6 +16,7 @@
 <link rel="stylesheet" href="css/tema.css">
 <link rel="stylesheet" href="css/modulos.css">
 <link rel="stylesheet" href="css/acabado.css">
+<link rel="stylesheet" href="css/diseno.css">
 <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.4/dist/chart.umd.min.js"></script>
 <script>
@@ -35,13 +36,7 @@ if(typeof Chart === 'undefined'){
     <span class="lbs s1"></span><span class="lbs s2"></span><span class="lbs s3"></span><span class="lbs s4"></span>
   </div>
   <div class="login-card">
-    <div class="login-icon">
-      <svg viewBox="0 0 100 100" width="56" height="56">
-        <path d="M40 10 H60" stroke="#0f2b35" stroke-width="5" stroke-linecap="round" fill="none"/>
-        <path d="M42 12 V38 L18 78 A6 6 0 0 0 23.2 87 H76.8 A6 6 0 0 0 82 78 L58 38 V12" stroke="#0f2b35" stroke-width="5" stroke-linejoin="round" stroke-linecap="round" fill="none"/>
-        <path d="M26 62 H74 L82 76 A6 6 0 0 1 76.8 85 H23.2 A6 6 0 0 1 18 76 Z" fill="#0099cc"/>
-      </svg>
-    </div>
+    <div class="login-icon"><img src="assets/logo-nexus.png" alt="I+D Nexus"></div>
     <h1 class="login-title">Sistema I+D</h1>
     <p class="login-sub">Laboratorio I+D · Gestión de Calidad</p>
     <form id="login-form" autocomplete="off">
@@ -101,7 +96,7 @@ if(typeof Chart === 'undefined'){
   <aside class="sidebar" id="sidebar">
     <div class="sb-brand">
       <img class="mark" src="assets/logo-nexus.png" alt="I+D Nexus">
-      <div class="sb-brand-text">Sistema I+D<small>Laboratorio · Gestión de Calidad</small></div>
+      <div class="sb-brand-text">Sistema I+D<small>Laboratorio I+D · Calidad</small></div>
     </div>
 
     <nav class="side-nav" id="side-nav">
@@ -205,7 +200,14 @@ if(typeof Chart === 'undefined'){
       </button>
       <div class="tb-title">
         <span class="tb-crumb" id="tb-crumb">General</span>
+        <svg class="tb-sep" viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M9 18l6-6-6-6"/></svg>
         <h1 id="tb-panel-title">Inicio</h1>
+      </div>
+      <div class="tb-search" id="tb-search">
+        <svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="7"/><path d="M21 21l-4.3-4.3"/></svg>
+        <input type="search" id="tb-search-input" placeholder="Buscar código, diseño, proyecto o material…" autocomplete="off">
+        <kbd>Ctrl K</kbd>
+        <div class="tb-search-res" id="tb-search-res"></div>
       </div>
       <div class="tb-actions">
         <button class="tb-btn" id="tb-asistente" title="Asistente I+D" data-perm="ver:asistente">
@@ -220,7 +222,10 @@ if(typeof Chart === 'undefined'){
           <div id="bell-list"></div>
           <button class="bell-footer" id="bell-footer">Ver todo en Roturas →</button>
         </div>
-        <span class="tb-rol-chip" id="tb-rol-chip">—</span>
+        <div class="tb-user">
+          <span class="sb-avatar chico" id="tb-avatar">—</span>
+          <div class="tb-user-text"><b id="tb-user-nombre">—</b><span class="tb-rol-chip" id="tb-rol-chip">—</span></div>
+        </div>
       </div>
     </header>
 
@@ -261,7 +266,7 @@ if(typeof Chart === 'undefined'){
     <!-- COMPONENTES -->
     <section id="panel-componentes" class="panel">
       <div class="content-header">
-        <div><h2 id="comp-title">Registro</h2></div>
+        <div><h2 id="comp-title">Registro</h2><p>Materiales y proyectos que alimentan la calculadora de diseños.</p></div>
         <span class="badge-pill" id="comp-count">0 registros</span>
       </div>
 
@@ -580,7 +585,7 @@ if(typeof Chart === 'undefined'){
     <!-- ============ ROTURAS ============ -->
     <section id="panel-roturas" class="panel">
       <div class="content-header">
-        <div><h2>Roturas</h2></div>
+        <div><h2>Roturas</h2><p>Programación y registro de cargas según NTP 339.034, con tolerancia por edad.</p></div>
         <span class="badge-pill" id="roturas-count">0 registros</span>
       </div>
 
@@ -689,7 +694,7 @@ if(typeof Chart === 'undefined'){
     <!-- REPORTE RR -->
     <section id="panel-reporte-rr" class="panel">
       <div class="content-header">
-        <div><h2>Reporte RR</h2></div>
+        <div><h2>Reporte RR</h2><p>Resumen de resultados de mezclas de prueba: comparativo de diseños, edades y gráficos.</p></div>
         <div style="display:flex;gap:10px;align-items:center;">
           <span class="badge-pill" id="rr-count">0 estudios</span>
           <button class="btn-add" id="btn-generar-rr" data-perm="rr:editar">Generar Reporte RR</button>
@@ -736,7 +741,7 @@ if(typeof Chart === 'undefined'){
     <!-- ARCHIVADOR -->
     <section id="panel-archivador" class="panel">
       <div class="content-header">
-        <div><h2>Archivador</h2></div>
+        <div><h2>Archivador</h2><p>Diseños completados, organizados por proyecto, con su informe listo para consultar o imprimir.</p></div>
         <span class="badge-pill" id="archivador-count">0 diseños completados</span>
       </div>
       <div id="archivador-carpetas"></div>
@@ -1418,6 +1423,7 @@ if(typeof Chart === 'undefined'){
 <script src="js/modules/base-historica.js"></script>
 <script src="js/modules/prediccion.js"></script>
 <script src="js/modules/asistente.js"></script>
+<script src="js/modules/buscador.js"></script>
 <script src="js/modules/usuarios.js"></script>
 <script src="js/modules/historial-panel.js"></script>
 <script src="js/modules/dashboard.js"></script>

@@ -19,10 +19,15 @@ function renderArchivador(){
   wrap.className = 'archivador-grid';
   if(!nombres.length){ wrap.innerHTML = '<div class="empty-note">Todavía no hay diseños Completados para archivar.</div>'; return; }
   wrap.innerHTML = nombres.map(function(nombre){
+    var lista = porProyecto[nombre];
+    var maxRes = lista.map(resistenciaMaxima).filter(isFinite);
+    var ultima = lista.map(function(d){ return d.ts || 0; }).sort(function(a,b){ return b-a; })[0];
+    var iters = {}; lista.forEach(function(d){ if(d.iteracionId) iters[d.iteracionId] = true; });
     return '<button class="archivador-carpeta" data-proy="'+esc(nombre)+'">' +
-      '<svg viewBox="0 0 24 24" width="34" height="34" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><path d="M22 19a2 2 0 0 1-2 2H4a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h5l2 3h9a2 2 0 0 1 2 2z"/></svg>' +
+      '<span class="ac-ico"><svg viewBox="0 0 24 24" width="22" height="22" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M22 19a2 2 0 0 1-2 2H4a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h5l2 3h9a2 2 0 0 1 2 2z"/></svg></span>' +
       '<span class="ac-nombre">'+esc(nombre)+'</span>' +
-      '<span class="ac-count">'+porProyecto[nombre].length+' diseño'+(porProyecto[nombre].length===1?'':'s')+'</span>' +
+      '<span class="ac-stats"><span><b>'+lista.length+'</b>diseño'+(lista.length===1?'':'s')+'</span><span><b>'+Object.keys(iters).length+'</b>iteraciones</span><span><b>'+(maxRes.length ? fmt(Math.max.apply(null, maxRes),0) : '-')+'</b>máx. kg/cm²</span></span>' +
+      '<span class="ac-count">Último: '+(ultima ? isoToDMY(isoDe(new Date(ultima))) : '-')+'</span>' +
     '</button>';
   }).join('');
   wrap.dataset.porProyecto = '1';

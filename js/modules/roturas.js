@@ -204,31 +204,51 @@ document.getElementById('ro-registrar-btn').addEventListener('click', function()
 });
 
 /* ---- Pendientes ---- */
+/* Pendientes agrupadas por urgencia (vencidas / hoy / próximas) con filtro por chips. */
+var roturasFiltroEstado = 'todas';
+var GRUPOS_PENDIENTES = [
+  {id:'vencidas', titulo:'Vencidas', desc:'La fecha de ensayo ya pasó'},
+  {id:'hoy', titulo:'Para hoy', desc:'Dentro de la tolerancia de hoy'},
+  {id:'proximas', titulo:'Próximas', desc:'Programadas para los próximos días'}
+];
+function grupoPendiente(c, hoy){ return c.fechaEnsayo < hoy ? 'vencidas' : (c.fechaEnsayo === hoy ? 'hoy' : 'proximas'); }
 function renderRoturasPendientes(){
   var wrap = document.getElementById('roturas-pendientes-list');
   var pend = roturaCargas.filter(function(c){ return c.estado === 'pendiente'; }).sort(function(a,b){ return (a.fechaEnsayo||'').localeCompare(b.fechaEnsayo||''); });
   if(!pend.length){ wrap.innerHTML = '<div class="empty-note">No hay roturas pendientes.</div>'; return; }
   var todayStr = todayISO();
-  wrap.innerHTML = pend.map(function(c){
-    var d = disenos.filter(function(x){ return x.codigo === c.disenoCodigoDiseno; })[0];
-    var sem = d ? semaforoDotHtml(semaforoDiseno(d), 'Avance del diseño') : '';
-    var badge = c.fechaEnsayo === todayStr ? '<span class="pendiente-badge hoy">Hoy</span>' :
-      (c.fechaEnsayo < todayStr ? '<span class="pendiente-badge vencido">Vencida</span>' : '');
-    var tipoEsProbeta = (c.tipo||'Probetas') !== 'Cubos';
-    return '<div class="pendiente-row">' +
-      sem +
-      '<div class="id-card"><span class="id-card-tipo">'+(tipoEsProbeta?'Probeta':'Cubo')+'</span><span class="id-card-codigo">'+c.codigo+'</span></div>' +
-      '<div class="pr-info">' +
-        badge +
-        '<h5>'+esc(c.replicaNombre)+' · día '+c.dia+'</h5>' +
-        '<span>'+esc(c.proyecto||'-')+' · Ensayo: '+isoToDMY(c.fechaEnsayo)+'</span>' +
-      '</div>' +
-      '<button class="btn-add ghost" data-act="etiquetas" data-codigo="'+esc(c.disenoCodigoDiseno)+'" title="Imprimir etiquetas">Etiquetas</button>' +
-      '<button class="btn-add" data-perm="roturas:registrar" data-act="registrar-carga" data-id="'+c.id+'">+ Registrar carga</button>' +
-    '</div>';
-  }).join('');
+  var porGrupo = {vencidas:[], hoy:[], proximas:[]};
+  pend.forEach(function(c){ porGrupo[grupoPendiente(c, todayStr)].push(c); });
+  var chips = '<div class="filtro-chips">' + [{id:'todas', titulo:'Todas', n:pend.length}].concat(GRUPOS_PENDIENTES.map(function(g){ return {id:g.id, titulo:g.titulo, n:porGrupo[g.id].length}; }))
+    .map(function(f){ return '<button class="filtro-chip f-'+f.id+(roturasFiltroEstado===f.id?' on':'')+'" data-filtro-pend="'+f.id+'">'+f.titulo+' <b>'+f.n+'</b></button>'; }).join('') + '</div>';
+  var grupos = GRUPOS_PENDIENTES.filter(function(g){ return (roturasFiltroEstado === 'todas' || roturasFiltroEstado === g.id) && porGrupo[g.id].length; });
+  wrap.innerHTML = chips + (grupos.length ? grupos.map(function(g){
+    return '<div class="pend-grupo g-'+g.id+'"><div class="pend-grupo-head"><h4>'+g.titulo+' <span>'+porGrupo[g.id].length+'</span></h4><small>'+g.desc+'</small></div>' +
+      porGrupo[g.id].map(filaPendienteHtml).join('') + '</div>';
+  }).join('') : '<div class="empty-note">No hay roturas en este grupo.</div>');
+}
+function filaPendienteHtml(c){
+  var todayStr = todayISO();
+  var d = disenos.filter(function(x){ return x.codigo === c.disenoCodigoDiseno; })[0];
+  var sem = d ? semaforoDotHtml(semaforoDiseno(d), 'Avance del diseño') : '';
+  var badge = c.fechaEnsayo === todayStr ? '<span class="pendiente-badge hoy">Hoy</span>' :
+    (c.fechaEnsayo < todayStr ? '<span class="pendiente-badge vencido">Vencida</span>' : '');
+  var tipoEsProbeta = (c.tipo||'Probetas') !== 'Cubos';
+  return '<div class="pendiente-row g-'+grupoPendiente(c, todayStr)+'">' +
+    sem +
+    '<div class="id-card"><span class="id-card-tipo">'+(tipoEsProbeta?'Probeta':'Cubo')+'</span><span class="id-card-codigo">'+c.codigo+'</span></div>' +
+    '<div class="pr-info">' +
+      '<h5>'+esc(c.replicaNombre)+' <span class="pr-dia">Día '+c.dia+'</span></h5>' +
+      '<span>'+esc(c.proyecto||'-')+' · Ensayo '+isoToDMY(c.fechaEnsayo)+' · ±'+c.toleranciaHoras+' h</span>' +
+    '</div>' +
+    badge +
+    '<button class="btn-icon" data-act="etiquetas" data-codigo="'+esc(c.disenoCodigoDiseno)+'" title="Imprimir etiquetas">'+TAG_ICON+'</button>' +
+    '<button class="btn-add" data-perm="roturas:registrar" data-act="registrar-carga" data-id="'+c.id+'">Registrar carga</button>' +
+  '</div>';
 }
 document.getElementById('roturas-pendientes-list').addEventListener('click', function(e){
+  var filtro = e.target.closest('[data-filtro-pend]');
+  if(filtro){ roturasFiltroEstado = filtro.dataset.filtroPend; renderRoturasPendientes(); return; }
   var etq = e.target.closest('[data-act="etiquetas"]');
   if(etq){ abrirEtiquetas(etq.dataset.codigo); return; }
   var btn = e.target.closest('[data-act="registrar-carga"]');

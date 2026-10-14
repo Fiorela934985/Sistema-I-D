@@ -94,6 +94,9 @@ function renderUsuarioShell(){
   document.getElementById('sb-avatar').textContent = inicialesUsuario(usuarioActual);
   document.getElementById('sb-user-nombre').textContent = usuarioActual.nombre || usuarioActual.usuario;
   document.getElementById('sb-user-rol').textContent = rolLabel(usuarioActual.rol);
+  document.getElementById('tb-avatar').textContent = inicialesUsuario(usuarioActual);
+  document.getElementById('tb-avatar').className = 'sb-avatar chico rol-' + usuarioActual.rol;
+  document.getElementById('tb-user-nombre').textContent = usuarioActual.nombre || usuarioActual.usuario;
   var chip = document.getElementById('tb-rol-chip');
   chip.textContent = rolLabel(usuarioActual.rol);
   chip.className = 'tb-rol-chip rol-' + usuarioActual.rol;
