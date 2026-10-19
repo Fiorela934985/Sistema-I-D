@@ -7,7 +7,7 @@ function disenoPorCodigo(codigo){ return disenos.filter(function(d){ return d.co
 function cargasDeDiseno(d){ return roturaCargas.filter(function(c){ return c.disenoCodigoDiseno === d.codigo; }); }
 function valoresKgCm2(c){
   var v = [c.m1kgcm2, c.m2kgcm2, c.m3kgcm2].map(Number).filter(function(x){ return x > 0; });
-  if(!v.length && Number(c.promedio) > 0) v = [Number(c.promedio)];
+  if(!v.length && Number(c.promedio) > 0) v = [Number(c.promedio)]; 
   return v;
 }
 /* Resistencia por edad de un diseño: combina todos los especímenes de todas sus réplicas. */
