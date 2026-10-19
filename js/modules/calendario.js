@@ -19,6 +19,20 @@ function estadoCalendario(c, hoy){
   if(c.estado === 'completado') return 'comp';
   return c.fechaEnsayo < hoy ? 'venc' : 'pend';
 }
+// Color por edad de rotura: rojo = día 1 (más urgente) y así sucesivamente.
+var CAL_EDADES = [
+  {max:1,   cls:'e1',   lbl:'Día 1'},
+  {max:3,   cls:'e3',   lbl:'Día 3'},
+  {max:6,   cls:'e4',   lbl:'Día 4'},
+  {max:27,  cls:'e7',   lbl:'Día 7'},
+  {max:89,  cls:'e28',  lbl:'Día 28'},
+  {max:Infinity, cls:'e90', lbl:'Día 90+'}
+];
+function edadCalendario(c){
+  var d = Number(c.dia) || 0;
+  for(var i=0;i<CAL_EDADES.length;i++){ if(d <= CAL_EDADES[i].max) return CAL_EDADES[i]; }
+  return CAL_EDADES[CAL_EDADES.length-1];
+}
 function agruparPorDia(cargas){
   var porDia = {};
   cargas.forEach(function(c){ (porDia[c.fechaEnsayo] = porDia[c.fechaEnsayo] || []).push(c); });
@@ -54,8 +68,12 @@ function renderCalendario(){
   grid.innerHTML = DIAS_SEMANA_CORTOS.map(function(d){ return '<div class="cal-dow">'+d+'</div>'; }).join('') +
     dias.map(function(iso){
       var lista = porDia[iso] || [];
-      var cuenta = {pend:0, venc:0, comp:0};
-      lista.forEach(function(c){ cuenta[estadoCalendario(c, hoy)]++; });
+      var porEdad = {}, registradas = 0;
+      lista.forEach(function(c){
+        if(c.estado === 'completado'){ registradas++; return; }
+        var e = edadCalendario(c).cls;
+        porEdad[e] = (porEdad[e] || 0) + 1;
+      });
       var clases = ['cal-celda'];
       if(iso === hoy) clases.push('hoy');
       if(iso === calDiaSeleccionado) clases.push('sel');
@@ -63,15 +81,16 @@ function renderCalendario(){
       var detalle = '';
       if(calVista === 'semana'){
         detalle = '<div class="cal-items">' + lista.slice().sort(function(a,b){ return a.dia-b.dia; }).slice(0,8).map(function(c){
-          return '<span class="cal-item '+estadoCalendario(c, hoy)+'">'+esc(c.codigo)+' · d'+c.dia+'</span>';
+          return '<span class="cal-item '+edadCalendario(c).cls+(c.estado === 'completado' ? ' comp' : '')+'">'+esc(c.codigo)+' · d'+c.dia+'</span>';
         }).join('') + (lista.length > 8 ? '<span class="cal-mas">+'+(lista.length-8)+' más</span>' : '') + '</div>';
       }
       return '<button class="'+clases.join(' ')+'" data-cal-dia="'+iso+'">' +
         '<span class="cal-num">'+Number(iso.slice(8))+'</span>' +
         (lista.length ? '<span class="cal-chips">' +
-          (cuenta.venc ? '<i class="cal-chip venc">'+cuenta.venc+'</i>' : '') +
-          (cuenta.pend ? '<i class="cal-chip pend">'+cuenta.pend+'</i>' : '') +
-          (cuenta.comp ? '<i class="cal-chip comp">'+cuenta.comp+'</i>' : '') + '</span>' : '') +
+          CAL_EDADES.map(function(e){
+            return porEdad[e.cls] ? '<i class="cal-chip '+e.cls+'" title="'+e.lbl+': '+porEdad[e.cls]+' por registrar">'+porEdad[e.cls]+'</i>' : '';
+          }).join('') +
+          (registradas ? '<i class="cal-chip comp" title="'+registradas+' registrada'+(registradas===1?'':'s')+'">✓'+registradas+'</i>' : '') + '</span>' : '') +
         detalle + '</button>';
     }).join('');
   renderCalDia(porDia);
@@ -89,9 +108,9 @@ function renderCalDia(porDia){
     (lista.length ? '<div class="cal-dia-lista">' + lista.map(function(c){
       var est = estadoCalendario(c, hoy);
       var lbl = est === 'comp' ? 'Registrada' : (est === 'venc' ? 'Vencida' : 'Pendiente');
-      return '<div class="cal-dia-item '+est+'">' +
+      return '<div class="cal-dia-item '+edadCalendario(c).cls+' '+est+'">' +
         '<div class="id-card"><span class="id-card-tipo">'+((c.tipo||'Probetas')==='Cubos'?'Cubo':'Probeta')+'</span><span class="id-card-codigo">'+esc(c.codigo)+'</span></div>' +
-        '<div class="cdi-info"><b>'+esc(c.replicaNombre)+'</b><span>'+esc(c.proyecto||'-')+' · día '+c.dia+' · ±'+c.toleranciaHoras+' h</span>' +
+        '<div class="cdi-info"><b>'+esc(c.replicaNombre)+'</b><span><i class="cal-dot '+edadCalendario(c).cls+'"></i>'+esc(c.proyecto||'-')+' · día '+c.dia+' · ±'+c.toleranciaHoras+' h</span>' +
           '<span class="cal-estado '+est+'">'+lbl+(c.promedio ? ' · '+c.promedio+' kg/cm²' : '')+'</span></div>' +
         (c.estado !== 'completado' ? '<button class="btn-add" data-perm="roturas:registrar" data-cal-registrar="'+esc(c.id)+'">Registrar</button>' : '') +
       '</div>';
