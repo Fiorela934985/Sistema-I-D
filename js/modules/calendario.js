@@ -15,10 +15,6 @@ function cargasFiltradasCalendario(){
     return !!c.fechaEnsayo;
   });
 }
-function estadoCalendario(c, hoy){
-  if(c.estado === 'completado') return 'comp';
-  return c.fechaEnsayo < hoy ? 'venc' : 'pend';
-}
 // Color por edad de rotura: rojo = día 1 (más urgente) y así sucesivamente.
 var CAL_EDADES = [
   {max:1,   cls:'e1',   lbl:'Día 1'},
@@ -61,7 +57,9 @@ function renderCalendario(){
   } else {
     var lun = lunesDe(calFechaRef);
     for(var j=0;j<7;j++){ dias.push(addDaysISO(lun, j)); }
-    document.getElementById('cal-titulo').textContent = 'Semana del ' + isoToDMY(dias[0]) + ' al ' + isoToDMY(dias[6]);
+    var d0 = new Date(dias[0]+'T00:00:00'), d6 = new Date(dias[6]+'T00:00:00');
+    document.getElementById('cal-titulo').textContent = d0.getDate() + (d0.getMonth() !== d6.getMonth() ? ' ' + MES_NOMBRES[d0.getMonth()].slice(0,3).toLowerCase() : '') +
+      ' – ' + d6.getDate() + ' ' + MES_NOMBRES[d6.getMonth()].slice(0,3).toLowerCase() + ' ' + d6.getFullYear();
   }
   var mesRef = calFechaRef.slice(0,7);
   grid.className = 'cal-grid cal-' + calVista;
@@ -80,56 +78,48 @@ function renderCalendario(){
       if(calVista === 'mes' && iso.slice(0,7) !== mesRef) clases.push('fuera');
       var detalle = '';
       if(calVista === 'semana'){
-        detalle = '<div class="cal-items">' + lista.slice().sort(function(a,b){ return a.dia-b.dia; }).slice(0,8).map(function(c){
-          return '<span class="cal-item '+edadCalendario(c).cls+(c.estado === 'completado' ? ' comp' : '')+'">'+esc(c.codigo)+' · d'+c.dia+'</span>';
-        }).join('') + (lista.length > 8 ? '<span class="cal-mas">+'+(lista.length-8)+' más</span>' : '') + '</div>';
+        var porRegistrar = lista.filter(function(c){ return c.estado !== 'completado'; }).sort(function(a,b){ return a.dia-b.dia; });
+        detalle = '<div class="cal-items">' + porRegistrar.slice(0,8).map(function(c){
+          return '<span class="cal-item '+edadCalendario(c).cls+'">'+esc(c.codigo)+'</span>';
+        }).join('') + (porRegistrar.length > 8 ? '<span class="cal-mas">+'+(porRegistrar.length-8)+' más</span>' : '') + '</div>';
       }
+      var pendientes = lista.length - registradas;
+      if(pendientes && iso < hoy) clases.push('atraso');
       return '<button class="'+clases.join(' ')+'" data-cal-dia="'+iso+'">' +
         '<span class="cal-num">'+Number(iso.slice(8))+'</span>' +
-        (lista.length ? '<span class="cal-chips">' +
-          CAL_EDADES.map(function(e){
+        (pendientes && calVista === 'mes' ? '<span class="cal-chips">' + CAL_EDADES.map(function(e){
             return porEdad[e.cls] ? '<i class="cal-chip '+e.cls+'" title="'+e.lbl+': '+porEdad[e.cls]+' por registrar">'+porEdad[e.cls]+'</i>' : '';
-          }).join('') +
-          (registradas ? '<i class="cal-chip comp" title="'+registradas+' registrada'+(registradas===1?'':'s')+'">✓'+registradas+'</i>' : '') + '</span>' : '') +
+          }).join('') + '</span>'
+          : (!pendientes && registradas ? '<span class="cal-ok" title="Todas registradas">✓</span>' : '')) +
         detalle + '</button>';
     }).join('');
   renderCalDia(porDia);
 }
 function renderCalDia(porDia){
-  var hoy = todayISO();
   var iso = calDiaSeleccionado;
-  var lista = (porDia[iso] || []).slice().sort(function(a,b){ return (a.estado === 'completado') - (b.estado === 'completado') || a.dia - b.dia || (a.codigo||'').localeCompare(b.codigo||''); });
+  var lista = porDia[iso] || [];
   var d = new Date(iso+'T00:00:00');
-  var titulo = DIA_NOMBRES[d.getDay()].charAt(0).toUpperCase() + DIA_NOMBRES[d.getDay()].slice(1) + ' ' + d.getDate() + ' de ' + MES_NOMBRES[d.getMonth()].toLowerCase();
-  var semana = resumenSemana(porDia);
+  var pend = lista.filter(function(c){ return c.estado !== 'completado'; }).length;
+  var grupos = CAL_EDADES.map(function(e){
+    var items = lista.filter(function(c){ return edadCalendario(c) === e; }).sort(function(a,b){
+      return (a.estado === 'completado') - (b.estado === 'completado') || (a.replicaNombre||'').localeCompare(b.replicaNombre||'');
+    });
+    if(!items.length) return '';
+    return '<div class="cdg"><div class="cdg-head"><i class="cal-dot '+e.cls+'"></i>'+e.lbl+'<span>'+items.length+'</span></div>' +
+      items.map(function(c){
+        var hecho = c.estado === 'completado';
+        return '<div class="cdr'+(hecho ? ' hecho' : '')+'">' +
+          '<div class="cdr-txt"><b>'+esc(c.replicaNombre || c.codigo)+'</b><small>'+esc(c.codigo)+' · '+esc(c.proyecto || 'Sin proyecto')+'</small></div>' +
+          (hecho ? '<span class="cdr-res">'+(c.promedio ? c.promedio+' <small>kg/cm²</small>' : '✓')+'</span>'
+                 : '<button class="cdr-btn" data-perm="roturas:registrar" data-cal-registrar="'+esc(c.id)+'">Registrar</button>') +
+        '</div>';
+      }).join('') + '</div>';
+  }).join('');
   document.getElementById('cal-dia').innerHTML =
-    '<h4>'+titulo+(iso===hoy?' <span class="tag-pill tag-celeste">Hoy</span>':'')+'</h4>' +
-    '<p class="nota-sm">'+lista.length+' rotura'+(lista.length===1?'':'s')+' programada'+(lista.length===1?'':'s')+'</p>' +
-    (lista.length ? '<div class="cal-dia-lista">' + lista.map(function(c){
-      var est = estadoCalendario(c, hoy);
-      var lbl = est === 'comp' ? 'Registrada' : (est === 'venc' ? 'Vencida' : 'Pendiente');
-      return '<div class="cal-dia-item '+edadCalendario(c).cls+' '+est+'">' +
-        '<div class="id-card"><span class="id-card-tipo">'+((c.tipo||'Probetas')==='Cubos'?'Cubo':'Probeta')+'</span><span class="id-card-codigo">'+esc(c.codigo)+'</span></div>' +
-        '<div class="cdi-info"><b>'+esc(c.replicaNombre)+'</b><span><i class="cal-dot '+edadCalendario(c).cls+'"></i>'+esc(c.proyecto||'-')+' · día '+c.dia+' · ±'+c.toleranciaHoras+' h</span>' +
-          '<span class="cal-estado '+est+'">'+lbl+(c.promedio ? ' · '+c.promedio+' kg/cm²' : '')+'</span></div>' +
-        (c.estado !== 'completado' ? '<button class="btn-add" data-perm="roturas:registrar" data-cal-registrar="'+esc(c.id)+'">Registrar</button>' : '') +
-      '</div>';
-    }).join('') + '</div>' : '<div class="empty-note">Sin roturas este día.</div>') +
-    '<div class="cal-semana-resumen"><h5>Esta semana</h5>' + semana + '</div>';
-}
-function resumenSemana(porDia){
-  var hoy = todayISO();
-  var lun = lunesDe(hoy);
-  var total = 0, pend = 0;
-  var filas = [];
-  for(var i=0;i<7;i++){
-    var iso = addDaysISO(lun, i);
-    var lista = porDia[iso] || [];
-    var p = lista.filter(function(c){ return c.estado !== 'completado'; }).length;
-    total += lista.length; pend += p;
-    filas.push('<button class="cs-dia'+(iso===hoy?' hoy':'')+'" data-cal-dia="'+iso+'"><span>'+DIAS_SEMANA_CORTOS[i]+'</span><b>'+lista.length+'</b></button>');
-  }
-  return '<div class="cs-fila">'+filas.join('')+'</div><p class="nota-sm">'+total+' roturas en la semana · '+pend+' por registrar</p>';
+    '<div class="cd-head"><div><span class="cd-dow">'+DIA_NOMBRES[d.getDay()]+(iso === todayISO() ? ' · hoy' : '')+'</span>' +
+      '<h4>'+d.getDate()+' de '+MES_NOMBRES[d.getMonth()].toLowerCase()+'</h4></div>' +
+      (lista.length ? '<span class="cd-count"><b>'+pend+'</b> / '+lista.length+'<small>por registrar</small></span>' : '') + '</div>' +
+    (lista.length ? '<div class="cal-dia-lista">'+grupos+'</div>' : '<div class="cd-vacio">Sin roturas este día</div>');
 }
 document.getElementById('cal-grid').addEventListener('click', function(e){
   var celda = e.target.closest('[data-cal-dia]');

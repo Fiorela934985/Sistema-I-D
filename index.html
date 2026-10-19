@@ -887,7 +887,7 @@ if(typeof Chart === 'undefined'){
     <!-- ============ CALENDARIO DE ROTURAS ============ -->
     <section id="panel-calendario" class="panel">
       <div class="content-header">
-        <div><h2>Calendario de roturas</h2><p>Proyección de las roturas programadas para planificar la semana del laboratorio.</p></div>
+        <div><h2>Calendario de roturas</h2><p>Roturas programadas, por edad de ensayo.</p></div>
         <div class="ch-actions">
           <select id="cal-proyecto"><option value="">Todos los proyectos</option></select>
           <select id="cal-tipo"><option value="">Probetas y cubos</option><option value="Probetas">Solo probetas</option><option value="Cubos">Solo cubos</option></select>
@@ -909,7 +909,7 @@ if(typeof Chart === 'undefined'){
           <span><i class="cal-dot e7"></i>Día 7</span>
           <span><i class="cal-dot e28"></i>Día 28</span>
           <span><i class="cal-dot e90"></i>Día 90+</span>
-          <span><i class="cal-dot comp"></i>Registrada</span>
+          <span><b class="cal-ok">✓</b> Registradas</span>
         </div>
       </div>
       <div class="cal-layout">
