@@ -263,7 +263,7 @@ document.getElementById('panel-asistente').addEventListener('click', function(e)
 });
 PANEL_HOOKS.asistente = function(){
   if(!chatLog.length){
-    chatLog.push({de:'asistente', html:'<p>Hola'+(usuarioActual ? ' ' + esc((usuarioActual.nombre||usuarioActual.usuario).split(' ')[0]) : '')+' 👋 Soy el asistente del Laboratorio I+D. Preguntame sobre proyectos, diseños, roturas, resistencias o pedime que abra una sección.</p>'});
+    chatLog.push({de:'asistente', html:'<p>Hola'+(usuarioActual ? ' ' + esc((usuarioActual.nombre||usuarioActual.usuario).split(' ')[0]) : '')+'. Soy el asistente del Laboratorio I+D. Preguntame sobre proyectos, diseños, roturas, resistencias o pedime que abra una sección.</p>'});
   }
   renderChat();
   setTimeout(function(){ document.getElementById('chat-input').focus(); }, 50);
