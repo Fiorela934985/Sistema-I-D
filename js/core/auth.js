@@ -110,6 +110,15 @@ if(!usuarios){
     sal:salAdmin, hash:hashPassword('12345678', salAdmin), creado:Date.now(), ultimoAcceso:null}];
   save('sid_usuarios', usuarios);
 }
+/* Una versión de prueba guardó roles con otro formato (ADM, JEF, ANA, TEC, INV, CON): se devuelven a los de
+   este sistema para que nadie se quede sin acceso. */
+var ROL_EQUIVALENTE = {ADM:'admin', JEF:'jefatura', ANA:'tecnico', TEC:'tecnico', INV:'jefatura', CON:'jefatura'};
+var rolesCorregidos = false;
+usuarios.forEach(function(u){
+  if(ROL_EQUIVALENTE[u.rol]){ u.rol = ROL_EQUIVALENTE[u.rol]; rolesCorregidos = true; }
+  if(!ROLES_DEF[u.rol]){ u.rol = u.usuario === 'FSANTOS' ? 'admin' : 'tecnico'; rolesCorregidos = true; }
+});
+if(rolesCorregidos) save('sid_usuarios', usuarios);
 function saveUsuarios(){ save('sid_usuarios', usuarios); }
 function usuarioPorId(id){ return usuarios.filter(function(u){ return u.id === id; })[0] || null; }
 function usuarioPorNombre(nombre){
