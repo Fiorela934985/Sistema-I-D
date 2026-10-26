@@ -1,12 +1,7 @@
 /* Sistema I+D — Catálogos fijos: NTP 339.034, plantas/laboratorios, días de rotura y tipos de concreto */
 'use strict';
 
-/* ================= NTP 339.034 — Tolerancia de rotura ================= */
-var NTP_TABLE = {1:0.5, 3:2, 4:3, 7:6, 28:20, 90:48};
-function toleranciaHoras(diaEdad){
-  if(NTP_TABLE[diaEdad] !== undefined) return NTP_TABLE[diaEdad];
-  return +(diaEdad*24*0.02).toFixed(2);
-}
+/* La tolerancia de rotura por edad (NTP 339.034) vive en el tipo de ensayo: ver toleranciaHoras() en normas.js. */
 function calcularFechaEnsayo(fechaElabISO, dia){
   if(!fechaElabISO) return '';
   var d = new Date(fechaElabISO + 'T00:00:00');

@@ -1,0 +1,156 @@
+/* Sistema I+D — Estilos del proceso I+D: secuencia de pasos, elaboración, revisión, inventario, avisos
+   y diálogos. Usa los mismos tokens del tema (celeste, verde y negro; claro y oscuro). */
+
+/* ---------- Menú: pasos numerados ---------- */
+.nav-paso{width:22px;height:22px;flex-shrink:0;border-radius:50%;display:inline-flex;align-items:center;justify-content:center;
+  font-size:.72rem;font-weight:800;background:var(--celeste-50);color:var(--celeste-700);border:1.5px solid var(--celeste-300);}
+.nav-item.active .nav-paso{background:var(--grad-marca);color:#fff;border-color:transparent;}
+.nav-item.nav-sub{padding-left:2.4rem;font-size:.82rem;}
+.nav-item.nav-sub svg{width:15px;height:15px;}
+html[data-theme="dark"] .nav-paso{background:var(--surface-2);color:var(--celeste-300);border-color:var(--line-strong);}
+
+/* ---------- Barra de secuencia ---------- */
+.flujo{display:flex;align-items:stretch;gap:4px;overflow-x:auto;padding:4px 2px 12px;margin-bottom:12px;scrollbar-width:thin;}
+.flujo-paso{flex:1 1 0;min-width:128px;display:flex;gap:10px;align-items:flex-start;text-align:left;cursor:pointer;
+  background:var(--surface);border:1px solid var(--line);border-radius:12px;padding:12px;color:var(--text);transition:border-color .15s, transform .15s;}
+.flujo-paso:hover{border-color:var(--celeste-300);transform:translateY(-1px);}
+.flujo-paso.activo{border-color:var(--celeste-300);}
+.flujo-paso.alerta{border-color:var(--rojo-600);background:color-mix(in srgb,var(--rojo-600) 6%,var(--surface));}
+.flujo-num{width:28px;height:28px;flex-shrink:0;border-radius:50%;display:flex;align-items:center;justify-content:center;font-weight:800;
+  font-size:.85rem;background:var(--grad-marca);color:#fff;}
+.flujo-txt{display:flex;flex-direction:column;gap:2px;min-width:0;}
+.flujo-txt b{font-size:.82rem;}
+.flujo-total{font-size:1.35rem;font-weight:800;line-height:1.1;font-family:'Oswald',sans-serif;}
+.flujo-txt small{font-size:.68rem;color:var(--text-muted);line-height:1.25;}
+.flujo-flecha{align-self:center;color:var(--celeste-500);font-size:1.4rem;font-weight:700;flex-shrink:0;}
+.flujo.compacto .flujo-paso{padding:8px 10px;min-width:112px;}
+.flujo.compacto .flujo-total{font-size:1.05rem;}
+.flujo-mini{margin-bottom:6px;}
+
+/* ---------- Estados de la réplica ---------- */
+.rep-estados{display:flex;flex-wrap:wrap;gap:3px;margin-top:4px;}
+.rep-estado{font-size:.64rem;font-weight:700;padding:2px 7px;border-radius:999px;background:var(--surface-2);color:var(--text-muted);border:1px solid var(--line);}
+.rep-estado.hecho{background:var(--verde-50);color:var(--verde-700);border-color:var(--verde-100);}
+.rep-estado.actual{background:var(--grad-marca);color:#fff;border-color:transparent;}
+
+/* ---------- Filas de trabajo (elaboración, revisión) ---------- */
+.ela-fila{display:flex;align-items:center;gap:12px;justify-content:space-between;padding:12px 0;border-bottom:1px solid var(--line);flex-wrap:wrap;}
+.ela-fila:last-child{border-bottom:0;}
+.ela-info{display:flex;flex-direction:column;gap:2px;min-width:0;flex:1 1 280px;}
+.ela-acciones{display:flex;gap:8px;align-items:center;flex-wrap:wrap;}
+.tec-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(300px,1fr));gap:14px;}
+.tec-card .section-num{display:flex;align-items:center;gap:8px;}
+.card-alerta{border-color:var(--rojo-600) !important;}
+.btn-add.grande{min-height:48px;font-size:.95rem;padding:0 1.3rem;}
+.btn-add.mini,.btn-icon.mini{min-height:1.7rem;font-size:.7rem;padding:0 .55rem;}
+.accesos-grandes .acceso{min-height:96px;}
+.accesos-grandes .acceso b{font-size:1.05rem;}
+
+/* ---------- Formularios ---------- */
+.campo-error{display:block;color:var(--rojo-600);font-size:.72rem;font-weight:600;min-height:0;margin-top:2px;}
+.campo-error:empty{display:none;}
+.input-con-btn{display:flex;gap:6px;align-items:center;}
+.input-con-btn input{flex:1;min-width:0;}
+.chips-check{display:flex;flex-wrap:wrap;gap:6px;}
+.chip-check{display:inline-flex;align-items:center;gap:6px;padding:5px 10px;border:1px solid var(--line);border-radius:999px;font-size:.78rem;cursor:pointer;background:var(--surface);}
+.chip-check input{margin:0;}
+.lista-errores{margin:0;padding-left:18px;color:var(--rojo-600);}
+.lista-errores li{margin:4px 0;}
+.fuera-requisito{background:color-mix(in srgb,var(--ambar-500) 22%,var(--surface)) !important;border-color:var(--ambar-500) !important;}
+.aviso-ambar{background:color-mix(in srgb,var(--ambar-500) 14%,var(--surface));border:1px solid var(--ambar-500);border-radius:10px;padding:10px 12px;margin:10px 0;font-size:.82rem;}
+.aviso-rojo{background:color-mix(in srgb,var(--rojo-600) 10%,var(--surface));border:1px solid var(--rojo-600);border-radius:10px;padding:10px 12px;margin:10px 0;font-size:.82rem;color:var(--rojo-600);font-weight:600;}
+.aviso-borrador{background:var(--celeste-50);border:1px solid var(--celeste-100);border-radius:10px;padding:8px 12px;font-size:.8rem;margin:8px 0;}
+html[data-theme="dark"] .aviso-borrador{background:var(--surface-2);border-color:var(--line);}
+.pc-alerta-ficha{font-size:.72rem;font-weight:700;color:var(--ambar-500);margin:6px 0;}
+.txt-rojo{color:var(--rojo-600);} .txt-verde{color:var(--verde-600);} .txt-naranja{color:var(--ambar-500);font-weight:700;}
+.tag-rojo{background:color-mix(in srgb,var(--rojo-600) 14%,var(--surface));color:var(--rojo-600);}
+.tachado{text-decoration:line-through;opacity:.55;}
+.fila-desvio td{background:color-mix(in srgb,var(--ambar-500) 8%,transparent);}
+.alerta-dispersion{border-color:var(--ambar-500) !important;box-shadow:0 0 0 2px color-mix(in srgb,var(--ambar-500) 30%,transparent);}
+.mc-resumen{margin:10px 0;font-size:.85rem;}
+.proy-filtros select,.proy-filtros input{min-width:150px;}
+
+/* ---------- Diálogos dinámicos ---------- */
+.dialogo-dinamico .modal-card{max-width:560px;width:calc(100% - 32px);max-height:calc(100vh - 40px);display:flex;flex-direction:column;}
+.dialogo-dinamico .modal-card.modal-grande{max-width:1000px;}
+.dialogo-dinamico .modal-body{overflow-y:auto;}
+.ficha-proyecto{grid-template-columns:repeat(auto-fit,minmax(220px,1fr));}
+
+/* ---------- Expediente ---------- */
+.exp-resumen-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(300px,1fr));gap:14px;}
+.sem-grande{display:flex;align-items:center;gap:10px;flex-wrap:wrap;padding:10px 12px;border-radius:10px;background:var(--surface-2);}
+.sem-grande span:last-child{font-size:.78rem;color:var(--text-muted);}
+.exp-iter-dot.cerrada{background:var(--verde-600);}
+.gantt{margin:12px 0;}
+.gantt-escala{display:flex;justify-content:space-between;font-size:.7rem;color:var(--text-muted);margin-left:200px;}
+.gantt-fila{display:flex;align-items:center;gap:10px;margin:6px 0;}
+.gantt-nombre{width:190px;flex-shrink:0;font-size:.78rem;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;}
+.gantt-pista{position:relative;flex:1;height:18px;background:var(--surface-2);border-radius:6px;}
+.gantt-barra{position:absolute;top:2px;bottom:2px;border-radius:5px;background:var(--celeste-100);overflow:hidden;}
+.gantt-barra span{display:block;height:100%;background:var(--grad-marca);}
+.gantt-barra.vencida{background:color-mix(in srgb,var(--rojo-600) 25%,var(--surface));}
+.gantt-barra.hito{background:var(--ambar-500);}
+.gantt-hoy{position:absolute;top:-3px;bottom:-3px;width:2px;background:var(--rojo-600);}
+.bitacora-nota{border-left:3px solid var(--celeste-500);padding:8px 12px;margin:10px 0;background:var(--surface-2);border-radius:0 10px 10px 0;}
+.bitacora-nota p{margin:6px 0;}
+.bn-head{display:flex;gap:6px;align-items:center;flex-wrap:wrap;font-size:.8rem;}
+
+/* ---------- Avisos ---------- */
+.atencion-lista{display:flex;flex-direction:column;gap:8px;}
+.atencion-item{display:flex;flex-direction:column;gap:2px;text-align:left;padding:10px 12px;border-radius:10px;border:1px solid var(--line);
+  border-left:4px solid var(--celeste-500);background:var(--surface);color:var(--text);cursor:pointer;}
+.atencion-item span{font-size:.76rem;color:var(--text-muted);}
+.atencion-item.nivel-rojo{border-left-color:var(--rojo-600);}
+.atencion-item.nivel-naranja{border-left-color:var(--ambar-500);}
+.inicio-atencion{margin:12px 0;}
+.bell-dot{min-width:16px;height:16px;border-radius:8px;font-size:.6rem;font-weight:800;color:#fff;align-items:center;justify-content:center;padding:0 3px;}
+.bell-header{display:flex;align-items:center;gap:8px;}
+.bell-leer-todo{margin-left:auto;font-size:.7rem;background:none;border:0;color:var(--celeste-600);cursor:pointer;font-weight:700;}
+.bell-item{display:flex;flex-direction:column;gap:2px;width:100%;text-align:left;background:none;border:0;border-left:3px solid var(--celeste-500);cursor:pointer;color:var(--text);}
+.bell-item.nivel-rojo{border-left-color:var(--rojo-600);}
+.bell-item.nivel-naranja{border-left-color:var(--ambar-500);}
+.bell-item.leida{opacity:.55;}
+
+/* ---------- Usuarios, catálogos ---------- */
+.org-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(220px,1fr));gap:10px;}
+.org-puesto{border:1px solid var(--line);border-radius:10px;padding:10px;display:flex;flex-direction:column;gap:6px;}
+.org-puesto.vacante{border-style:dashed;opacity:.8;}
+.org-persona{display:flex;align-items:center;gap:6px;font-size:.82rem;flex-wrap:wrap;}
+.org-persona small{width:100%;color:var(--text-muted);}
+.cat-editor{display:flex;flex-direction:column;gap:10px;}
+.cat-fila{display:flex;align-items:center;gap:8px;padding:6px 0;border-bottom:1px solid var(--line);}
+.cat-fila span{flex:1;}
+.cat-fila.inactivo span{text-decoration:line-through;opacity:.6;}
+.ajustes-ancho{grid-column:1/-1;}
+.card.inactivo{opacity:.6;}
+.fila-secundaria td{opacity:.7;font-size:.9em;}
+.sb-avatar.rol-JEF{background:linear-gradient(120deg,var(--celeste-800),var(--celeste-500));}
+.sb-avatar.rol-TEC{background:linear-gradient(120deg,var(--verde-700),var(--verde-500));}
+.sb-avatar.rol-INV{background:linear-gradient(120deg,#5b6f77,#94a3b8);}
+.sb-avatar.rol-CON{background:linear-gradient(120deg,#0b3a4a,#3a6a7a);}
+.tb-rol-chip.rol-JEF{background:var(--celeste-50);color:var(--celeste-700);border-color:var(--celeste-100);}
+.tb-rol-chip.rol-ANA{background:var(--celeste-50);color:var(--celeste-800);border-color:var(--celeste-100);}
+.tb-rol-chip.rol-TEC{background:var(--verde-50);color:var(--verde-700);border-color:var(--verde-100);}
+
+/* ---------- Reporte RR ---------- */
+.rr-estado{display:flex;align-items:center;gap:10px;flex-wrap:wrap;padding:10px 12px;border:1px solid var(--line);border-radius:10px;margin-bottom:12px;background:var(--surface);}
+.rr-estado-acciones{margin-left:auto;display:flex;gap:8px;flex-wrap:wrap;}
+@media print{
+  body.imprimiendo-rr .sidebar, body.imprimiendo-rr .topbar, body.imprimiendo-rr .panel:not(#panel-reporte-rr),
+  body.imprimiendo-rr #rr-study-list, body.imprimiendo-rr .rr-new-study, body.imprimiendo-rr .rr-toolbar-actions,
+  body.imprimiendo-rr .rr-estado-acciones, body.imprimiendo-rr .content-header{display:none !important;}
+  body.imprimiendo-rr .rr-layout{display:block;}
+}
+
+/* ---------- Celular (RNF-03: 360 px, botones de 44 px) ---------- */
+@media (max-width:720px){
+  .flujo{flex-wrap:nowrap;}
+  .flujo-flecha{display:none;}
+  .ela-acciones .btn-add{min-height:44px;}
+  .gantt-nombre{width:110px;}
+  .gantt-escala{margin-left:120px;}
+  .dialogo-dinamico .modal-card{width:100%;max-height:100vh;border-radius:12px 12px 0 0;}
+  .tec-grid{grid-template-columns:1fr;}
+  .proy-filtros select,.proy-filtros input{min-width:0;flex:1 1 45%;}
+}
+#login-view.reingreso{background:rgba(10,30,40,.75);}

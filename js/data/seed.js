@@ -2,8 +2,11 @@
 'use strict';
 
 /* ================= DATOS DE MUESTRA (siembra única, para ver el sistema con contenido real) ================= */
+/* Los diseños de demostración ya no se siembran: en producción solo hay datos reales. Quien todavía los tenga
+   puede quitarlos desde Base histórica › "Quitar datos de demostración". */
+var SEMBRAR_DEMO = false;
 function seedMoreDesigns(){
-  if(load('sid10_seed_v5', false)) return;
+  if(!SEMBRAR_DEMO || load('sid10_seed_v5', false)) return;
   var proyectoPool = ['Aditivos in House','Adhesivo Cementante','Benchmarking Ad. Cementante','P.I. Adhesivo Cementante','Estudio HE','Estudio HE + Fly Ash','Estudio HE Aditivado','Estudio LH','Estudio Aditivo','Estudio Escoria','Aditivos Chiclayo'];
   var tipoIdxPool = [0,4,1,3,0,4];
   var fcPool = [175,210,245,280,350,210,280];

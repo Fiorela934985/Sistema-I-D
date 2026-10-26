@@ -1,6 +1,6 @@
 /* Service worker — estrategia "red primero": siempre intenta la versión más reciente
    y solo usa la caché cuando no hay conexión. Así un nuevo despliegue se ve de inmediato. */
-const CACHE = 'sistema-id-v8';
+const CACHE = 'sistema-id-v9';
 const CORE = [
   './',
   './index.html',
@@ -10,9 +10,12 @@ const CORE = [
   './css/acabado.css',
   './css/diseno.css',
   './css/pro.css',
+  './css/proceso.css',
   './data/disenos-reales.js',
+  './shared/permisos.js',
   './js/core/utils.js',
   './js/core/auth.js',
+  './js/core/catalogos-sistema.js',
   './js/core/historial.js',
   './js/core/icons.js',
   './js/core/shell.js',
@@ -29,10 +32,17 @@ const CORE = [
   './js/modules/archivador.js',
   './js/modules/reporte-rr.js',
   './js/core/analitica.js',
+  './js/core/flujo.js',
   './js/core/ml.js',
   './js/modules/proyectos-panel.js',
+  './js/modules/reporte-proyecto.js',
   './js/modules/calendario.js',
   './js/modules/etiquetas.js',
+  './js/modules/normas.js',
+  './js/modules/inventario.js',
+  './js/modules/elaboracion.js',
+  './js/modules/revision.js',
+  './js/modules/notificaciones.js',
   './js/modules/base-historica.js',
   './js/modules/prediccion.js',
   './js/modules/asistente.js',
@@ -46,12 +56,7 @@ const CORE = [
   './js/data/seed.js',
   './js/data/reparaciones.js',
   './js/main.js',
-  './js/pwa.js',
-  './assets/favicon.svg',
-  './assets/logo-nexus.png',
-  './assets/logo-dino.png',
-  './assets/tipos-rotura.jpg',
-  './manifest.webmanifest'
+  './js/pwa.js'
 ];
 
 self.addEventListener('install', (e) => {

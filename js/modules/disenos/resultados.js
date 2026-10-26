@@ -69,10 +69,12 @@ var resultsModalDirty = false;
 function nombreUnificadoPromedio(d){
   // Combina TODOS los valores individuales kg/cm2 de TODAS las réplicas (no promedio de promedios), agrupado por edad.
   var porEdad = {};
+  // RF-RES-02: excluye las marcadas No ubicada y los especímenes o edades invalidados con motivo.
   (d.replicaObjs||[]).forEach(function(rep){
     cargasDeReplica(rep.nombre).forEach(function(c){
+      if(c.estado !== 'completado' || c.disenoCodigoDiseno !== d.codigo) return;
       porEdad[c.dia] = porEdad[c.dia] || [];
-      [c.m1kgcm2,c.m2kgcm2,c.m3kgcm2].forEach(function(v){ if(v) porEdad[c.dia].push(Number(v)); });
+      [1,2,3].forEach(function(m){ var v = c['m'+m+'kgcm2']; if(v && especimenValido(c, m)) porEdad[c.dia].push(Number(v)); });
     });
   });
   var out = {};
