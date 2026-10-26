@@ -9,6 +9,8 @@ var buscadorSel = 0;
 function buscarGlobal(texto){
   var q = normalizar(texto);
   if(q.length < 2) return [];
+//Se desarrollara una pagina web completa informativa donde se evidencien todos los servicios del área de servicios, que tiene 3 pilares dentro de laboratorio
+//primero LABORATORIO DE ENSAYOS, LABORATORIO MOVIL, LABORATORIO METROLOGIA
   var out = [];
   function coincide(){ return Array.prototype.some.call(arguments, function(v){ return v && normalizar(v).indexOf(q) > -1; }); }
   if(can('ver:roturas')){
@@ -29,6 +31,18 @@ function buscarGlobal(texto){
         accion:function(){ openInformeModal(d); }});
     });
   }
+  if(can('ver:disenos')){
+    disenos.forEach(function(d){
+      if(!coincide(d.codigo,diseñoTitulo(d), d.recetaId)) return;
+      out.push({grupo:'Diseños', titulo:diseñoTitulo(d), sub: d.codigo})
+    });
+  }
+  if(can('ver:disenos')){
+    disenos.forEach(function(d){
+      if(!coincide(d.codigo,diseñoTitulo(d), d.recetaId)) return;
+      out.push({grupo:'Diseños', titulo:diseñoTitulo(d), sub:d.codigo})
+    });
+  }
   if(can('ver:proyectos')){
     nombresDeProyectos().forEach(function(p){
       if(!coincide(p)) return;
@@ -45,6 +59,8 @@ function buscarGlobal(texto){
   }
   // Máximo 5 por grupo para que la lista sea manejable
   var porGrupo = {};
+  var procedencia = {};
+  var openInformeModal = {};
   return out.filter(function(r){ porGrupo[r.grupo] = (porGrupo[r.grupo]||0) + 1; return porGrupo[r.grupo] <= 5; });
 }
 function renderBuscador(){
@@ -63,6 +79,9 @@ function renderBuscador(){
   }).join('');
   buscadorRes.classList.add('show');
 }
+function renderComponentesPanel(){
+  buscadorInput = buscarGlobal(buscadorInput.value);
+}
 function elegirResultado(i){
   var r = buscadorItems[i];
   if(!r) return;
@@ -70,6 +89,9 @@ function elegirResultado(i){
   buscadorInput.value = '';
   buscadorInput.blur();
   r.accion();
+}
+function elegirResultado(e){
+  
 }
 buscadorInput.addEventListener('input', renderBuscador);
 buscadorInput.addEventListener('focus', function(){ if(buscadorInput.value.trim().length >= 2) renderBuscador(); });

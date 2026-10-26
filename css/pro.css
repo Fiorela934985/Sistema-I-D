@@ -1,0 +1,258 @@
+/* Sistema I+D — Capa final de diseño (se carga al último).
+   Criterio: fondo blanco, texto negro, bordes finos y casi sin sombras. El celeste→verde se reserva
+   para lo que debe destacar: acción principal, sección activa y la marca. Sin animaciones decorativas. */
+
+:root{
+  --bg:#ffffff;
+  --surface:#ffffff;
+  --surface-2:#f6f8f9;
+  --text:#111418;
+  --text-muted:#5f6b73;
+  --line:#e6eaed;
+  --line-2:#d6dce0;
+  --acento:#0a7fb0;
+  --acento-2:#1f9d55;
+  --grad-marca:linear-gradient(90deg,#0a8fc4,#22a45d);
+  --sombra-suave:none;
+  --sombra-hover:0 4px 16px -8px rgba(17,20,24,.18);
+  --radio:8px;
+}
+html[data-theme="dark"]{
+  --bg:#0e1214; --surface:#13181b; --surface-2:#1a2125;
+  --text:#eef2f4; --text-muted:#98a4ab; --line:#252e33; --line-2:#334047;
+}
+body{background:var(--bg);color:var(--text);}
+
+/* ---------- Sin animaciones de adorno ---------- */
+.ih-card,.kpi-card,.inicio-kpi-strip .kpi-card,.inicio-header-centered,.login-icon,.lbs,.ih-badge.urgente{animation:none !important;opacity:1;}
+.ih-card:hover,.design-card:hover,.proy-card:hover,.acceso:hover,.comp-cat-tile:hover,.archivador-carpeta:hover,.login-btn:hover{transform:none !important;}
+
+/* ================= MENÚ LATERAL: blanco ================= */
+.sidebar{background:var(--surface);color:var(--text);border-right:1px solid var(--line);box-shadow:none;}
+.sidebar::before{content:"";position:absolute;left:0;right:0;top:0;height:3px;background:var(--grad-marca);}
+.sb-brand{border-bottom:1px solid var(--line);}
+.sb-brand .mark{filter:none;}
+.sb-brand-text{color:var(--text);}
+.sb-brand-text small{color:var(--text-muted);}
+.sb-toggle{color:var(--text-muted);}
+.sb-toggle:hover{background:var(--surface-2);color:var(--text);}
+.side-nav{scrollbar-color:var(--line-2) transparent;}
+.side-nav .nav-item{color:#3a434a;font-weight:500;}
+html[data-theme="dark"] .side-nav .nav-item{color:var(--text-muted);}
+.side-nav .nav-item svg{color:#8a959c;}
+.side-nav .nav-item:hover{background:var(--surface-2);color:var(--text);}
+.side-nav .nav-item:hover svg{color:var(--text);}
+.side-nav .nav-item.active{
+  color:var(--text);font-weight:600;box-shadow:none;
+  background:linear-gradient(90deg,rgba(10,143,196,.10),rgba(34,164,93,.06));
+}
+.side-nav .nav-item.active svg{color:var(--acento);}
+.side-nav .nav-item.active::after{left:0;background:var(--grad-marca);background:linear-gradient(180deg,#0a8fc4,#22a45d);}
+.sb-footer{border-top:1px solid var(--line);background:transparent;}
+.sb-user-text b{color:var(--text);}
+.sb-user-text span{color:var(--text-muted);}
+.sb-logout{color:var(--text-muted);}
+.sb-logout:hover{background:#fdecec;color:#b42318;}
+.sb-avatar,.sb-avatar.rol-jefatura,.sb-avatar.rol-tecnico{background:var(--grad-marca);box-shadow:none;}
+.sb-tip{background:var(--text);color:var(--bg);}
+
+/* ================= BARRA SUPERIOR ================= */
+.topbar{background:var(--surface);backdrop-filter:none;-webkit-backdrop-filter:none;border-bottom:1px solid var(--line);}
+html[data-theme="dark"] .topbar{background:var(--surface);}
+.topbar::after{display:none;}
+.tb-crumb{color:var(--text-muted);}
+.tb-title h1{color:var(--text);font-weight:600;}
+.tb-search{background:var(--surface);border-color:var(--line-2);border-radius:8px;}
+.tb-search:focus-within{border-color:var(--acento);box-shadow:0 0 0 3px rgba(10,127,176,.12);}
+.tb-btn,.topbar .nav-bell{border-color:transparent;background:transparent;border-radius:8px;}
+.tb-btn:hover,.topbar .nav-bell:hover{background:var(--surface-2);border-color:transparent;color:var(--text);}
+.tb-user{border-left-color:var(--line);}
+
+/* ================= TIPOGRAFÍA Y ENCABEZADOS ================= */
+h1,h2,h3,h4,h5{color:var(--text);}
+.content-header{border-bottom:1px solid var(--line);}
+.content-header h2{font-size:1.45rem;font-weight:650;letter-spacing:-.015em;}
+.content-header p{color:var(--text-muted);}
+.section-num{color:var(--text);font-weight:650;}
+.inicio-col-title{text-transform:none;letter-spacing:-.005em;font-weight:650;font-size:.98rem;color:var(--text);}
+.inicio-col-title .icol-icon{display:none;}
+.inicio-bienvenido{font-weight:700;letter-spacing:-.02em;}
+.inicio-fecha-hora,.inicio-fecha-hora b{color:var(--text-muted);font-family:var(--font-body);font-weight:500;}
+.badge-pill{background:transparent;border:1px solid var(--line);color:var(--text-muted);}
+.kpi-num,.exp-header h2{font-weight:700;}
+
+/* ================= TARJETAS ================= */
+.card,.chart-card,.kpi-card,.proy-card,.acceso,.ih-card,.design-card,.dash-avance-card,.rr-chart-card,.cal-celda,.sem-dia,.ro-reg-card,.pendiente-row,.comp-cat-tile,.archivador-carpeta,.hoja{
+  box-shadow:none;border-color:var(--line);border-radius:var(--radio);
+}
+.proy-card:hover,.acceso:hover,.design-card:hover,.comp-cat-tile:hover,.archivador-carpeta:hover,.ih-card:hover,.pendiente-row:hover{box-shadow:none;border-color:var(--line-2);}
+
+/* Inicio: encabezado plano */
+.inicio-header-centered{background:var(--surface);border:none;border-bottom:1px solid var(--line);border-radius:0;box-shadow:none;padding:4px 0 20px;}
+
+/* KPIs: número en negro, sin bloques de color */
+.kpi-card::after{display:none;}
+.kpi-icon,.kpi-card .kpi-icon,.kpi-card.kpi-verde .kpi-icon,.kpi-card.kpi-rojo .kpi-icon{background:var(--surface-2);color:var(--text-muted);border-radius:8px;}
+.kpi-num{color:var(--text);}
+.kpi-label{color:var(--text-muted);}
+
+/* Accesos rápidos e íconos de bloques */
+.acceso-ico,.comp-cat-tile .icon-wrap,.comp-cat-tile[data-cat="Proyecto"] .icon-wrap{background:var(--surface-2);color:var(--acento);border-radius:8px;}
+.ac-ico{background:var(--surface-2);color:var(--acento);}
+.cct-count{color:var(--text);}
+
+/* Tarjetas de diseño y filas con acento: línea fina */
+.design-thumb{height:3px;}
+.ih-card{border-left-width:3px;}
+.ih-id-badge{color:var(--text);}
+.ih-icons{color:var(--text-muted);}
+.ih-badge{font-weight:600;letter-spacing:.02em;}
+
+/* Expediente: encabezado claro */
+.exp-header{background:var(--surface) !important;color:var(--text) !important;border:1px solid var(--line);box-shadow:none !important;}
+.exp-header *{color:inherit;}
+.exp-header::before{content:"";display:block;height:3px;margin:-1px -1px 14px;border-radius:8px 8px 0 0;background:var(--grad-marca);}
+
+/* ================= BOTONES ================= */
+.btn-add{background:var(--grad-marca);color:#fff;border:none;border-radius:8px;box-shadow:none;}
+.btn-add:hover{background:var(--grad-marca);filter:brightness(.94);}
+.btn-add.ghost,.btn-ghost{background:var(--surface);color:var(--text);border:1px solid var(--line-2);box-shadow:none;}
+.btn-add.ghost:hover,.btn-ghost:hover{background:var(--surface-2);border-color:var(--line-2);color:var(--text);filter:none;}
+.btn-nuevo-diseno-grande{background:var(--grad-marca);box-shadow:none;}
+.btn-icon{border-radius:6px;}
+.link-mono{color:var(--acento);}
+.view-toggle-btn.active{color:var(--text);}
+.subtab.active{color:var(--text);border-color:var(--acento);}
+.filtro-chip.on{background:var(--text);border-color:var(--text);}
+
+/* ================= FORMULARIOS ================= */
+.form-row input,.form-row select,.field-mini input,.field-mini select,.pp-field input,.pp-field select,
+.hist-toolbar input[type="text"],.hist-toolbar input[type="date"],.hist-toolbar select,.ch-actions select,.content-header select{
+  border-color:var(--line-2);border-radius:8px;
+}
+.form-row input:focus,.form-row select:focus,.field-mini input:focus,.field-mini select:focus,.pp-field input:focus,.pp-field select:focus,
+.hist-toolbar input:focus,.hist-toolbar select:focus,.chat-form input:focus{border-color:var(--acento);box-shadow:0 0 0 3px rgba(10,127,176,.12);}
+
+/* ================= TABLAS: encabezado claro ================= */
+table.rr-table thead th,table.roturas-table th,table.hoja-table th,table.mezcla-table th,.params-col-head,.replica-head{
+  background:#f3f6f8;color:var(--text);border-color:var(--line);
+}
+html[data-theme="dark"] table.rr-table thead th,html[data-theme="dark"] table.roturas-table th,html[data-theme="dark"] table.hoja-table th,
+html[data-theme="dark"] table.mezcla-table th,html[data-theme="dark"] .params-col-head,html[data-theme="dark"] .replica-head{background:var(--surface-2);}
+tr.rr-section td,table.mezcla-table tr.mezcla-total td{background:#e9f2f6;color:var(--text);}
+html[data-theme="dark"] tr.rr-section td,html[data-theme="dark"] table.mezcla-table tr.mezcla-total td{background:var(--surface-2);}
+table.data-table thead th{background:var(--surface-2);color:var(--text-muted);}
+
+/* ================= MODALES Y AVISOS ================= */
+.modal-card,.confirm-card,.results-card,.informe-card{box-shadow:0 20px 50px -20px rgba(17,20,24,.35);border-radius:10px;}
+.modal-header{background:var(--surface);}
+.sid-modal,#design-modal{backdrop-filter:none;-webkit-backdrop-filter:none;}
+#toast{background:var(--text);color:var(--bg);border-radius:8px;}
+.codigo-preview-destacado{background:var(--grad-marca);}
+
+/* ================= LOGIN Y CARGA: blanco ================= */
+#login-view{background:#f6f8f9;}
+html[data-theme="dark"] #login-view{background:var(--bg);}
+.login-bg-shapes{display:none;}
+.login-card{background:var(--surface);border:1px solid var(--line);box-shadow:0 10px 40px -20px rgba(17,20,24,.25);border-radius:12px;overflow:hidden;}
+.login-card::before{content:"";position:absolute;left:0;right:0;top:0;height:3px;background:var(--grad-marca);}
+.login-icon{background:transparent;}
+.login-field{border-width:1px;border-color:var(--line-2);}
+.login-field:focus-within{border-color:var(--acento);box-shadow:0 0 0 3px rgba(10,127,176,.12);}
+.login-btn{background:var(--grad-marca);box-shadow:none;}
+.login-btn:hover{box-shadow:none;filter:brightness(.95);}
+#loading-view{background:#ffffff;}
+#loading-view .loader-word{color:var(--text);}
+#loading-view .helmet{display:none;}
+
+/* ================= MENOS ELEMENTOS ================= */
+/* Los accesos rápidos de Inicio repetían el menú lateral. */
+.accesos-rapidos{display:none !important;}
+/* Indicadores: solo número y etiqueta. */
+.kpi-icon{display:none !important;}
+.kpi-card{gap:0;}
+
+/* Botones dentro de tarjetas y listas: secundarios (el degradado queda para la acción principal). */
+.proy-card .btn-add,.ih-card .btn-add,.pendiente-row .btn-add,.cal-dia-item .btn-add,.design-card .btn-add,.ro-reg-card .btn-add{
+  background:var(--surface);color:var(--acento);border:1px solid var(--line-2);font-weight:600;
+}
+.proy-card .btn-add:hover,.ih-card .btn-add:hover,.pendiente-row .btn-add:hover,.cal-dia-item .btn-add:hover,.design-card .btn-add:hover,.ro-reg-card .btn-add:hover{
+  background:var(--surface-2);border-color:var(--acento);filter:none;
+}
+
+/* Etiquetas de estado: fondo tenue, sin bloques sólidos. */
+.ih-badge.celeste{background:#e6f3f9;color:#075e83;}
+.ih-badge.naranja{background:#fdf1dc;color:#8a5300;}
+.ih-badge.verde{background:#e5f5ec;color:#16703e;}
+.ih-badge.rojo{background:#fdecec;color:#b42318;}
+html[data-theme="dark"] .ih-badge.celeste{background:rgba(10,143,196,.18);color:#7fd0ee;}
+html[data-theme="dark"] .ih-badge.naranja{background:rgba(245,158,11,.16);color:#fcd34d;}
+html[data-theme="dark"] .ih-badge.verde{background:rgba(34,164,93,.18);color:#8fd3a5;}
+html[data-theme="dark"] .ih-badge.rojo{background:rgba(229,72,77,.18);color:#fca5a5;}
+.nav-badge,.side-nav .nav-badge{background:#e5484d;}
+.col-count-badge{background:var(--surface-2);color:var(--text);}
+
+/* Selector de proyecto / iteración: rótulo discreto en lugar de píldora sólida. */
+.proyecto-picker{border-left-width:1px;border-color:var(--line);border-radius:var(--radio);box-shadow:none;}
+.proyecto-picker::before,.ro-reg-tag{background:var(--surface);color:var(--text-muted);border:1px solid var(--line);}
+
+/* Listas de roturas: acento lateral fino. */
+.pendiente-row{border-left-width:3px;}
+.cal-dia-item{flex-wrap:wrap;border-left-width:3px;}
+.cal-dia-item .cdi-info{flex:1 1 150px;}
+.cal-dia-item .btn-add{margin-left:auto;min-height:2rem;}
+
+/* Contenido de encabezados de tabla que antes era blanco sobre fondo oscuro. */
+th input.rr-tipo-name{color:var(--text);}
+.rr-del-col{color:var(--text-muted);}
+.replica-head *,.params-col-head *{color:inherit;}
+.rr-add-tipo-btn,.rr-new-study button,.rr-disponibles-tabs button.active{background:var(--acento);border-color:var(--acento);}
+.btn-fab-verde{box-shadow:none;}
+
+/* ================= CALENDARIO ================= */
+.cal-toolbar{gap:8px;}
+.cal-toolbar h3{font-size:1.1rem;font-weight:650;min-width:180px;}
+.cal-nav{width:32px;height:32px;border-radius:8px;font-size:1.1rem;border-color:var(--line-2);}
+.cal-leyenda{gap:12px;font-size:.72rem;}
+.cal-layout{grid-template-columns:1fr 320px;gap:20px;}
+.cal-grid{gap:4px;}
+.cal-dow{font-size:.68rem;letter-spacing:.06em;padding:0 0 6px;}
+.cal-celda{min-height:76px;padding:8px;gap:8px;border-radius:8px;background:var(--surface);}
+.cal-celda:hover{border-color:var(--line-2);background:var(--surface-2);}
+.cal-celda.fuera{opacity:.35;}
+.cal-celda.sel{border:1.5px solid var(--acento);box-shadow:none;}
+.cal-celda.atraso{background:#fef6f6;}
+html[data-theme="dark"] .cal-celda.atraso{background:rgba(229,72,77,.08);}
+.cal-num{font-size:.82rem;font-weight:600;color:var(--text);min-width:22px;height:22px;border-radius:6px;}
+.cal-celda.hoy .cal-num{background:var(--grad-marca);color:#fff;}
+.cal-chips{gap:3px;}
+.cal-chip{min-width:20px;height:18px;padding:0 6px;border-radius:5px;font-size:.66rem;font-weight:700;display:inline-flex;align-items:center;justify-content:center;}
+.cal-ok{font-size:.75rem;font-weight:700;color:#22a45d;}
+
+/* Panel del día */
+.cal-dia{position:sticky;top:84px;padding:0 !important;overflow:hidden;}
+.cd-head{display:flex;align-items:flex-end;justify-content:space-between;gap:12px;padding:18px 18px 14px;border-bottom:1px solid var(--line);}
+.cd-dow{display:block;font-size:.72rem;font-weight:600;text-transform:capitalize;color:var(--text-muted);margin-bottom:2px;}
+.cal-dia .cd-head h4{font-size:1.25rem;font-weight:700;letter-spacing:-.01em;}
+.cd-count{font-size:.8rem;color:var(--text-muted);text-align:right;line-height:1.1;}
+.cd-count b{font-size:1.25rem;color:var(--text);}
+.cd-count small{display:block;font-size:.68rem;margin-top:2px;}
+.cal-dia .cal-dia-lista{margin:0;padding:6px 0 10px;gap:0;max-height:min(62vh,560px);}
+.cd-vacio{padding:36px 18px;text-align:center;font-size:.85rem;color:var(--text-muted);}
+.cdg{padding:8px 18px 4px;}
+.cdg-head{display:flex;align-items:center;gap:6px;font-size:.72rem;font-weight:700;text-transform:uppercase;letter-spacing:.05em;color:var(--text-muted);margin-bottom:2px;}
+.cdg-head .cal-dot{margin:0;width:8px;height:8px;}
+.cdg-head span{margin-left:auto;font-weight:600;}
+.cdr{display:flex;align-items:center;gap:10px;padding:8px 0;border-bottom:1px solid var(--line);}
+.cdg .cdr:last-child{border-bottom:none;}
+.cdr-txt{flex:1;min-width:0;display:flex;flex-direction:column;}
+.cdr-txt b{font-size:.84rem;font-weight:600;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;}
+.cdr-txt small{font-size:.72rem;color:var(--text-muted);white-space:nowrap;overflow:hidden;text-overflow:ellipsis;}
+.cdr-btn{flex-shrink:0;font-size:.74rem;font-weight:600;color:var(--acento);padding:5px 10px;border:1px solid var(--line-2);border-radius:6px;background:var(--surface);}
+.cdr-btn:hover{border-color:var(--acento);background:var(--surface-2);}
+.cdr.hecho b{color:var(--text-muted);font-weight:500;}
+.cdr-res{flex-shrink:0;font-size:.8rem;font-weight:700;color:#22a45d;}
+.cdr-res small{font-weight:500;color:var(--text-muted);font-size:.66rem;}
+@media (max-width:1100px){ .cal-dia{position:static;} }
+.cal-semana .cal-celda{min-height:220px;}
+.cal-item{font-family:var(--font-body);font-size:.72rem;font-weight:600;padding:3px 7px;border-radius:4px;background:var(--surface-2);border-left-width:3px;}

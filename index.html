@@ -17,6 +17,7 @@
 <link rel="stylesheet" href="css/modulos.css">
 <link rel="stylesheet" href="css/acabado.css">
 <link rel="stylesheet" href="css/diseno.css">
+<link rel="stylesheet" href="css/pro.css">
 <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.4/dist/chart.umd.min.js"></script>
 <script>
@@ -886,7 +887,7 @@ if(typeof Chart === 'undefined'){
     <!-- ============ CALENDARIO DE ROTURAS ============ -->
     <section id="panel-calendario" class="panel">
       <div class="content-header">
-        <div><h2>Calendario de roturas</h2><p>Proyección de las roturas programadas para planificar la semana del laboratorio.</p></div>
+        <div><h2>Calendario de roturas</h2><p>Roturas programadas, por edad de ensayo.</p></div>
         <div class="ch-actions">
           <select id="cal-proyecto"><option value="">Todos los proyectos</option></select>
           <select id="cal-tipo"><option value="">Probetas y cubos</option><option value="Probetas">Solo probetas</option><option value="Cubos">Solo cubos</option></select>
@@ -902,9 +903,13 @@ if(typeof Chart === 'undefined'){
         <button class="cal-nav" id="cal-next" title="Siguiente">›</button>
         <button class="btn-ghost" id="cal-hoy">Hoy</button>
         <div class="cal-leyenda">
-          <span><i class="cal-dot pend"></i>Pendiente</span>
-          <span><i class="cal-dot venc"></i>Vencida</span>
-          <span><i class="cal-dot comp"></i>Registrada</span>
+          <span><i class="cal-dot e1"></i>Día 1</span>
+          <span><i class="cal-dot e3"></i>Día 3</span>
+          <span><i class="cal-dot e4"></i>Día 4</span>
+          <span><i class="cal-dot e7"></i>Día 7</span>
+          <span><i class="cal-dot e28"></i>Día 28</span>
+          <span><i class="cal-dot e90"></i>Día 90+</span>
+          <span><b class="cal-ok">✓</b> Registradas</span>
         </div>
       </div>
       <div class="cal-layout">
