@@ -223,7 +223,7 @@ function renderExpedienteTab(m){
   else if(expedienteTab === 'resultados'){ c.innerHTML = expResultadosHtml(m); dibujarExpResultados(m); }
   else if(expedienteTab === 'comparativo'){ c.innerHTML = '<div id="cmp-wrap"></div>'; renderComparativo(m); }
   else if(expedienteTab === 'evidencias'){
-    c.innerHTML = '<div class="card"><div class="ev-toolbar"><span class="nota-sm">Fotos categorizadas por sección y diseño. Las de rotura se agregan solas al registrar la carga.</span>' +
+    c.innerHTML = '<div class="card"><div class="ev-toolbar"><span></span>' +
       '<button class="btn-add" id="exp-evidencia-2" data-perm="evidencias:subir">+ Subir evidencia</button></div><div id="exp-galeria">'+galeriaEvidenciasHtml(evidenciasDeProyecto(m.nombre))+'</div></div>';
     cargarMiniaturas(c);
   }
@@ -366,8 +366,7 @@ function expHistorialHtml(m){
     return '<tr><td class="mono">'+esc(d.fecha||'')+'</td><td>'+esc(d.colaborador||'-')+'</td><td>Creó</td><td>Diseño</td><td>'+esc(d.codigo+' · '+diseñoTitulo(d))+'</td></tr>';
   }).join('');
   return '<div class="card"><div class="table-scroll"><table class="data-table"><thead><tr><th>Fecha</th><th>Usuario</th><th>Acción</th><th>Entidad</th><th>Detalle</th></tr></thead><tbody>' +
-    (filas || base || '<tr><td colspan="5" class="empty-note">Sin movimientos registrados.</td></tr>') + '</tbody></table></div>' +
-    (filas ? '' : '<p class="nota-sm">Se muestran las fechas de creación de los diseños; los movimientos nuevos se registran automáticamente.</p>') + '</div>';
+    (filas || base || '<tr><td colspan="5" class="empty-note">Sin movimientos registrados.</td></tr>') + '</tbody></table></div></div>';
 }
 function exportarExpediente(m){
   var resumen = [['Expediente del proyecto', m.nombre], ['Estado', m.estado], ['Iteraciones', m.iteraciones.join(', ')],

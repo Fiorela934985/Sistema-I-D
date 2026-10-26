@@ -175,20 +175,65 @@ function predecirPromedioEdad(m, x){
   var edades = Object.keys(m.tabla).map(Number).sort(function(a, b){ return Math.abs(a - edad) - Math.abs(b - edad); });
   return edades.length ? m.tabla[edades[0]] : m.global;
 }
+/* Ley de Abrams en logaritmos: ln(f) lineal en a/mc, ln(edad), ln(edad)² y sus interacciones. */
+function expandirLog(x){ var le = x[2]; return [x[0], le, le * le, x[3], x[3] * le, x[0] * le, x[4], x[5], x[5] * le, x[6], x[7], x[7] * le]; }
+function entrenarLogML(filas, lambda){
+  var X = filas.map(function(f){ return expandirLog(f.x); }), y = filas.map(function(f){ return Math.log(f.y); });
+  var p = X[0].length, med = [], des = [];
+  for(var j = 0; j < p; j++){
+    var col = X.map(function(x){ return x[j]; });
+    med[j] = promedio(col);
+    des[j] = Math.sqrt(promedio(col.map(function(v){ return (v - med[j]) * (v - med[j]); }))) || 1;
+  }
+  var Z = X.map(function(x){ return [1].concat(x.map(function(v, j){ return (v - med[j]) / des[j]; })); });
+  var A = [], b = [];
+  for(var a = 0; a <= p; a++){
+    A.push([]); b.push(0);
+    for(var c = 0; c <= p; c++){
+      var s = 0;
+      for(var r = 0; r < Z.length; r++) s += Z[r][a] * Z[r][c];
+      A[a].push(s + (a === c && a > 0 ? lambda : 0));
+    }
+    for(var r3 = 0; r3 < Z.length; r3++) b[a] += Z[r3][a] * y[r3];
+  }
+  return {tipo:'log', beta: resolverLineal(A, b), med: med, des: des};
+}
+function predecirLogML(m, x){
+  var xe = expandirLog(x);
+  return Math.exp(m.beta[0] + xe.reduce(function(acc, v, j){ return acc + m.beta[j + 1] * (v - m.med[j]) / m.des[j]; }, 0));
+}
+/* Ensamble: promedio de los tres modelos; los errores de cada uno se compensan en parte. */
+function entrenarEnsamble(filas, p){
+  return {tipo:'ensamble', partes: [
+    {alg:'gbm', m: entrenarGBM(filas, p)},
+    {alg:'ridge', m: entrenarRidgeML(filas, 1)},
+    {alg:'log', m: entrenarLogML(filas, 0.1)}
+  ]};
+}
+function predecirEnsamble(m, x){
+  return promedio(m.partes.map(function(pt){ return ML_ALGORITMOS[pt.alg].predecir(pt.m, x); }));
+}
 var ML_ALGORITMOS = {
+  ensamble: {nombre:'Ensamble (árboles + ridge + Abrams)', entrenar: entrenarEnsamble, predecir: predecirEnsamble},
   gbm: {nombre:'Gradient boosting (árboles)', entrenar: function(filas, p){ return entrenarGBM(filas, p); }, predecir: predecirGBM},
   ridge: {nombre:'Regresión ridge', entrenar: function(filas){ return entrenarRidgeML(filas, 1); }, predecir: predecirRidgeML},
+  log: {nombre:'Ley de Abrams (logarítmica)', entrenar: function(filas){ return entrenarLogML(filas, 0.1); }, predecir: predecirLogML},
   promedio: {nombre:'Promedio por edad (referencia)', entrenar: function(filas){ return entrenarPromedioEdad(filas); }, predecir: predecirPromedioEdad}
 };
 
 /* ================= Validación dejando un diseño afuera ================= */
+var ML_TOLERANCIA = 10; // una predicción es acierto si queda a ±10 % del resultado real
+function esAcierto(pred, real){ return Math.abs(pred - real) / real * 100 <= ML_TOLERANCIA; }
 function metricasError(pares){
   var errs = pares.map(function(p){ return p.pred - p.real; });
   var reales = pares.map(function(p){ return p.real; });
   var media = promedio(reales);
   var ssRes = errs.reduce(function(a, e){ return a + e * e; }, 0);
   var ssTot = reales.reduce(function(a, v){ return a + (v - media) * (v - media); }, 0);
+  var aciertos = pares.filter(function(p){ return esAcierto(p.pred, p.real); }).length;
   return {n: pares.length,
+    acierto: pares.length ? aciertos / pares.length * 100 : NaN,
+    tasaError: pares.length ? (pares.length - aciertos) / pares.length * 100 : NaN,
     mae: promedio(errs.map(Math.abs)),
     rmse: Math.sqrt(ssRes / Math.max(1, pares.length)),
     r2: ssTot ? 1 - ssRes / ssTot : NaN,
@@ -228,21 +273,24 @@ function entrenarModeloHistorico(){
     {arboles:400, tasa:0.04, profundidad:3, minHoja:5, submuestra:0.8}
   ];
   var candidatos = grilla.map(function(p){ var v = validarDejandoUnDisenoAfuera(filas, 'gbm', p); return {algoritmo:'gbm', params:p, validacion:v}; });
+  var mejorGbm = candidatos.slice().sort(function(a, b){ return a.validacion.metricas.mae - b.validacion.metricas.mae; })[0];
+  candidatos.push({algoritmo:'ensamble', params: mejorGbm.params, validacion: validarDejandoUnDisenoAfuera(filas, 'ensamble', mejorGbm.params)});
   candidatos.push({algoritmo:'ridge', params:{lambda:1}, validacion: validarDejandoUnDisenoAfuera(filas, 'ridge')});
+  candidatos.push({algoritmo:'log', params:{lambda:0.1}, validacion: validarDejandoUnDisenoAfuera(filas, 'log')});
   candidatos.push({algoritmo:'promedio', params:{}, validacion: validarDejandoUnDisenoAfuera(filas, 'promedio')});
   candidatos.sort(function(a, b){ return a.validacion.metricas.mae - b.validacion.metricas.mae; });
   var ganador = candidatos[0];
   var modelo = ML_ALGORITMOS[ganador.algoritmo].entrenar(filas, ganador.params);
   var comparacion = {};
   candidatos.forEach(function(c){
-    var clave = c.algoritmo === 'gbm' ? 'gbm' : c.algoritmo;
-    if(!comparacion[clave] || c.validacion.metricas.mae < comparacion[clave].mae) comparacion[clave] = c.validacion.metricas;
+    if(!comparacion[c.algoritmo] || c.validacion.metricas.mae < comparacion[c.algoritmo].mae) comparacion[c.algoritmo] = c.validacion.metricas;
   });
   var registro = {
-    id: 'm' + Date.now(), fecha: Date.now(), usuario: usuarioActual ? usuarioActual.usuario : '',
+    id: 'm' + Date.now(), fecha: Date.now(), usuario: usuarioActual ? usuarioActual.usuario : '', version: ML_VERSION,
     algoritmo: ganador.algoritmo, nombre: ML_ALGORITMOS[ganador.algoritmo].nombre, params: ganador.params,
     modelo: modelo, filas: filas.length, disenos: Object.keys(nDis).length,
     metricas: ganador.validacion.metricas, comparacion: comparacion,
+    calibrado: backtestCalibrado(ganador.validacion.pares),
     validacion: ganador.validacion.pares.map(function(p){ return {g:p.grupo, nom:p.nombre, e:p.edad, r:+p.real.toFixed(1), p:+p.pred.toFixed(1)}; }),
     rangos: ML_FEATURES.map(function(_, j){ var col = filas.map(function(f){ return f.x[j]; }); return [Math.min.apply(null, col), Math.max.apply(null, col)]; }),
     activo: true
@@ -251,14 +299,37 @@ function entrenarModeloHistorico(){
   modelosML.unshift(registro);
   if(modelosML.length > MODELOS_MAX) modelosML.length = MODELOS_MAX;
   saveModelos();
-  registrarHistorial('Entrenó', 'Modelo', registro.nombre + ' · ' + registro.disenos + ' diseños · error medio ±' + fmt(registro.metricas.mae, 1) + ' kg/cm²');
+  registrarHistorial('Entrenó', 'Modelo', registro.nombre + ' · ' + registro.disenos + ' diseños · acierto ' + fmt(registro.metricas.acierto, 0) + ' %');
   return registro;
 }
+/* Calibración con las roturas del propio diseño: el modelo se corrige con la razón real/predicho de las edades
+   ya medidas (en logaritmo y atenuada cuando hay pocas edades). */
+var ML_PESO_CALIBRACION = 2;
+function factorCalibracion(puntos){
+  if(!puntos.length) return 1;
+  var lr = promedio(puntos.map(function(p){ return Math.log(p.real / p.pred); }));
+  return Math.exp(lr * puntos.length / (puntos.length + ML_PESO_CALIBRACION));
+}
+/* Prueba del modelo calibrado con las predicciones de la validación (diseños no vistos): para cada edad se
+   usan solo las edades anteriores del mismo diseño, como pasa en el laboratorio. */
+function backtestCalibrado(pares){
+  var porDis = {};
+  pares.forEach(function(p){ (porDis[p.grupo] = porDis[p.grupo] || []).push(p); });
+  var out = [];
+  Object.keys(porDis).forEach(function(g){
+    porDis[g].forEach(function(t){
+      var previas = porDis[g].filter(function(p){ return p.edad < t.edad; });
+      if(previas.length) out.push({grupo: g, nombre: t.nombre, edad: t.edad, real: t.real, pred: t.pred * factorCalibracion(previas)});
+    });
+  });
+  return out.length ? metricasError(out) : null;
+}
 /* Asegura que haya un modelo entrenado con los datos actuales (reentrena si cambió la base). */
+var ML_VERSION = 2;
 function firmaDatosML(){ var f = filasEntrenamientoML(); return f.length + ':' + Math.round(f.reduce(function(a, x){ return a + x.y; }, 0)); }
 function asegurarModelo(){
   var m = modeloActivo();
-  if(m && m.firma === firmaDatosML()) return m;
+  if(m && m.version === ML_VERSION && m.firma === firmaDatosML()) return m;
   var nuevo = entrenarModeloHistorico();
   if(nuevo.error) return m || nuevo;
   nuevo.firma = firmaDatosML();
@@ -277,16 +348,46 @@ function predecirResistencia(entrada, modelo){
   var edades = [1, 2, 3, 5, 7, 10, 14, 21, 28, 42, 56, 70, 90];
   if(edades.indexOf(edad) === -1) edades.push(edad);
   edades.sort(function(a, b){ return a - b; });
+  // Más allá de la mayor edad con datos, el modelo no sabe crecer: se extiende con la relación ACI 209.
+  var edadMax = modelo.rangos && modelo.rangos[1] ? modelo.rangos[1][1] : 28;
+  var tipo = c.he ? 'HE' : 'I';
   var max = -Infinity;
-  var curva = edades.map(function(t){ max = Math.max(max, alg.predecir(modelo.modelo, vectorML(c, t))); return {x: t, y: +max.toFixed(1)}; });
+  var curva = edades.map(function(t){
+    var te = Math.min(t, edadMax);
+    var v = alg.predecir(modelo.modelo, vectorML(c, te));
+    if(t > edadMax) v *= ratioACI(t, tipo) / ratioACI(edadMax, tipo);
+    max = Math.max(max, v);
+    return {x: t, y: +max.toFixed(1)};
+  });
   var valor = curva.filter(function(p){ return p.x === edad; })[0].y;
   var fuera = [];
   var x = vectorML(c, edad);
   ML_FEATURES.forEach(function(ft, j){
+    if(j === 1 || j === 2) return; // la edad se extiende con ACI 209
     var r = modelo.rangos && modelo.rangos[j];
-    if(r && (x[j] < r[0] - 1e-9 || x[j] > r[1] + 1e-9)) fuera.push(ft.t + ' (' + fmt(x[j], 2) + '; datos entre ' + fmt(r[0], 2) + ' y ' + fmt(r[1], 2) + ')');
+    var margen = r ? Math.max((r[1] - r[0]) * 0.05, Math.abs(r[1]) * 0.03) + 1e-9 : 0; // pequeñas diferencias no se avisan
+    if(r && (x[j] < r[0] - margen || x[j] > r[1] + margen)) fuera.push(ft.t + ' (' + fmt(x[j], 2) + '; datos entre ' + fmt(r[0], 2) + ' y ' + fmt(r[1], 2) + ')');
   });
-  return {valor: valor, curva: curva, mae: modelo.metricas.mae, modelo: modelo, fueraDeRango: fuera};
+  return {valor: valor, curva: curva, mae: modelo.metricas.mae, acierto: modelo.metricas.acierto, modelo: modelo, fueraDeRango: fuera};
+}
+/* Predicción de un diseño registrado: modelo histórico corregido con las roturas que ya tiene antes de esa edad. */
+function predecirDisenoCalibrado(d, edad){
+  var c = caracteristicasDiseno(d);
+  if(!c || !isFinite(c.cementante)) return null;
+  edad = edad || 28;
+  var entrada = {amc:c.amc, cemento:c.he ? 'HE' : 'I', cementante:c.cementante, flyAshPct:c.flyAshPct, aditivoPct:c.aditivoPct, agua:c.agua, edad:edad};
+  var base = predecirResistencia(entrada);
+  if(base.error) return null;
+  var alg = ML_ALGORITMOS[base.modelo.algoritmo];
+  var medidas = resistenciaPorEdad(d);
+  var puntos = Object.keys(medidas).map(Number).filter(function(t){ return t < edad; }).map(function(t){
+    return {edad: t, real: medidas[t], pred: alg.predecir(base.modelo.modelo, vectorML(c, t))};
+  }).filter(function(p){ return p.pred > 0 && p.real > 0; });
+  var k = factorCalibracion(puntos);
+  var cal = base.modelo.calibrado;
+  return {valor: +(base.valor * k).toFixed(1), sinCalibrar: base.valor, factor: k, edadesUsadas: puntos.map(function(p){ return p.edad; }),
+    curva: base.curva.map(function(p){ return {x: p.x, y: +(p.y * k).toFixed(1)}; }), modelo: base.modelo,
+    acierto: puntos.length && cal ? cal.acierto : base.modelo.metricas.acierto, mae: puntos.length && cal ? cal.mae : base.modelo.metricas.mae, fueraDeRango: base.fueraDeRango};
 }
 
 /* ================= Curva de madurez ================= */

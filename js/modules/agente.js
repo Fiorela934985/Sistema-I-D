@@ -167,7 +167,7 @@ var AGENTE_HERRAMIENTAS = [
      if(!(i.amc > 0 && i.amc < 2)) throw new Error('a/mc fuera de rango.');
      var r = predecirResistencia({amc: i.amc, cemento: i.cemento, cementante: i.cementante_kg || 350, flyAshPct: i.fly_ash_pct || 0, aditivoPct: i.aditivo_pct === undefined ? 1 : i.aditivo_pct, edad: i.edad || 28});
      if(r.error) return {error: r.error};
-     return {resistencia_kgcm2: r.valor, edad_dias: i.edad || 28, error_esperado_kgcm2: redondear(r.mae), modelo: r.modelo.nombre,
+     return {resistencia_kgcm2: r.valor, edad_dias: i.edad || 28, error_esperado_kgcm2: redondear(r.mae), tasa_acierto_pct: redondear(r.acierto, 0), tasa_error_pct: redondear(100 - r.acierto, 0), tolerancia_acierto: '±' + ML_TOLERANCIA + ' %', modelo: r.modelo.nombre,
        entrenado_con: r.modelo.disenos + ' diseños reales, ' + r.modelo.filas + ' resultados', curva: r.curva, fuera_de_rango: r.fueraDeRango};
    }},
   {name:'proyectar_diseno', description:'Proyecta la resistencia a 28, 56 y 90 días de un diseño existente usando sus roturas ya registradas (curva de madurez) y el modelo histórico, con la precisión histórica de cada método.',
@@ -176,10 +176,10 @@ var AGENTE_HERRAMIENTAS = [
      requierePermiso('ver:prediccion');
      var d = disenoPorCodigo(textoObligatorio(i.codigo, 'codigo').toUpperCase()) || disenos.filter(function(x){ return (x.recetaId || '').toUpperCase() === String(i.codigo).toUpperCase(); })[0];
      if(!d) return {error: 'No existe el diseño ' + i.codigo};
-     var aj = ajusteMadurez(d), pm = prediccionModeloDiseno(d, 28), bt = backtestMadurez();
+     var aj = ajusteMadurez(d), pm = predecirDisenoCalibrado(d, 28), p56 = predecirDisenoCalibrado(d, 56), p90 = predecirDisenoCalibrado(d, 90), bt = backtestMadurez();
      return {diseno: disenoResumen(d), fc_kgcm2: n(d.fc) || null,
-       curva_madurez: aj ? {metodo: aj.metodo, '28d': redondear(aj.predecir(28)), '56d': redondear(aj.predecir(56)), '90d': redondear(aj.predecir(90)), error_historico_kgcm2: bt.metricas ? redondear(bt.metricas.mae) : null} : 'sin roturas registradas',
-       modelo_historico: pm ? {'28d': pm.valor, error_esperado_kgcm2: redondear(pm.mae), modelo: pm.modelo.nombre} : null};
+       curva_madurez: aj ? {metodo: aj.metodo, '28d': redondear(aj.predecir(28)), '56d': redondear(aj.predecir(56)), '90d': redondear(aj.predecir(90)), error_historico_kgcm2: bt.metricas ? redondear(bt.metricas.mae) : null, tasa_acierto_pct: bt.metricas ? redondear(bt.metricas.acierto, 0) : null} : 'sin roturas registradas',
+       modelo_calibrado: pm ? {'28d': pm.valor, '56d': p56 && p56.valor, '90d': p90 && p90.valor, calibrado_con_edades: pm.edadesUsadas, tasa_acierto_pct: redondear(pm.acierto, 0), tasa_error_pct: redondear(100 - pm.acierto, 0), error_esperado_kgcm2: redondear(pm.mae), modelo: pm.modelo.nombre, recomendado: true} : null};
    }},
   {name:'kpis_laboratorio', description:'Indicadores generales: diseños, % completados, roturas pendientes y vencidas, resistencia promedio a 28 d, cumplimiento de f\'c, proyectos activos.',
    input_schema:{type:'object', properties:{}},
@@ -239,7 +239,7 @@ var AGENTE_SISTEMA = [
   '- Cuando el usuario mencione algo por nombre aproximado, usa primero buscar_registros para identificarlo.',
   '- Resistencia en kg/cm² (f\'c, a/mc = relación agua/material cementante). Cita los códigos (DID-xxxx, ID-xxxx) y el proyecto.',
   '- Los diseños marcados con demostracion: true son datos de ejemplo, no reales: no los uses en conclusiones salvo que el usuario lo pida, y avisa si aparecen.',
-  '- Para predicciones, da siempre el error esperado del modelo y advierte si los datos están fuera del rango con el que fue entrenado. Presenta el resultado como estimación, no como valor medido.',
+  '- Para predicciones, da siempre la tasa de acierto y de error del modelo y su error esperado; para un diseño con roturas usa el modelo calibrado. Advierte si los datos están fuera del rango con el que fue entrenado. Presenta el resultado como estimación, no como valor medido.',
   '- Para comparar varios diseños o edades usa una tabla en Markdown. Sé breve: primero la respuesta directa, luego el detalle necesario.',
   '- Si la pregunta no se puede responder con los datos del sistema, dilo y sugiere dónde buscar.',
   '- Responde en español neutro y profesional.'

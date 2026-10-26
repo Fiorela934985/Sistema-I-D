@@ -3,12 +3,14 @@
 
 /* ================= RESULTADOS DE ENSAYO (por réplica) — resistencia jalada de Roturas por código ================= */
 var SLUMP_ROWS = ["0'","30'","60'","90'","120'"];
+var SLUMP_MINUTOS = [0, 30, 60, 90, 120];
 var currentResultsDesign = null;
 var currentResultsIndex = -1;
 
 function emptyReplicaExtras(){
   return {
     contacto:'',
+    tiempos:[0], // filas de la tabla de slump que se van a medir (a veces solo 0')
     slump: SLUMP_ROWS.map(function(){ return {hora:'', slump:'', tempc:'', tempa:''}; }),
     pesoUnitario:'', aire:'', thermoIni:'', thermoFin:'', cohesividad:'', apariencia:'',
     observaciones:''
@@ -30,15 +32,28 @@ function resistTableHtmlFromRoturas(nombreReplica){
   return '<div class="table-scroll"><table class="resist-table"><thead><tr><th>Edad</th><th>Carga</th><th>kg/cm2</th></tr></thead><tbody>'+rows+'</tbody></table></div>';
 }
 
+/* Filas que se miden: las elegidas, más las que ya tienen datos. */
+function tiemposDeReplica(data){
+  var t = Array.isArray(data.tiempos) ? data.tiempos.slice() : [0];
+  (data.slump || []).forEach(function(row, r){ if(row && (row.hora || row.slump || row.tempc || row.tempa) && t.indexOf(r) === -1) t.push(r); });
+  if(!t.length) t = [0];
+  return t;
+}
+function btnAhora(attrs){ return '<button type="button" class="btn-ahora" data-perm="resultados:registrar" '+attrs+' title="Poner la hora actual">Ahora</button>'; }
 function replicaBlockHtml(idx, nombreBase, data){
   var nombreReplica = nombreBase + '-R' + (idx+1);
+  var tiempos = tiemposDeReplica(data);
+  var chips = SLUMP_ROWS.map(function(label, r){
+    return '<button type="button" class="chip-tiempo'+(tiempos.indexOf(r) > -1 ? ' on' : '')+'" data-tiempo="'+r+'" data-tiempo-r="'+idx+'">'+label+'</button>';
+  }).join('');
   var slumpRows = SLUMP_ROWS.map(function(label, r){
     var row = data.slump[r] || {hora:'',slump:'',tempc:'',tempa:''};
-    return '<tr><td>'+label+'</td>' +
-      '<td><input type="text" data-rf="slump" data-r="'+idx+'" data-row="'+r+'" data-col="hora" value="'+esc(row.hora)+'"></td>' +
+    return '<tr data-fila-tiempo="'+r+'"'+(tiempos.indexOf(r) === -1 ? ' class="fila-oculta"' : '')+'><td><b>'+label+'</b></td>' +
+      '<td><div class="hora-celda"><input type="text" data-rf="slump" data-r="'+idx+'" data-row="'+r+'" data-col="hora" value="'+esc(row.hora)+'" placeholder="hh:mm">'+btnAhora('data-ahora-fila="'+r+'" data-r="'+idx+'"')+'</div></td>' +
       '<td><input type="text" data-rf="slump" data-r="'+idx+'" data-row="'+r+'" data-col="slump" value="'+esc(row.slump)+'"></td>' +
       '<td><input type="text" data-rf="slump" data-r="'+idx+'" data-row="'+r+'" data-col="tempc" value="'+esc(row.tempc)+'"></td>' +
       '<td><input type="text" data-rf="slump" data-r="'+idx+'" data-row="'+r+'" data-col="tempa" value="'+esc(row.tempa)+'"></td>' +
+      '<td class="cuenta-celda" data-cuenta="'+idx+'-'+r+'"></td>' +
     '</tr>';
   }).join('');
   var d = disenos.filter(function(x){ return x.replicaObjs && x.replicaObjs.some(function(r){ return r.nombre===nombreReplica; }); })[0];
@@ -46,8 +61,9 @@ function replicaBlockHtml(idx, nombreBase, data){
   return '<div class="replica-block" data-replica="'+idx+'">' +
     '<div class="replica-head">'+sem+' '+esc(nombreReplica)+'</div>' +
     '<div class="replica-body">' +
-      '<div class="replica-row"><label>Hora de contacto a/mc</label><input type="text" data-rf="contacto" data-r="'+idx+'" value="'+esc(data.contacto)+'" placeholder="hh:mm"></div>' +
-      '<table class="slump-table"><thead><tr><th>Hora</th><th>Slump ó Flow</th><th>Temp. C°</th><th>Temp. A°</th></tr></thead><tbody>'+slumpRows+'</tbody></table>' +
+      '<div class="replica-row"><label>Hora de contacto a/mc</label><div class="hora-celda"><input type="text" data-rf="contacto" data-r="'+idx+'" value="'+esc(data.contacto)+'" placeholder="hh:mm">'+btnAhora('data-ahora-contacto="'+idx+'"')+'</div></div>' +
+      '<div class="replica-row"><label>Tiempos a medir</label><div class="chips-tiempo">'+chips+'</div></div>' +
+      '<table class="slump-table"><thead><tr><th>Min</th><th>Hora</th><th>Slump ó Flow</th><th>Temp. C°</th><th>Temp. A°</th><th>Aviso</th></tr></thead><tbody>'+slumpRows+'</tbody></table>' +
       '<div class="replica-row"><label>Peso unitario</label><input type="text" data-rf="pesoUnitario" data-r="'+idx+'" value="'+esc(data.pesoUnitario)+'"></div>' +
       '<div class="replica-row"><label>Contenido de aire (%)</label><input type="text" data-rf="aire" data-r="'+idx+'" value="'+esc(data.aire)+'"></div>' +
       '<div class="replica-row"><label>Thermocrete — F. inicial</label><input type="text" data-rf="thermoIni" data-r="'+idx+'" value="'+esc(data.thermoIni)+'" placeholder="hh:mm"></div>' +
@@ -57,7 +73,7 @@ function replicaBlockHtml(idx, nombreBase, data){
       '<label style="font-size:.72rem;font-weight:700;display:block;margin-bottom:6px;">Resistencia a la compresión</label>' +
       '<div class="resist-toolbar">' +
         '<button data-act="actualizar-resist" data-r="'+idx+'" data-replica="'+esc(nombreReplica)+'">Actualizar</button>' +
-        '<span class="resist-hint">Se completa desde Roturas — no se edita a mano acá.</span>' +
+        '<span class="resist-hint">Desde Roturas</span>' +
       '</div>' +
       '<div data-resist-wrap="'+idx+'">'+resistTableHtmlFromRoturas(nombreReplica)+'</div>' +
       '<div class="replica-row"><label>Observaciones</label><textarea data-rf="observaciones" data-r="'+idx+'">'+esc(data.observaciones)+'</textarea></div>' +
@@ -141,6 +157,7 @@ function collectResultsFromModal(nReplicas){
   for(var r=0;r<nReplicas;r++){
     var data = emptyReplicaExtras();
     data.contacto = (document.querySelector('[data-rf="contacto"][data-r="'+r+'"]')||{}).value || '';
+    data.tiempos = Array.prototype.map.call(document.querySelectorAll('[data-tiempo-r="'+r+'"].on'), function(b){ return Number(b.dataset.tiempo); });
     data.pesoUnitario = (document.querySelector('[data-rf="pesoUnitario"][data-r="'+r+'"]')||{}).value || '';
     data.aire = (document.querySelector('[data-rf="aire"][data-r="'+r+'"]')||{}).value || '';
     data.thermoIni = (document.querySelector('[data-rf="thermoIni"][data-r="'+r+'"]')||{}).value || '';

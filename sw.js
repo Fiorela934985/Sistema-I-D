@@ -1,6 +1,6 @@
 /* Service worker — estrategia "red primero": siempre intenta la versión más reciente
    y solo usa la caché cuando no hay conexión. Así un nuevo despliegue se ve de inmediato. */
-const CACHE = 'sistema-id-v8';
+const CACHE = 'sistema-id-v9';
 const CORE = [
   './',
   './index.html',
@@ -24,6 +24,7 @@ const CORE = [
   './js/modules/disenos/disenos.js',
   './js/modules/disenos/vista.js',
   './js/modules/disenos/resultados.js',
+  './js/modules/disenos/avisos-fresco.js',
   './js/modules/disenos/informe.js',
   './js/modules/disenos/calculadora.js',
   './js/modules/archivador.js',

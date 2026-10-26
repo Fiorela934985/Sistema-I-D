@@ -78,6 +78,171 @@ function resumenProyectoHtml(nombre, edad){
     (m.proximaRotura ? '<p>Próxima rotura: '+isoToDMY(m.proximaRotura)+'</p>' : '') +
     '<div class="chat-acciones">' + btnAccion('Abrir expediente', 'data-chat-exp="'+esc(nombre)+'"') + btnAccion('Comparar iteraciones', 'data-chat-exp="'+esc(nombre)+'" data-chat-tab="comparativo"') + '</div>';
 }
+/* ---------- Respuestas ampliadas (motor local) ---------- */
+var chatContexto = {disenos: [], proyecto: null};
+function esDisenoReal(d){ return !disenosDeDemostracion().some(function(x){ return x.codigo === d.codigo; }); }
+function disenosFiltrados(proyecto){ return disenos.filter(function(d){ return esDisenoReal(d) && (!proyecto || proyectoNombre(d.proyectoId) === proyecto); }); }
+function tablaHtml(cab, filas){
+  return '<table class="data-table chat-tabla"><thead><tr>' + cab.map(function(c){ return '<th>'+c+'</th>'; }).join('') + '</tr></thead><tbody>' +
+    filas.map(function(f){ return '<tr>' + f.map(function(c){ return '<td>'+c+'</td>'; }).join('') + '</tr>'; }).join('') + '</tbody></table>';
+}
+function tasaTexto(acierto){ return isFinite(acierto) ? 'Tasa de acierto <b>'+fmt(acierto,0)+' %</b> · tasa de error <b>'+fmt(100-acierto,0)+' %</b> (±'+ML_TOLERANCIA+' %)' : ''; }
+function promedioPorEdad(lista){
+  var porEdad = {};
+  lista.forEach(function(d){ var r = resistenciaPorEdad(d); Object.keys(r).forEach(function(e){ (porEdad[e] = porEdad[e] || []).push(r[e]); }); });
+  return porEdad;
+}
+function compararGrupos(nombreA, a, nombreB, b){
+  var pa = promedioPorEdad(a), pb = promedioPorEdad(b), eds = {};
+  Object.keys(pa).concat(Object.keys(pb)).forEach(function(e){ eds[e] = true; });
+  var le = Object.keys(eds).map(Number).sort(function(x,y){ return x-y; });
+  if(!le.length) return '<p>No hay resultados para comparar.</p>';
+  return tablaHtml(['Edad', nombreA+' ('+a.length+')', nombreB+' ('+b.length+')', 'Diferencia'], le.map(function(e){
+    var va = promedio(pa[e] || []), vb = promedio(pb[e] || []);
+    return [e+' d', isFinite(va) ? fmt(va,1) : '-', isFinite(vb) ? fmt(vb,1) : '-', isFinite(va) && isFinite(vb) ? (va-vb>0?'+':'')+fmt(va-vb,1)+' ('+fmt((va-vb)/vb*100,0)+' %)' : '-'];
+  }));
+}
+/* a/mc necesaria para alcanzar una resistencia, buscando con el modelo entrenado. */
+function amcParaResistencia(objetivo, edad, he, flyAsh, cementante){
+  var mejor = null;
+  for(var amc = 0.30; amc <= 0.90001; amc += 0.01){
+    var p = predecirResistencia({amc: +amc.toFixed(2), cemento: he ? 'HE' : 'I', cementante: cementante, flyAshPct: flyAsh, aditivoPct: 1, edad: edad});
+    if(p.error) return {error: p.error};
+    if(p.valor >= objetivo) mejor = {amc: +amc.toFixed(2), valor: p.valor, pred: p};
+  }
+  return mejor || {sinSolucion: true};
+}
+function responderAmpliado(q, pregunta, proyecto, dis, edad){
+  // Nombres de proyecto que contienen HE o fly ash se confunden con la pregunta: solo filtran si se piden explícitamente.
+  var proyExplicito = /proyecto|\ben\b/.test(q) ? proyecto : null;
+  // Precisión del modelo
+  if(/(precision|exactitud|exact[oa]|acierto|confiable|que tan (bien|buen)|tasa de error|margen de error)/.test(q) && /(predic|modelo|estim|proyecc)/.test(q)){
+    var m = asegurarModelo();
+    if(!m || m.error) return '<p>'+esc(m ? m.error : 'Todavía no hay modelo entrenado.')+'</p>';
+    var bt = backtestMadurez();
+    return '<p>Modelo activo: <b>'+esc(m.nombre)+'</b>, entrenado con '+m.disenos+' diseños reales ('+m.filas+' resultados).</p>' +
+      tablaHtml(['Caso', 'Acierto', 'Error', 'Error medio'], [
+        ['Diseño nuevo', '<b>'+fmt(m.metricas.acierto,0)+' %</b>', fmt(m.metricas.tasaError,0)+' %', '±'+fmt(m.metricas.mae,1)+' kg/cm²'],
+        m.calibrado ? ['Diseño con roturas tempranas', '<b>'+fmt(m.calibrado.acierto,0)+' %</b>', fmt(m.calibrado.tasaError,0)+' %', '±'+fmt(m.calibrado.mae,1)+' kg/cm²'] : null,
+        bt.metricas ? ['Curva logarítmica a 28 d', fmt(bt.metricas.acierto,0)+' %', fmt(bt.metricas.tasaError,0)+' %', '±'+fmt(bt.metricas.mae,1)+' kg/cm²'] : null
+      ].filter(Boolean)) +
+      '<p class="nota-sm">Acierto = predicción dentro de ±'+ML_TOLERANCIA+' % del resultado real, medido con diseños que el modelo no vio.</p>' +
+      '<div class="chat-acciones">'+btnAccion('Ver precisión', 'data-goto="prediccion"')+'</div>';
+  }
+  // ¿Qué a/mc necesito para X kg/cm²?
+  var obj = q.match(/(\d{3})\s*(kg|kgf|de f'?c|f'?c)?/);
+  if(/(que|cual|cuanta|necesito|requiero|para (llegar|alcanzar|lograr))/.test(q) && /a\s*\/?\s*m?c|relacion agua/.test(q) && obj){
+    var objetivo = Number(obj[1]), e = edad || 28, he = /\bhe\b/.test(q);
+    var faM = q.match(/(\d{1,2})\s*%\s*(de\s*)?(fly|ceniza)/), fa = faM ? Number(faM[1]) : 0;
+    var r = amcParaResistencia(objetivo, e, he, fa, 350);
+    if(r.error) return '<p>'+esc(r.error)+'</p>';
+    if(r.sinSolucion) return '<p>Con los datos actuales el modelo no llega a <b>'+objetivo+' kg/cm²</b> a '+e+' días ni con a/mc 0.30'+(he?'':'. Probá con cemento HE')+'.</p>';
+    return '<p>Para <b>'+objetivo+' kg/cm²</b> a '+e+' días con cemento <b>'+(he?'HE':'Tipo I')+'</b>'+(fa?' y '+fa+' % de fly ash':'')+', el modelo sugiere una a/mc de hasta <b>'+r.amc.toFixed(2)+'</b> (estima '+fmt(r.valor,1)+' kg/cm²).</p>' +
+      '<p class="nota-sm">'+tasaTexto(r.pred.acierto)+'. Conviene dejar margen de ±'+fmt(r.pred.mae,0)+' kg/cm².</p>' +
+      '<div class="chat-acciones">'+btnAccion('Abrir simulador', 'data-goto="prediccion"')+'</div>';
+  }
+  // Indicadores generales
+  if(/(kpi|indicador|resumen general|como vamos|como va el laboratorio|estado (general|del laboratorio)|panorama)/.test(q)){
+    var reales = disenosFiltrados(proyecto), k = kpisCalidad(reales), hoy = todayISO();
+    var pend = roturaCargas.filter(function(c){ return c.estado === 'pendiente' && (!proyecto || c.proyecto === proyecto); });
+    return '<p>Resumen'+(proyecto?' de <b>'+esc(proyecto)+'</b>':' del laboratorio')+':</p><ul class="chat-lista">' +
+      '<li><b>'+reales.length+'</b> diseños reales · '+reales.filter(function(d){ return d.estado === 'Completado'; }).length+' completados</li>' +
+      '<li>Resistencia promedio a 28 d: <b>'+(isFinite(k.r28)?fmt(k.r28,1)+' kg/cm²':'-')+'</b></li>' +
+      '<li>Cumplen f\'c a 28 d: <b>'+(isFinite(k.cumplimiento)?k.cumplimiento+' %':'-')+'</b> ('+k.cumplen+' de '+k.evaluados+')</li>' +
+      '<li>Roturas pendientes: <b>'+pend.length+'</b> · vencidas: <b>'+pend.filter(function(c){ return c.fechaEnsayo < hoy; }).length+'</b> · hoy: <b>'+pend.filter(function(c){ return c.fechaEnsayo === hoy; }).length+'</b></li>' +
+      '<li>Proyectos en curso: <b>'+metricasTodosLosProyectos().filter(function(x){ return x.estado === 'En curso'; }).length+'</b></li></ul>' +
+      '<div class="chat-acciones">'+btnAccion('Abrir dashboard', 'data-goto="reportes"')+'</div>';
+  }
+  // Cumplimiento de f'c
+  if(/(cumpl|alcanz|llega|no llega|no cumpl|fall)/.test(q) && /(f'?c|resistencia|especific|diseno)/.test(q) && !/(costo|cvd|barat|econom|car[oa]s?\b|precio)/.test(q) && !dis.length){
+    var lista = disenosFiltrados(proyecto).filter(function(d){ return n(d.fc) > 0 && isFinite(resistenciaPorEdad(d)[edad || 28]); });
+    if(!lista.length) return '<p>No hay diseños con f\'c y resultado a '+(edad||28)+' días'+(proyecto?' en '+esc(proyecto):'')+'.</p>';
+    var noCumplen = /no (cumpl|alcanz|llega)|fall/.test(q);
+    var sel = lista.filter(function(d){ var ok = resistenciaPorEdad(d)[edad || 28] >= n(d.fc); return noCumplen ? !ok : ok; });
+    return '<p><b>'+sel.length+' de '+lista.length+'</b> diseños '+(noCumplen?'no cumplen':'cumplen')+' su f\'c a '+(edad||28)+' días'+(proyecto?' en <b>'+esc(proyecto)+'</b>':'')+'.</p>' +
+      (sel.length ? tablaHtml(['Diseño', 'f\'c', 'Real', '%'], sel.slice(0, 12).map(function(d){ var v = resistenciaPorEdad(d)[edad || 28]; return ['<b>'+esc(diseñoTitulo(d))+'</b> <span class="nota-sm">'+esc(d.codigo)+'</span>', n(d.fc), fmt(v,1), fmt(v/n(d.fc)*100,0)+' %']; })) : '');
+  }
+  // Costos
+  if(/(costo|cvd|barat|econom|car[oa]s?\b|precio|soles)/.test(q)){
+    var conCosto = disenosFiltrados(proyecto).filter(function(d){ return n(d.cvdTotal) > 0; });
+    if(/(cumpl|que llegue|que alcance)/.test(q)) conCosto = conCosto.filter(function(d){ var v = resistenciaPorEdad(d)[28]; return n(d.fc) > 0 && isFinite(v) && v >= n(d.fc); });
+    if(!conCosto.length) return '<p>No hay diseños con costo registrado'+(proyecto?' en '+esc(proyecto):'')+'.</p>';
+    var caros = /(car[oa]s?\b|mayor costo|mas costos)/.test(q);
+    conCosto.sort(function(a,b){ return caros ? n(b.cvdTotal) - n(a.cvdTotal) : n(a.cvdTotal) - n(b.cvdTotal); });
+    return '<p>Diseños '+(caros?'más caros':'más económicos')+' por m³'+(proyecto?' en <b>'+esc(proyecto)+'</b>':'')+' · costo promedio S/. '+fmt(promedio(conCosto.map(function(d){ return n(d.cvdTotal); })),2)+':</p>' +
+      tablaHtml(['Diseño', 'CVD S/.', 'f\'c', '28 d'], conCosto.slice(0, 8).map(function(d){ var v = resistenciaPorEdad(d)[28]; return ['<b>'+esc(diseñoTitulo(d))+'</b> <span class="nota-sm">'+esc(d.codigo)+'</span>', fmt(n(d.cvdTotal),2), n(d.fc)||'-', isFinite(v)?fmt(v,1):'-']; }));
+  }
+  // HE vs Tipo I
+  if(/\bhe\b/.test(q) && /(tipo i\b|tipo 1|\bi\b|vs|versus|compar|diferencia|mejor)/.test(q) && !dis.length){
+    var base = disenosFiltrados(proyExplicito);
+    return '<p>Resistencia promedio (kg/cm²) por tipo de cemento'+(proyExplicito?' en <b>'+esc(proyExplicito)+'</b>':'')+':</p>' +
+      compararGrupos('HE', base.filter(function(d){ return tipoCementoNormalizado(d) === 'HE'; }), 'Tipo I', base.filter(function(d){ return tipoCementoNormalizado(d) !== 'HE'; }));
+  }
+  // Fly ash
+  if(/(fly ?ash|ceniza)/.test(q) && /(efecto|influ|compar|diferencia|sin|con|vs|mejor|ayuda|sirve)/.test(q) && !/predic|estim|a\s*\/?\s*m?c\s*\d|0[.,]\d/.test(q)){
+    var b2 = disenosFiltrados(proyExplicito);
+    return '<p>Resistencia promedio (kg/cm²) con y sin fly ash'+(proyExplicito?' en <b>'+esc(proyExplicito)+'</b>':'')+':</p>' +
+      compararGrupos('Con fly ash', b2.filter(usaFlyAsh), 'Sin fly ash', b2.filter(function(d){ return !usaFlyAsh(d); }));
+  }
+  // Dosificación / mezcla / estado fresco de un diseño
+  if(dis.length && /(dosific|mezcla|materiales|composicion|receta|proporcion|cuanto cemento|agua)/.test(q)){
+    var d1 = dis[0];
+    var mix = (d1.mix || []).filter(function(it){ return n(it.pesoSeco) > 0; });
+    return '<p>Dosificación de <b>'+esc(diseñoTitulo(d1))+'</b> ('+esc(d1.codigo)+') por m³ · a/mc '+esc(d1.amcEfectiva||'-')+':</p>' +
+      tablaHtml(['Material', 'Peso seco (kg)'], mix.map(function(it){ return [esc(it.nombre), fmt(n(it.pesoSeco),2)]; })) +
+      '<div class="chat-acciones">'+btnAccion('Ver informe', 'data-chat-informe="'+esc(d1.codigo)+'"')+'</div>';
+  }
+  if(dis.length && /(slump|asentamiento|fresco|temperatura|aire|peso unitario|fragua|thermo)/.test(q)){
+    var d2 = dis[0], reps = (d2.resultados && d2.resultados.replicas) || [];
+    if(!reps.length) return '<p><b>'+esc(diseñoTitulo(d2))+'</b> todavía no tiene ensayos en estado fresco cargados.</p>';
+    return '<p>Estado fresco de <b>'+esc(diseñoTitulo(d2))+'</b>:</p>' + reps.map(function(rp, k){
+      var filas = (rp.slump || []).map(function(s, i){ return s && (s.slump || s.tempc) ? [SLUMP_ROWS[i], esc(s.hora||'-'), esc(s.slump||'-'), esc(s.tempc||'-'), esc(s.tempa||'-')] : null; }).filter(Boolean);
+      return '<p class="nota-sm">Réplica '+(k+1)+' · PU '+esc(rp.pesoUnitario||'-')+' · aire '+esc(rp.aire||'-')+' % · fragua '+esc(rp.thermoIni||'-')+' / '+esc(rp.thermoFin||'-')+'</p>' +
+        (filas.length ? tablaHtml(['Min', 'Hora', 'Slump', 'T° C', 'T° A'], filas) : '');
+    }).join('');
+  }
+  // Promedio a una edad
+  if(/promedio/.test(q) && edad && !dis.length){
+    var pe = promedioPorEdad(disenosFiltrados(proyecto))[edad];
+    if(!pe) return '<p>No hay resultados a '+edad+' días'+(proyecto?' en '+esc(proyecto):'')+'.</p>';
+    return '<p>Resistencia promedio a <b>'+edad+' días</b>'+(proyecto?' en <b>'+esc(proyecto)+'</b>':'')+': <b>'+fmt(promedio(pe),1)+' kg/cm²</b> ('+pe.length+' diseños, rango '+fmt(Math.min.apply(null,pe),1)+' – '+fmt(Math.max.apply(null,pe),1)+').</p>';
+  }
+  // Proyectos
+  if(/(que|cuales|lista|listar|mis|todos los) proyectos|proyectos (hay|activos|en curso|registrados)/.test(q)){
+    var ms = metricasTodosLosProyectos();
+    if(!ms.length) return '<p>No hay proyectos registrados.</p>';
+    return tablaHtml(['Proyecto', 'Estado', 'Diseños', 'Roturas'], ms.map(function(x){
+      return ['<a href="#" data-chat-exp="'+esc(x.nombre)+'"><b>'+esc(x.nombre)+'</b></a>', esc(x.estado), x.nDisenos, x.cargasCompletas+'/'+x.cargas.length+(x.vencidas?' <span class="txt-rojo">('+x.vencidas+' venc.)</span>':'')];
+    }));
+  }
+  // Diseños recientes / en desarrollo
+  if(/(ultimo|reciente|nuevo)s? disenos?|disenos? (recientes|nuevos|en desarrollo|iniciados|pendientes|sin resultado)/.test(q)){
+    var estadoF = /desarrollo/.test(q) ? 'En desarrollo' : (/iniciad/.test(q) ? 'Iniciado' : null);
+    var lr = disenos.filter(function(d){ return (!proyecto || proyectoNombre(d.proyectoId) === proyecto) && (!estadoF || d.estado === estadoF); })
+      .sort(function(a,b){ return (b.ts||0) - (a.ts||0) || String(b.fecha).localeCompare(String(a.fecha)); }).slice(0, 8);
+    if(!lr.length) return '<p>No encontré diseños con ese criterio.</p>';
+    return '<ul class="chat-lista">' + lr.map(function(d){ return '<li><b>'+esc(diseñoTitulo(d))+'</b> · '+esc(d.codigo)+' · '+esc(d.estado)+' · '+esc(d.fecha||'-')+' <span class="nota-sm">('+esc(proyectoNombre(d.proyectoId)||'-')+')</span></li>'; }).join('') + '</ul>';
+  }
+  // Historial
+  if(/(historial|que (se )?(hizo|registro|hicieron)|movimientos|ultimos cambios|quien)/.test(q)){
+    if(!can('ver:historial')) return '<p>Tu rol no tiene acceso al historial.</p>';
+    var hs = historial.filter(function(h){ return !proyecto || h.proyecto === proyecto; }).slice(0, 8);
+    if(!hs.length) return '<p>Sin movimientos registrados.</p>';
+    return '<ul class="chat-lista">' + hs.map(function(h){ return '<li>'+fechaHora(h.ts)+' · <b>'+esc(h.usuario)+'</b> '+esc(h.accion).toLowerCase()+' '+esc(h.entidad)+' <span class="nota-sm">'+esc(h.detalle||'')+'</span></li>'; }).join('') + '</ul>' +
+      '<div class="chat-acciones">'+btnAccion('Abrir historial', 'data-goto="historial"')+'</div>';
+  }
+  // Reporte RR
+  if(/(reporte rr|\brr\b|estudios?( rr)?$|estudios comparativos)/.test(q)){
+    var es = rrEstudios.filter(function(x){ return !proyecto || normalizar(proyectoNombre(x.proyectoId) || x.nombre).indexOf(normalizar(proyecto)) > -1; });
+    if(!es.length) return '<p>No hay estudios RR'+(proyecto?' para '+esc(proyecto):'')+'.</p>';
+    return '<ul class="chat-lista">' + es.map(function(x){ return '<li><b>'+esc(x.nombre)+'</b> · '+esc(x.fecha)+' · '+x.tipos.length+' tipos: '+esc(x.tipos.map(function(t){ return t.nombre; }).join(', '))+'</li>'; }).join('') + '</ul>' +
+      '<div class="chat-acciones">'+btnAccion('Abrir Reporte RR', 'data-goto="reporte-rr"')+'</div>';
+  }
+  // Fecha
+  if(/(que dia|que fecha|fecha de hoy|hoy es)/.test(q)) return '<p>Hoy es <b>'+DIA_NOMBRES[new Date().getDay()]+' '+isoToDMY(todayISO())+'</b>.</p>';
+  return null;
+}
+
 var DESTINOS = [
   {re:/dashboard|kpi|metricas|indicadores/, panel:'reportes'}, {re:/calendario/, panel:'calendario'}, {re:/rotura/, panel:'roturas'},
   {re:/proyecto|expediente|radar/, panel:'proyectos'}, {re:/diseno|calculadora|calcular/, panel:'disenos'}, {re:/registro|componente|material/, panel:'componentes'},
@@ -91,11 +256,15 @@ function responder(pregunta){
   var proyecto = detectarProyecto(pregunta);
   var dis = detectarDisenos(pregunta);
   var edad = detectarEdad(pregunta);
+  // Preguntas de seguimiento ("¿y a 7 días?", "su dosificación"): se usa lo último consultado
+  if(!dis.length && !proyecto && /^(y|e|ahora|tambien)\b|\b(ese|este|esa|esta|su|sus|mismo|misma|anterior)\b/.test(q)){ dis = chatContexto.disenos; proyecto = chatContexto.proyecto; }
+  if(dis.length){ chatContexto.disenos = dis; chatContexto.proyecto = null; }
+  else if(proyecto){ chatContexto.proyecto = proyecto; chatContexto.disenos = []; }
 
   if(/^(hola|buen[oa]s|ayuda|help|que (puedes|sabes) hacer|como funciona)/.test(q)){
     return '<p>¡Hola! Puedo responder con los datos del sistema. Probá, por ejemplo:</p><ul class="chat-lista">' +
-      '<li>¿Qué roturas tengo hoy / esta semana / vencidas?</li><li>Resumen del proyecto Estudio HE</li><li>Resistencia promedio a 28 días de Estudio HE + Fly Ash</li>' +
-      '<li>¿Cuál es el diseño con mayor resistencia a 7 días?</li><li>Compara DID-0023 y DID-0025</li><li>Predice la resistencia a 28 días con a/mc 0.55 y cemento HE</li><li>Abrir calendario</li></ul>';
+      '<li>¿Qué roturas tengo hoy / esta semana / vencidas?</li><li>¿Cómo vamos? · Resumen del proyecto Estudio HE</li><li>¿Qué diseños no cumplen f\'c?</li><li>Diseño más barato que cumpla</li>' +
+      '<li>HE vs Tipo I · Efecto del fly ash</li><li>Dosificación / slump de DID-0023</li><li>Predice DID-0023 a 28 días · ¿Qué a/mc necesito para 280 a 28 días con HE?</li><li>¿Qué tan exacta es la predicción?</li><li>Compara DID-0023 y DID-0025 · Abrir calendario</li></ul>';
   }
   // Navegación / accesos directos
   if(/^(abr[ie]r?|ir a|ve a|ll[eé]vame|mostr[aá]me|muestr[ae]|ver)\b/.test(q) && !dis.length && !/rotura(s)? (de )?hoy|semana|vencid/.test(q)){
@@ -107,14 +276,19 @@ function responder(pregunta){
       return '<p>Abriendo <b>'+esc(panelInfo(dest.panel).label)+'</b>…</p>';
     }
   }
+  var ampliada = responderAmpliado(q, pregunta, proyecto, dis, edad);
+  if(ampliada) return ampliada;
   // Predicción
   if(/predic|estim|simula|cuanto (daria|alcanzaria|llegaria)|proyecta/.test(q)){
     var amcM = q.match(/a\s*\/?\s*m?c\s*(de|=)?\s*(0?[.,]\d+)/) || q.match(/\b(0[.,]\d{2})\b/);
     if(dis.length){
-      var aj = ajusteMadurez(dis[0]);
-      if(!aj) return '<p>'+esc(diseñoTitulo(dis[0]))+' todavía no tiene roturas para proyectar.</p>';
       var e1 = edad || 28;
-      return '<p>Para <b>'+esc(diseñoTitulo(dis[0]))+'</b> la curva de madurez proyecta <b>'+fmt(aj.predecir(e1),1)+' kg/cm²</b> a '+e1+' días ('+aj.metodo.toLowerCase()+').</p>' +
+      var pc = predecirDisenoCalibrado(dis[0], e1);
+      var aj = ajusteMadurez(dis[0]);
+      if(!pc && !aj) return '<p>'+esc(diseñoTitulo(dis[0]))+' todavía no tiene datos suficientes para proyectar.</p>';
+      var medido = resistenciaPorEdad(dis[0])[e1];
+      return '<p>Para <b>'+esc(diseñoTitulo(dis[0]))+'</b> a '+e1+' días: <b>'+fmt(pc ? pc.valor : aj.predecir(e1),1)+' kg/cm²</b>'+(pc ? (pc.edadesUsadas.length ? ' (modelo calibrado con sus roturas de '+pc.edadesUsadas.join(', ')+' d)' : ' (modelo histórico)') : ' (curva de madurez)')+'.'+(isFinite(medido) ? ' Medido: <b>'+fmt(medido,1)+'</b>.' : '')+(n(dis[0].fc) ? ' f\'c '+n(dis[0].fc)+' → '+((pc ? pc.valor : aj.predecir(e1)) >= n(dis[0].fc) ? '<b class="txt-verde">lo alcanza</b>' : '<b class="txt-rojo">no lo alcanza</b>') : '')+'</p>' +
+        (pc ? '<p class="nota-sm">'+tasaTexto(pc.acierto)+'</p>' : '') +
         '<div class="chat-acciones">'+btnAccion('Ver en Predicción', 'data-goto="prediccion"')+'</div>';
     }
     if(amcM){
@@ -124,7 +298,7 @@ function responder(pregunta){
       var cem = cemM ? Number(cemM[1]) : 350;
       var pr = predecirResistencia({amc: amc, cemento: he ? 'HE' : 'I', cementante: cem, flyAshPct: fa, aditivoPct: 1, edad: e2});
       if(pr.error) return '<p>' + esc(pr.error) + '</p>';
-      return '<p>Con a/mc <b>'+amc+'</b>, cemento <b>'+(he?'HE':'Tipo I')+'</b>'+(fa?' con '+fa+' % de fly ash':'')+' y '+Math.round(cem)+' kg/m³ de cementante, el modelo ('+esc(pr.modelo.nombre)+') estima <b>'+fmt(pr.valor,1)+' kg/cm²</b> a '+e2+' días. Error esperado con diseños nuevos: ±'+fmt(pr.mae,1)+' kg/cm².</p>' +
+      return '<p>Con a/mc <b>'+amc+'</b>, cemento <b>'+(he?'HE':'Tipo I')+'</b>'+(fa?' con '+fa+' % de fly ash':'')+' y '+Math.round(cem)+' kg/m³ de cementante, el modelo ('+esc(pr.modelo.nombre)+') estima <b>'+fmt(pr.valor,1)+' kg/cm²</b> a '+e2+' días. Error esperado ±'+fmt(pr.mae,1)+' kg/cm².</p><p class="nota-sm">'+tasaTexto(pr.acierto)+'</p>' +
         (pr.fueraDeRango.length ? '<p class="nota-sm">Ojo: '+esc(pr.fueraDeRango.join('; '))+' está fuera de los datos de entrenamiento.</p>' : '') +
         '<div class="chat-acciones">'+btnAccion('Abrir simulador', 'data-goto="prediccion"')+'</div>';
     }
@@ -225,11 +399,11 @@ function responder(pregunta){
         top.map(function(d){ return '<li><span class="tag-pill tag-gris">'+d.tipo+'</span> <b>'+esc(d.titulo)+'</b> <span class="nota-sm">'+esc(d.sub||'')+'</span> '+btnAccion('Abrir', d.accion)+'</li>'; }).join('') + '</ul>';
     }
   }
-  return '<p>No encontré información sobre eso en los datos registrados. Escribí <b>ayuda</b> para ver ejemplos de preguntas.</p>';
+  return '<p>No encontré eso en los datos. Puedo responder sobre roturas, proyectos, diseños, resistencias, costos, cumplimiento de f\'c, estado fresco y predicciones. Escribí <b>ayuda</b> para ver ejemplos.</p>';
 }
 
 /* ---------- Interfaz ---------- */
-var SUGERENCIAS_CHAT = ['¿Qué roturas tengo hoy?', 'Roturas vencidas', 'Roturas de esta semana', 'Diseño con mayor resistencia a 7 días', '¿Cuántos diseños hay?', 'Predice a/mc 0.55 cemento HE a 28 días'];
+var SUGERENCIAS_CHAT = ['¿Cómo vamos?', '¿Qué roturas tengo hoy?', '¿Qué diseños no cumplen f\'c?', 'HE vs Tipo I', 'Diseño más barato que cumpla', '¿Qué a/mc necesito para 280 a 28 días con HE?', '¿Qué tan exacta es la predicción?'];
 function renderChat(){
   var log = document.getElementById('chat-log');
   log.innerHTML = chatLog.map(function(m){ return '<div class="chat-msg '+m.de+'"><div class="chat-burbuja">'+m.html+'</div></div>'; }).join('');
@@ -277,8 +451,8 @@ function renderModoAsistente(){
   chip.className = 'chat-modo ' + (ia ? 'ia' : 'local');
   chip.innerHTML = ia ? '<span class="live-dot"></span> Agente IA · Claude' : 'Motor local';
   document.getElementById('chat-nota').innerHTML = ia
-    ? 'El agente consulta los datos del sistema con herramientas y responde con Claude (' + AGENTE_MODELO + '). Las preguntas y los datos que consulta se envían a la API de Anthropic.'
-    : 'Responde con búsqueda local, sin enviar información a internet.' + (can('ver:usuarios') ? ' Para respuestas más completas, configurá el agente con IA en <a href="#" data-goto="ajustes">Ajustes</a>.' : '');
+    ? 'Las preguntas se envían a la API de Anthropic.'
+    : (can('ver:usuarios') ? 'Agente con IA: <a href="#" data-goto="ajustes">configurar en Ajustes</a>' : '');
 }
 document.getElementById('chat-nueva').addEventListener('click', function(){
   if(agenteOcupado) return;

@@ -144,7 +144,7 @@ function buildInformeCharts(d, intento){
   informeCharts = [];
   if(typeof Chart === 'undefined'){
     if(intento < 40){ setTimeout(function(){ buildInformeCharts(d, intento+1); }, 200); return; }
-    document.getElementById('informe-charts').innerHTML = '<div class="empty-note">No se pudieron cargar los gráficos (sin conexión a la librería). Los datos y tablas de arriba están completos igual.</div>';
+    document.getElementById('informe-charts').innerHTML = '<div class="empty-note">Gráficos no disponibles sin conexión.</div>';
     return;
   }
   Chart.defaults.color = '#14181a';

@@ -35,8 +35,7 @@ function renderAjustes(){
     '<div class="acerca-fila"><span>Versión</span><b>'+APP_VERSION+'</b></div>' +
     '<div class="acerca-fila"><span>Datos guardados en este navegador</span><b>'+(usado/1024).toFixed(0)+' KB</b></div>' +
     '<div class="acerca-fila"><span>Diseños / roturas</span><b>'+disenos.length+' / '+roturaCargas.length+'</b></div>' +
-    '<div class="acerca-fila"><span>Usuarios</span><b>'+usuarios.length+'</b></div>' +
-    '<p class="nota-sm">Los datos viven en este navegador. Para no perderlos, descargá un respaldo desde <a href="#" data-goto="base-historica">Base histórica</a>.</p>';
+    '<div class="acerca-fila"><span>Usuarios</span><b>'+usuarios.length+'</b></div>';
 }
 document.getElementById('cta-guardar').addEventListener('click', function(){
   var u = usuarioActual;

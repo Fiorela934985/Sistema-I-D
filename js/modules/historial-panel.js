@@ -50,7 +50,7 @@ function renderHistorialTabla(){
       return '<tr><td class="mono">'+fechaHora(h.ts)+'</td><td><b>'+esc(h.usuario)+'</b></td><td>'+esc(rolLabel(h.rol)||'-')+'</td>' +
         '<td><span class="tag-pill '+(COLOR_ACCION[h.accion]||'tag-gris')+'">'+esc(h.accion)+'</span></td><td>'+esc(h.entidad)+'</td><td>'+esc(h.detalle)+'</td>' +
         '<td>'+(h.proyecto ? '<a href="#" data-his-proy="'+esc(h.proyecto)+'">'+esc(h.proyecto)+'</a>' : '-')+'</td></tr>';
-    }).join('') : '<tr><td colspan="7" class="empty-note">Sin movimientos con este filtro. Las acciones nuevas se registran automáticamente.</td></tr>') + '</tbody>';
+    }).join('') : '<tr><td colspan="7" class="empty-note">Sin movimientos con este filtro.</td></tr>') + '</tbody>';
   document.getElementById('his-paginacion').innerHTML = lista.length > HIS_POR_PAGINA
     ? '<button class="btn-ghost" data-his-pag="-1"'+(hisPagina===0?' disabled':'')+'>‹ Anterior</button><span>Página '+(hisPagina+1)+' de '+paginas+' · '+lista.length+' movimientos</span><button class="btn-ghost" data-his-pag="1"'+(hisPagina>=paginas-1?' disabled':'')+'>Siguiente ›</button>'
     : '<span>'+lista.length+' movimientos</span>';

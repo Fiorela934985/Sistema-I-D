@@ -270,7 +270,7 @@ if(typeof Chart === 'undefined'){
     <!-- COMPONENTES -->
     <section id="panel-componentes" class="panel">
       <div class="content-header">
-        <div><h2 id="comp-title">Registro</h2><p>Materiales y proyectos que alimentan la calculadora de diseños.</p></div>
+        <div><h2 id="comp-title">Registro</h2></div>
         <span class="badge-pill" id="comp-count">0 registros</span>
       </div>
 
@@ -321,7 +321,7 @@ if(typeof Chart === 'undefined'){
     <!-- DISEÑOS -->
     <section id="panel-disenos" class="panel">
       <div class="content-header">
-        <div><h2>Diseños</h2><p>Calculá la dosificación (formato D-CC-F-148) o consultá el histórico de diseños.</p></div>
+        <div><h2>Diseños</h2></div>
         <span class="badge-pill" id="disenos-count">0 registros</span>
       </div>
 
@@ -589,7 +589,7 @@ if(typeof Chart === 'undefined'){
     <!-- ============ ROTURAS ============ -->
     <section id="panel-roturas" class="panel">
       <div class="content-header">
-        <div><h2>Roturas</h2><p>Programación y registro de cargas según NTP 339.034, con tolerancia por edad.</p></div>
+        <div><h2>Roturas</h2></div>
         <span class="badge-pill" id="roturas-count">0 registros</span>
       </div>
 
@@ -698,7 +698,7 @@ if(typeof Chart === 'undefined'){
     <!-- REPORTE RR -->
     <section id="panel-reporte-rr" class="panel">
       <div class="content-header">
-        <div><h2>Reporte RR</h2><p>Resumen de resultados de mezclas de prueba: comparativo de diseños, edades y gráficos.</p></div>
+        <div><h2>Reporte RR</h2></div>
         <div style="display:flex;gap:10px;align-items:center;">
           <span class="badge-pill" id="rr-count">0 estudios</span>
           <button class="btn-add" id="btn-generar-rr" data-perm="rr:editar">Generar Reporte RR</button>
@@ -745,7 +745,7 @@ if(typeof Chart === 'undefined'){
     <!-- ARCHIVADOR -->
     <section id="panel-archivador" class="panel">
       <div class="content-header">
-        <div><h2>Archivador</h2><p>Diseños completados, organizados por proyecto, con su informe listo para consultar o imprimir.</p></div>
+        <div><h2>Archivador</h2></div>
         <span class="badge-pill" id="archivador-count">0 diseños completados</span>
       </div>
       <div id="archivador-carpetas"></div>
@@ -755,7 +755,7 @@ if(typeof Chart === 'undefined'){
     <!-- REPORTES -->
     <section id="panel-reportes" class="panel">
       <div class="content-header">
-        <div><h2>Dashboard y KPIs</h2><p>Reporte completo del laboratorio: avance, calidad de resultados y cumplimiento.</p></div>
+        <div><h2>Dashboard y KPIs</h2></div>
         <div style="display:flex;gap:10px;align-items:center;flex-wrap:wrap;">
           <button class="btn-add ghost" id="dash-excel" data-perm="datos:exportar">Excel</button>
           <button class="btn-add" id="dash-pdf">Descargar reporte PDF</button>
@@ -835,7 +835,7 @@ if(typeof Chart === 'undefined'){
     <section id="panel-proyectos" class="panel">
       <div id="proy-vista-principal">
         <div class="content-header">
-          <div><h2>Proyectos</h2><p>Cada proyecto tiene su expediente: iteraciones, diseños, resultados, evidencias y reportes.</p></div>
+          <div><h2>Proyectos</h2></div>
           <div class="ch-actions">
             <div class="view-toggle" id="proy-vista-toggle">
               <button class="view-toggle-btn active" data-vista="lista">Proyectos</button>
@@ -871,7 +871,6 @@ if(typeof Chart === 'undefined'){
               <h4>Radar de proyectos <span class="chart-sub">(0–100 en cada eje)</span></h4>
               <div class="radar-picker" id="radar-picker"></div>
               <div class="radar-wrap"><canvas id="chart-radar-proyectos"></canvas></div>
-              <p class="nota-sm">Ejes: <b>Avance</b> (diseños completados), <b>Roturas</b> (cargas registradas), <b>Puntualidad</b> (roturas no vencidas), <b>Resistencia</b> (máxima alcanzada vs. el mejor proyecto), <b>Actividad</b> (diseños en los últimos 30 días) y <b>Costo</b> (CVD más bajo = mejor).</p>
             </div>
             <div class="chart-card">
               <h4>Seguimiento de proyectos</h4>
@@ -887,7 +886,7 @@ if(typeof Chart === 'undefined'){
     <!-- ============ CALENDARIO DE ROTURAS ============ -->
     <section id="panel-calendario" class="panel">
       <div class="content-header">
-        <div><h2>Calendario de roturas</h2><p>Roturas programadas, por edad de ensayo.</p></div>
+        <div><h2>Calendario de roturas</h2></div>
         <div class="ch-actions">
           <select id="cal-proyecto"><option value="">Todos los proyectos</option></select>
           <select id="cal-tipo"><option value="">Probetas y cubos</option><option value="Probetas">Solo probetas</option><option value="Cubos">Solo cubos</option></select>
@@ -921,7 +920,7 @@ if(typeof Chart === 'undefined'){
     <!-- ============ BASE HISTÓRICA ============ -->
     <section id="panel-base-historica" class="panel">
       <div class="content-header">
-        <div><h2>Base histórica</h2><p>Todos los resultados unidos a los parámetros de su diseño: una fila por réplica y edad. Es la fuente para reportes, comparaciones y predicción.</p></div>
+        <div><h2>Base histórica</h2></div>
         <div class="ch-actions">
           <button class="btn-add ghost" id="bh-export-csv">CSV (Colab / XGBoost)</button>
           <button class="btn-add" id="bh-export-xlsx">Exportar Excel</button>
@@ -940,7 +939,7 @@ if(typeof Chart === 'undefined'){
       </div>
       <div class="card" data-perm="datos:respaldo">
         <div class="section-num">Respaldo y restauración</div>
-        <p class="nota-sm">Los datos viven en este navegador. Descargá un respaldo periódicamente; con él podés restaurar todo en otro equipo. Las fotos de evidencia no se incluyen en el respaldo.</p>
+        <p class="nota-sm">Las fotos de evidencia no se incluyen en el respaldo.</p>
         <div class="form-actions" style="margin-top:12px;">
           <button class="btn-add" id="bh-respaldo-descargar">Descargar respaldo completo (.json)</button>
           <label class="btn-add ghost" for="bh-respaldo-archivo" style="cursor:pointer;">Restaurar desde archivo…</label>
@@ -954,10 +953,10 @@ if(typeof Chart === 'undefined'){
     <!-- ============ PREDICCIÓN ============ -->
     <section id="panel-prediccion" class="panel">
       <div class="content-header">
-        <div><h2>Predicción</h2><p>Modelos que aprenden de la base histórica para anticipar resultados antes de romper.</p></div>
+        <div><h2>Predicción</h2></div>
         <div class="roturas-subtabs" id="pred-tabs" style="margin-bottom:0;border-bottom:none;">
-          <button class="subtab active" data-predtab="madurez">Curva de madurez</button>
-          <button class="subtab" data-predtab="simulador">Simulador de diseño</button>
+          <button class="subtab active" data-predtab="madurez">Proyección</button>
+          <button class="subtab" data-predtab="simulador">Simulador</button>
           <button class="subtab" data-predtab="modelo">Modelo y precisión</button>
         </div>
       </div>
@@ -965,15 +964,14 @@ if(typeof Chart === 'undefined'){
       <div id="pred-madurez">
         <div class="pred-layout">
           <div class="card">
-            <div class="section-num">Proyección a 28 días desde edades tempranas</div>
-            <p class="nota-sm">Ajusta f(t) = a + b·ln(t) con las roturas ya registradas del diseño y proyecta la resistencia a 28, 56 y 90 días.</p>
+            <div class="section-num">Proyección de un diseño</div>
             <div class="pp-field" style="margin-top:10px;"><label>Diseño</label><select id="pred-diseno"></select></div>
             <div id="pred-madurez-resultado"></div>
           </div>
-          <div class="chart-card"><h4>Resistencia vs. edad <span class="chart-sub">(puntos medidos y curva ajustada)</span></h4><div class="dash-chart-wrap"><canvas id="chart-pred-madurez"></canvas></div></div>
+          <div class="chart-card"><h4>Resistencia vs. edad</h4><div class="dash-chart-wrap"><canvas id="chart-pred-madurez"></canvas></div></div>
         </div>
         <div class="card" style="margin-top:18px;">
-          <div class="section-num">Diseños en curso — 28 días proyectados</div>
+          <div class="section-num">Diseños sin resultado a 28 días</div>
           <div class="table-scroll"><table class="data-table" id="pred-tabla-encurso"></table></div>
         </div>
       </div>
@@ -995,10 +993,7 @@ if(typeof Chart === 'undefined'){
             <div id="sim-resultado"></div>
             <div id="sim-modelo-info"></div>
           </div>
-          <div class="chart-card"><h4>Curva estimada <span class="chart-sub">(1 a 90 días)</span></h4><div class="dash-chart-wrap"><canvas id="chart-pred-sim"></canvas></div></div>
-        </div>
-        <div class="nota-box">
-          <b>Cómo funciona:</b> el simulador usa el modelo entrenado con la base histórica real (sin diseños de demostración). En <a href="#" data-predtab-ir="modelo">Modelo y precisión</a> ves cuánto se equivoca con diseños que no vio, qué variables pesan más y el seguimiento de cada predicción contra el resultado real.
+          <div class="chart-card"><h4>Curva estimada</h4><div class="dash-chart-wrap"><canvas id="chart-pred-sim"></canvas></div></div>
         </div>
       </div>
     </section>
@@ -1006,7 +1001,7 @@ if(typeof Chart === 'undefined'){
     <!-- ============ ASISTENTE I+D ============ -->
     <section id="panel-asistente" class="panel">
       <div class="content-header">
-        <div><h2>Asistente I+D</h2><p>Preguntá en lenguaje natural sobre proyectos, diseños, roturas y resultados registrados.</p></div>
+        <div><h2>Asistente I+D</h2></div>
         <div class="ch-actions">
           <span class="chat-modo" id="chat-modo">Motor local</span>
           <button class="btn-add ghost" id="chat-nueva">Nueva conversación</button>
@@ -1026,7 +1021,7 @@ if(typeof Chart === 'undefined'){
     <!-- ============ USUARIOS Y ROLES ============ -->
     <section id="panel-usuarios" class="panel">
       <div class="content-header">
-        <div><h2>Usuarios y roles</h2><p>Perfiles de acceso según el rol: Administrador, Jefatura y Técnico.</p></div>
+        <div><h2>Usuarios y roles</h2></div>
         <button class="btn-add" id="usr-nuevo">+ Nuevo usuario</button>
       </div>
       <div class="card table-scroll"><table class="data-table" id="usr-tabla"></table></div>
@@ -1039,7 +1034,7 @@ if(typeof Chart === 'undefined'){
     <!-- ============ HISTORIAL ============ -->
     <section id="panel-historial" class="panel">
       <div class="content-header">
-        <div><h2>Historial</h2><p>Movimientos del sistema: quién hizo qué y cuándo.</p></div>
+        <div><h2>Historial</h2></div>
         <button class="btn-add ghost" id="his-exportar">Exportar Excel</button>
       </div>
       <div class="kpi-grid" id="his-kpis"></div>
@@ -1058,13 +1053,13 @@ if(typeof Chart === 'undefined'){
 
     <!-- AJUSTES -->
     <section id="panel-ajustes" class="panel">
-      <div class="content-header"><div><h2>Ajustes</h2><p>Preferencias de este equipo y de tu cuenta.</p></div></div>
+      <div class="content-header"><div><h2>Ajustes</h2></div></div>
       <div class="ajustes-grid">
         <div class="card">
           <div class="section-num">Preferencias</div>
           <div class="settings-list">
-            <div class="setting-row"><div><h4>Modo oscuro</h4><p>Cambia la apariencia de la interfaz.</p></div><label class="switch"><input type="checkbox" id="set-darkmode"><span class="slider"></span></label></div>
-            <div class="setting-row"><div><h4>Notificaciones de roturas</h4><p>Aviso en la campana cuando hay roturas para hoy.</p></div><label class="switch"><input type="checkbox" id="set-notif" checked><span class="slider"></span></label></div>
+            <div class="setting-row"><div><h4>Modo oscuro</h4></div><label class="switch"><input type="checkbox" id="set-darkmode"><span class="slider"></span></label></div>
+            <div class="setting-row"><div><h4>Notificaciones de roturas</h4></div><label class="switch"><input type="checkbox" id="set-notif" checked><span class="slider"></span></label></div>
           </div>
         </div>
         <div class="card">
@@ -1079,9 +1074,9 @@ if(typeof Chart === 'undefined'){
         </div>
         <div class="card" data-perm="ver:usuarios">
           <div class="section-num">Asistente con IA (Claude)</div>
-          <p class="nota-sm">Con una clave de la API de Anthropic, el Asistente I+D responde con Claude consultando los datos del sistema (diseños, roturas, proyectos, predicciones). La clave queda guardada solo en este navegador. Cada consulta tiene un costo según el uso de la API.</p>
+          <p class="nota-sm">La clave queda guardada solo en este navegador.</p>
           <div class="pp-field" style="margin-top:10px;"><label>Clave de API</label><input type="password" id="ia-clave" placeholder="sk-ant-…" autocomplete="off"></div>
-          <div class="setting-row" style="padding:10px 0;"><div><h4>Usar el agente con IA</h4><p>Si se apaga, el asistente usa el motor local.</p></div><label class="switch"><input type="checkbox" id="ia-activo" checked><span class="slider"></span></label></div>
+          <div class="setting-row" style="padding:10px 0;"><div><h4>Usar el agente con IA</h4></div><label class="switch"><input type="checkbox" id="ia-activo" checked><span class="slider"></span></label></div>
           <div class="form-actions" style="margin-top:6px;">
             <button class="btn-add" id="ia-guardar">Guardar</button>
             <button class="btn-add ghost" id="ia-probar">Probar conexión</button>
@@ -1265,7 +1260,6 @@ if(typeof Chart === 'undefined'){
       <svg viewBox="0 0 24 24" width="26" height="26" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="6 9 6 2 18 2 18 9"/><path d="M6 18H4a2 2 0 0 1-2-2v-5a2 2 0 0 1 2-2h16a2 2 0 0 1 2 2v5a2 2 0 0 1-2 2h-2"/><rect x="6" y="14" width="12" height="8"/></svg>
     </div>
     <h3>¿Desea imprimir el diseño?</h3>
-    <p>Se abrirá el formato completo (diseño + resultados) listo para imprimir.</p>
     <div class="confirm-actions">
       <button class="btn-ghost" id="print-confirm-no">Ahora no</button>
       <button class="btn-add" id="print-confirm-yes">Sí, imprimir</button>
@@ -1335,7 +1329,7 @@ if(typeof Chart === 'undefined'){
     </div>
     <h3>¿Desea duplicar el diseño?</h3>
     <p id="confirm-modal-name"></p>
-    <p class="mono" style="font-size:.76rem;color:var(--text-muted);margin-top:8px;">⚠ Vas a entrar a la calculadora con estos mismos datos. Como el nombre técnico se arma solo, tenés que cambiar algún dato de la fórmula (f'c, a/mc, cemento, piedra) o agregar algo al final para que el nombre no se repita.</p>
+    <p class="mono" style="font-size:.76rem;color:var(--text-muted);margin-top:8px;">Cambiá algún dato (f'c, a/mc, cemento, piedra) para que el nombre no se repita.</p>
     <div class="confirm-actions">
       <button class="btn-ghost" id="confirm-cancel">Cancelar</button>
       <button class="btn-add" id="confirm-accept">Sí, duplicar</button>
@@ -1444,6 +1438,7 @@ if(typeof Chart === 'undefined'){
 <script src="js/modules/disenos/disenos.js"></script>
 <script src="js/modules/disenos/vista.js"></script>
 <script src="js/modules/disenos/resultados.js"></script>
+<script src="js/modules/disenos/avisos-fresco.js"></script>
 <script src="js/modules/disenos/informe.js"></script>
 <script src="js/modules/disenos/calculadora.js"></script>
 <script src="js/modules/archivador.js"></script>
