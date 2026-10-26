@@ -54,4 +54,42 @@ document.getElementById('cta-guardar').addEventListener('click', function(){
   registrarHistorial('Editó', 'Usuario', u.usuario + ' · cambió su contraseña');
   toast('Contraseña actualizada');
 });
-PANEL_HOOKS.ajustes = function(){ renderAjustes(); };
+/* ---- Asistente con IA ---- */
+function renderAjustesIA(){
+  document.getElementById('ia-clave').value = '';
+  document.getElementById('ia-clave').placeholder = agenteCfg.apiKey ? 'Clave guardada (…' + agenteCfg.apiKey.slice(-4) + ')' : 'sk-ant-…';
+  document.getElementById('ia-activo').checked = agenteCfg.activo !== false;
+  document.getElementById('ia-estado').textContent = agenteCfg.apiKey ? ('Modelo: ' + AGENTE_MODELO + '. Estado: ' + (agenteCfg.activo !== false ? 'activo.' : 'apagado (se usa el motor local).')) : 'Sin clave: el asistente usa el motor local.';
+}
+document.getElementById('ia-guardar').addEventListener('click', function(){
+  var k = document.getElementById('ia-clave').value.trim();
+  if(k && !/^sk-ant-/.test(k)){ toast('La clave debe empezar con sk-ant-'); return; }
+  if(k) agenteCfg.apiKey = k;
+  agenteCfg.activo = document.getElementById('ia-activo').checked;
+  saveAgenteCfg();
+  nuevaConversacionAgente();
+  registrarHistorial('Editó', 'Ajustes', 'Asistente con IA ' + (agenteCfg.activo ? 'activado' : 'desactivado') + (k ? ' · clave actualizada' : ''));
+  renderAjustesIA();
+  toast('Configuración del asistente guardada');
+});
+document.getElementById('ia-quitar').addEventListener('click', function(){
+  if(!agenteCfg.apiKey) return;
+  if(!confirm('¿Quitar la clave de API de este navegador?')) return;
+  agenteCfg.apiKey = '';
+  saveAgenteCfg();
+  nuevaConversacionAgente();
+  registrarHistorial('Editó', 'Ajustes', 'Clave del asistente con IA eliminada');
+  renderAjustesIA();
+  toast('Clave eliminada');
+});
+document.getElementById('ia-probar').addEventListener('click', function(){
+  var estado = document.getElementById('ia-estado');
+  if(!agenteCfg.apiKey){ toast('Primero guardá una clave'); return; }
+  estado.textContent = 'Probando la conexión…';
+  cargarSdkAnthropic().then(function(Anthropic){
+    return clienteAnthropic(Anthropic).models.retrieve(AGENTE_MODELO).then(function(m){
+      estado.textContent = 'Conexión correcta: ' + (m.display_name || m.id) + ' disponible.';
+    }, function(err){ estado.textContent = traducirErrorAgente(err, Anthropic).message; });
+  }).catch(function(){ estado.textContent = 'No se pudo cargar la librería de Anthropic (¿sin internet?).'; });
+});
+PANEL_HOOKS.ajustes = function(){ renderAjustes(); if(can('ver:usuarios')) renderAjustesIA(); };

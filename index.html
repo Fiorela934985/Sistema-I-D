@@ -953,6 +953,7 @@ if(typeof Chart === 'undefined'){
         <div class="roturas-subtabs" id="pred-tabs" style="margin-bottom:0;border-bottom:none;">
           <button class="subtab active" data-predtab="madurez">Curva de madurez</button>
           <button class="subtab" data-predtab="simulador">Simulador de diseño</button>
+          <button class="subtab" data-predtab="modelo">Modelo y precisión</button>
         </div>
       </div>
 
@@ -972,6 +973,8 @@ if(typeof Chart === 'undefined'){
         </div>
       </div>
 
+      <div id="pred-modelo" style="display:none;"><div id="pred-modelo-contenido"></div></div>
+
       <div id="pred-simulador" style="display:none;">
         <div class="pred-layout">
           <div class="card">
@@ -980,7 +983,8 @@ if(typeof Chart === 'undefined'){
               <div class="pp-field"><label>Relación a/mc</label><input type="number" id="sim-amc" step="0.01" value="0.55"></div>
               <div class="pp-field"><label>Tipo de cemento</label><select id="sim-cemento"><option value="I">Tipo I</option><option value="HE">HE</option></select></div>
               <div class="pp-field"><label>Cemento (kg/m³)</label><input type="number" id="sim-cemento-kg" value="350"></div>
-              <div class="pp-field"><label>Con ceniza volante (Fly Ash)</label><select id="sim-flyash"><option value="0">No</option><option value="1">Sí</option></select></div>
+              <div class="pp-field"><label>Fly Ash (% del cementante)</label><input type="number" id="sim-flyash" step="1" min="0" max="60" value="0"></div>
+              <div class="pp-field"><label>Aditivo (% del cementante)</label><input type="number" id="sim-aditivo" step="0.1" min="0" max="5" value="1"></div>
               <div class="pp-field"><label>Edad (días)</label><input type="number" id="sim-edad" value="28"></div>
             </div>
             <div id="sim-resultado"></div>
@@ -989,7 +993,7 @@ if(typeof Chart === 'undefined'){
           <div class="chart-card"><h4>Curva estimada <span class="chart-sub">(1 a 90 días)</span></h4><div class="dash-chart-wrap"><canvas id="chart-pred-sim"></canvas></div></div>
         </div>
         <div class="nota-box">
-          <b>Sobre XGBoost:</b> este simulador usa una regresión lineal regularizada que corre en el navegador. Para entrenar un modelo XGBoost, exportá el dataset desde <i>Base histórica → CSV</i> y abrilo en Google Colab; las columnas ya vienen listas como variables de entrada y la resistencia como objetivo.
+          <b>Cómo funciona:</b> el simulador usa el modelo entrenado con la base histórica real (sin diseños de demostración). En <a href="#" data-predtab-ir="modelo">Modelo y precisión</a> ves cuánto se equivoca con diseños que no vio, qué variables pesan más y el seguimiento de cada predicción contra el resultado real.
         </div>
       </div>
     </section>
@@ -998,6 +1002,10 @@ if(typeof Chart === 'undefined'){
     <section id="panel-asistente" class="panel">
       <div class="content-header">
         <div><h2>Asistente I+D</h2><p>Preguntá en lenguaje natural sobre proyectos, diseños, roturas y resultados registrados.</p></div>
+        <div class="ch-actions">
+          <span class="chat-modo" id="chat-modo">Motor local</span>
+          <button class="btn-add ghost" id="chat-nueva">Nueva conversación</button>
+        </div>
       </div>
       <div class="chat-card card">
         <div class="chat-log" id="chat-log"></div>
@@ -1006,7 +1014,7 @@ if(typeof Chart === 'undefined'){
           <input type="text" id="chat-input" placeholder="Ej. ¿Qué roturas tengo esta semana?">
           <button class="btn-add" type="submit">Enviar</button>
         </form>
-        <p class="nota-sm">El asistente responde con los datos guardados en este navegador (búsqueda local, sin enviar información a internet).</p>
+        <p class="nota-sm" id="chat-nota"></p>
       </div>
     </section>
 
@@ -1063,6 +1071,18 @@ if(typeof Chart === 'undefined'){
             <div class="pp-field"><label>Repetir nueva</label><input type="password" id="cta-repetir" autocomplete="new-password"></div>
           </div>
           <div class="form-actions" style="margin-top:12px;"><button class="btn-add" id="cta-guardar">Cambiar contraseña</button></div>
+        </div>
+        <div class="card" data-perm="ver:usuarios">
+          <div class="section-num">Asistente con IA (Claude)</div>
+          <p class="nota-sm">Con una clave de la API de Anthropic, el Asistente I+D responde con Claude consultando los datos del sistema (diseños, roturas, proyectos, predicciones). La clave queda guardada solo en este navegador. Cada consulta tiene un costo según el uso de la API.</p>
+          <div class="pp-field" style="margin-top:10px;"><label>Clave de API</label><input type="password" id="ia-clave" placeholder="sk-ant-…" autocomplete="off"></div>
+          <div class="setting-row" style="padding:10px 0;"><div><h4>Usar el agente con IA</h4><p>Si se apaga, el asistente usa el motor local.</p></div><label class="switch"><input type="checkbox" id="ia-activo" checked><span class="slider"></span></label></div>
+          <div class="form-actions" style="margin-top:6px;">
+            <button class="btn-add" id="ia-guardar">Guardar</button>
+            <button class="btn-add ghost" id="ia-probar">Probar conexión</button>
+            <button class="btn-add ghost" id="ia-quitar">Quitar clave</button>
+          </div>
+          <p class="nota-sm" id="ia-estado" style="margin-top:8px;"></p>
         </div>
         <div class="card">
           <div class="section-num">Acerca del sistema</div>
@@ -1424,12 +1444,14 @@ if(typeof Chart === 'undefined'){
 <script src="js/modules/archivador.js"></script>
 <script src="js/modules/reporte-rr.js"></script>
 <script src="js/core/analitica.js"></script>
+<script src="js/core/ml.js"></script>
 <script src="js/modules/proyectos-panel.js"></script>
 <script src="js/modules/calendario.js"></script>
 <script src="js/modules/etiquetas.js"></script>
 <script src="js/modules/base-historica.js"></script>
 <script src="js/modules/prediccion.js"></script>
 <script src="js/modules/asistente.js"></script>
+<script src="js/modules/agente.js"></script>
 <script src="js/modules/buscador.js"></script>
 <script src="js/modules/usuarios.js"></script>
 <script src="js/modules/historial-panel.js"></script>

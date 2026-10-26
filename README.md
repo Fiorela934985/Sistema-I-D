@@ -20,8 +20,8 @@ Es una aplicación **100 % estática** (HTML + CSS + JavaScript, sin servidor). 
 | Resultados | **Reporte RR** | Estudios comparativos con visor (zoom − +), gráficos y exportación a Excel |
 | | **Archivador** | Diseños completados por proyecto |
 | | **Base histórica** | Dataset réplica × edad unido a los parámetros del diseño; Excel, CSV para Colab/XGBoost, respaldo y restauración |
-| Inteligencia | **Predicción** | Curva de madurez por diseño (proyección a 28/56/90 d) y simulador entrenado con la base histórica |
-| | **Asistente I+D** | Preguntas en lenguaje natural respondidas con los datos registrados (sin enviar nada a internet) |
+| Inteligencia | **Predicción** | Modelo entrenado con la base histórica real (gradient boosting y ridge, validados dejando un diseño afuera; se activa el más preciso), simulador de diseños nuevos, curva de madurez con prueba retrospectiva y seguimiento de cada predicción contra el resultado real |
+| | **Asistente I+D** | Agente con Claude (`claude-opus-5-5`) que responde consultando los datos con 14 herramientas; sin clave o sin internet usa el motor local |
 | Administración | **Usuarios y roles** | Alta/edición de usuarios y matriz de funciones por rol (editable) |
 | | **Historial** | Quién hizo qué y cuándo, con filtros y exportación |
 | | **Ajustes** | Modo oscuro, notificaciones, cambio de contraseña |
@@ -49,6 +49,7 @@ js/core/
   utils.js                      Almacenamiento, formato, fechas, modales, exportación
   auth.js                       Usuarios, roles, permisos y sesión (contraseñas con SHA-256 + sal)
   historial.js                  Registro de movimientos (auditoría)
+  ml.js                         Modelos de predicción, validación y seguimiento de predicciones
   icons.js                      Íconos e imágenes institucionales
   shell.js                      Tema, pantalla de carga y navegación
   analitica.js                  Métricas compartidas por proyecto/diseño y base histórica
@@ -79,4 +80,5 @@ Cada `push` a `main` publica el sitio en GitHub Pages (Settings → Pages → So
 ## Importante
 
 - **Los datos viven en cada navegador.** Cada equipo tiene su propia información y los usuarios/roles son locales a ese navegador. Descargá respaldos desde *Base histórica*. Para que todo el equipo comparta la misma base y los permisos sean seguros, el siguiente paso es conectar un backend (por ejemplo Supabase o Firebase).
-- **XGBoost:** el simulador corre una regresión en el navegador. Para XGBoost, exportá el CSV desde *Base histórica* y entrenalo en Google Colab.
+- **Predicción:** el error que muestra el panel *Modelo y precisión* se mide prediciendo cada diseño con un modelo que no lo vio (validación dejando un diseño afuera). Los diseños de demostración no se usan para entrenar.
+- **Agente con IA:** se configura en *Ajustes → Asistente con IA* con una clave de la API de Anthropic (solo administración). La clave queda en ese navegador y las consultas, con los datos que el agente lee, se envían a Anthropic. Cada consulta tiene costo según el uso.

@@ -205,3 +205,25 @@ html[data-theme="dark"] .tb-search kbd{background:var(--surface);}
 /* Botón Actualizar del dashboard */
 #dash-actualizar svg{transition:transform .6s var(--ease);}
 #dash-actualizar.girando svg{transform:rotate(360deg);}
+
+/* ================= ASISTENTE / AGENTE IA ================= */
+.chat-modo{display:inline-flex;align-items:center;gap:7px;height:2rem;padding:0 .8rem;border-radius:999px;font-size:.76rem;font-weight:700;border:1px solid var(--line);background:var(--surface-2);color:var(--text-muted);}
+.chat-modo.ia{background:linear-gradient(120deg,var(--celeste-50),var(--verde-50));border-color:var(--celeste-100);color:var(--celeste-800);}
+html[data-theme="dark"] .chat-modo.ia{background:var(--surface-2);color:var(--celeste-300);}
+.chat-pasos{display:flex;align-items:center;gap:9px;color:var(--text-muted);font-size:.82rem;}
+.chat-spinner{width:14px;height:14px;border-radius:50%;border:2px solid var(--celeste-100);border-top-color:var(--celeste-600);animation:chatGira .8s linear infinite;flex-shrink:0;}
+@keyframes chatGira{to{transform:rotate(360deg);}}
+.chat-fuente{margin-top:8px;font-size:.7rem;color:var(--text-muted);border-top:1px dashed var(--line);padding-top:6px;}
+.chat-aviso{font-size:.8rem;color:#92400e;background:#fef3c7;border-radius:8px;padding:6px 10px;margin-bottom:6px;}
+.chat-codigo{font-family:var(--font-mono);font-size:.78rem;font-weight:600;color:var(--celeste-700);background:var(--celeste-50);border:1px solid var(--celeste-100);border-radius:6px;padding:0 5px;}
+.chat-codigo:hover{background:var(--celeste-100);}
+.chat-burbuja code{font-family:var(--font-mono);font-size:.8rem;background:var(--surface);padding:0 4px;border-radius:4px;}
+.chat-burbuja .chat-h{margin-top:6px;}
+.chat-burbuja .table-scroll{margin:6px 0;}
+
+/* ================= PREDICCIÓN ================= */
+.aviso-rango{margin-top:10px;font-size:.8rem;line-height:1.45;color:#92400e;background:#fef3c7;border:1px solid #fde3a2;border-radius:10px;padding:8px 12px;}
+html[data-theme="dark"] .aviso-rango{background:rgba(245,158,11,.14);border-color:transparent;color:#fcd34d;}
+.btn-add.btn-sm{min-height:1.9rem;font-size:.74rem;padding:0 .7rem;}
+tr.fila-activa td{background:var(--verde-50);}
+html[data-theme="dark"] tr.fila-activa td{background:rgba(46,158,87,.12);}

@@ -119,13 +119,13 @@ function responder(pregunta){
     }
     if(amcM){
       var amc = Number(String(amcM[amcM.length-1]).replace(',', '.'));
-      var mod = modeloSimulador || entrenarModeloSimulador();
-      if(mod.insuficiente) return '<p>Todavía no hay suficientes resultados para entrenar el modelo (se necesitan 8).</p>';
-      var e2 = edad || 28, he = /\bhe\b/.test(q) ? 1 : 0, fa = /fly|ceniza/.test(q) ? 1 : 0;
+      var e2 = edad || 28, he = /\bhe\b/.test(q), faM = q.match(/(\d{1,2})\s*%\s*(de\s*)?(fly|ceniza)/), fa = faM ? Number(faM[1]) : (/fly|ceniza/.test(q) ? 12 : 0);
       var cemM = q.match(/(\d{3})\s*kg/);
-      var cem = cemM ? Number(cemM[1]) : mod.cemMedio;
-      var p = predecirLineal(mod.beta, vectorCaracteristicas(amc, e2, he, cem, fa));
-      return '<p>Con a/mc <b>'+amc+'</b>, cemento <b>'+(he?'HE':'Tipo I')+'</b>'+(fa?' con fly ash':'')+' y '+Math.round(cem)+' kg/m³, el modelo estima <b>'+fmt(p,1)+' kg/cm²</b> a '+e2+' días (error medio ±'+fmt(mod.mae,1)+').</p>' +
+      var cem = cemM ? Number(cemM[1]) : 350;
+      var pr = predecirResistencia({amc: amc, cemento: he ? 'HE' : 'I', cementante: cem, flyAshPct: fa, aditivoPct: 1, edad: e2});
+      if(pr.error) return '<p>' + esc(pr.error) + '</p>';
+      return '<p>Con a/mc <b>'+amc+'</b>, cemento <b>'+(he?'HE':'Tipo I')+'</b>'+(fa?' con '+fa+' % de fly ash':'')+' y '+Math.round(cem)+' kg/m³ de cementante, el modelo ('+esc(pr.modelo.nombre)+') estima <b>'+fmt(pr.valor,1)+' kg/cm²</b> a '+e2+' días. Error esperado con diseños nuevos: ±'+fmt(pr.mae,1)+' kg/cm².</p>' +
+        (pr.fueraDeRango.length ? '<p class="nota-sm">Ojo: '+esc(pr.fueraDeRango.join('; '))+' está fuera de los datos de entrenamiento.</p>' : '') +
         '<div class="chat-acciones">'+btnAccion('Abrir simulador', 'data-goto="prediccion"')+'</div>';
     }
     return '<p>Indicame un diseño (ej. <i>DID-0023</i>) o una relación a/mc (ej. <i>a/mc 0.55 con cemento HE a 28 días</i>) para estimar.</p>';
@@ -236,16 +236,56 @@ function renderChat(){
   log.scrollTop = log.scrollHeight;
   document.getElementById('chat-sugerencias').innerHTML = SUGERENCIAS_CHAT.map(function(s){ return '<button class="chip-sug" data-sug="'+esc(s)+'">'+esc(s)+'</button>'; }).join('');
 }
+function respuestaLocal(texto){
+  try{ return responder(texto); }catch(e){ console.error(e); return '<p>Ocurrió un error al procesar la pregunta.</p>'; }
+}
 function enviarPregunta(texto){
   texto = String(texto||'').trim();
-  if(!texto) return;
+  if(!texto || agenteOcupado) return;
   chatLog.push({de:'usuario', html:esc(texto)});
-  var resp;
-  try{ resp = responder(texto); }catch(e){ console.error(e); resp = '<p>Ocurrió un error al procesar la pregunta.</p>'; }
-  chatLog.push({de:'asistente', html:resp});
   if(chatLog.length > 60) chatLog = chatLog.slice(-60);
+  if(!agenteDisponible()){
+    chatLog.push({de:'asistente', html:respuestaLocal(texto)});
+    renderChat();
+    return;
+  }
+  // Agente con Claude: burbuja de progreso mientras consulta los datos
+  var burbuja = {de:'asistente pensando', html:'<p class="chat-pasos"><span class="chat-spinner"></span> Analizando la pregunta…</p>'};
+  chatLog.push(burbuja);
+  agenteOcupado = true;
   renderChat();
+  var pasos = [];
+  preguntarAgente(texto, function(p){
+    pasos.push(p);
+    burbuja.html = '<p class="chat-pasos"><span class="chat-spinner"></span> ' + esc(p) + '</p>';
+    renderChat();
+  }).then(function(r){
+    burbuja.de = 'asistente';
+    burbuja.html = markdownAHtml(r.texto) + (pasos.length ? '<p class="chat-fuente">Consultó: ' + esc(pasos.join(' · ').replace(/…/g, '')) + '</p>' : '');
+  }).catch(function(err){
+    burbuja.de = 'asistente';
+    burbuja.html = '<p class="chat-aviso">' + esc(err.message) + (err.local ? ' Respondo con el motor local:' : '') + '</p>' + (err.local ? respuestaLocal(texto) : '');
+  }).then(function(){
+    agenteOcupado = false;
+    renderChat();
+    renderModoAsistente();
+  });
 }
+function renderModoAsistente(){
+  var ia = agenteDisponible();
+  var chip = document.getElementById('chat-modo');
+  chip.className = 'chat-modo ' + (ia ? 'ia' : 'local');
+  chip.innerHTML = ia ? '<span class="live-dot"></span> Agente IA · Claude' : 'Motor local';
+  document.getElementById('chat-nota').innerHTML = ia
+    ? 'El agente consulta los datos del sistema con herramientas y responde con Claude (' + AGENTE_MODELO + '). Las preguntas y los datos que consulta se envían a la API de Anthropic.'
+    : 'Responde con búsqueda local, sin enviar información a internet.' + (can('ver:usuarios') ? ' Para respuestas más completas, configurá el agente con IA en <a href="#" data-goto="ajustes">Ajustes</a>.' : '');
+}
+document.getElementById('chat-nueva').addEventListener('click', function(){
+  if(agenteOcupado) return;
+  nuevaConversacionAgente();
+  chatLog = [];
+  PANEL_HOOKS.asistente();
+});
 document.getElementById('chat-form').addEventListener('submit', function(e){
   e.preventDefault();
   var inp = document.getElementById('chat-input');
@@ -266,5 +306,6 @@ PANEL_HOOKS.asistente = function(){
     chatLog.push({de:'asistente', html:'<p>Hola'+(usuarioActual ? ' ' + esc((usuarioActual.nombre||usuarioActual.usuario).split(' ')[0]) : '')+' 👋 Soy el asistente del Laboratorio I+D. Preguntame sobre proyectos, diseños, roturas, resistencias o pedime que abra una sección.</p>'});
   }
   renderChat();
+  renderModoAsistente();
   setTimeout(function(){ document.getElementById('chat-input').focus(); }, 50);
 };
