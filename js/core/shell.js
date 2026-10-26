@@ -104,10 +104,6 @@ document.addEventListener('click', function(e){
   var el = e.target.closest('[data-goto]');
   if(!el) return;
   e.preventDefault();
-  var proy = el.dataset.flujoProy || '';
-  if(el.dataset.goto === 'elaboracion') elaboracionFiltroProyecto = proy;
-  if(el.dataset.goto === 'proyectos' && proy){ abrirExpediente(proy); return; }
-  if(el.dataset.goto === 'disenos' && proy){ var hf = document.getElementById('hist-proyecto-filtro'); if(hf) hf.value = proy; }
   showPanel(el.dataset.goto);
   if(el.dataset.goto === 'disenos') showSubTab(el.dataset.sub || 'historico');
   if(el.dataset.goto === 'roturas' && el.dataset.sub) showRoturasSub(el.dataset.sub);

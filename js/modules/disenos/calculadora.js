@@ -400,24 +400,27 @@ document.getElementById('dis-add').addEventListener('click', function(){
   var tipoIdxSel = document.getElementById('dis-tipo-concreto').value;
   var tipoDef = tipoIdxSel !== '' ? TIPO_CONCRETO_DEFS[Number(tipoIdxSel)] : null;
   var fc = document.getElementById('dis-fc').value.trim();
+  if(!tipoDef || !fc){ toast('Completá al menos Tipo de concreto y f\'c'); return; }
+  if(!/^\d+(\.\d+)?$/.test(fc)){ toast('f\'c debe ser un número (ej. 210)'); return; }
   var ft = document.getElementById('dis-ft').value.trim();
+  if(ft && !/^\d+(\.\d+)?$/.test(ft)){ toast('f\'t (flexión) debe ser un número'); return; }
   var edad = document.getElementById('dis-edad').value.trim();
+  if(edad && !/^\d+$/.test(edad)){ toast('Edad del f\'c debe ser un número entero (días)'); return; }
   var amc = document.getElementById('dis-amc-efectiva').value.trim();
+  if(amc && !/^\d+(\.\d+)?$/.test(amc)){ toast('a/mc efectiva debe ser un número (ej. 0.55)'); return; }
   var proyectoId = document.getElementById('pp-proyecto').value;
   var iteracionId = document.getElementById('pp-iteracion-select').value;
   if(iteracionId === '__nueva__') iteracionId = '';
+  if(!proyectoId || !iteracionId){ toast('Elegí el Proyecto y la Iteración antes de registrar el diseño'); return; }
   var colaborador = document.getElementById('dis-colaborador').value.trim();
   var responsable = document.getElementById('dis-responsable').value.trim();
-  var errores = validarDisenoFormulario({tipoDef:tipoDef, fc:fc, ft:ft, edad:edad, amc:amc, proyectoId:proyectoId, iteracionId:iteracionId, colaborador:colaborador, responsable:responsable});
-  if(errores.length){
-    abrirDialogo({titulo:'El diseño no se puede registrar', html:'<ul class="lista-errores">'+errores.map(function(e){ return '<li>'+esc(e)+'</li>'; }).join('')+'</ul>', cancelar:'Corregir', botones:[]});
-    return;
-  }
+  if(!colaborador || !responsable){ toast('Completá Colaborador y Responsable'); return; }
+  if(!/^[A-Za-zÀ-ÿ .]+$/.test(colaborador)){ toast('Colaborador solo debe tener letras (iniciales)'); return; }
+  if(!/^[A-Za-zÀ-ÿ .]+$/.test(responsable)){ toast('Responsable solo debe tener letras (nombre)'); return; }
   var nombreCandidato = refreshNombrePreview();
   if(!nombreCandidato){ toast('Completá los campos necesarios para armar el nombre del diseño'); return; }
-  // RF-DIS-05: el nombre técnico es único dentro del proyecto; si choca, se pide un sufijo.
-  var yaExiste = disenos.some(function(existing){ return existing.proyectoId === proyectoId && (existing.nombreTecnico||'').trim().toLowerCase() === nombreCandidato.trim().toLowerCase(); });
-  if(yaExiste){ toast('Ya existe un diseño con ese nombre en el proyecto — agregá o cambiá el sufijo'); document.getElementById('hoja-nombre-editar-wrap').style.display = 'block'; document.getElementById('dis-sufijo').focus(); return; }
+  var yaExiste = disenos.some(function(existing){ return (existing.nombreTecnico||'').trim().toLowerCase() === nombreCandidato.trim().toLowerCase(); });
+  if(yaExiste){ toast('Ya existe un diseño con ese nombre — ajustá el sufijo u otro campo'); return; }
   var totals = renderMezclaDisplay();
   var fechaISO = document.getElementById('dis-fecha-mezcla').value || todayISO();
   var fecha = isoToDMY(fechaISO);
@@ -465,11 +468,6 @@ document.getElementById('dis-add').addEventListener('click', function(){
     mix: mixSnapshot,
     componentesAdicionales: componentesAdicionales.slice(),
     cvdTotal: Number(totals.cvd.toFixed(2)),
-    batchVol: n(document.getElementById('dis-batch-vol').value) || 30,
-    version: 1, versiones: [],
-    tipoEnsayo: 'Compresión en probetas',
-    normasAplicadas: ['NTP 339.034', 'NTP 339.183'],
-    creadoPor: usuarioActual ? usuarioActual.id : '',
     estado: 'Iniciado',
     replicas: 2,
     diasRotura: [1,3,7,28],
@@ -480,7 +478,6 @@ document.getElementById('dis-add').addEventListener('click', function(){
   };
   disenos.push(d);
   save('sid10_disenos', disenos);
-  actualizarEstadoAutomatico(proyectoNombre(d.proyectoId));   // 5.4: Planificado → En curso con el primer diseño
   registrarHistorial('Creó', 'Diseño', d.codigo + ' · ' + d.nombreTecnico + ' · ' + proyectoNombre(d.proyectoId) + ' / ' + d.iteracionId, {proyecto: proyectoNombre(d.proyectoId), ref: d.codigo});
   resetCalcForm();
   renderAllDesignViews();
@@ -519,24 +516,28 @@ function askReplicasThenPrint(d){
     d.diasRotura = diasElegidos;
     d.replicas = cantidadElegida;
     d.tipoRotura = tipoElegido;
-    // RF-DIS-08: se crean R1…Rn "Por elaborar". Las roturas (ID-XXXX) nacen al guardar la elaboración (8.3).
     d.replicaObjs = [];
-    for(var i=1;i<=cantidadElegida;i++){ d.replicaObjs.push({n:i, nombre:diseñoTitulo(d)+'-R'+i, codigo:'', version:d.version || 1}); }
+    for(var i=1;i<=cantidadElegida;i++){ d.replicaObjs.push({n:i, nombre:diseñoTitulo(d)+'-R'+i, codigo:''}); }
+    var creados = crearCargasParaDiseno(d, 'automatico'); // ya deja el código correcto (uno por réplica) en cada rep.codigo
     save('sid10_disenos', disenos);
-    registrarHistorial('Registró', 'Diseño', d.codigo + ': ' + cantidadElegida + ' réplicas Por elaborar · ' + (tipoElegido==='Cubos'?'cubos':'probetas') + ' · edades ' + diasElegidos.join(', ') + ' d', {proyecto: proyectoNombre(d.proyectoId), ref: d.codigo});
+    registrarHistorial('Registró', 'Rotura', creados.length + ' roturas programadas para ' + d.codigo + ' (' + cantidadElegida + ' réplicas · días ' + diasElegidos.join(', ') + ')', {proyecto: proyectoNombre(d.proyectoId), ref: d.codigo});
     document.getElementById('replicas-modal').classList.remove('show');
     renderAllDesignViews();
+    renderRoturasAll();
     document.getElementById('roturas-auto-modal-text').innerHTML =
-      '<div class="rac-summary">Diseño <b>'+esc(d.codigo)+'</b> registrado con '+cantidadElegida+' réplica(s) en <b>Por elaborar</b> ('+(tipoElegido==='Cubos'?'cubos':'probetas')+', edades '+diasElegidos.join(', ')+' d).</div>' +
-      '<p class="nota-sm">Siguiente paso: <b>3 · Elaboración</b>. Programá cada réplica con su técnico y fecha; al guardar la elaboración se generan sus roturas con código ID, las etiquetas QR y el egreso de inventario.</p>' +
-      d.replicaObjs.map(function(rep){ return '<div class="rac-replica-block"><b>'+esc(rep.nombre)+'</b> '+estadosReplicaHtml('Por elaborar')+'</div>'; }).join('');
+      '<div class="rac-summary">'+creados.length+' registros creados en Roturas ('+(tipoElegido==='Cubos'?'Cubos':'Probetas')+') — '+d.diasRotura.length+' día(s) × '+cantidadElegida+' réplica(s), un código por réplica</div>' +
+      d.replicaObjs.map(function(rep){
+        var suyos = creados.filter(function(c){ return c.replicaNombre === rep.nombre; }).sort(function(a,b){ return a.dia-b.dia; });
+        return '<div class="rac-replica-block"><b>'+esc(rep.nombre)+' <span class="rac-code">'+rep.codigo+'</span></b>' +
+          '<div class="rac-dia-chips">' + suyos.map(function(c){ return '<span class="rac-dia-chip">Día '+c.dia+'</span>'; }).join('') + '</div>' +
+        '</div>';
+      }).join('');
     document.getElementById('roturas-auto-modal').classList.add('show');
   }
   document.getElementById('replicas-modal-confirm').onclick = function(){
     var v = Number(document.getElementById('replicas-modal-input').value) || 2;
     var tipo = document.getElementById('replicas-modal-tipo').value;
-    if(v < 1 || v > 5 || v !== Math.floor(v)){ toast('El número de réplicas va de 1 a 5'); return; }   // RF-DIS-07
-    irAPasoDias(v, tipo);
+    irAPasoDias(Math.min(6, Math.max(1, v)), tipo);
   };
   document.getElementById('replicas-dias-atras').onclick = function(){
     document.getElementById('replicas-modal-step1').style.display = 'block';
@@ -557,8 +558,8 @@ function askReplicasThenPrint(d){
   };
   document.getElementById('roturas-auto-modal-go').onclick = function(){
     document.getElementById('roturas-auto-modal').classList.remove('show');
-    showPanel('elaboracion');
-    showElaboracionSub('programar');
+    showPanel('roturas');
+    showRoturasSub('pendientes');
   };
   document.getElementById('print-confirm-no').onclick = function(){
     document.getElementById('print-confirm-modal').classList.remove('show');
@@ -569,45 +570,4 @@ function askReplicasThenPrint(d){
     openDesignModal(d);
     setTimeout(function(){ window.print(); }, 300);
   };
-}
-
-/* ---- Validaciones del diseño al guardar (RF-DIS-01/03/09/10, regla de bloqueo 1) ---- */
-function validarDisenoFormulario(f){
-  var e = [];
-  var v = function(id){ var el = document.getElementById(id); return el ? el.value.trim() : ''; };
-  if(!f.proyectoId || !f.iteracionId) e.push('Elegí el proyecto y la iteración.');
-  else if(!proyectoAdmiteDisenos(f.proyectoId)) e.push('El proyecto está ' + (proyectoPorNombre(f.proyectoId) || {}).estado + ': no admite diseños nuevos.');
-  if(f.proyectoId && f.iteracionId && iteracionCerrada(f.proyectoId, f.iteracionId)) e.push('La iteración ' + f.iteracionId + ' está cerrada.');
-  if(!f.tipoDef) e.push('Elegí el tipo de concreto.');
-  var fc = parseNumero(f.fc);
-  if(!isFinite(fc)) e.push("f'c es obligatorio.");
-  else if(fc < 70 || fc > 1000) e.push("f'c debe estar entre 70 y 1000 kg/cm².");
-  if(f.ft && !isFinite(parseNumero(f.ft))) e.push("f't (flexión) debe ser un número.");
-  if(!/^\d+$/.test(f.edad) || Number(f.edad) < 1 || Number(f.edad) > 365) e.push("La edad del f'c es obligatoria (entero de 1 a 365 días).");
-  var amc = parseNumero(f.amc);
-  if(!isFinite(amc)) e.push('La relación a/mc es obligatoria.');
-  else if(amc < 0.20 || amc > 1.20) e.push('La relación a/mc debe estar entre 0.20 y 1.20.');
-  if(!f.colaborador || !f.responsable) e.push('Colaborador y responsable son obligatorios.');
-  else if(!/^[A-Za-zÀ-ÿ .\/-]+$/.test(f.colaborador + f.responsable)) e.push('Colaborador y responsable: solo letras.');
-  if(document.getElementById('dis-cemento-mat').value === '' || !(parseNumero(v('dis-cemento-peso')) > 0)) e.push('Elegí el cemento del catálogo y su cantidad (> 0 kg/m³).');
-  if(document.getElementById('dis-agua-mat').value === '' || !(parseNumero(v('dis-agua-req')) > 0)) e.push('Elegí el agua y su cantidad.');
-  var agregados = getComposicionItems().filter(function(it){ var c = componentes[it.compIndex]; return c && (c.categoria === 'Piedra' || c.categoria === 'Arena'); });
-  if(!agregados.length && document.getElementById('dis-agregado-grueso').value === '') e.push('Agregá al menos un agregado (fino o grueso) del catálogo.');
-  var slump = v('dis-slump');
-  if(slump){
-    var s = parseNumero(slump);
-    if(!isFinite(s)) e.push('Slump o flow: número (acepta 8 1/2).');
-    else if(s > 30 && (s < 0 || s > 900)) e.push('Flow entre 0 y 900 mm.');
-  }
-  var aire = v('dis-aire');
-  if(aire && !(parseNumero(aire) >= 0 && parseNumero(aire) <= 15)) e.push('Aire entre 0 y 15 %.');
-  var pf = v('dis-pct-fino'), pg = v('dis-pct-grueso');
-  if(pf || pg){
-    var suma = (parseNumero(pf) || 0) + (parseNumero(pg) || 0);
-    if(Math.abs(suma - 100) > 0.01) e.push('% de agregado fino + grueso debe sumar 100 % (suma ' + fmt(suma, 1) + ' %).');
-  }
-  if(!(parseNumero(v('dis-batch-vol')) > 0)) e.push('El batch de prueba debe ser mayor a 0 L.');
-  getComposicionItems().forEach(function(it){ if(it.pesoSeco < 0) e.push('Las cantidades no pueden ser negativas.'); });
-  (componentesAdicionales || []).forEach(function(c){ if(!(n(c.cantidad) > 0)) e.push('Cada componente adicional necesita cantidad > 0 kg/m³.'); });
-  return e;
 }

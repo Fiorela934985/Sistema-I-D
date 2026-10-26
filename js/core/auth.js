@@ -1,4 +1,4 @@
-/* Sistema I+D — Acceso: usuarios, sesión, roles y permisos (RF-USR, sección 3) */
+/* Sistema I+D — Usuarios, roles, permisos y sesión */
 'use strict';
 
 /* ================= SHA-256 (síncrono, sin dependencias) ================= */
@@ -48,162 +48,112 @@ function sha256(ascii){
   return result;
 }
 function hashPassword(pass, salt){ return sha256(unescape(encodeURIComponent(salt + '::' + pass))); }
-function nuevaSal(){
-  var a = new Uint8Array(12);
-  (window.crypto || window.msCrypto).getRandomValues(a);
-  return Array.prototype.map.call(a, function(b){ return ('0' + b.toString(16)).slice(-2); }).join('');
-}
+function nuevaSal(){ return Math.random().toString(36).slice(2) + Date.now().toString(36); }
 
-/* ================= ROLES Y PERMISOS (sección 3 — shared/permisos.js) =================
-   Seis roles: ADM, JEF, ANA, TEC, INV, CON. La matriz no se edita por pantalla: es la del documento,
-   y la misma que valida el servidor. */
-var PERM = window.SIDPermisos;
-var ROLES_DEF = PERM.ROLES;
-var PANELES = PERM.PANELES;
-var ROL_VIEJO = {admin:'ADM', jefatura:'JEF', tecnico:'TEC'};
+/* ================= PERMISOS Y ROLES ================= */
+var PANELES = [
+  {id:'inicio', label:'Inicio', grupo:'General'},
+  {id:'reportes', label:'Dashboard y KPIs', grupo:'General'},
+  {id:'proyectos', label:'Proyectos', grupo:'Operación'},
+  {id:'disenos', label:'Diseños', grupo:'Operación'},
+  {id:'roturas', label:'Roturas', grupo:'Operación'},
+  {id:'calendario', label:'Calendario de roturas', grupo:'Operación'},
+  {id:'componentes', label:'Registro (componentes)', grupo:'Operación'},
+  {id:'reporte-rr', label:'Reporte RR', grupo:'Resultados'},
+  {id:'archivador', label:'Archivador', grupo:'Resultados'},
+  {id:'base-historica', label:'Base histórica', grupo:'Resultados'},
+  {id:'prediccion', label:'Predicción', grupo:'Inteligencia'},
+  {id:'asistente', label:'Asistente I+D', grupo:'Inteligencia'},
+  {id:'usuarios', label:'Usuarios y roles', grupo:'Administración'},
+  {id:'historial', label:'Historial', grupo:'Administración'},
+  {id:'ajustes', label:'Ajustes', grupo:'Administración'}
+];
+var ACCIONES = [
+  {id:'disenos:crear', label:'Calcular, registrar y duplicar diseños'},
+  {id:'disenos:eliminar', label:'Eliminar diseños'},
+  {id:'resultados:registrar', label:'Registrar resultados de ensayo'},
+  {id:'roturas:registrar', label:'Registrar elaboración y cargas de rotura'},
+  {id:'roturas:eliminar', label:'Eliminar registros de rotura'},
+  {id:'componentes:editar', label:'Crear y editar componentes'},
+  {id:'proyectos:editar', label:'Crear y editar proyectos e iteraciones'},
+  {id:'rr:editar', label:'Crear y editar reportes RR'},
+  {id:'evidencias:subir', label:'Subir y borrar evidencias fotográficas'},
+  {id:'datos:exportar', label:'Exportar datos (Excel / CSV)'},
+  {id:'datos:respaldo', label:'Respaldar y restaurar la base completa'}
+];
+var TODOS_LOS_PERMISOS = PANELES.map(function(p){ return 'ver:' + p.id; }).concat(ACCIONES.map(function(a){ return a.id; }));
 
-/* Las acciones de la interfaz (data-perm="…") se traducen a módulo + letra de la matriz. */
-var ACCIONES = {
-  'proyectos:crear':      ['proyectos', 'C'],
-  'proyectos:editar':     ['proyectos', 'E'],
-  'proyectos:aprobar':    ['proyectos', 'A'],
-  'proyectos:eliminar':   ['proyectos', 'X'],
-  'bitacora:escribir':    ['bitacora', 'C'],
-  'reporte:generar':      ['reporteProyecto', 'C'],
-  'normas:editar':        ['normas', 'E'],
-  'disenos:crear':        ['disenos', 'C'],
-  'disenos:editar':       ['disenos', 'E'],
-  'disenos:aprobar':      ['disenos', 'A'],
-  'disenos:eliminar':     ['disenos', 'X'],
-  'elaboracion:programar':['elaboracion', 'C'],
-  'resultados:registrar': ['elaboracion', 'E'],
-  'etiquetas:imprimir':   ['etiquetas', 'C'],
-  'roturas:crear':        ['roturas', 'C'],
-  'roturas:registrar':    ['roturas', 'E'],
-  'roturas:aprobar':      ['roturas', 'A'],
-  'roturas:eliminar':     ['roturas', 'X'],
-  'evidencias:subir':     ['roturas', 'E'],
-  'rr:editar':            ['rr', 'E'],
-  'rr:aprobar':           ['rr', 'A'],
-  'componentes:editar':   ['materiales', 'E'],
-  'inventario:editar':    ['productos', 'E'],
-  'equipos:editar':       ['equipos', 'E'],
-  'usuarios:editar':      ['usuarios', 'E'],
-  'ajustes:editar':       ['ajustes', 'E']
+var ROLES_DEF = {
+  admin: {label:'Administrador', desc:'Acceso total: usuarios, permisos, respaldo y todas las funciones.'},
+  jefatura: {label:'Jefatura', desc:'Supervisión: reportes, métricas, expedientes, predicción e historial. No registra ensayos.'},
+  tecnico: {label:'Técnico', desc:'Operación diaria: calcula diseños, registra roturas, resultados y evidencias.'}
 };
-var TODOS_LOS_PERMISOS = PANELES.map(function(p){ return 'ver:' + p.id; }).concat(Object.keys(ACCIONES)).concat(['datos:exportar', 'datos:respaldo']);
+var PERMISOS_POR_DEFECTO = {
+  admin: TODOS_LOS_PERMISOS.slice(),
+  jefatura: ['ver:inicio','ver:reportes','ver:proyectos','ver:disenos','ver:roturas','ver:calendario','ver:componentes',
+    'ver:reporte-rr','ver:archivador','ver:base-historica','ver:prediccion','ver:asistente','ver:historial','ver:ajustes',
+    'proyectos:editar','rr:editar','datos:exportar'],
+  tecnico: ['ver:inicio','ver:proyectos','ver:disenos','ver:roturas','ver:calendario','ver:componentes','ver:reporte-rr',
+    'ver:archivador','ver:asistente','ver:ajustes',
+    'disenos:crear','resultados:registrar','roturas:registrar','componentes:editar','rr:editar','evidencias:subir']
+};
+var permisosPorRol = load('sid_roles_permisos', null) || JSON.parse(JSON.stringify(PERMISOS_POR_DEFECTO));
+permisosPorRol.admin = TODOS_LOS_PERMISOS.slice(); // el administrador siempre conserva todo
+function savePermisosPorRol(){ save('sid_roles_permisos', permisosPorRol); }
 
-function rolDe(u){ return u ? (ROL_VIEJO[u.rol] || u.rol) : ''; }
-function can(permiso){
-  if(!usuarioActual) return false;
-  var rol = rolDe(usuarioActual);
-  if(permiso.indexOf('ver:') === 0) return PERM.puedeVerPanel(rol, permiso.slice(4));
-  if(permiso === 'datos:exportar') return ['ADM', 'JEF', 'ANA', 'INV'].indexOf(rol) > -1;   // RNF-09
-  if(permiso === 'datos:respaldo') return rol === 'ADM';                                     // RF-BAK-02
-  if(permiso === 'elaboracion:programar') return rol === 'ANA' || rol === 'JEF';             // RF-ELA-01 (más específico que la matriz)
-  var a = ACCIONES[permiso];
-  return a ? PERM.puede(rol, a[0], a[1]) : false;
-}
-function rolLabel(rol){ rol = ROL_VIEJO[rol] || rol; return (ROLES_DEF[rol] || {label:rol || ''}).label; }
-
-/* ================= USUARIOS (RF-USR-05) ================= */
+/* ================= USUARIOS ================= */
 var usuarios = load('sid_usuarios', null);
 if(!usuarios){
-  // Primer arranque: un administrador con clave temporal, que obliga a cambiarla al primer ingreso (RF-USR-04).
+  // Primer arranque: se crea el administrador con las credenciales que ya usaba el sistema.
   var salAdmin = nuevaSal();
-  usuarios = [{id:'u1', usuario:'FSANTOS', nombre:'F. Santos', iniciales:'FS', correo:'', empresa:'DINO SRL',
-    laboratorio:'LAB-DINO-TRUJILLO', laboratorios:['LAB-DINO-TRUJILLO'], sector:'', puesto:'Sistemas', rol:'ADM', equipos:[],
-    activo:true, sal:salAdmin, hash:hashPassword('Cambiar2026', salAdmin), debeCambiarClave:true, creado:Date.now(), ultimoAcceso:null}];
+  usuarios = [{id:'u1', usuario:'FSANTOS', nombre:'F. Santos', iniciales:'FS', rol:'admin', activo:true,
+    sal:salAdmin, hash:hashPassword('12345678', salAdmin), creado:Date.now(), ultimoAcceso:null}];
   save('sid_usuarios', usuarios);
 }
-/* Usuarios creados con la versión anterior (roles admin/jefatura/tecnico, sin correo ni laboratorio). */
-usuarios.forEach(function(u){
-  if(ROL_VIEJO[u.rol]) u.rol = ROL_VIEJO[u.rol];
-  if(!u.laboratorios) u.laboratorios = u.laboratorio ? [u.laboratorio] : ['LAB-DINO-TRUJILLO'];
-  if(!u.laboratorio) u.laboratorio = u.laboratorios[0];
-  if(!u.equipos) u.equipos = [];
-});
 function saveUsuarios(){ save('sid_usuarios', usuarios); }
 function usuarioPorId(id){ return usuarios.filter(function(u){ return u.id === id; })[0] || null; }
 function usuarioPorNombre(nombre){
   var key = String(nombre||'').trim().toUpperCase();
-  return usuarios.filter(function(u){ return u.usuario.toUpperCase() === key || (u.correo && u.correo.toUpperCase() === key); })[0] || null;
+  return usuarios.filter(function(u){ return u.usuario.toUpperCase() === key; })[0] || null;
 }
-function usuariosActivos(rol){ return usuarios.filter(function(u){ return u.activo && (!rol || rolDe(u) === rol || (Array.isArray(rol) && rol.indexOf(rolDe(u)) > -1)); }); }
-function nombreUsuario(u){ return u ? (u.nombre || u.usuario) : ''; }
 
-/* Validaciones del alta de usuario: RF-USR-05 y validaciones transversales (sección 14). */
-function validarUsuario(datos, idActual){
-  var e = {};
-  if(!/^[A-Za-z0-9._-]{3,30}$/.test(datos.usuario || '')) e.usuario = 'De 3 a 30 caracteres, sin espacios.';
-  else if(usuarios.some(function(u){ return u.id !== idActual && u.usuario.toUpperCase() === datos.usuario.toUpperCase(); })) e.usuario = 'Ya existe ese usuario.';
-  if(!/^[A-Za-zÁÉÍÓÚÜÑáéíóúüñ .'-]{3,}$/.test((datos.nombre || '').trim())) e.nombre = 'Solo letras, espacios, tildes y guion.';
-  if(!/^[A-Za-z]{2,4}$/.test(datos.iniciales || '')) e.iniciales = 'De 2 a 4 letras.';
-  else if(usuarios.some(function(u){ return u.id !== idActual && (u.iniciales||'').toUpperCase() === datos.iniciales.toUpperCase(); })) e.iniciales = 'Esas iniciales ya las usa otra persona.';
-  if(!/^[^\s@]+@[^\s@]+\.[^\s@]{2,}$/.test(datos.correo || '')) e.correo = 'Correo con formato válido.';
-  else if(usuarios.some(function(u){ return u.id !== idActual && (u.correo||'').toLowerCase() === datos.correo.toLowerCase(); })) e.correo = 'Ese correo ya está registrado.';
-  ['empresa', 'laboratorio', 'puesto', 'rol'].forEach(function(k){ if(!String(datos[k] || '').trim()) e[k] = 'Obligatorio.'; });
-  return e;
-}
-/* RF-USR-03: mínimo 8 caracteres, con letras y números. */
-function validarClaveNueva(nueva, actual){
-  if(nueva.length < 8) return 'Mínimo 8 caracteres.';
-  if(!/[A-Za-z]/.test(nueva) || !/[0-9]/.test(nueva)) return 'Debe tener letras y números.';
-  if(actual && nueva === actual) return 'Debe ser distinta de la actual.';
-  return '';
-}
-function claveTemporal(){ return 'Tmp' + nuevaSal().slice(0, 6) + Math.floor(Math.random()*90 + 10); }
-
-/* ================= SESIÓN (RF-USR-01 y 02) ================= */
-var MAX_INTENTOS = 5, MINUTOS_BLOQUEO = 15;
-var SESION_MAX_MS = 8 * 3600 * 1000, INACTIVIDAD_MS = 60 * 60 * 1000;
+/* ================= SESIÓN ================= */
 var usuarioActual = null;
-
-/* Devuelve {u} o {error}. El mensaje es genérico salvo el bloqueo, que dice cuánto falta. */
 function iniciarSesion(nombre, pass){
   var u = usuarioPorNombre(nombre);
-  var generico = {error:'Usuario o contraseña incorrectos.'};
-  if(!u || !u.activo || !rolDe(u)) return generico;
-  if(u.bloqueadoHasta && u.bloqueadoHasta > Date.now()){
-    return {error:'Demasiados intentos fallidos. Probá de nuevo en ' + Math.ceil((u.bloqueadoHasta - Date.now())/60000) + ' min.'};
-  }
-  if(u.hash !== hashPassword(pass, u.sal)){
-    u.intentosFallidos = (u.intentosFallidos || 0) + 1;
-    if(u.intentosFallidos >= MAX_INTENTOS){ u.intentosFallidos = 0; u.bloqueadoHasta = Date.now() + MINUTOS_BLOQUEO*60000; }
-    saveUsuarios();
-    return generico;
-  }
-  u.intentosFallidos = 0; u.bloqueadoHasta = 0;
+  if(!u || !u.activo) return null;
+  if(u.hash !== hashPassword(pass, u.sal)) return null;
   u.ultimoAcceso = Date.now();
   saveUsuarios();
   usuarioActual = u;
-  sessionStorage.setItem('sid_sesion', JSON.stringify({id:u.id, inicio:Date.now(), actividad:Date.now()}));
-  return {u:u};
+  sessionStorage.setItem('sid_sesion', u.id);
+  return u;
 }
-function datosSesion(){ try{ return JSON.parse(sessionStorage.getItem('sid_sesion') || 'null'); }catch(e){ return null; } }
-function sesionVencida(s){ return !s || (Date.now() - s.inicio) > SESION_MAX_MS || (Date.now() - s.actividad) > INACTIVIDAD_MS; }
 function restaurarSesion(){
-  var s = datosSesion();
-  var u = s ? usuarioPorId(s.id) : null;
-  if(u && u.activo && !sesionVencida(s)){ usuarioActual = u; return u; }
+  var id = sessionStorage.getItem('sid_sesion');
+  var u = id ? usuarioPorId(id) : null;
+  if(u && u.activo){ usuarioActual = u; return u; }
   sessionStorage.removeItem('sid_sesion');
   return null;
-}
-function marcarActividad(){
-  var s = datosSesion();
-  if(s && !sesionVencida(s)){ s.actividad = Date.now(); sessionStorage.setItem('sid_sesion', JSON.stringify(s)); }
 }
 function cerrarSesion(){
   sessionStorage.removeItem('sid_sesion');
   usuarioActual = null;
 }
+function can(permiso){
+  if(!usuarioActual) return false;
+  if(usuarioActual.rol === 'admin') return true;
+  return (permisosPorRol[usuarioActual.rol] || []).indexOf(permiso) > -1;
+}
+function rolLabel(rol){ return (ROLES_DEF[rol] || {label:rol}).label; }
 function inicialesUsuario(u){
   if(!u) return '';
   if(u.iniciales) return u.iniciales.toUpperCase();
   return (u.nombre||u.usuario).split(/\s+/).map(function(p){ return p.charAt(0); }).join('').slice(0,3).toUpperCase();
 }
 
-/* Lo que el rol no permite no se muestra: ni menú ni botón (sección 3, Reglas). */
+/* Oculta en toda la interfaz (incluido el contenido que se genera después) los elementos marcados con
+   data-perm="..." para los que el usuario no tiene permiso. */
 function aplicarPermisos(){
   var faltantes = TODOS_LOS_PERMISOS.filter(function(p){ return !can(p); });
   var css = faltantes.map(function(p){ return '[data-perm="'+p+'"]'; }).join(',');
@@ -217,22 +167,10 @@ function aplicarPermisos(){
     var visibles = Array.prototype.some.call(g.querySelectorAll('.nav-item'), function(b){ return b.style.display !== 'none'; });
     g.style.display = visibles ? '' : 'none';
   });
-  document.body.dataset.rol = usuarioActual ? rolDe(usuarioActual) : '';
+  document.body.dataset.rol = usuarioActual ? usuarioActual.rol : '';
 }
 function exigir(permiso, mensaje){
   if(can(permiso)) return true;
   toast(mensaje || 'Tu rol no tiene permiso para esta acción');
   return false;
-}
-
-/* ================= ALCANCE DE DATOS (sección 3: rol + laboratorio + equipo) ================= */
-function esDeMiEquipo(proy){
-  if(!usuarioActual || !proy) return false;
-  var mios = usuarioActual.equipos || [];
-  var suyos = [proy.equipoLider].concat(proy.equiposApoyo || []);
-  return mios.some(function(e){ return suyos.indexOf(e) > -1; }) || proy.responsable === usuarioActual.id;
-}
-function veoLaboratorio(lab){
-  if(!usuarioActual || rolDe(usuarioActual) === 'ADM' || !lab) return true;
-  return (usuarioActual.laboratorios || []).indexOf(lab) > -1;
 }

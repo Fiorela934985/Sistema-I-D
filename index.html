@@ -18,7 +18,6 @@
 <link rel="stylesheet" href="css/acabado.css">
 <link rel="stylesheet" href="css/diseno.css">
 <link rel="stylesheet" href="css/pro.css">
-<link rel="stylesheet" href="css/proceso.css">
 <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.4/dist/chart.umd.min.js"></script>
 <script>
@@ -113,71 +112,53 @@ if(typeof Chart === 'undefined'){
         </button>
         <button class="nav-item" data-panel="reportes">
           <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 3v18h18"/><rect x="7" y="12" width="3" height="6"/><rect x="12" y="8" width="3" height="10"/><rect x="17" y="5" width="3" height="13"/></svg>
-          <span class="label">Panel de control</span>
-        </button>
-      </div>
-
-      <div class="sn-group sn-proceso">
-        <span class="sn-label">Proceso I+D</span>
-        <button class="nav-item" data-panel="proyectos">
-          <span class="nav-paso">1</span>
-          <span class="label">Proyectos</span>
-        </button>
-        <button class="nav-item" data-panel="disenos">
-          <span class="nav-paso">2</span>
-          <span class="label">Diseños</span>
-        </button>
-        <button class="nav-item" data-panel="elaboracion">
-          <span class="nav-paso">3</span>
-          <span class="label">Elaboración y desmolde</span>
-          <span class="nav-badge" id="nav-elab-badge" style="display:none;">0</span>
-        </button>
-        <button class="nav-item" data-panel="roturas">
-          <span class="nav-paso">4</span>
-          <span class="label">Roturas</span>
-          <span class="nav-badge" id="nav-roturas-badge" style="display:none;">0</span>
-        </button>
-        <button class="nav-item nav-sub" data-panel="calendario">
-          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="4" width="18" height="18" rx="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/></svg>
-          <span class="label">Calendario de roturas</span>
-        </button>
-        <button class="nav-item" data-panel="revision">
-          <span class="nav-paso">5</span>
-          <span class="label">Revisión de resultados</span>
-          <span class="nav-badge" id="nav-revision-badge" style="display:none;">0</span>
-        </button>
-        <button class="nav-item" data-panel="reporte-rr">
-          <span class="nav-paso">6</span>
-          <span class="label">Reporte RR</span>
-        </button>
-        <button class="nav-item" data-panel="archivador">
-          <span class="nav-paso">7</span>
-          <span class="label">Archivador</span>
+          <span class="label">Dashboard y KPIs</span>
         </button>
       </div>
 
       <div class="sn-group">
-        <span class="sn-label">Recursos</span>
-        <button class="nav-item" data-panel="inventario">
-          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 8l-9-5-9 5 9 5 9-5z"/><path d="M3 8v8l9 5 9-5V8"/></svg>
-          <span class="label">Inventario y equipos</span>
+        <span class="sn-label">Operación</span>
+        <button class="nav-item" data-panel="proyectos">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 7a2 2 0 0 1 2-2h4l2 2h8a2 2 0 0 1 2 2v9a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V7z"/><path d="M8 13h8"/></svg>
+          <span class="label">Proyectos</span>
+        </button>
+        <button class="nav-item" data-panel="disenos">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="4" y="2" width="16" height="20" rx="2"/><line x1="8" y1="7" x2="16" y2="7"/><line x1="8" y1="12" x2="16" y2="12"/><line x1="8" y1="17" x2="12" y2="17"/></svg>
+          <span class="label">Diseños</span>
+        </button>
+        <button class="nav-item" data-panel="roturas">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 2l3 6-5 4 6 2-8 8 2-7-5-2 4-4-3-5z"/></svg>
+          <span class="label">Roturas</span>
+          <span class="nav-badge" id="nav-roturas-badge" style="display:none;">0</span>
+        </button>
+        <button class="nav-item" data-panel="calendario">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="4" width="18" height="18" rx="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/></svg>
+          <span class="label">Calendario de roturas</span>
         </button>
         <button class="nav-item" data-panel="componentes">
-          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M9 2v6L4 20a1 1 0 0 0 1 2h14a1 1 0 0 0 1-2L15 8V2"/><line x1="8" y1="2" x2="16" y2="2"/></svg>
-          <span class="label">Materiales del diseño</span>
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 8l-9-5-9 5 9 5 9-5z"/><path d="M3 8v8l9 5 9-5V8"/></svg>
+          <span class="label">Registro (componentes)</span>
         </button>
-        <button class="nav-item" data-panel="normas">
-          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 19.5A2.5 2.5 0 0 1 6.5 17H20"/><path d="M6.5 2H20v20H6.5A2.5 2.5 0 0 1 4 19.5v-15A2.5 2.5 0 0 1 6.5 2z"/></svg>
-          <span class="label">Normas y tipos de ensayo</span>
+      </div>
+
+      <div class="sn-group">
+        <span class="sn-label">Resultados</span>
+        <button class="nav-item" data-panel="reporte-rr">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M9 3h6a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2H9a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2z"/><path d="M9 8h6"/><path d="M9 12h6"/><path d="M9 16h3"/></svg>
+          <span class="label">Reporte RR</span>
+        </button>
+        <button class="nav-item" data-panel="archivador">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M22 19a2 2 0 0 1-2 2H4a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h5l2 3h9a2 2 0 0 1 2 2z"/></svg>
+          <span class="label">Archivador</span>
+        </button>
+        <button class="nav-item" data-panel="base-historica">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><ellipse cx="12" cy="5" rx="9" ry="3"/><path d="M21 12c0 1.66-4 3-9 3s-9-1.34-9-3"/><path d="M3 5v14c0 1.66 4 3 9 3s9-1.34 9-3V5"/></svg>
+          <span class="label">Base histórica</span>
         </button>
       </div>
 
       <div class="sn-group">
         <span class="sn-label">Inteligencia</span>
-        <button class="nav-item" data-panel="base-historica">
-          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><ellipse cx="12" cy="5" rx="9" ry="3"/><path d="M21 12c0 1.66-4 3-9 3s-9-1.34-9-3"/><path d="M3 5v14c0 1.66 4 3 9 3s9-1.34 9-3V5"/></svg>
-          <span class="label">Base histórica</span>
-        </button>
         <button class="nav-item" data-panel="prediccion">
           <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 17l6-6 4 4 8-8"/><path d="M14 7h7v7"/></svg>
           <span class="label">Predicción</span>
@@ -200,7 +181,7 @@ if(typeof Chart === 'undefined'){
         </button>
         <button class="nav-item" data-panel="ajustes">
           <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 1 1-2.83 2.83l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-4 0v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 1 1-2.83-2.83l.06-.06A1.65 1.65 0 0 0 4.6 15a1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1 0-4h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 1 1 2.83-2.83l.06.06A1.65 1.65 0 0 0 9 4.6a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 4 0v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 1 1 2.83 2.83l-.06.06A1.65 1.65 0 0 0 19.4 9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 0 4h-.09a1.65 1.65 0 0 0-1.51 1z"/></svg>
-          <span class="label">Ajustes y catálogos</span>
+          <span class="label">Ajustes</span>
         </button>
       </div>
     </nav>
@@ -263,8 +244,6 @@ if(typeof Chart === 'undefined'){
       </div>
 
       <div class="accesos-rapidos" id="inicio-accesos"></div>
-      <div class="inicio-flujo" id="inicio-flujo"></div>
-      <div class="card inicio-atencion" id="inicio-atencion"></div>
       <div class="inicio-kpi-strip" id="inicio-kpi-strip"></div>
       <div class="semana-strip" id="inicio-semana"></div>
 
@@ -324,10 +303,13 @@ if(typeof Chart === 'undefined'){
           <svg viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M19 12H5"/><path d="M12 19l-7-7 7-7"/></svg>
           Volver a categorías
         </button>
-        <div class="card" data-perm="proyectos:crear">
-          <p class="nota-sm">Cada proyecto tiene una ficha completa (objetivo, fechas, equipo, presupuesto) y su expediente.</p>
+        <div class="card" data-perm="proyectos:editar">
+          <div class="form-row">
+            <input type="text" id="proy-nombre" placeholder="Nombre del proyecto">
+          </div>
           <div class="form-actions">
-            <button class="btn-add" id="proy-add">+ Nuevo proyecto</button>
+            <button class="btn-add" id="proy-add">+ Agregar proyecto</button>
+            <a class="link-cancel" id="proy-cancel" style="display:none;">Cancelar edición</a>
           </div>
         </div>
         <div class="card table-scroll">
@@ -607,13 +589,13 @@ if(typeof Chart === 'undefined'){
     <!-- ============ ROTURAS ============ -->
     <section id="panel-roturas" class="panel">
       <div class="content-header">
-        <div><h2>Paso 4 · Roturas</h2><p>Se programan solas al guardar la elaboración y se registran escaneando la probeta, con prensa calibrada y tolerancia por edad (NTP 339.034).</p></div><button class="btn-add grande" id="ro-escanear">Escanear probeta</button>
+        <div><h2>Roturas</h2><p>Programación y registro de cargas según NTP 339.034, con tolerancia por edad.</p></div>
         <span class="badge-pill" id="roturas-count">0 registros</span>
       </div>
 
       <div class="roturas-subtabs" id="roturas-subtabs">
         <button class="subtab active" data-rosub="pendientes">Pendientes</button>
-        <button class="subtab" data-rosub="registrar" data-perm="roturas:crear">Registro independiente</button>
+        <button class="subtab" data-rosub="registrar" data-perm="roturas:registrar">Registrar</button>
         <button class="subtab" data-rosub="formato">Formato de Roturas I+D</button>
       </div>
 
@@ -625,11 +607,11 @@ if(typeof Chart === 'undefined'){
       <!-- REGISTRAR (Momento 1: Elaboración → obtiene el Código) -->
       <div class="ro-sub" id="ro-sub-registrar" style="display:none;">
         <div class="ro-reg-card">
-          <div class="ro-reg-tag">Proyecto e iteración · roturas sin diseño en el sistema (RF-ROT-12)</div>
+          <div class="ro-reg-tag">Proyecto e Iteración</div>
           <div class="ro-reg-section">
             <div class="pp-row">
               <div class="pp-field"><label>Proyecto</label><select id="ro-proyecto"></select></div>
-              <div class="pp-field"><label>Iteración</label><select id="ro-iteracion"></select></div><div class="pp-field"><label>Diseño (opcional)</label><select id="ro-diseno"></select></div>
+              <div class="pp-field"><label>Diseño existente</label><select id="ro-diseno"></select></div>
               <div class="pp-field"><label>Réplica</label><select id="ro-replica"></select></div>
             </div>
           </div>
@@ -641,7 +623,7 @@ if(typeof Chart === 'undefined'){
           <div class="ro-reg-tag">Datos del ensayo</div>
           <div class="ro-reg-section">
             <div class="form-row">
-              <div class="field-mini" style="flex:1;"><label>Tipo</label><select id="ro-tipo-display"><option value="Probeta">Probeta</option><option value="Cubo">Cubo</option></select></div><div class="field-mini" style="flex:2;"><label>Producto / descripción (sin diseño en el sistema)</label><input type="text" id="ro-producto" placeholder="Ej. Mortero patrón cliente X"></div>
+              <div class="field-mini" style="flex:1;"><label>Tipo (según el diseño)</label><input type="text" id="ro-tipo-display" readonly placeholder="Elegí un diseño primero"></div>
               <div class="field-mini" style="flex:1;"><label>A cargo de</label><input type="text" id="ro-acargode" placeholder="Nombre"></div>
             </div>
             <div class="form-row">
@@ -678,14 +660,14 @@ if(typeof Chart === 'undefined'){
             <button class="view-toggle-btn active" data-tipo="Probetas">Probetas <span class="col-count-badge" id="ro-formato-count-probetas">0</span></button>
             <button class="view-toggle-btn" data-tipo="Cubos">Cubos <span class="col-count-badge" id="ro-formato-count-cubos">0</span></button>
           </div>
-          <button class="btn-add ghost" id="ro-formato-excel" data-perm="datos:exportar" style="margin-left:auto;">Exportar Excel</button><button class="btn-add" id="ro-formato-nuevo" data-perm="roturas:crear">+ Registro independiente</button>
+          <button class="btn-add" id="ro-formato-nuevo" data-perm="roturas:registrar" style="margin-left:auto;">+ Registrar</button>
         </div>
 
         <div class="roturas-table-wrap" id="ro-formato-wrap-probetas">
           <table class="roturas-table">
             <thead><tr>
               <th>Código ID</th><th>Producto</th><th>Proyecto</th><th>Iteración</th><th>A cargo de</th>
-              <th>F. Elaboración</th><th>Días</th><th>F. Ensayo</th><th>Tolerancia</th><th>Estado</th><th>Prensa</th>
+              <th>F. Elaboración</th><th>Días</th><th>F. Ensayo</th><th>Tolerancia</th><th>Correo</th>
               <th>Hora Ensayo</th><th>A1</th><th>A2</th><th>A3</th>
               <th>M1(kN)</th><th>M2(kN)</th><th>M3(kN)</th><th>M1(kg)</th><th>M2(kg)</th><th>M3(kg)</th>
               <th>Tipo M1</th><th>Tipo M2</th><th>Tipo M3</th>
@@ -700,7 +682,7 @@ if(typeof Chart === 'undefined'){
           <table class="roturas-table">
             <thead><tr>
               <th>Código ID</th><th>Producto</th><th>Proyecto</th><th>Iteración</th><th>A cargo de</th>
-              <th>F. Elaboración</th><th>Días</th><th>F. Ensayo</th><th>Tolerancia</th><th>Estado</th><th>Prensa</th>
+              <th>F. Elaboración</th><th>Días</th><th>F. Ensayo</th><th>Tolerancia</th><th>Correo</th>
               <th>Hora Ensayo</th><th>A1</th><th>A2</th><th>A3</th>
               <th>M1(kN)</th><th>M2(kN)</th><th>M3(kN)</th><th>M1(kg)</th><th>M2(kg)</th><th>M3(kg)</th>
               <th>Tipo M1</th><th>Tipo M2</th><th>Tipo M3</th>
@@ -716,7 +698,7 @@ if(typeof Chart === 'undefined'){
     <!-- REPORTE RR -->
     <section id="panel-reporte-rr" class="panel">
       <div class="content-header">
-        <div><h2>Paso 6 · Reporte RR</h2><p>Se arma con los resultados promediados de diseños revisados, sin volver a digitar. Se emite, lo firman el analista y Jefatura, y queda en el expediente del proyecto.</p></div>
+        <div><h2>Reporte RR</h2><p>Resumen de resultados de mezclas de prueba: comparativo de diseños, edades y gráficos.</p></div>
         <div style="display:flex;gap:10px;align-items:center;">
           <span class="badge-pill" id="rr-count">0 estudios</span>
           <button class="btn-add" id="btn-generar-rr" data-perm="rr:editar">Generar Reporte RR</button>
@@ -726,7 +708,7 @@ if(typeof Chart === 'undefined'){
         <div>
           <div id="rr-study-list"></div>
           <div class="rr-new-study" data-perm="rr:editar">
-            <input type="text" id="rr-new-name" placeholder="Estudio libre (sin diseños del sistema)">
+            <input type="text" id="rr-new-name" placeholder="Nuevo estudio (ej. HE 0.65)">
             <button id="rr-new-btn">+ Crear</button>
           </div>
         </div>
@@ -739,11 +721,10 @@ if(typeof Chart === 'undefined'){
                 <span id="rr-zoom-pct">100%</span>
                 <button id="rr-zoom-in" title="Acercar">+</button>
               </div>
-              <button class="btn-add ghost" id="rr-pdf">PDF</button><button class="btn-add ghost" id="rr-exportar" data-perm="datos:exportar">Excel</button>
+              <button class="btn-add ghost" id="rr-exportar" data-perm="datos:exportar">Excel</button>
               <button class="btn-add ghost rr-add-tipo-btn" id="rr-add-tipo" data-perm="rr:editar" style="display:none;">+ Agregar tipo</button>
             </div>
           </div>
-          <div class="rr-estado-bar" id="rr-estado-bar"></div>
           <div class="rr-zoom-area" id="rr-zoom-area">
             <div class="rr-print-head" id="rr-print-head"></div>
             <div class="rr-table-wrap" id="rr-table-holder"></div>
@@ -854,32 +835,31 @@ if(typeof Chart === 'undefined'){
     <section id="panel-proyectos" class="panel">
       <div id="proy-vista-principal">
         <div class="content-header">
-          <div><h2>Paso 1 · Proyectos</h2><p>Todo cuelga del proyecto: su ficha, plan, iteraciones, diseños, roturas, costos, documentos, bitácora y reportes.</p></div>
+          <div><h2>Proyectos</h2><p>Cada proyecto tiene su expediente: iteraciones, diseños, resultados, evidencias y reportes.</p></div>
           <div class="ch-actions">
             <div class="view-toggle" id="proy-vista-toggle">
               <button class="view-toggle-btn active" data-vista="lista">Proyectos</button>
               <button class="view-toggle-btn" data-vista="radar">Radar</button>
             </div>
-            <button class="btn-add ghost" id="proy-exportar" data-perm="datos:exportar">Exportar Excel</button>
-            <button class="btn-add" id="proy-nuevo-btn" data-perm="proyectos:crear">+ Nuevo proyecto</button>
+            <button class="btn-add" id="proy-nuevo-btn" data-perm="proyectos:editar">+ Nuevo proyecto</button>
           </div>
         </div>
         <div class="kpi-grid" id="proy-kpis"></div>
 
         <div id="proy-vista-lista">
-          <div class="hist-toolbar proy-filtros">
-            <input type="text" id="proy-buscar" placeholder="Buscar por nombre o código…">
-            <select id="proy-filtro-estado"></select>
-            <select id="proy-filtro-lab"></select>
-            <select id="proy-filtro-equipo"></select>
-            <select id="proy-filtro-resp"></select>
-            <select id="proy-filtro-linea"></select>
-            <select id="proy-filtro-prioridad"></select>
-            <input type="date" id="proy-filtro-desde" title="Iniciados desde">
+          <div class="hist-toolbar">
+            <input type="text" id="proy-buscar" placeholder="Buscar proyecto…">
+            <select id="proy-filtro-estado">
+              <option value="">Todos los estados</option>
+              <option value="En curso">En curso</option>
+              <option value="Completado">Completado</option>
+              <option value="Sin diseños">Sin diseños</option>
+            </select>
             <select id="proy-orden">
               <option value="actividad">Más reciente primero</option>
-              <option value="avance">Mayor avance</option>
               <option value="nombre">Nombre (A–Z)</option>
+              <option value="avance">Mayor avance</option>
+              <option value="disenos">Más diseños</option>
             </select>
           </div>
           <div class="proy-grid" id="proy-grid"></div>
@@ -1044,95 +1024,15 @@ if(typeof Chart === 'undefined'){
     </section>
 
     <!-- ============ USUARIOS Y ROLES ============ -->
-    <!-- ============ PASO 3 · ELABORACIÓN, CUADERNO DIGITAL Y DESMOLDE (sección 8) ============ -->
-    <section id="panel-elaboracion" class="panel">
-      <div class="content-header">
-        <div><h2>Paso 3 · Elaboración y desmolde</h2><p>Programá cada réplica, elaborala con el cuaderno digital (D-CC-F-214), etiquetá y desmoldá. Al guardar, nacen sus roturas y el egreso de inventario.</p></div>
-        <div class="ch-actions">
-          <button class="btn-add ghost" id="ela-hoja" data-perm="resultados:registrar">Hoja de trabajo del día</button>
-        </div>
-      </div>
-      <div class="flujo-mini" id="ela-flujo"></div>
-      <div class="subtabs" id="ela-subtabs">
-        <button class="subtab active" data-esub="hoy">Hoy</button>
-        <button class="subtab" data-esub="programar">Por elaborar / programar</button>
-        <button class="subtab" data-esub="desmolde">Desmolde</button>
-        <button class="subtab" data-esub="elaboradas">Elaboradas</button>
-      </div>
-      <div class="hist-toolbar">
-        <select id="ela-f-proyecto"></select>
-        <input type="date" id="ela-f-fecha" title="Fecha">
-      </div>
-      <div id="ela-contenido"></div>
-    </section>
-
-    <!-- ============ PASO 5 · REVISIÓN DE RESULTADOS (sección 10) ============ -->
-    <section id="panel-revision" class="panel">
-      <div class="content-header">
-        <div><h2>Paso 5 · Revisión de resultados</h2><p>Diseños con todas sus réplicas completas: se revisan, se invalida lo que no corresponde (con motivo), se completan y Jefatura los valida.</p></div>
-      </div>
-      <div class="subtabs" id="rev-subtabs">
-        <button class="subtab active" data-rsub="bandeja">Bandeja de revisión</button>
-        <button class="subtab" data-rsub="validar">Por validar (Jefatura)</button>
-        <button class="subtab" data-rsub="cerrados">Completados y validados</button>
-      </div>
-      <div id="rev-contenido"></div>
-    </section>
-
-    <!-- ============ NORMAS Y TIPOS DE ENSAYO (sección 6) ============ -->
-    <section id="panel-normas" class="panel">
-      <div class="content-header">
-        <div><h2>Normas y tipos de ensayo</h2><p>Cada tipo de ensayo se define una sola vez (norma, parámetros, edades, tolerancias) y diseños y roturas lo heredan.</p></div>
-      </div>
-      <div class="subtabs" id="nor-subtabs">
-        <button class="subtab active" data-nsub="tipos">Tipos de ensayo</button>
-        <button class="subtab" data-nsub="normas">Normas</button>
-        <button class="subtab" data-nsub="fallas">Tipos de falla</button>
-      </div>
-      <div id="nor-contenido"></div>
-    </section>
-
-    <!-- ============ INVENTARIO Y EQUIPOS (sección 11) ============ -->
-    <section id="panel-inventario" class="panel">
-      <div class="content-header">
-        <div><h2>Inventario y equipos</h2><p>Recursos que alimentan el proceso: productos y lotes para los diseños, prensas calibradas para las roturas, muestras y envíos con su proyecto.</p></div>
-        <span class="badge-pill" id="inv-origen"></span>
-      </div>
-      <div class="subtabs" id="inv-subtabs">
-        <button class="subtab active" data-isub="productos">Productos y lotes</button>
-        <button class="subtab" data-isub="egresos">Egresos</button>
-        <button class="subtab" data-isub="equipos">Equipos y calibración</button>
-        <button class="subtab" data-isub="muestras">Muestras</button>
-        <button class="subtab" data-isub="envios">Envíos</button>
-      </div>
-      <div id="inv-contenido"></div>
-    </section>
-
     <section id="panel-usuarios" class="panel">
       <div class="content-header">
-        <div><h2>Usuarios y roles</h2><p>Lo que cada persona ve depende de su rol, su laboratorio y su equipo.</p></div>
-        <button class="btn-add" id="usr-nuevo" data-perm="usuarios:editar">+ Nuevo usuario</button>
+        <div><h2>Usuarios y roles</h2><p>Perfiles de acceso según el rol: Administrador, Jefatura y Técnico.</p></div>
+        <button class="btn-add" id="usr-nuevo">+ Nuevo usuario</button>
       </div>
-      <div class="subtabs" id="usr-subtabs">
-        <button class="subtab active" data-usub="lista">Usuarios</button>
-        <button class="subtab" data-usub="organigrama">Organigrama</button>
-        <button class="subtab" data-usub="matriz">Matriz de permisos</button>
-      </div>
-      <div id="usr-sub-lista">
-        <div class="card"><div class="hist-toolbar">
-          <input type="text" id="usr-buscar" placeholder="Buscar por nombre, usuario o correo…">
-          <select id="usr-f-rol"><option value="">Todos los roles</option></select>
-          <select id="usr-f-estado"><option value="">Activos e inactivos</option><option value="1">Solo activos</option><option value="0">Solo inactivos</option></select>
-        </div></div>
-        <div class="card table-scroll"><table class="data-table" id="usr-tabla"></table></div>
-      </div>
-      <div id="usr-sub-organigrama" style="display:none;"><div id="usr-organigrama"></div></div>
-      <div id="usr-sub-matriz" style="display:none;">
-        <div class="card">
-          <div class="section-num">Matriz de permisos</div>
-          <p class="nota-sm">V ver · C crear · E editar · A aprobar/cerrar · X eliminar · * solo lo asignado o propio. Es la misma regla que aplica el servidor.</p>
-          <div class="table-scroll"><table class="data-table matriz-roles" id="usr-matriz"></table></div>
-        </div>
+      <div class="card table-scroll"><table class="data-table" id="usr-tabla"></table></div>
+      <div class="card">
+        <div class="section-num">Funciones por rol</div>
+        <div class="table-scroll"><table class="data-table matriz-roles" id="usr-matriz"></table></div>
       </div>
     </section>
 
@@ -1190,29 +1090,6 @@ if(typeof Chart === 'undefined'){
           <p class="nota-sm" id="ia-estado" style="margin-top:8px;"></p>
         </div>
         <div class="card">
-          <div class="section-num">Mi perfil</div>
-          <div id="perfil-resumen"></div>
-          <div class="pred-form" style="margin-top:10px;">
-            <div class="pp-field"><label>Teléfono</label><input type="tel" id="perfil-telefono"></div>
-          </div>
-          <div class="form-actions" style="margin-top:10px;"><button class="btn-add ghost" id="perfil-guardar">Guardar teléfono</button></div>
-        </div>
-        <div class="card ajustes-ancho" data-perm="ajustes:editar">
-          <div class="section-num">Ajustes del sistema</div>
-          <p class="nota-sm">Umbrales que usan las alertas. Ejemplo de dispersión: si las tres probetas dan 210, 205 y 170 kg/cm², la de 170 se aleja más de 15 % del promedio, así que el sistema la resalta y pide un comentario.</p>
-          <div class="pred-form" id="ajustes-sistema-form"></div>
-          <div class="form-actions" style="margin-top:10px;"><button class="btn-add" id="ajustes-sistema-guardar">Guardar ajustes</button></div>
-        </div>
-        <div class="card ajustes-ancho" data-perm="ajustes:editar">
-          <div class="section-num">Catálogos</div>
-          <p class="nota-sm">Listas que alimentan los formularios. Un valor en uso no se borra: se desactiva y deja de ofrecerse.</p>
-          <div class="cat-editor">
-            <select id="cat-elegir"></select>
-            <div id="cat-lista"></div>
-            <div class="form-row"><input type="text" id="cat-nuevo" placeholder="Nuevo valor"><button class="btn-add" id="cat-agregar">+ Agregar</button></div>
-          </div>
-        </div>
-        <div class="card">
           <div class="section-num">Acerca del sistema</div>
           <div class="acerca-lista" id="acerca-lista"></div>
         </div>
@@ -1228,23 +1105,15 @@ if(typeof Chart === 'undefined'){
   <div class="modal-card">
     <div class="modal-header"><h3 id="usuario-modal-title">Nuevo usuario</h3><button class="modal-close" data-close="usuario-modal">×</button></div>
     <div class="modal-body">
-      <div class="pred-form" id="um-form">
-        <div class="pp-field"><label>Usuario (para ingresar)</label><input type="text" id="um-usuario" placeholder="Ej. JPEREZ" autocomplete="off"><small class="campo-error" data-err="usuario"></small></div>
-        <div class="pp-field"><label>Nombre completo</label><input type="text" id="um-nombre" placeholder="Ej. Juan Pérez"><small class="campo-error" data-err="nombre"></small></div>
-        <div class="pp-field"><label>Iniciales</label><input type="text" id="um-iniciales" placeholder="Ej. JP" maxlength="4"><small class="campo-error" data-err="iniciales"></small></div>
-        <div class="pp-field"><label>Correo</label><input type="email" id="um-correo" placeholder="nombre@dino.com.pe"><small class="campo-error" data-err="correo"></small></div>
-        <div class="pp-field"><label>Empresa</label><select id="um-empresa"></select><small class="campo-error" data-err="empresa"></small></div>
-        <div class="pp-field"><label>Laboratorio principal</label><select id="um-laboratorio"></select><small class="campo-error" data-err="laboratorio"></small></div>
-        <div class="pp-field"><label>Sector</label><input type="text" id="um-sector" placeholder="Ej. Concreto"></div>
-        <div class="pp-field"><label>Puesto</label><select id="um-puesto"></select><small class="campo-error" data-err="puesto"></small></div>
-        <div class="pp-field"><label>Rol (se propone según el puesto)</label><select id="um-rol"></select><small class="campo-error" data-err="rol"></small></div>
-        <div class="pp-field"><label>Teléfono</label><input type="tel" id="um-telefono" placeholder="Opcional"></div>
+      <div class="pred-form">
+        <div class="pp-field"><label>Usuario (para ingresar)</label><input type="text" id="um-usuario" placeholder="Ej. JPEREZ" autocomplete="off"></div>
+        <div class="pp-field"><label>Nombre completo</label><input type="text" id="um-nombre" placeholder="Ej. Juan Pérez"></div>
+        <div class="pp-field"><label>Iniciales</label><input type="text" id="um-iniciales" placeholder="Ej. JP" maxlength="8"></div>
+        <div class="pp-field"><label>Rol</label><select id="um-rol"></select></div>
+        <div class="pp-field"><label id="um-pass-label">Contraseña</label><input type="password" id="um-pass" autocomplete="new-password" placeholder="Mínimo 6 caracteres"></div>
         <div class="pp-field"><label>Estado</label><select id="um-activo"><option value="1">Activo</option><option value="0">Inactivo</option></select></div>
       </div>
-      <div class="pp-field" style="margin-top:10px;"><label>Laboratorios que puede ver (permiso adicional)</label><div class="chips-check" id="um-labs"></div></div>
-      <div class="pp-field" style="margin-top:10px;"><label>Equipos de trabajo (definen qué proyectos ve)</label><div class="chips-check" id="um-equipos"></div></div>
       <p class="nota-sm" id="um-rol-desc"></p>
-      <p class="nota-sm" id="um-clave-nota"></p>
     </div>
     <div class="modal-actions">
       <button class="btn-add" id="um-guardar">Guardar</button>
@@ -1267,15 +1136,13 @@ if(typeof Chart === 'undefined'){
       </div>
       <div class="form-row" style="align-items:center;">
         <label class="pp-check-inline"><input type="checkbox" id="etq-solo-pendientes" checked> Solo roturas pendientes</label>
-        <label class="pp-check-inline">Tamaño <select id="etq-tamano"><option value="pequeño">Pequeño</option><option value="mediano">Mediano</option><option value="grande">Grande</option></select></label>
         <span class="nota-sm" id="etq-cuenta"></span>
       </div>
       </div>
       <div class="etq-preview" id="etq-preview"></div>
     </div>
     <div class="modal-actions">
-      <button class="btn-add" id="etq-imprimir">Imprimir etiquetas (A4)</button>
-      <button class="btn-add ghost" id="etq-csv">Exportar CSV (codificadora)</button>
+      <button class="btn-add" id="etq-imprimir">Imprimir etiquetas</button>
       <button class="btn-add ghost" data-close="etiquetas-modal">Cerrar</button>
     </div>
   </div>
@@ -1535,7 +1402,7 @@ if(typeof Chart === 'undefined'){
     <div class="modal-header"><h3>Generar Reporte RR — Lab I+D</h3><button class="modal-close" id="rr-generar-close">×</button></div>
     <div class="modal-body">
       <div class="form-row">
-        <select id="rrg-proyecto"></select><select id="rrg-iteracion"><option value="">Todas las iteraciones</option></select>
+        <select id="rrg-proyecto"></select>
       </div>
       <div class="form-row">
         <label style="display:flex;align-items:center;gap:6px;font-size:.85rem;"><input type="radio" name="rrg-tipo" value="Promediado" checked> Promediado</label>
@@ -1564,10 +1431,8 @@ if(typeof Chart === 'undefined'){
 </div>
 
 <script src="data/disenos-reales.js"></script>
-<script src="shared/permisos.js"></script>
 <script src="js/core/utils.js"></script>
 <script src="js/core/auth.js"></script>
-<script src="js/core/catalogos-sistema.js"></script>
 <script src="js/core/historial.js"></script>
 <script src="js/core/icons.js"></script>
 <script src="js/core/shell.js"></script>
@@ -1584,17 +1449,10 @@ if(typeof Chart === 'undefined'){
 <script src="js/modules/archivador.js"></script>
 <script src="js/modules/reporte-rr.js"></script>
 <script src="js/core/analitica.js"></script>
-<script src="js/core/flujo.js"></script>
 <script src="js/core/ml.js"></script>
 <script src="js/modules/proyectos-panel.js"></script>
-<script src="js/modules/reporte-proyecto.js"></script>
 <script src="js/modules/calendario.js"></script>
 <script src="js/modules/etiquetas.js"></script>
-<script src="js/modules/normas.js"></script>
-<script src="js/modules/inventario.js"></script>
-<script src="js/modules/elaboracion.js"></script>
-<script src="js/modules/revision.js"></script>
-<script src="js/modules/notificaciones.js"></script>
 <script src="js/modules/base-historica.js"></script>
 <script src="js/modules/prediccion.js"></script>
 <script src="js/modules/asistente.js"></script>

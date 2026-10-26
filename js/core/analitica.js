@@ -6,8 +6,7 @@
 function disenoPorCodigo(codigo){ return disenos.filter(function(d){ return d.codigo === codigo; })[0] || null; }
 function cargasDeDiseno(d){ return roturaCargas.filter(function(c){ return c.disenoCodigoDiseno === d.codigo; }); }
 function valoresKgCm2(c){
-  if(c.estado === 'no-ubicada' || c.estado === 'invalidada' || c.estado === 'cancelada') return [];
-  var v = [1, 2, 3].filter(function(m){ return especimenValido(c, m); }).map(function(m){ return Number(c['m' + m + 'kgcm2']); }).filter(function(x){ return x > 0; });
+  var v = [c.m1kgcm2, c.m2kgcm2, c.m3kgcm2].map(Number).filter(function(x){ return x > 0; });
   if(!v.length && Number(c.promedio) > 0) v = [Number(c.promedio)]; 
   return v;
 }
@@ -61,7 +60,7 @@ function metricasProyecto(nombre){
   var pendientes = cargas.filter(function(c){ return c.estado === 'pendiente'; });
   var vencidas = pendientes.filter(function(c){ return c.fechaEnsayo < hoy; });
   var proximas = pendientes.filter(function(c){ return c.fechaEnsayo >= hoy; }).map(function(c){ return c.fechaEnsayo; }).sort();
-  var completados = lista.filter(function(d){ return d.estado === 'Completado' || d.estado === 'Validado'; }).length;
+  var completados = lista.filter(function(d){ return d.estado === 'Completado'; }).length;
   var iteraciones = {};
   lista.forEach(function(d){ if(d.iteracionId) iteraciones[d.iteracionId] = true; });
   iteracionesDeProyecto(nombre).forEach(function(it){ iteraciones[it] = true; });
@@ -72,8 +71,7 @@ function metricasProyecto(nombre){
   historialDeProyecto(nombre).slice(0,1).forEach(function(h){ tsAct.push(h.ts); });
   var ultima = tsAct.length ? Math.max.apply(null, tsAct) : 0;
   var limite30 = Date.now() - 30*DAY;
-  var ficha = proyectoPorNombre(nombre);
-  var estado = ficha ? ficha.estado : (!lista.length ? 'Planificado' : 'En curso');
+  var estado = !lista.length ? 'Sin diseños' : (completados === lista.length ? 'Completado' : 'En curso');
   return {
     nombre: nombre, disenos: lista, nDisenos: lista.length,
     completados: completados,
@@ -82,7 +80,7 @@ function metricasProyecto(nombre){
     iteraciones: Object.keys(iteraciones),
     cargas: cargas, cargasCompletas: completas.length, cargasPendientes: pendientes.length, vencidas: vencidas.length,
     proximaRotura: proximas[0] || '',
-    avancePct: avanceProyecto(nombre),
+    avancePct: lista.length ? Math.round(completados / lista.length * 100) : 0,
     roturasPct: cargas.length ? Math.round(completas.length / cargas.length * 100) : 0,
     puntualidadPct: cargas.length ? Math.round((cargas.length - vencidas.length) / cargas.length * 100) : 100,
     resistMax: resistMax.length ? Math.max.apply(null, resistMax) : NaN,
@@ -95,8 +93,8 @@ function metricasProyecto(nombre){
 }
 function nombresDeProyectos(){
   var set = {};
-  proyectosVisibles().forEach(function(p){ set[p.nombre] = true; });
-  disenos.forEach(function(d){ var p = proyectoNombre(d.proyectoId); if(p && !proyectoPorNombre(p)) set[p] = true; });
+  PROYECTO_CATALOGO.forEach(function(p){ set[p] = true; });
+  disenos.forEach(function(d){ var p = proyectoNombre(d.proyectoId); if(p) set[p] = true; });
   return Object.keys(set);
 }
 function metricasTodosLosProyectos(){ return nombresDeProyectos().map(metricasProyecto); }

@@ -137,14 +137,12 @@ function rrFind(id){ return rrEstudios.filter(function(e){ return e.id === id; }
 
 function renderRRStudyList(){
   var wrap = document.getElementById('rr-study-list');
-  var visibles = rrVisibles();
-  wrap.innerHTML = visibles.map(function(e){
+  wrap.innerHTML = rrEstudios.map(function(e){
     return '<div class="rr-study-card'+(e.id===rrActiveId?' active':'')+'" data-id="'+e.id+'">' +
-      '<h5>'+esc(e.nombre)+'</h5><span>'+(e.codigo ? esc(e.codigo)+' · ' : '')+e.tipos.length+' diseños · '+e.fecha+(e.proyectoId?(' · '+esc(proyectoNombre(e.proyectoId))):'')+'</span>' +
-      '<span class="tag-pill '+(e.emitido?'tag-verde':'tag-gris')+'">'+(e.emitido?'Emitido'+(e.revision?' · Rev. '+e.revision:''):'Borrador')+(rrFirmadoPorJefatura(e)?' · firmado JEF':'')+'</span>' +
+      '<h5>'+esc(e.nombre)+'</h5><span>'+e.tipos.length+' tipos · '+e.fecha+(e.proyectoId?(' · '+esc(proyectoNombre(e.proyectoId))):'')+'</span>' +
     '</div>';
-  }).join('') || '<div class="empty-note">Sin reportes RR.</div>';
-  document.getElementById('rr-count').textContent = visibles.length + ' reportes';
+  }).join('');
+  document.getElementById('rr-count').textContent = rrEstudios.length + ' estudios';
   updateStats();
 }
 document.getElementById('rr-study-list').addEventListener('click', function(e){
@@ -162,7 +160,7 @@ document.getElementById('rr-new-btn').addEventListener('click', function(){
   var hoy = new Date();
   var fecha = String(hoy.getDate()).padStart(2,'0') + '/' + String(hoy.getMonth()+1).padStart(2,'0') + '/' + hoy.getFullYear();
   var newId = 'e' + Date.now();
-  rrEstudios.push({id:newId, codigo:nextCodigoRR(), nombre:'Estudio '+nombre, fecha:fecha, autor:usuarioActual.id, tipos:[{id:'t'+Date.now(), nombre:'Tipo 1', valores:{}}], obs:{}, edades:[]});
+  rrEstudios.push({id:newId, nombre:'Estudio '+nombre, fecha:fecha, tipos:[{id:'t'+Date.now(), nombre:'Tipo 1', valores:{}}], obs:{}, edades:[]});
   save('sid10_rr', rrEstudios);
   rrActiveId = newId;
   input.value = '';
@@ -239,18 +237,15 @@ function renderRRDetail(){
     ? '<table class="rr-table"><thead><tr>'+edadHead+'</tr></thead><tbody>'+edadRows+'</tbody></table>'
     : '<div class="empty-note">Sin edades registradas todavía.</div>';
 
-  // Solo quien puede editar RR modifica las celdas, y solo mientras es borrador (RF-RES-09/11).
-  var soloLectura = !can('rr:editar') || !!estudio.emitido;
-  document.getElementById('rr-add-tipo').style.display = soloLectura ? 'none' : 'inline-block';
-  document.getElementById('rr-add-edad').style.display = soloLectura ? 'none' : '';
-  renderRREstado(estudio);
+  // Solo quien puede editar RR modifica las celdas; el resto lo ve como visor.
+  var soloLectura = !can('rr:editar');
   document.querySelectorAll('#rr-zoom-area input').forEach(function(inp){ inp.readOnly = soloLectura; });
   renderRRCharts(estudio);
 }
 
 document.getElementById('rr-print-head').addEventListener('input', function(e){
   var estudio = rrFind(rrActiveId);
-  if(!estudio || !e.target.dataset.cab || estudio.emitido || !can('rr:editar')) return;
+  if(!estudio || !e.target.dataset.cab) return;
   estudio.cabecera[e.target.dataset.cab] = e.target.value;
   save('sid10_rr', rrEstudios);
 });
@@ -376,7 +371,7 @@ function renderRRCharts(estudio){
 
 document.getElementById('rr-table-holder').addEventListener('input', function(e){
   var estudio = rrFind(rrActiveId);
-  if(!estudio || estudio.emitido || !can('rr:editar')) return;
+  if(!estudio) return;
   var el = e.target;
   if(el.classList.contains('rr-tipo-name')){
     estudio.tipos[Number(el.dataset.ti)].nombre = el.value;
@@ -393,7 +388,6 @@ document.getElementById('rr-table-holder').addEventListener('click', function(e)
   if(!btn) return;
   if(!exigir('rr:editar')) return;
   var estudio = rrFind(rrActiveId);
-  if(estudio.emitido) return;
   if(!confirm('¿Eliminar la columna "' + estudio.tipos[Number(btn.dataset.ti)].nombre + '" del estudio?')) return;
   var removed = estudio.tipos.splice(Number(btn.dataset.ti), 1)[0];
   registrarHistorial('Editó', 'Reporte RR', estudio.nombre + ' · quitó ' + removed.nombre, {proyecto: estudio.proyectoId ? proyectoNombre(estudio.proyectoId) : ''});
@@ -404,7 +398,7 @@ document.getElementById('rr-table-holder').addEventListener('click', function(e)
 });
 document.getElementById('rr-add-tipo').addEventListener('click', function(){
   var estudio = rrFind(rrActiveId);
-  if(!estudio || estudio.emitido) return;
+  if(!estudio) return;
   var id = 't' + Date.now();
   estudio.tipos.push({id:id, nombre:'Nuevo tipo', valores:{}});
   save('sid10_rr', rrEstudios);
@@ -412,7 +406,7 @@ document.getElementById('rr-add-tipo').addEventListener('click', function(){
 });
 document.getElementById('rr-edad-holder').addEventListener('input', function(e){
   var estudio = rrFind(rrActiveId);
-  if(!estudio || estudio.emitido || !can('rr:editar')) return;
+  if(!estudio) return;
   var el = e.target;
   if(el.dataset.edadLabel !== undefined){ estudio.edades[Number(el.dataset.edadLabel)].edad = el.value; }
   else if(el.dataset.edadReq !== undefined){ estudio.edades[Number(el.dataset.edadReq)].requisito = el.value; }
@@ -422,7 +416,7 @@ document.getElementById('rr-edad-holder').addEventListener('input', function(e){
 });
 document.getElementById('rr-add-edad').addEventListener('click', function(){
   var estudio = rrFind(rrActiveId);
-  if(!estudio || estudio.emitido) return;
+  if(!estudio) return;
   var valores = {};
   estudio.tipos.forEach(function(t){ valores[t.id] = ''; });
   estudio.edades.push({edad:'Nueva edad', requisito:'', valores:valores});
@@ -452,17 +446,9 @@ function disenoYaGenerado(codigo){
 }
 function renderRRGDisponibles(){
   var proyId = document.getElementById('rrg-proyecto').value;
-  var selIt = document.getElementById('rrg-iteracion'), itActual = selIt.value;
-  selIt.innerHTML = '<option value="">Todas las iteraciones</option>' + iteracionesDeProyecto(proyId).map(function(it){ return '<option'+(it===itActual?' selected':'')+'>'+esc(it)+'</option>'; }).join('');
-  var iter = selIt.value;
-  var tbody0 = document.getElementById('rrg-disponibles-tbody');
-  if(!proyId){ tbody0.innerHTML = '<tr><td colspan="5" style="color:var(--text-muted);">Elegí el proyecto: un RR solo reúne registros de un mismo proyecto.</td></tr>'; return; }
-  rrgSeleccion = rrgSeleccion.filter(function(c){ var x = disenoPorCodigo(c); return x && x.proyectoId === proyId; });
-  // RF-RES-07: registros promediados de diseños con resultados revisados (o completados).
   var candidatos = disenos.filter(function(d){
-    if(d.proyectoId !== proyId) return false;
-    if(iter && d.iteracionId !== iter) return false;
-    return (d.revision || d.estado === 'Completado') && Object.keys(nombreUnificadoPromedio(d)).length > 0;
+    if(proyId && d.proyectoId !== proyId) return false;
+    return semaforoDiseno(d) !== 'rojo';
   });
   candidatos = candidatos.filter(function(d){ return rrgTabActive === 'generados' ? disenoYaGenerado(d.codigo) : !disenoYaGenerado(d.codigo); });
   var tbody = document.getElementById('rrg-disponibles-tbody');
@@ -488,20 +474,16 @@ document.getElementById('rrg-disponibles-tbody').addEventListener('click', funct
   else { rrgSeleccion = rrgSeleccion.filter(function(c){ return c!==codigo; }); toast('Diseño quitado del reporte'); }
   renderRRGDisponibles();
 });
-document.getElementById('rrg-iteracion').addEventListener('change', renderRRGDisponibles);
 document.getElementById('rrg-generar-btn').addEventListener('click', function(){
-  if(!exigir('rr:editar')) return;
   var nombre = document.getElementById('rrg-nombre').value.trim();
-  var proyId = document.getElementById('rrg-proyecto').value;
-  var req = document.getElementById('rrg-requisito').value.trim();
-  var err = validarRR(nombre, proyId, rrgSeleccion, req);
-  if(err){ toast(err); return; }
+  if(!nombre){ toast('Ingresá el nombre del RR'); return; }
+  if(!rrgSeleccion.length){ toast('Añadí al menos un diseño promediado'); return; }
   var hoy = new Date();
   var fecha = String(hoy.getDate()).padStart(2,'0') + '/' + String(hoy.getMonth()+1).padStart(2,'0') + '/' + hoy.getFullYear();
   var tipos = rrgSeleccion.map(function(codigo){
     var d = disenos.filter(function(x){ return x.codigo===codigo; })[0];
     var combinado = nombreUnificadoPromedio(d);
-    var valores = valoresRRDesdeDiseno(d);
+    var valores = {ac: d.amcEfectiva||'', cvd: d.cvdTotal||''};
     return {id:'t'+Date.now()+Math.floor(Math.random()*1000), nombre: diseñoTitulo(d), valores: valores, origenDisenoCodigo: d.codigo, combinadoPorEdad: combinado};
   });
   var edadesSet = {};
@@ -512,11 +494,7 @@ document.getElementById('rrg-generar-btn').addEventListener('click', function(){
     return {edad: dia+' d', requisito: document.getElementById('rrg-requisito').value.trim(), valores: valores};
   });
   var newId = 'e' + Date.now();
-  var dRef = disenoPorCodigo(rrgSeleccion[0]) || {};
-  rrEstudios.push({id:newId, codigo:nextCodigoRR(), nombre:nombre, fecha:fecha, proyectoId: proyId, iteracion: document.getElementById('rrg-iteracion').value, requisito: req,
-    tipo:document.querySelector('input[name="rrg-tipo"]:checked').value, generado:true, emitido:false, firmas:[], revision:0, revisiones:[], autor:usuarioActual.id,
-    cabecera:{planta:dRef.planta||'', ubicacion:'Laboratorio I+D', colaborador:dRef.colaborador||'', responsable:dRef.responsable||nombreUsuario(usuarioActual), fecha:todayISO()},
-    tipos:tipos, obs:{}, edades:edades});
+  rrEstudios.push({id:newId, nombre:nombre, fecha:fecha, proyectoId: document.getElementById('rrg-proyecto').value, tipo:document.querySelector('input[name="rrg-tipo"]:checked').value, generado:true, tipos:tipos, obs:{}, edades:edades});
   save('sid10_rr', rrEstudios);
   rrActiveId = newId;
   rrgSeleccion = [];
@@ -566,116 +544,4 @@ document.getElementById('rr-exportar').addEventListener('click', function(){
     registrarHistorial('Exportó', 'Reporte RR', estudio.nombre);
     toast('Reporte RR exportado a Excel');
   }
-});
-
-/* ================= Emisión, firmas y revisiones del RR (RF-RES-07 a 12) ================= */
-function rrVisibles(){
-  return rrEstudios.filter(function(e){
-    var p = e.proyectoId ? proyectoPorNombre(proyectoNombre(e.proyectoId)) : null;
-    return !p || proyectoVisible(p);
-  });
-}
-/* Código RR-NNNNNN: automático, nunca se reutiliza. */
-function nextCodigoRR(){
-  var cont = load('sid_contadores', {});
-  var max = rrEstudios.reduce(function(m, e){ var x = parseInt(String(e.codigo || '').replace(/[^0-9]/g, ''), 10); return isNaN(x) ? m : Math.max(m, x); }, 0);
-  cont.RR = Math.max(cont.RR || 0, max) + 1;
-  save('sid_contadores', cont);
-  return 'RR-' + String(cont.RR).padStart(6, '0');
-}
-/* RF-RES-08: al menos 1 registro, todos del mismo proyecto, nombre obligatorio y único en el proyecto, requisito numérico opcional. */
-function validarRR(nombre, proyId, codigos, requisito){
-  if(!proyId) return 'Elegí el proyecto del RR.';
-  if(!nombre) return 'El nombre del RR es obligatorio.';
-  if(rrEstudios.some(function(e){ return e.proyectoId === proyId && normalizar(e.nombre) === normalizar(nombre); })) return 'Ya existe un RR con ese nombre en el proyecto.';
-  if(!codigos.length) return 'Añadí al menos un registro promediado.';
-  if(codigos.some(function(c){ var d = disenoPorCodigo(c); return !d || d.proyectoId !== proyId; })) return 'Todos los registros deben ser del mismo proyecto.';
-  if(requisito && !isFinite(parseNumero(String(requisito).replace(/kg\/cm2|kg\/cm²/i, '').trim()))) return 'El requisito debe ser numérico (ej. 210).';
-  return '';
-}
-/* Llena el RR con lo registrado en el sistema: dosis, a/mc, costo y ensayos en fresco promediados. */
-function valoresRRDesdeDiseno(d){
-  var v = {ac: d.amcEfectiva || '', cvd: d.cvdTotal || ''};
-  (d.mix || []).forEach(function(it){
-    var nom = normalizar(it.nombre);
-    if(!nom) return;
-    RR_ROWS.forEach(function(r){
-      if(r.t !== 'row' || /^d_|^cons_|^tc_|^ta_/.test(r.key)) return;
-      var lab = normalizar(r.label);
-      if(lab === nom || lab.indexOf(nom) > -1 || nom.indexOf(lab) > -1) v[r.key] = fmt(n(it.pesoSeco), 2);
-    });
-  });
-  var reps = (d.resultados && d.resultados.replicas) || [];
-  var prom = function(f){ var a = reps.map(f).map(parseNumero).filter(isFinite); return a.length ? fmt(promedio(a), 2) : ''; };
-  [0, 30, 60, 90, 120].forEach(function(mn, i){
-    v['cons_' + mn] = prom(function(r){ return ((r.slump || [])[i] || {}).slump; });
-    v['tc_' + mn] = prom(function(r){ return ((r.slump || [])[i] || {}).tempc; });
-    v['ta_' + mn] = prom(function(r){ return ((r.slump || [])[i] || {}).tempa; });
-  });
-  v.pu = prom(function(r){ return r.pesoUnitario; });
-  v.aire = prom(function(r){ return r.aire; });
-  var r0 = reps[0] || {};
-  v.fragua_i = r0.thermoIni || ''; v.fragua_f = r0.thermoFin || '';
-  v.cohesividad = r0.cohesividad || ''; v.apariencia = r0.apariencia || ''; v.comentarios = r0.observaciones || '';
-  return v;
-}
-function renderRREstado(e){
-  var bar = document.getElementById('rr-estado-bar');
-  if(!bar) return;
-  var rol = rolDe(usuarioActual);
-  var firmas = e.firmas || [];
-  var firmo = firmas.some(function(f){ return f.usuario === usuarioActual.id; });
-  var acciones = '';
-  if(!e.emitido && can('rr:editar')) acciones += '<button class="btn-add" data-rr-emitir="1">Emitir RR</button>';
-  if(e.emitido && !firmo && (rol === 'ANA' || rol === 'JEF')) acciones += '<button class="btn-add" data-rr-firmar="1">Firmar como ' + esc(rolLabel(rol)) + '</button>';
-  if(e.emitido && can('rr:editar')) acciones += '<button class="btn-add ghost" data-rr-revision="1">Corregir (nueva revisión)</button>';
-  bar.innerHTML = '<div class="rr-estado"><span class="tag-pill ' + (e.emitido ? 'tag-verde' : 'tag-gris') + '">' + (e.emitido ? 'Emitido' + (e.revision ? ' · Rev. ' + e.revision : '') : 'Borrador (editable)') + '</span>' +
-    (e.codigo ? '<b class="mono">' + esc(e.codigo) + '</b>' : '') +
-    '<span class="nota-sm">Firmas: ' + (firmas.length ? firmas.map(function(f){ return esc(f.rol + ' ' + f.nombre + ' · ' + fechaHora(f.ts)); }).join(' | ') : 'ninguna') + '</span>' +
-    (e.revisiones && e.revisiones.length ? '<details><summary class="nota-sm">Revisiones anteriores (' + e.revisiones.length + ')</summary>' + e.revisiones.map(function(r){ return '<p class="nota-sm">Rev. ' + r.revision + ' · ' + fechaHora(r.ts) + ' · motivo: ' + esc(r.motivo) + '</p>'; }).join('') + '</details>' : '') +
-    '<span class="rr-estado-acciones">' + acciones + '</span></div>';
-}
-document.getElementById('rr-estado-bar').addEventListener('click', function(ev){
-  var e = rrFind(rrActiveId);
-  if(!e) return;
-  if(ev.target.closest('[data-rr-emitir]')){
-    if(!exigir('rr:editar')) return;
-    if(!e.tipos.length){ toast('El RR no tiene registros'); return; }
-    if(!confirm('¿Emitir ' + (e.codigo || e.nombre) + '? Queda bloqueado; luego solo se corrige con una nueva revisión.')) return;
-    e.emitido = true; e.emitidoTs = Date.now();
-    e.firmas = [{rol: rolDe(usuarioActual), nombre: nombreUsuario(usuarioActual), usuario: usuarioActual.id, ts: Date.now()}];
-    save('sid10_rr', rrEstudios);
-    registrarHistorial('Emitió', 'Reporte RR', (e.codigo || '') + ' ' + e.nombre, {proyecto: proyectoNombre(e.proyectoId)});
-    notificar('JEF', 'RR por firmar', (e.codigo || '') + ' ' + e.nombre, 'reporte-rr');
-    renderRRStudyList(); renderRRDetail();
-    return;
-  }
-  if(ev.target.closest('[data-rr-firmar]')){
-    e.firmas = (e.firmas || []).concat([{rol: rolDe(usuarioActual), nombre: nombreUsuario(usuarioActual), usuario: usuarioActual.id, ts: Date.now()}]);
-    save('sid10_rr', rrEstudios);
-    registrarHistorial('Firmó', 'Reporte RR', (e.codigo || '') + ' ' + e.nombre + ' · ' + rolDe(usuarioActual), {proyecto: proyectoNombre(e.proyectoId)});
-    toast('RR firmado');
-    renderRRStudyList(); renderRRDetail();
-    return;
-  }
-  if(ev.target.closest('[data-rr-revision]')){
-    pedirMotivo('Nueva revisión de ' + (e.codigo || e.nombre), 'La versión emitida se conserva; la nueva revisión vuelve a borrador y debe emitirse y firmarse otra vez.', function(m){
-      var copia = JSON.parse(JSON.stringify(e));
-      delete copia.revisiones;
-      e.revisiones = (e.revisiones || []).concat([{revision: e.revision || 0, ts: Date.now(), motivo: m, usuario: usuarioActual.id, snapshot: copia}]);
-      e.revision = (e.revision || 0) + 1;
-      e.emitido = false; e.firmas = [];
-      save('sid10_rr', rrEstudios);
-      registrarHistorial('Corrigió', 'Reporte RR', (e.codigo || '') + ' · Rev. ' + e.revision + ' · motivo: ' + m, {proyecto: proyectoNombre(e.proyectoId)});
-      renderRRStudyList(); renderRRDetail();
-      return '';
-    });
-  }
-});
-/* RF-RES-11: PDF del RR (impresión del visor). */
-document.getElementById('rr-pdf').addEventListener('click', function(){
-  if(!rrFind(rrActiveId)){ toast('Elegí un reporte'); return; }
-  document.body.classList.add('imprimiendo-rr');
-  window.print();
-  setTimeout(function(){ document.body.classList.remove('imprimiendo-rr'); }, 500);
 });

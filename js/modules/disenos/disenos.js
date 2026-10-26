@@ -14,21 +14,14 @@ var disenos = load('sid10_disenos', [
 
 
 function diseñoTitulo(d){ return d.nombreTecnico || d.tipo; }
-/* Semáforo del diseño: rojo si tiene roturas vencidas o nada avanzado; naranja en curso; verde con todo resuelto. */
 function semaforoDiseno(d){
-  if(d.estado === 'Cancelado') return 'gris';
-  if(d.estado === 'Completado' || d.estado === 'Validado') return 'verde';
   if(!d.replicaObjs || !d.replicaObjs.length || !d.diasRotura || !d.diasRotura.length) return 'rojo';
-  var hoy = todayISO();
-  var cargas = roturaCargas.filter(function(c){ return c.disenoCodigoDiseno === d.codigo; });
-  if(cargas.some(function(c){ return c.estado === 'pendiente' && c.fechaEnsayo < hoy; })) return 'rojo';
   var total = d.replicaObjs.length * d.diasRotura.length;
-  var resueltas = cargas.filter(cargaResuelta).length;
-  if(resueltas >= total && total) return 'verde';
-  return resueltas || cargas.length ? 'naranja' : 'rojo';
+  var completas = roturaCargas.filter(function(c){ return c.disenoCodigoDiseno === d.codigo && c.estado === 'completado'; }).length;
+  if(completas === 0) return 'rojo';
+  if(completas >= total) return 'verde';
+  return 'naranja';
 }
-function replicasElaboradas(d){ return (d.replicaObjs || []).filter(function(r){ return r.elaboracion || cargasDeReplicaObj(d, r).length; }); }
-function disenoEditable(d){ return ['Completado', 'Validado', 'Cancelado'].indexOf(d.estado) === -1 && proyectoAbierto(proyectoPorNombre(proyectoNombre(d.proyectoId)) || {estado:'En curso'}); }
 function semaforoDotHtml(color, title){
   return '<span class="semaforo-dot semaforo-'+color+'" title="'+(title||'')+'"></span>';
 }
@@ -46,14 +39,11 @@ function disenoActionsHtml(d,i){
         '<span class="more-menu-label">Laboratorio</span>' +
         '<button data-act="etiquetas" data-i="'+i+'">'+TAG_ICON+' Imprimir etiquetas</button>' +
         '<button data-act="evidencia" data-perm="evidencias:subir" data-i="'+i+'">'+CAMERA_ICON+' Subir evidencia</button>' +
-        '<button data-act="elaborar" data-i="'+i+'">'+RESULTS_ICON+' Ir a elaboración</button>' +
-        '<span class="more-menu-label" data-perm="disenos:editar">Editar</span>' +
-        (disenoEditable(d) ? '<button data-act="receta" data-perm="disenos:editar" data-i="'+i+'">'+EDIT_ICON+' '+(replicasElaboradas(d).length ? 'Nueva versión de receta' : 'Editar receta')+'</button>' +
-          '<button data-act="replica" data-perm="disenos:editar" data-i="'+i+'">'+DUP_ICON+' Agregar réplica</button>' +
-          '<button data-act="edit-iter" data-perm="disenos:editar" data-i="'+i+'">'+EDIT_ICON+' Cambiar iteración</button>' : '') +
+        '<span class="more-menu-label" data-perm="disenos:crear">Editar</span>' +
+        '<button data-act="edit-iter" data-perm="disenos:crear" data-i="'+i+'">'+EDIT_ICON+' Editar iteración</button>' +
         '<button data-act="dup" data-perm="disenos:crear" data-i="'+i+'">'+DUP_ICON+' Duplicar</button>' +
-        (disenoEditable(d) ? '<div class="more-menu-divider" data-perm="disenos:editar"></div><button class="danger" data-act="cancelar" data-perm="disenos:editar" data-i="'+i+'">'+TRASH_ICON+' Cancelar diseño</button>' : '') +
-        (!replicasElaboradas(d).length ? '<button class="danger" data-act="del" data-perm="disenos:eliminar" data-i="'+i+'">'+TRASH_ICON+' Eliminar (sin elaborar)</button>' : '') +
+        '<div class="more-menu-divider" data-perm="disenos:eliminar"></div>' +
+        '<button class="danger" data-act="del" data-perm="disenos:eliminar" data-i="'+i+'">'+TRASH_ICON+' Eliminar</button>' +
       '</div>' +
     '</div>';
 }
@@ -227,10 +217,8 @@ function handleCardAction(e){
   if(act === 'view'){
     openDesignModal(disenos[i]);
   } else if(act === 'results'){
-    // Los ensayos en fresco se cargan en el cuaderno de cada réplica (paso 3); los resultados se cierran en Revisión (paso 5).
-    elaboracionFiltroProyecto = proyectoNombre(disenos[i].proyectoId);
-    showPanel('elaboracion');
-    showElaboracionSub('elaboradas');
+    if(!exigir('resultados:registrar')) return;
+    openResultsModal(disenos[i], i);
   } else if(act === 'expediente'){
     closeAllMenus();
     abrirExpediente(proyectoNombre(disenos[i].proyectoId));
@@ -271,20 +259,6 @@ function handleCardAction(e){
     closeAllMenus();
     if(!exigir('disenos:eliminar')) return;
     eliminarDiseno(disenos[i]);
-  } else if(act === 'cancelar'){
-    closeAllMenus();
-    if(exigir('disenos:editar')) cancelarDiseno(disenos[i]);
-  } else if(act === 'receta'){
-    closeAllMenus();
-    if(exigir('disenos:editar')) abrirEditarReceta(disenos[i]);
-  } else if(act === 'replica'){
-    closeAllMenus();
-    if(exigir('disenos:editar')) agregarReplica(disenos[i]);
-  } else if(act === 'elaborar'){
-    closeAllMenus();
-    elaboracionFiltroProyecto = proyectoNombre(disenos[i].proyectoId);
-    showPanel('elaboracion');
-    showElaboracionSub('programar');
   }
 }
 document.getElementById('dis-gallery').addEventListener('click', function(e){
@@ -513,83 +487,3 @@ document.getElementById('ei-guardar').addEventListener('click', function(){
   toast('Iteración actualizada');
   renderAllDesignViews();
 });
-
-/* ---- RF-DIS-15: cancelar diseño (con motivo; sus roturas pendientes se cancelan; no se borra) ---- */
-function cancelarDiseno(d){
-  pedirMotivo('Cancelar diseño ' + d.codigo, 'El diseño queda en el expediente como Cancelado y sus roturas pendientes se cancelan.', function(motivo){
-    var pend = roturaCargas.filter(function(c){ return c.disenoCodigoDiseno === d.codigo && c.estado === 'pendiente'; });
-    pend.forEach(function(c){ c.estado = 'cancelada'; c.motivoCancelacion = motivo; });
-    d.estadoAnterior = d.estado;
-    d.estado = 'Cancelado';
-    d.cancelacion = {ts:Date.now(), motivo:motivo, usuario:usuarioActual.id};
-    save('sid10_disenos', disenos);
-    saveRoturaCargas();
-    registrarHistorial('Canceló', 'Diseño', d.codigo + ' · ' + pend.length + ' roturas pendientes canceladas · motivo: ' + motivo, {proyecto: proyectoNombre(d.proyectoId), ref: d.codigo});
-    toast('Diseño cancelado');
-    renderAllDesignViews();
-    renderRoturasAll();
-  });
-}
-
-/* ---- RF-DIS-11/13: editar la receta. Libre mientras ninguna réplica esté elaborada; después, solo por
-   versión nueva con motivo. Las réplicas ya elaboradas conservan la versión con la que se hicieron. ---- */
-function abrirEditarReceta(d){
-  var conVersion = replicasElaboradas(d).length > 0;
-  var items = (d.mix || []).map(function(it, k){ return {k:k, nombre:it.nombre, pesoSeco:n(it.pesoSeco)}; });
-  abrirDialogo({titulo:(conVersion ? 'Nueva versión de receta · ' : 'Editar receta · ') + d.codigo + ' (v' + (d.version || 1) + ')', ancho:'grande',
-    html:'<p class="nota-sm">' + (conVersion ? 'Ya hay réplicas elaboradas: el cambio crea la versión ' + ((d.version || 1) + 1) + ' y se aplica a las réplicas que falta elaborar.' : 'Ninguna réplica está elaborada: el cambio se aplica directamente.') + '</p>' +
-      '<div class="table-scroll"><table class="data-table"><thead><tr><th>Material</th><th>Dosis actual (kg/m³)</th><th>Nueva dosis</th></tr></thead><tbody>' +
-      items.map(function(it){ return '<tr><td>' + esc(it.nombre) + '</td><td>' + fmt(it.pesoSeco, 2) + '</td><td><input type="text" inputmode="decimal" data-rec="' + it.k + '" value="' + it.pesoSeco + '"></td></tr>'; }).join('') +
-      '</tbody></table></div>' +
-      '<div class="pred-form"><div class="pp-field"><label>a/mc</label><input type="text" inputmode="decimal" id="rec-amc" value="' + esc(d.amcEfectiva || '') + '"></div></div>' +
-      (conVersion ? '<div class="pp-field"><label>Motivo del cambio (obligatorio)</label><textarea id="rec-motivo" rows="2"></textarea></div>' : '') + '<p class="campo-error" id="rec-err"></p>',
-    botones:[{label: conVersion ? 'Crear versión ' + ((d.version || 1) + 1) : 'Guardar receta', accion:function(c){
-      var amc = parseNumero(c.querySelector('#rec-amc').value);
-      if(!(amc >= 0.2 && amc <= 1.2)){ c.querySelector('#rec-err').textContent = 'a/mc entre 0.20 y 1.20.'; return false; }
-      var nuevos = {}, error = '';
-      c.querySelectorAll('[data-rec]').forEach(function(el){ var v = parseNumero(el.value); if(!(v >= 0)) error = 'Las cantidades deben ser números ≥ 0.'; nuevos[el.dataset.rec] = v; });
-      if(error){ c.querySelector('#rec-err').textContent = error; return false; }
-      var motivo = conVersion ? c.querySelector('#rec-motivo').value.trim() : '';
-      if(conVersion && motivo.length < 5){ c.querySelector('#rec-err').textContent = 'Indicá el motivo del cambio.'; return false; }
-      var cambios = [];
-      var anterior = {version: d.version || 1, mix: JSON.parse(JSON.stringify(d.mix || [])), amcEfectiva: d.amcEfectiva, cvdTotal: d.cvdTotal};
-      (d.mix || []).forEach(function(it, k){
-        var nv = nuevos[k];
-        if(nv === undefined || Math.abs(nv - n(it.pesoSeco)) < 1e-9) return;
-        var factor = n(it.pesoSeco) ? nv / n(it.pesoSeco) : 0;
-        cambios.push(it.nombre + ' ' + fmt(n(it.pesoSeco), 2) + ' → ' + fmt(nv, 2));
-        ['volAbs', 'pesoSSS', 'pesoHumedo', 'batch', 'cvd'].forEach(function(f){ if(it[f] !== undefined) it[f] = n(it[f]) * factor; });
-        it.pesoSeco = nv;
-      });
-      if(String(amc) !== String(d.amcEfectiva)) cambios.push('a/mc ' + d.amcEfectiva + ' → ' + amc);
-      if(!cambios.length){ toast('Sin cambios'); return; }
-      d.amcEfectiva = String(amc);
-      d.cvdTotal = Number((d.mix || []).reduce(function(a, it){ return a + n(it.cvd); }, 0).toFixed(2));
-      if(conVersion){
-        d.versiones = (d.versiones || []).concat([Object.assign(anterior, {hasta: Date.now()})]);
-        d.version = (d.version || 1) + 1;
-        d.versiones[d.versiones.length - 1].motivo = motivo;
-        d.versiones[d.versiones.length - 1].aVersion = d.version;
-        (d.replicaObjs || []).forEach(function(r){ if(!r.elaboracion) r.version = d.version; });
-      }
-      d.editedAt = Date.now();
-      save('sid10_disenos', disenos);
-      registrarHistorial('Editó', 'Diseño', d.codigo + (conVersion ? ' · versión ' + d.version + ' · motivo: ' + motivo : '') + ' · ' + cambios.join('; '), {proyecto: proyectoNombre(d.proyectoId), ref: d.codigo});
-      toast(conVersion ? 'Versión ' + d.version + ' creada' : 'Receta actualizada');
-      renderAllDesignViews();
-    }}]});
-}
-
-/* ---- RF-DIS-14: agregar réplica posterior (R3…) con la versión vigente ---- */
-function agregarReplica(d){
-  var reps = d.replicaObjs || (d.replicaObjs = []);
-  if(reps.length >= 5){ toast('Un diseño tiene como máximo 5 réplicas'); return; }
-  if(!confirm('¿Agregar la réplica R' + (reps.length + 1) + ' a ' + d.codigo + ' con la receta v' + (d.version || 1) + '?')) return;
-  var nro = reps.reduce(function(m, r){ return Math.max(m, r.n || 0); }, 0) + 1;
-  reps.push({n:nro, nombre:diseñoTitulo(d) + '-R' + nro, codigo:'', version:d.version || 1, repeticion:true});
-  d.replicas = reps.length;
-  save('sid10_disenos', disenos);
-  registrarHistorial('Agregó', 'Réplica', d.codigo + ' · R' + nro + ' (repetición, v' + (d.version || 1) + ')', {proyecto: proyectoNombre(d.proyectoId), ref: d.codigo});
-  toast('Réplica R' + nro + ' creada en Por elaborar');
-  renderAllDesignViews();
-}
