@@ -114,21 +114,26 @@ if(typeof Chart === 'undefined'){
         </button>
       </div>
 
-      <!-- Flujo del ensayo: los pasos del laboratorio en el orden en que se hacen -->
+      <!-- Flujo del ensayo: los pasos del laboratorio en el orden en que se hacen, a partir de un proyecto -->
       <div class="sn-group sn-flujo">
         <span class="sn-label">Flujo del ensayo</span>
-        <button class="nav-item" data-panel="componentes">
+        <button class="nav-item" data-panel="proyectos">
           <span class="nav-step">1</span>
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 7a2 2 0 0 1 2-2h4l2 2h8a2 2 0 0 1 2 2v9a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V7z"/><path d="M8 13h8"/></svg>
+          <span class="label">Proyecto</span>
+        </button>
+        <button class="nav-item" data-panel="componentes">
+          <span class="nav-step">2</span>
           <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 8l-9-5-9 5 9 5 9-5z"/><path d="M3 8v8l9 5 9-5V8"/></svg>
-          <span class="label">Registro</span>
+          <span class="label">Materiales</span>
         </button>
         <button class="nav-item" data-panel="disenos" data-sub="calcular">
-          <span class="nav-step">2</span>
+          <span class="nav-step">3</span>
           <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="4" y="2" width="16" height="20" rx="2"/><line x1="8" y1="7" x2="16" y2="7"/><line x1="8" y1="12" x2="16" y2="12"/><line x1="8" y1="17" x2="12" y2="17"/></svg>
           <span class="label">Diseño</span>
         </button>
         <button class="nav-item" data-panel="roturas">
-          <span class="nav-step">3</span>
+          <span class="nav-step">4</span>
           <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 2l3 6-5 4 6 2-8 8 2-7-5-2 4-4-3-5z"/></svg>
           <span class="label">Roturas</span>
           <span class="nav-badge" id="nav-roturas-badge" style="display:none;">0</span>
@@ -138,17 +143,17 @@ if(typeof Chart === 'undefined'){
           <span class="label">Calendario de roturas</span>
         </button>
         <button class="nav-item" data-panel="disenos" data-sub="historico">
-          <span class="nav-step">4</span>
+          <span class="nav-step">5</span>
           <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M9 11l3 3 8-8"/><path d="M20 12v7a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h9"/></svg>
           <span class="label">Resultados</span>
         </button>
         <button class="nav-item" data-panel="reporte-rr">
-          <span class="nav-step">5</span>
+          <span class="nav-step">6</span>
           <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M9 3h6a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2H9a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2z"/><path d="M9 8h6"/><path d="M9 12h6"/><path d="M9 16h3"/></svg>
           <span class="label">Reporte RR</span>
         </button>
         <button class="nav-item" data-panel="archivador">
-          <span class="nav-step">6</span>
+          <span class="nav-step">7</span>
           <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M22 19a2 2 0 0 1-2 2H4a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h5l2 3h9a2 2 0 0 1 2 2z"/></svg>
           <span class="label">Archivo</span>
         </button>
@@ -156,10 +161,6 @@ if(typeof Chart === 'undefined'){
 
       <div class="sn-group">
         <span class="sn-label">Seguimiento</span>
-        <button class="nav-item" data-panel="proyectos">
-          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 7a2 2 0 0 1 2-2h4l2 2h8a2 2 0 0 1 2 2v9a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V7z"/><path d="M8 13h8"/></svg>
-          <span class="label">Proyectos (expedientes)</span>
-        </button>
         <button class="nav-item" data-panel="reportes">
           <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 3v18h18"/><rect x="7" y="12" width="3" height="6"/><rect x="12" y="8" width="3" height="10"/><rect x="17" y="5" width="3" height="13"/></svg>
           <span class="label">Dashboard y KPIs</span>
@@ -344,8 +345,8 @@ if(typeof Chart === 'undefined'){
       </div>
 
       <div class="roturas-subtabs" id="disenos-subtabs">
-        <button class="subtab active" data-dsub="calcular" data-perm="disenos:crear">Paso 2 · Calcular diseño</button>
-        <button class="subtab" data-dsub="historico">Paso 4 · Histórico y resultados</button>
+        <button class="subtab active" data-dsub="calcular" data-perm="disenos:crear">Paso 3 · Calcular diseño</button>
+        <button class="subtab" data-dsub="historico">Paso 5 · Histórico y resultados</button>
       </div>
 
       <!-- ===== CALCULAR DISEÑO — réplica de la hoja real ===== -->
@@ -1358,21 +1359,22 @@ if(typeof Chart === 'undefined'){
       <button class="modal-close" id="atajos-cerrar" aria-label="Cerrar">✕</button>
     </div>
     <div class="atajos-body">
-      <h4>Flujo del ensayo (en orden)</h4>
+      <h4>Flujo del ensayo (trabajá en este orden)</h4>
       <ol class="atajos-flujo">
-        <li><b>Registro</b> — materiales, proyecto e iteración.</li>
-        <li><b>Diseño</b> — calcular la dosificación y registrarla; se programan las roturas.</li>
-        <li><b>Roturas</b> — registrar la carga de cada probeta en su fecha (con el calendario).</li>
+        <li><b>Proyecto</b> — creá o elegí el proyecto que vas a trabajar (por ejemplo, el de esta semana). Todo lo demás se hace dentro de él.</li>
+        <li><b>Materiales</b> — revisá que estén cargados los materiales que vas a usar.</li>
+        <li><b>Diseño</b> — elegí la iteración, calculá la dosificación y registrala; se programan las roturas.</li>
+        <li><b>Roturas</b> — registrá la carga de cada probeta en su fecha (con el calendario).</li>
         <li><b>Resultados</b> — estado fresco y resistencia por réplica.</li>
-        <li><b>Reporte RR</b> — comparar diseños y edades.</li>
+        <li><b>Reporte RR</b> — compará diseños y edades.</li>
         <li><b>Archivo</b> — diseños completados con su informe.</li>
       </ol>
-      <p class="nota-sm">Cada sección del flujo muestra arriba en qué paso estás y abajo los botones al paso anterior y al siguiente.</p>
+      <p class="nota-sm">Sin proyecto elegido no se puede pasar del paso 2. Cada sección muestra arriba el paso y el proyecto en curso, y abajo los botones al paso anterior y al siguiente.</p>
       <h4>Atajos de teclado</h4>
       <table class="atajos-tabla">
-        <tr><td><kbd>Alt</kbd> + <kbd>1</kbd> … <kbd>6</kbd></td><td>Ir al paso 1 a 6 del flujo</td></tr>
+        <tr><td><kbd>Alt</kbd> + <kbd>1</kbd> … <kbd>7</kbd></td><td>Ir al paso 1 a 7 del flujo</td></tr>
         <tr><td><kbd>Alt</kbd> + <kbd>0</kbd></td><td>Inicio</td></tr>
-        <tr><td><kbd>Alt</kbd> + <kbd>N</kbd></td><td>Nuevo diseño (calculadora)</td></tr>
+        <tr><td><kbd>Alt</kbd> + <kbd>N</kbd></td><td>Nuevo diseño en el proyecto en curso</td></tr>
         <tr><td><kbd>Ctrl</kbd> + <kbd>K</kbd></td><td>Buscar código, diseño, proyecto o material</td></tr>
         <tr><td><kbd>?</kbd></td><td>Abrir esta ayuda</td></tr>
         <tr><td><kbd>Esc</kbd></td><td>Cerrar esta ayuda o el buscador</td></tr>

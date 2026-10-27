@@ -51,6 +51,11 @@ function showPanel(name){
     toast('Tu rol no tiene acceso a ' + panelInfo(name).label);
     name = 'inicio';
   }
+  // El trabajo parte de un proyecto: sin proyecto en curso se vuelve al paso 1
+  if(usuarioActual && requiereProyecto(name)){
+    toast('Primero elegí el proyecto (paso 1)');
+    name = 'proyectos';
+  }
   panelActual = name;
   navItems.forEach(function(btn){ btn.classList.toggle('active', btn.dataset.panel === name); });
   document.querySelectorAll('.panel').forEach(function(sec){ sec.classList.toggle('active', sec.id === 'panel-' + name); });

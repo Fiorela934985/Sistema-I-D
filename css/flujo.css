@@ -26,7 +26,7 @@
 .flujo-ayuda-btn:hover{background:var(--surface-2);color:var(--celeste-700);}
 .flujo kbd,.atajos-card kbd{font-family:var(--font-body);font-size:.68rem;font-weight:700;color:var(--text);border:1px solid var(--line);border-bottom-width:2px;
   border-radius:5px;padding:1px 6px;background:var(--surface-2);}
-.flujo-pasos{list-style:none;margin:0;padding:0;display:grid;grid-template-columns:repeat(6,minmax(0,1fr));gap:6px;counter-reset:none;}
+.flujo-pasos{list-style:none;margin:0;padding:0;display:grid;grid-template-columns:repeat(7,minmax(0,1fr));gap:6px;}
 .flujo-pasos li{position:relative;min-width:0;}
 .flujo-step{width:100%;display:flex;align-items:center;gap:9px;padding:8px 10px;border-radius:10px;text-align:left;
   border:1px solid var(--line);background:var(--surface-2);color:var(--text);transition:border-color .15s, background .15s;}
@@ -41,6 +41,22 @@
 .flujo-step.hecho .fs-num{background:var(--verde-50);border-color:var(--verde-500);color:var(--verde-700);}
 .flujo-step.actual{border-color:var(--celeste-600);background:var(--celeste-50);box-shadow:0 0 0 3px rgba(31,176,224,.15);}
 .flujo-step.actual .fs-num{background:var(--grad-marca);border-color:transparent;color:#fff;}
+.fs-txt small em.ok{color:var(--verde-700);}
+.flujo-step.falta:not(.actual){border-style:dashed;}
+.flujo-step.falta:not(.actual) .fs-num{opacity:.6;}
+.side-nav .nav-item.falta{opacity:.5;}
+
+/* Proyecto en curso */
+.flujo-proy{display:inline-flex;align-items:center;gap:8px;font-size:.78rem;color:var(--text);padding:3px 4px 3px 12px;border-radius:999px;
+  background:var(--verde-50);border:1px solid var(--verde-100);max-width:100%;}
+.flujo-proy b{white-space:nowrap;overflow:hidden;text-overflow:ellipsis;max-width:260px;}
+.flujo-proy.sin{background:#fef3c7;border-color:#fde3a2;color:#92400e;}
+.flujo-proy-btn{font-size:.7rem;font-weight:700;padding:3px 10px;border-radius:999px;background:var(--surface);border:1px solid var(--line);color:var(--celeste-700);}
+.flujo-proy-btn:hover{border-color:var(--celeste-300);}
+.flujo-falta{font-size:.84rem;font-weight:600;color:#92400e;}
+html[data-theme="dark"] .flujo-proy{background:rgba(46,158,87,.14);border-color:transparent;}
+html[data-theme="dark"] .flujo-proy.sin{background:rgba(245,158,11,.14);color:#fcd34d;}
+html[data-theme="dark"] .flujo-falta{color:#fcd34d;}
 .flujo-ayuda{margin-top:10px;font-size:.82rem;color:var(--text-muted);}
 .flujo-ayuda b{color:var(--text);}
 .flujo-inicio{margin:0 0 22px;}
@@ -54,8 +70,8 @@ html[data-theme="dark"] .flujo-step.actual{background:rgba(31,176,224,.12);}
 html[data-theme="dark"] .flujo-step.hecho .fs-num{background:rgba(46,158,87,.15);color:var(--verde-300);}
 html[data-theme="dark"] .flujo-tit{color:var(--celeste-300);}
 
-@media (max-width:1100px){
-  .flujo-pasos{grid-template-columns:repeat(3,minmax(0,1fr));}
+@media (max-width:1280px){
+  .flujo-pasos{grid-template-columns:repeat(4,minmax(0,1fr));}
 }
 @media (max-width:560px){
   .flujo-pasos{grid-template-columns:repeat(2,minmax(0,1fr));}

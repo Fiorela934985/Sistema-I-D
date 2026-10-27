@@ -53,13 +53,13 @@ function nuevaSal(){ return Math.random().toString(36).slice(2) + Date.now().toS
 /* ================= PERMISOS Y ROLES ================= */
 var PANELES = [
   {id:'inicio', label:'Inicio', grupo:'General'},
-  {id:'componentes', label:'Registro (componentes)', grupo:'Flujo del ensayo'},
+  {id:'proyectos', label:'Proyectos', grupo:'Flujo del ensayo'},
+  {id:'componentes', label:'Materiales (componentes)', grupo:'Flujo del ensayo'},
   {id:'disenos', label:'Diseños y resultados', grupo:'Flujo del ensayo'},
   {id:'roturas', label:'Roturas', grupo:'Flujo del ensayo'},
   {id:'calendario', label:'Calendario de roturas', grupo:'Flujo del ensayo'},
   {id:'reporte-rr', label:'Reporte RR', grupo:'Flujo del ensayo'},
   {id:'archivador', label:'Archivador', grupo:'Flujo del ensayo'},
-  {id:'proyectos', label:'Proyectos', grupo:'Seguimiento'},
   {id:'reportes', label:'Dashboard y KPIs', grupo:'Seguimiento'},
   {id:'base-historica', label:'Base histórica', grupo:'Seguimiento'},
   {id:'prediccion', label:'Predicción', grupo:'Inteligencia'},

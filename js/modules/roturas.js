@@ -214,12 +214,15 @@ var GRUPOS_PENDIENTES = [
 function grupoPendiente(c, hoy){ return c.fechaEnsayo < hoy ? 'vencidas' : (c.fechaEnsayo === hoy ? 'hoy' : 'proximas'); }
 function renderRoturasPendientes(){
   var wrap = document.getElementById('roturas-pendientes-list');
-  var pend = roturaCargas.filter(function(c){ return c.estado === 'pendiente'; }).sort(function(a,b){ return (a.fechaEnsayo||'').localeCompare(b.fechaEnsayo||''); });
-  if(!pend.length){ wrap.innerHTML = '<div class="empty-note">No hay roturas pendientes.</div>'; return; }
+  // Con un proyecto en curso se muestran solo sus roturas (el chip permite ver las de todos)
+  var soloProyecto = proyectoFlujo && roturasSoloProyecto;
+  var chipProyecto = proyectoFlujo ? '<button class="filtro-chip'+(soloProyecto?' on':'')+'" data-solo-proyecto>'+(soloProyecto ? 'Solo '+esc(proyectoFlujo) : 'Todos los proyectos')+'</button>' : '';
+  var pend = roturaCargas.filter(function(c){ return c.estado === 'pendiente' && (!soloProyecto || c.proyecto === proyectoFlujo); }).sort(function(a,b){ return (a.fechaEnsayo||'').localeCompare(b.fechaEnsayo||''); });
+  if(!pend.length){ wrap.innerHTML = (chipProyecto ? '<div class="filtro-chips">'+chipProyecto+'</div>' : '') + '<div class="empty-note">No hay roturas pendientes'+(soloProyecto ? ' en este proyecto' : '')+'.</div>'; return; }
   var todayStr = todayISO();
   var porGrupo = {vencidas:[], hoy:[], proximas:[]};
   pend.forEach(function(c){ porGrupo[grupoPendiente(c, todayStr)].push(c); });
-  var chips = '<div class="filtro-chips">' + [{id:'todas', titulo:'Todas', n:pend.length}].concat(GRUPOS_PENDIENTES.map(function(g){ return {id:g.id, titulo:g.titulo, n:porGrupo[g.id].length}; }))
+  var chips = '<div class="filtro-chips">' + chipProyecto + [{id:'todas', titulo:'Todas', n:pend.length}].concat(GRUPOS_PENDIENTES.map(function(g){ return {id:g.id, titulo:g.titulo, n:porGrupo[g.id].length}; }))
     .map(function(f){ return '<button class="filtro-chip f-'+f.id+(roturasFiltroEstado===f.id?' on':'')+'" data-filtro-pend="'+f.id+'">'+f.titulo+' <b>'+f.n+'</b></button>'; }).join('') + '</div>';
   var grupos = GRUPOS_PENDIENTES.filter(function(g){ return (roturasFiltroEstado === 'todas' || roturasFiltroEstado === g.id) && porGrupo[g.id].length; });
   wrap.innerHTML = chips + (grupos.length ? grupos.map(function(g){
