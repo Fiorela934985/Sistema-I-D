@@ -58,6 +58,7 @@ function showPanel(name){
   document.getElementById('tb-panel-title').textContent = info.label;
   document.getElementById('tb-crumb').textContent = info.grupo;
   if(PANEL_HOOKS[name]) PANEL_HOOKS[name]();
+  actualizarFlujo();
   cerrarMenuMovil();
   window.scrollTo({top:0, behavior:'auto'});
 }
@@ -66,7 +67,9 @@ navItems.forEach(function(btn){
     if(btn.dataset.panel === 'componentes'){ activeCompCat = null; }
     showPanel(btn.dataset.panel);
     if(btn.dataset.panel === 'componentes'){ renderComponentesPanel(); }
-    if(btn.dataset.panel === 'disenos'){ showSubTab('historico'); }
+    // Diseños abre la calculadora (paso 2) y Resultados el histórico (paso 4); sin permiso de crear, siempre el histórico
+    if(btn.dataset.panel === 'disenos'){ showSubTab(btn.dataset.sub === 'historico' || !can('disenos:crear') ? 'historico' : 'calcular'); }
+    if(btn.dataset.panel === 'roturas'){ showRoturasSub('pendientes'); }
   });
 });
 document.getElementById('btn-calcular').addEventListener('click', function(){ showPanel('disenos'); showSubTab('calcular'); });

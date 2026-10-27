@@ -37,6 +37,8 @@ document.getElementById('pp-nueva-iter-confirmar').addEventListener('click', fun
   toast('Iteración registrada y seleccionada');
 });
 function showSubTab(name){
+  subTabDisenos = name;
+  document.querySelectorAll('#disenos-subtabs .subtab').forEach(function(b){ b.classList.toggle('active', b.dataset.dsub === name); });
   document.getElementById('sub-calcular').style.display = name === 'calcular' ? 'block' : 'none';
   document.getElementById('sub-historico').style.display = name === 'historico' ? 'block' : 'none';
   if(name === 'historico'){ rebuildHistProyectoFiltro(); renderDisenosHistorico(); }
@@ -50,9 +52,13 @@ function showSubTab(name){
       if(!colab.value) colab.value = inicialesUsuario(usuarioActual);
     }
   }
+  actualizarFlujo();
   window.scrollTo({top:0, behavior:'auto'});
 }
 document.getElementById('btn-nuevo-diseno').addEventListener('click', function(){ showSubTab('calcular'); });
+document.querySelectorAll('#disenos-subtabs .subtab').forEach(function(btn){
+  btn.addEventListener('click', function(){ showSubTab(btn.dataset.dsub); });
+});
 document.getElementById('pp-usar-numeral').addEventListener('change', function(){
   document.getElementById('pp-numeral').disabled = !this.checked;
 });

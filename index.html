@@ -18,6 +18,7 @@
 <link rel="stylesheet" href="css/acabado.css">
 <link rel="stylesheet" href="css/diseno.css">
 <link rel="stylesheet" href="css/pro.css">
+<link rel="stylesheet" href="css/flujo.css">
 <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.4/dist/chart.umd.min.js"></script>
 <script>
@@ -109,47 +110,59 @@ if(typeof Chart === 'undefined'){
         <button class="nav-item active" data-panel="inicio">
           <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 11l9-8 9 8"/><path d="M5 10v10h14V10"/></svg>
           <span class="label">Inicio</span>
-        </button>
-        <button class="nav-item" data-panel="reportes">
-          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 3v18h18"/><rect x="7" y="12" width="3" height="6"/><rect x="12" y="8" width="3" height="10"/><rect x="17" y="5" width="3" height="13"/></svg>
-          <span class="label">Dashboard y KPIs</span>
+          <kbd class="nav-kbd">Alt 0</kbd>
         </button>
       </div>
 
-      <div class="sn-group">
-        <span class="sn-label">Operación</span>
-        <button class="nav-item" data-panel="proyectos">
-          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 7a2 2 0 0 1 2-2h4l2 2h8a2 2 0 0 1 2 2v9a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V7z"/><path d="M8 13h8"/></svg>
-          <span class="label">Proyectos</span>
+      <!-- Flujo del ensayo: los pasos del laboratorio en el orden en que se hacen -->
+      <div class="sn-group sn-flujo">
+        <span class="sn-label">Flujo del ensayo</span>
+        <button class="nav-item" data-panel="componentes">
+          <span class="nav-step">1</span>
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 8l-9-5-9 5 9 5 9-5z"/><path d="M3 8v8l9 5 9-5V8"/></svg>
+          <span class="label">Registro</span>
         </button>
-        <button class="nav-item" data-panel="disenos">
+        <button class="nav-item" data-panel="disenos" data-sub="calcular">
+          <span class="nav-step">2</span>
           <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="4" y="2" width="16" height="20" rx="2"/><line x1="8" y1="7" x2="16" y2="7"/><line x1="8" y1="12" x2="16" y2="12"/><line x1="8" y1="17" x2="12" y2="17"/></svg>
-          <span class="label">Diseños</span>
+          <span class="label">Diseño</span>
         </button>
         <button class="nav-item" data-panel="roturas">
+          <span class="nav-step">3</span>
           <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 2l3 6-5 4 6 2-8 8 2-7-5-2 4-4-3-5z"/></svg>
           <span class="label">Roturas</span>
           <span class="nav-badge" id="nav-roturas-badge" style="display:none;">0</span>
         </button>
-        <button class="nav-item" data-panel="calendario">
+        <button class="nav-item nav-sub" data-panel="calendario">
           <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="4" width="18" height="18" rx="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/></svg>
           <span class="label">Calendario de roturas</span>
         </button>
-        <button class="nav-item" data-panel="componentes">
-          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 8l-9-5-9 5 9 5 9-5z"/><path d="M3 8v8l9 5 9-5V8"/></svg>
-          <span class="label">Registro (componentes)</span>
+        <button class="nav-item" data-panel="disenos" data-sub="historico">
+          <span class="nav-step">4</span>
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M9 11l3 3 8-8"/><path d="M20 12v7a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h9"/></svg>
+          <span class="label">Resultados</span>
         </button>
-      </div>
-
-      <div class="sn-group">
-        <span class="sn-label">Resultados</span>
         <button class="nav-item" data-panel="reporte-rr">
+          <span class="nav-step">5</span>
           <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M9 3h6a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2H9a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2z"/><path d="M9 8h6"/><path d="M9 12h6"/><path d="M9 16h3"/></svg>
           <span class="label">Reporte RR</span>
         </button>
         <button class="nav-item" data-panel="archivador">
+          <span class="nav-step">6</span>
           <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M22 19a2 2 0 0 1-2 2H4a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h5l2 3h9a2 2 0 0 1 2 2z"/></svg>
-          <span class="label">Archivador</span>
+          <span class="label">Archivo</span>
+        </button>
+      </div>
+
+      <div class="sn-group">
+        <span class="sn-label">Seguimiento</span>
+        <button class="nav-item" data-panel="proyectos">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 7a2 2 0 0 1 2-2h4l2 2h8a2 2 0 0 1 2 2v9a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V7z"/><path d="M8 13h8"/></svg>
+          <span class="label">Proyectos (expedientes)</span>
+        </button>
+        <button class="nav-item" data-panel="reportes">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 3v18h18"/><rect x="7" y="12" width="3" height="6"/><rect x="12" y="8" width="3" height="10"/><rect x="17" y="5" width="3" height="13"/></svg>
+          <span class="label">Dashboard y KPIs</span>
         </button>
         <button class="nav-item" data-panel="base-historica">
           <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><ellipse cx="12" cy="5" rx="9" ry="3"/><path d="M21 12c0 1.66-4 3-9 3s-9-1.34-9-3"/><path d="M3 5v14c0 1.66 4 3 9 3s9-1.34 9-3V5"/></svg>
@@ -214,6 +227,9 @@ if(typeof Chart === 'undefined'){
         <div class="tb-search-res" id="tb-search-res"></div>
       </div>
       <div class="tb-actions">
+        <button class="tb-btn" data-atajos title="Atajos de teclado (?)" aria-label="Atajos de teclado">
+          <svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="2" y="6" width="20" height="12" rx="2"/><path d="M6 10h.01M10 10h.01M14 10h.01M18 10h.01M7 14h10"/></svg>
+        </button>
         <button class="tb-btn" id="tb-asistente" title="Asistente I+D" data-perm="ver:asistente">
           <svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/></svg>
         </button>
@@ -243,6 +259,8 @@ if(typeof Chart === 'undefined'){
         <button class="btn-add btn-nuevo-diseno-grande" id="btn-calcular" data-perm="disenos:crear">+ Nuevo Diseño</button>
       </div>
 
+      <nav class="flujo flujo-inicio" id="inicio-flujo" aria-label="Flujo del ensayo"></nav>
+
       <div class="accesos-rapidos" id="inicio-accesos"></div>
       <div class="inicio-kpi-strip" id="inicio-kpi-strip"></div>
       <div class="semana-strip" id="inicio-semana"></div>
@@ -270,7 +288,7 @@ if(typeof Chart === 'undefined'){
     <!-- COMPONENTES -->
     <section id="panel-componentes" class="panel">
       <div class="content-header">
-        <div><h2 id="comp-title">Registro</h2></div>
+        <div><h2 id="comp-title">Registro</h2><p>Materiales y proyectos que alimentan la calculadora de diseños.</p></div>
         <span class="badge-pill" id="comp-count">0 registros</span>
       </div>
 
@@ -321,8 +339,13 @@ if(typeof Chart === 'undefined'){
     <!-- DISEÑOS -->
     <section id="panel-disenos" class="panel">
       <div class="content-header">
-        <div><h2>Diseños</h2></div>
+        <div><h2>Diseños</h2><p>Calculá la dosificación (formato D-CC-F-148) o consultá el histórico de diseños.</p></div>
         <span class="badge-pill" id="disenos-count">0 registros</span>
+      </div>
+
+      <div class="roturas-subtabs" id="disenos-subtabs">
+        <button class="subtab active" data-dsub="calcular" data-perm="disenos:crear">Paso 2 · Calcular diseño</button>
+        <button class="subtab" data-dsub="historico">Paso 4 · Histórico y resultados</button>
       </div>
 
       <!-- ===== CALCULAR DISEÑO — réplica de la hoja real ===== -->
@@ -589,7 +612,7 @@ if(typeof Chart === 'undefined'){
     <!-- ============ ROTURAS ============ -->
     <section id="panel-roturas" class="panel">
       <div class="content-header">
-        <div><h2>Roturas</h2></div>
+        <div><h2>Roturas</h2><p>Programación y registro de cargas según NTP 339.034, con tolerancia por edad.</p></div>
         <span class="badge-pill" id="roturas-count">0 registros</span>
       </div>
 
@@ -698,7 +721,7 @@ if(typeof Chart === 'undefined'){
     <!-- REPORTE RR -->
     <section id="panel-reporte-rr" class="panel">
       <div class="content-header">
-        <div><h2>Reporte RR</h2></div>
+        <div><h2>Reporte RR</h2><p>Resumen de resultados de mezclas de prueba: comparativo de diseños, edades y gráficos.</p></div>
         <div style="display:flex;gap:10px;align-items:center;">
           <span class="badge-pill" id="rr-count">0 estudios</span>
           <button class="btn-add" id="btn-generar-rr" data-perm="rr:editar">Generar Reporte RR</button>
@@ -745,7 +768,7 @@ if(typeof Chart === 'undefined'){
     <!-- ARCHIVADOR -->
     <section id="panel-archivador" class="panel">
       <div class="content-header">
-        <div><h2>Archivador</h2></div>
+        <div><h2>Archivador</h2><p>Diseños completados, organizados por proyecto, con su informe listo para consultar o imprimir.</p></div>
         <span class="badge-pill" id="archivador-count">0 diseños completados</span>
       </div>
       <div id="archivador-carpetas"></div>
@@ -755,7 +778,7 @@ if(typeof Chart === 'undefined'){
     <!-- REPORTES -->
     <section id="panel-reportes" class="panel">
       <div class="content-header">
-        <div><h2>Dashboard y KPIs</h2></div>
+        <div><h2>Dashboard y KPIs</h2><p>Reporte completo del laboratorio: avance, calidad de resultados y cumplimiento.</p></div>
         <div style="display:flex;gap:10px;align-items:center;flex-wrap:wrap;">
           <button class="btn-add ghost" id="dash-excel" data-perm="datos:exportar">Excel</button>
           <button class="btn-add" id="dash-pdf">Descargar reporte PDF</button>
@@ -835,7 +858,7 @@ if(typeof Chart === 'undefined'){
     <section id="panel-proyectos" class="panel">
       <div id="proy-vista-principal">
         <div class="content-header">
-          <div><h2>Proyectos</h2></div>
+          <div><h2>Proyectos</h2><p>Cada proyecto tiene su expediente: iteraciones, diseños, resultados, evidencias y reportes.</p></div>
           <div class="ch-actions">
             <div class="view-toggle" id="proy-vista-toggle">
               <button class="view-toggle-btn active" data-vista="lista">Proyectos</button>
@@ -871,6 +894,7 @@ if(typeof Chart === 'undefined'){
               <h4>Radar de proyectos <span class="chart-sub">(0–100 en cada eje)</span></h4>
               <div class="radar-picker" id="radar-picker"></div>
               <div class="radar-wrap"><canvas id="chart-radar-proyectos"></canvas></div>
+              <p class="nota-sm">Ejes: <b>Avance</b> (diseños completados), <b>Roturas</b> (cargas registradas), <b>Puntualidad</b> (roturas no vencidas), <b>Resistencia</b> (máxima alcanzada vs. el mejor proyecto), <b>Actividad</b> (diseños en los últimos 30 días) y <b>Costo</b> (CVD más bajo = mejor).</p>
             </div>
             <div class="chart-card">
               <h4>Seguimiento de proyectos</h4>
@@ -886,7 +910,7 @@ if(typeof Chart === 'undefined'){
     <!-- ============ CALENDARIO DE ROTURAS ============ -->
     <section id="panel-calendario" class="panel">
       <div class="content-header">
-        <div><h2>Calendario de roturas</h2></div>
+        <div><h2>Calendario de roturas</h2><p>Roturas programadas, por edad de ensayo.</p></div>
         <div class="ch-actions">
           <select id="cal-proyecto"><option value="">Todos los proyectos</option></select>
           <select id="cal-tipo"><option value="">Probetas y cubos</option><option value="Probetas">Solo probetas</option><option value="Cubos">Solo cubos</option></select>
@@ -920,7 +944,7 @@ if(typeof Chart === 'undefined'){
     <!-- ============ BASE HISTÓRICA ============ -->
     <section id="panel-base-historica" class="panel">
       <div class="content-header">
-        <div><h2>Base histórica</h2></div>
+        <div><h2>Base histórica</h2><p>Todos los resultados unidos a los parámetros de su diseño: una fila por réplica y edad. Es la fuente para reportes, comparaciones y predicción.</p></div>
         <div class="ch-actions">
           <button class="btn-add ghost" id="bh-export-csv">CSV (Colab / XGBoost)</button>
           <button class="btn-add" id="bh-export-xlsx">Exportar Excel</button>
@@ -939,7 +963,7 @@ if(typeof Chart === 'undefined'){
       </div>
       <div class="card" data-perm="datos:respaldo">
         <div class="section-num">Respaldo y restauración</div>
-        <p class="nota-sm">Las fotos de evidencia no se incluyen en el respaldo.</p>
+        <p class="nota-sm">Los datos viven en este navegador. Descargá un respaldo periódicamente; con él podés restaurar todo en otro equipo. Las fotos de evidencia no se incluyen en el respaldo.</p>
         <div class="form-actions" style="margin-top:12px;">
           <button class="btn-add" id="bh-respaldo-descargar">Descargar respaldo completo (.json)</button>
           <label class="btn-add ghost" for="bh-respaldo-archivo" style="cursor:pointer;">Restaurar desde archivo…</label>
@@ -953,10 +977,10 @@ if(typeof Chart === 'undefined'){
     <!-- ============ PREDICCIÓN ============ -->
     <section id="panel-prediccion" class="panel">
       <div class="content-header">
-        <div><h2>Predicción</h2></div>
+        <div><h2>Predicción</h2><p>Modelos que aprenden de la base histórica para anticipar resultados antes de romper.</p></div>
         <div class="roturas-subtabs" id="pred-tabs" style="margin-bottom:0;border-bottom:none;">
-          <button class="subtab active" data-predtab="madurez">Proyección</button>
-          <button class="subtab" data-predtab="simulador">Simulador</button>
+          <button class="subtab active" data-predtab="madurez">Curva de madurez</button>
+          <button class="subtab" data-predtab="simulador">Simulador de diseño</button>
           <button class="subtab" data-predtab="modelo">Modelo y precisión</button>
         </div>
       </div>
@@ -964,14 +988,15 @@ if(typeof Chart === 'undefined'){
       <div id="pred-madurez">
         <div class="pred-layout">
           <div class="card">
-            <div class="section-num">Proyección de un diseño</div>
+            <div class="section-num">Proyección a 28 días desde edades tempranas</div>
+            <p class="nota-sm">Ajusta f(t) = a + b·ln(t) con las roturas ya registradas del diseño y proyecta la resistencia a 28, 56 y 90 días.</p>
             <div class="pp-field" style="margin-top:10px;"><label>Diseño</label><select id="pred-diseno"></select></div>
             <div id="pred-madurez-resultado"></div>
           </div>
-          <div class="chart-card"><h4>Resistencia vs. edad</h4><div class="dash-chart-wrap"><canvas id="chart-pred-madurez"></canvas></div></div>
+          <div class="chart-card"><h4>Resistencia vs. edad <span class="chart-sub">(puntos medidos y curva ajustada)</span></h4><div class="dash-chart-wrap"><canvas id="chart-pred-madurez"></canvas></div></div>
         </div>
         <div class="card" style="margin-top:18px;">
-          <div class="section-num">Diseños sin resultado a 28 días</div>
+          <div class="section-num">Diseños en curso — 28 días proyectados</div>
           <div class="table-scroll"><table class="data-table" id="pred-tabla-encurso"></table></div>
         </div>
       </div>
@@ -993,7 +1018,10 @@ if(typeof Chart === 'undefined'){
             <div id="sim-resultado"></div>
             <div id="sim-modelo-info"></div>
           </div>
-          <div class="chart-card"><h4>Curva estimada</h4><div class="dash-chart-wrap"><canvas id="chart-pred-sim"></canvas></div></div>
+          <div class="chart-card"><h4>Curva estimada <span class="chart-sub">(1 a 90 días)</span></h4><div class="dash-chart-wrap"><canvas id="chart-pred-sim"></canvas></div></div>
+        </div>
+        <div class="nota-box">
+          <b>Cómo funciona:</b> el simulador usa el modelo entrenado con la base histórica real (sin diseños de demostración). En <a href="#" data-predtab-ir="modelo">Modelo y precisión</a> ves cuánto se equivoca con diseños que no vio, qué variables pesan más y el seguimiento de cada predicción contra el resultado real.
         </div>
       </div>
     </section>
@@ -1001,7 +1029,7 @@ if(typeof Chart === 'undefined'){
     <!-- ============ ASISTENTE I+D ============ -->
     <section id="panel-asistente" class="panel">
       <div class="content-header">
-        <div><h2>Asistente I+D</h2></div>
+        <div><h2>Asistente I+D</h2><p>Preguntá en lenguaje natural sobre proyectos, diseños, roturas y resultados registrados.</p></div>
         <div class="ch-actions">
           <span class="chat-modo" id="chat-modo">Motor local</span>
           <button class="btn-add ghost" id="chat-nueva">Nueva conversación</button>
@@ -1021,7 +1049,7 @@ if(typeof Chart === 'undefined'){
     <!-- ============ USUARIOS Y ROLES ============ -->
     <section id="panel-usuarios" class="panel">
       <div class="content-header">
-        <div><h2>Usuarios y roles</h2></div>
+        <div><h2>Usuarios y roles</h2><p>Perfiles de acceso según el rol: Administrador, Jefatura y Técnico.</p></div>
         <button class="btn-add" id="usr-nuevo">+ Nuevo usuario</button>
       </div>
       <div class="card table-scroll"><table class="data-table" id="usr-tabla"></table></div>
@@ -1034,7 +1062,7 @@ if(typeof Chart === 'undefined'){
     <!-- ============ HISTORIAL ============ -->
     <section id="panel-historial" class="panel">
       <div class="content-header">
-        <div><h2>Historial</h2></div>
+        <div><h2>Historial</h2><p>Movimientos del sistema: quién hizo qué y cuándo.</p></div>
         <button class="btn-add ghost" id="his-exportar">Exportar Excel</button>
       </div>
       <div class="kpi-grid" id="his-kpis"></div>
@@ -1053,13 +1081,13 @@ if(typeof Chart === 'undefined'){
 
     <!-- AJUSTES -->
     <section id="panel-ajustes" class="panel">
-      <div class="content-header"><div><h2>Ajustes</h2></div></div>
+      <div class="content-header"><div><h2>Ajustes</h2><p>Preferencias de este equipo y de tu cuenta.</p></div></div>
       <div class="ajustes-grid">
         <div class="card">
           <div class="section-num">Preferencias</div>
           <div class="settings-list">
-            <div class="setting-row"><div><h4>Modo oscuro</h4></div><label class="switch"><input type="checkbox" id="set-darkmode"><span class="slider"></span></label></div>
-            <div class="setting-row"><div><h4>Notificaciones de roturas</h4></div><label class="switch"><input type="checkbox" id="set-notif" checked><span class="slider"></span></label></div>
+            <div class="setting-row"><div><h4>Modo oscuro</h4><p>Cambia la apariencia de la interfaz.</p></div><label class="switch"><input type="checkbox" id="set-darkmode"><span class="slider"></span></label></div>
+            <div class="setting-row"><div><h4>Notificaciones de roturas</h4><p>Aviso en la campana cuando hay roturas para hoy.</p></div><label class="switch"><input type="checkbox" id="set-notif" checked><span class="slider"></span></label></div>
           </div>
         </div>
         <div class="card">
@@ -1074,9 +1102,9 @@ if(typeof Chart === 'undefined'){
         </div>
         <div class="card" data-perm="ver:usuarios">
           <div class="section-num">Asistente con IA (Claude)</div>
-          <p class="nota-sm">La clave queda guardada solo en este navegador.</p>
+          <p class="nota-sm">Con una clave de la API de Anthropic, el Asistente I+D responde con Claude consultando los datos del sistema (diseños, roturas, proyectos, predicciones). La clave queda guardada solo en este navegador. Cada consulta tiene un costo según el uso de la API.</p>
           <div class="pp-field" style="margin-top:10px;"><label>Clave de API</label><input type="password" id="ia-clave" placeholder="sk-ant-…" autocomplete="off"></div>
-          <div class="setting-row" style="padding:10px 0;"><div><h4>Usar el agente con IA</h4></div><label class="switch"><input type="checkbox" id="ia-activo" checked><span class="slider"></span></label></div>
+          <div class="setting-row" style="padding:10px 0;"><div><h4>Usar el agente con IA</h4><p>Si se apaga, el asistente usa el motor local.</p></div><label class="switch"><input type="checkbox" id="ia-activo" checked><span class="slider"></span></label></div>
           <div class="form-actions" style="margin-top:6px;">
             <button class="btn-add" id="ia-guardar">Guardar</button>
             <button class="btn-add ghost" id="ia-probar">Probar conexión</button>
@@ -1260,6 +1288,7 @@ if(typeof Chart === 'undefined'){
       <svg viewBox="0 0 24 24" width="26" height="26" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="6 9 6 2 18 2 18 9"/><path d="M6 18H4a2 2 0 0 1-2-2v-5a2 2 0 0 1 2-2h16a2 2 0 0 1 2 2v5a2 2 0 0 1-2 2h-2"/><rect x="6" y="14" width="12" height="8"/></svg>
     </div>
     <h3>¿Desea imprimir el diseño?</h3>
+    <p>Se abrirá el formato completo (diseño + resultados) listo para imprimir.</p>
     <div class="confirm-actions">
       <button class="btn-ghost" id="print-confirm-no">Ahora no</button>
       <button class="btn-add" id="print-confirm-yes">Sí, imprimir</button>
@@ -1321,6 +1350,37 @@ if(typeof Chart === 'undefined'){
   </div>
 </div>
 
+<!-- ============ MODAL: Atajos de teclado y flujo ============ -->
+<div id="atajos-modal" class="atajos-overlay" role="dialog" aria-modal="true" aria-labelledby="atajos-titulo">
+  <div class="atajos-card">
+    <div class="atajos-head">
+      <h3 id="atajos-titulo">Cómo moverse por el sistema</h3>
+      <button class="modal-close" id="atajos-cerrar" aria-label="Cerrar">✕</button>
+    </div>
+    <div class="atajos-body">
+      <h4>Flujo del ensayo (en orden)</h4>
+      <ol class="atajos-flujo">
+        <li><b>Registro</b> — materiales, proyecto e iteración.</li>
+        <li><b>Diseño</b> — calcular la dosificación y registrarla; se programan las roturas.</li>
+        <li><b>Roturas</b> — registrar la carga de cada probeta en su fecha (con el calendario).</li>
+        <li><b>Resultados</b> — estado fresco y resistencia por réplica.</li>
+        <li><b>Reporte RR</b> — comparar diseños y edades.</li>
+        <li><b>Archivo</b> — diseños completados con su informe.</li>
+      </ol>
+      <p class="nota-sm">Cada sección del flujo muestra arriba en qué paso estás y abajo los botones al paso anterior y al siguiente.</p>
+      <h4>Atajos de teclado</h4>
+      <table class="atajos-tabla">
+        <tr><td><kbd>Alt</kbd> + <kbd>1</kbd> … <kbd>6</kbd></td><td>Ir al paso 1 a 6 del flujo</td></tr>
+        <tr><td><kbd>Alt</kbd> + <kbd>0</kbd></td><td>Inicio</td></tr>
+        <tr><td><kbd>Alt</kbd> + <kbd>N</kbd></td><td>Nuevo diseño (calculadora)</td></tr>
+        <tr><td><kbd>Ctrl</kbd> + <kbd>K</kbd></td><td>Buscar código, diseño, proyecto o material</td></tr>
+        <tr><td><kbd>?</kbd></td><td>Abrir esta ayuda</td></tr>
+        <tr><td><kbd>Esc</kbd></td><td>Cerrar esta ayuda o el buscador</td></tr>
+      </table>
+    </div>
+  </div>
+</div>
+
 <!-- ============ MODAL: Confirmar duplicar ============ -->
 <div id="confirm-modal">
   <div class="confirm-card">
@@ -1329,7 +1389,7 @@ if(typeof Chart === 'undefined'){
     </div>
     <h3>¿Desea duplicar el diseño?</h3>
     <p id="confirm-modal-name"></p>
-    <p class="mono" style="font-size:.76rem;color:var(--text-muted);margin-top:8px;">Cambiá algún dato (f'c, a/mc, cemento, piedra) para que el nombre no se repita.</p>
+    <p class="mono" style="font-size:.76rem;color:var(--text-muted);margin-top:8px;">⚠ Vas a entrar a la calculadora con estos mismos datos. Como el nombre técnico se arma solo, tenés que cambiar algún dato de la fórmula (f'c, a/mc, cemento, piedra) o agregar algo al final para que el nombre no se repita.</p>
     <div class="confirm-actions">
       <button class="btn-ghost" id="confirm-cancel">Cancelar</button>
       <button class="btn-add" id="confirm-accept">Sí, duplicar</button>
@@ -1458,6 +1518,7 @@ if(typeof Chart === 'undefined'){
 <script src="js/modules/dashboard.js"></script>
 <script src="js/modules/ajustes.js"></script>
 <script src="js/modules/inicio.js"></script>
+<script src="js/modules/flujo.js"></script>
 <script src="js/data/seed.js"></script>
 <script src="js/data/reparaciones.js"></script>
 <script src="js/main.js"></script>
