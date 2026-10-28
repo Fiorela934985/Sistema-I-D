@@ -22,9 +22,7 @@
 .flujo-cab{display:flex;align-items:center;gap:10px;flex-wrap:wrap;margin-bottom:10px;}
 .flujo-tit{font-size:.66rem;font-weight:800;letter-spacing:.09em;text-transform:uppercase;color:var(--celeste-700);}
 .flujo-paso{font-size:.76rem;font-weight:600;color:var(--text-muted);}
-.flujo-ayuda-btn{margin-left:auto;font-size:.72rem;font-weight:600;color:var(--text-muted);display:inline-flex;align-items:center;gap:6px;padding:4px 8px;border-radius:8px;}
-.flujo-ayuda-btn:hover{background:var(--surface-2);color:var(--celeste-700);}
-.flujo kbd,.atajos-card kbd{font-family:var(--font-body);font-size:.68rem;font-weight:700;color:var(--text);border:1px solid var(--line);border-bottom-width:2px;
+.atajos-card kbd{font-family:var(--font-body);font-size:.68rem;font-weight:700;color:var(--text);border:1px solid var(--line);border-bottom-width:2px;
   border-radius:5px;padding:1px 6px;background:var(--surface-2);}
 .flujo-pasos{list-style:none;margin:0;padding:0;display:grid;grid-template-columns:repeat(7,minmax(0,1fr));gap:6px;}
 .flujo-pasos li{position:relative;min-width:0;}
@@ -77,6 +75,15 @@ html[data-theme="dark"] .flujo-tit{color:var(--celeste-300);}
   .flujo-pasos{grid-template-columns:repeat(2,minmax(0,1fr));}
   .flujo-pie .btn-add{flex:1 1 100%;}
 }
+
+/* ================= PRONÓSTICO EN LA CALCULADORA ================= */
+.pron-card{margin:18px 0;border-left:4px solid var(--celeste-600);}
+.pron-valores{display:flex;flex-wrap:wrap;gap:12px;margin-top:8px;}
+.pron-valores > div{display:flex;flex-direction:column;padding:10px 16px;border-radius:12px;background:var(--surface-2);min-width:150px;}
+.pron-valores small{font-size:.7rem;font-weight:700;letter-spacing:.06em;text-transform:uppercase;color:var(--text-muted);}
+.pron-valores b{font-family:var(--font-display);font-size:1.7rem;line-height:1.15;color:var(--celeste-700);}
+.pron-valores span{font-size:.76rem;color:var(--text-muted);}
+html[data-theme="dark"] .pron-valores b{color:var(--celeste-300);}
 
 /* ================= AYUDA DE ATAJOS ================= */
 .atajos-overlay{position:fixed;inset:0;z-index:1000;display:none;align-items:center;justify-content:center;padding:16px;background:rgba(6,30,38,.55);}

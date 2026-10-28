@@ -56,7 +56,7 @@ var PANELES = [
   {id:'proyectos', label:'Proyectos', grupo:'Flujo del ensayo'},
   {id:'componentes', label:'Materiales (componentes)', grupo:'Flujo del ensayo'},
   {id:'disenos', label:'Diseños y resultados', grupo:'Flujo del ensayo'},
-  {id:'roturas', label:'Roturas', grupo:'Flujo del ensayo'},
+  {id:'roturas', label:'Probetas (roturas)', grupo:'Flujo del ensayo'},
   {id:'calendario', label:'Calendario de roturas', grupo:'Flujo del ensayo'},
   {id:'reporte-rr', label:'Reporte RR', grupo:'Flujo del ensayo'},
   {id:'archivador', label:'Archivador', grupo:'Flujo del ensayo'},

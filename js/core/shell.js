@@ -79,7 +79,6 @@ navItems.forEach(function(btn){
 });
 document.getElementById('btn-calcular').addEventListener('click', function(){ showPanel('disenos'); showSubTab('calcular'); });
 document.getElementById('btn-ver-roturas-inicio').addEventListener('click', function(){ showPanel('roturas'); showRoturasSub('pendientes'); });
-document.getElementById('tb-asistente').addEventListener('click', function(){ showPanel('asistente'); });
 
 /* Menú lateral en pantallas chicas */
 function cerrarMenuMovil(){ document.body.classList.remove('sidebar-open'); }

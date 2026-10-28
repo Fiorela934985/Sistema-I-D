@@ -10,12 +10,12 @@ var FLUJO = [
    ayuda:'Todo parte de un proyecto. Creá uno con <b>+ Nuevo proyecto</b> o abrí el que vas a trabajar: queda como proyecto en curso para los pasos siguientes.'},
   {n:2, panel:'componentes', titulo:'Materiales', sub:'Cemento, agregados, aditivos',
    ayuda:'Revisá que los materiales que vas a usar en el diseño estén cargados con sus propiedades (densidad, absorción, humedad, costo).'},
-  {n:3, panel:'disenos', subtab:'calcular', titulo:'Diseño', sub:'Calcular dosificación', proyecto:true,
-   ayuda:'Elegí la iteración del proyecto, completá la hoja D-CC-F-148 y registrá. Al registrar se eligen réplicas y días, y las roturas quedan programadas solas.'},
-  {n:4, panel:'roturas', titulo:'Roturas', sub:'Elaboración y cargas', alias:['calendario'], proyecto:true,
-   ayuda:'En <b>Pendientes</b> registrá la carga de cada probeta el día que toca. El <b>Calendario</b> muestra la semana; las vencidas aparecen primero.'},
-  {n:5, panel:'disenos', subtab:'historico', titulo:'Resultados', sub:'Estado fresco y resistencia', proyecto:true,
-   ayuda:'Abrí el diseño y entrá a <b>Resultados</b>: slump, temperaturas y observaciones por réplica. La resistencia llega sola desde Roturas.'},
+  {n:3, panel:'disenos', subtab:'calcular', titulo:'Diseño', sub:'Dosificación y pronóstico', proyecto:true,
+   ayuda:'Elegí la iteración, completá la hoja D-CC-F-148 y mirá el <b>pronóstico de resistencia</b> antes de registrar. Al registrar se eligen réplicas y días de rotura.'},
+  {n:4, panel:'disenos', subtab:'historico', titulo:'Resultados', sub:'Estado fresco', proyecto:true,
+   ayuda:'El día de la mezcla abrí el diseño → <b>Resultados</b>: slump, temperaturas, peso unitario y observaciones por réplica. Con <b>Ahora</b> el sistema te avisa cada medición.'},
+  {n:5, panel:'roturas', titulo:'Probetas', sub:'Roturas en su fecha', alias:['calendario'], proyecto:true,
+   ayuda:'En <b>Pendientes</b> registrá la carga de cada probeta el día que toca; la resistencia pasa sola al diseño. El <b>Calendario</b> muestra la semana.'},
   {n:6, panel:'reporte-rr', titulo:'Reporte RR', sub:'Comparar diseños y edades', proyecto:true,
    ayuda:'Generá el Reporte RR para comparar los diseños de la iteración por edad y exportarlo.'},
   {n:7, panel:'archivador', titulo:'Archivo', sub:'Diseños completados', proyecto:true,
@@ -77,6 +77,7 @@ function aplicarProyectoFlujo(){
   if(!proyectoFlujo || vista === ultimaVistaFlujo) return;
   ultimaVistaFlujo = vista;
   if(panelActual === 'disenos' && subTabDisenos === 'calcular'){
+    programarPronostico();
     var pp = document.getElementById('pp-proyecto');
     if(pp.value !== proyectoFlujo){
       fillProyectoCatalogoSelect(pp, proyectoFlujo);
@@ -118,8 +119,7 @@ function pasosHtml(actual, detalle){
 }
 function flujoBarraHtml(actual){
   return '<div class="flujo-cab"><span class="flujo-tit">Flujo del ensayo</span>' +
-    '<span class="flujo-paso">Paso ' + actual.n + ' de ' + FLUJO.length + '</span>' + chipProyectoHtml() +
-    '<button class="flujo-ayuda-btn" data-atajos title="Atajos de teclado (?)">Atajos <kbd>?</kbd></button></div>' +
+    '<span class="flujo-paso">Paso ' + actual.n + ' de ' + FLUJO.length + '</span>' + chipProyectoHtml() + '</div>' +
     pasosHtml(actual) +
     '<p class="flujo-ayuda"><b>Qué hacer acá:</b> ' + actual.ayuda + '</p>';
 }
@@ -185,13 +185,13 @@ function renderInicioFlujo(){
     1: proyectoFlujo ? '<em class="ok">' + esc(proyectoFlujo) + '</em>' : '<em>Elegí uno para empezar</em>',
     2: componentes.length + ' materiales',
     3: dis.length + ' diseños',
-    4: porRomper ? '<em>' + porRomper + ' por romper</em>' : 'Al día',
-    5: enCurso + ' en curso',
+    4: enCurso + ' en curso',
+    5: porRomper ? '<em>' + porRomper + ' por romper</em>' : 'Al día',
     6: rr.length + ' reportes',
     7: (dis.length - enCurso) + ' completados'
   };
   el.innerHTML = '<div class="flujo-cab"><span class="flujo-tit">Flujo del ensayo</span><span class="flujo-paso">Trabajá en este orden · Alt+1 a Alt+7</span>' +
-    chipProyectoHtml() + '<button class="flujo-ayuda-btn" data-atajos title="Atajos de teclado (?)">Atajos <kbd>?</kbd></button></div>' +
+    chipProyectoHtml() + '</div>' +
     pasosHtml(null, detalle);
 }
 var hookInicioFlujo = PANEL_HOOKS.inicio;

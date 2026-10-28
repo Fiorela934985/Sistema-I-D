@@ -484,6 +484,9 @@ document.getElementById('dis-add').addEventListener('click', function(){
   };
   disenos.push(d);
   save('sid10_disenos', disenos);
+  // El pronóstico a 28 d queda guardado para compararlo después con el resultado real
+  var pron = pronosticoDeDiseno(d, 28);
+  if(pron && !pron.error) registrarPrediccion(d.codigo, 'diseño', pron.valor, 'al registrar el diseño');
   registrarHistorial('Creó', 'Diseño', d.codigo + ' · ' + d.nombreTecnico + ' · ' + proyectoNombre(d.proyectoId) + ' / ' + d.iteracionId, {proyecto: proyectoNombre(d.proyectoId), ref: d.codigo});
   resetCalcForm();
   renderAllDesignViews();

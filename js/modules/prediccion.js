@@ -261,3 +261,46 @@ document.getElementById('panel-prediccion').addEventListener('click', function(e
   if(ir){ e.preventDefault(); mostrarPredTab(ir.dataset.predtabIr); }
 });
 PANEL_HOOKS.prediccion = function(){ mostrarPredTab(predTab); };
+
+/* ================= Pronóstico en la calculadora (paso 3 del flujo) =================
+   Mientras se arma la mezcla se estima la resistencia con el modelo histórico, leyendo el diseño igual que
+   en el entrenamiento, y se compara con el f'cr objetivo antes de registrar. */
+function pronosticoDeDiseno(d, edad){
+  var c = caracteristicasDiseno(d);
+  if(!c || !isFinite(c.cementante)) return {error:'Completá la a/mc efectiva y el cemento (o el agua) para ver el pronóstico.'};
+  return predecirResistencia({amc:c.amc, cemento:c.he ? 'HE' : 'I', cementante:c.cementante, flyAshPct:c.flyAshPct, aditivoPct:c.aditivoPct, agua:c.agua, edad:edad || 28});
+}
+function disenoEnCalculadora(){
+  var cem = componentes[Number(document.getElementById('dis-cemento-mat').value)];
+  return {
+    amcEfectiva: document.getElementById('dis-amc-efectiva').value,
+    cementoPeso: document.getElementById('dis-cemento-peso').value,
+    cementoTipo: cementoTipoDesdeCatalogo() || (cem ? cem.nombre : ''),
+    nombreTecnico: cem ? cem.nombre : '',
+    mix: getComposicionItems().map(function(it){ var comp = componentes[it.compIndex]; return {nombre: comp ? comp.nombre : '', pesoSeco: it.pesoSeco}; })
+  };
+}
+function renderPronosticoCalculadora(){
+  var box = document.getElementById('dis-pronostico');
+  var edad = n(document.getElementById('dis-edad').value) || 28;
+  var cab = '<div class="section-num">Pronóstico de resistencia</div>';
+  var p = pronosticoDeDiseno(disenoEnCalculadora(), edad);
+  if(p.error){ box.innerHTML = cab + '<p class="nota-sm">' + esc(p.error) + '</p>'; return; }
+  var fcr = n(document.getElementById('dis-fcr').value) || n(document.getElementById('dis-fc').value);
+  var p28 = edad === 28 ? p : pronosticoDeDiseno(disenoEnCalculadora(), 28);
+  var veredicto = '';
+  if(fcr > 0){
+    var ok = p.valor >= fcr;
+    veredicto = '<p class="pred-veredicto ' + (ok ? 'txt-verde' : 'txt-rojo') + '"><b>' + (ok ? '✓ Alcanzaría' : '✗ No alcanzaría') + '</b> el objetivo de ' + fmt(fcr, 0) + ' kg/cm² a ' + edad + ' d' +
+      (ok ? '' : ' — probá bajar la a/mc o subir el cemento') + '.</p>';
+  }
+  box.innerHTML = cab +
+    '<div class="pron-valores"><div><small>A ' + edad + ' días</small><b>' + fmt(p.valor, 0) + '</b><span>kg/cm² · ±' + fmt(p.mae, 0) + '</span></div>' +
+    (edad !== 28 && !p28.error ? '<div><small>A 28 días</small><b>' + fmt(p28.valor, 0) + '</b><span>kg/cm²</span></div>' : '') + '</div>' +
+    veredicto + tasaHtml(p.acierto) +
+    (p.fueraDeRango.length ? '<p class="aviso-rango">Fuera del rango de los datos históricos: ' + p.fueraDeRango.map(esc).join('; ') + '. Tomá el valor con cautela.</p>' : '') +
+    '<p class="nota-sm">Modelo: ' + esc(p.modelo.nombre) + ', entrenado con ' + p.modelo.disenos + ' diseños reales. Al registrar, el pronóstico a 28 d queda guardado para compararlo con el resultado real.</p>';
+}
+var pronosticoTimer = null;
+function programarPronostico(){ clearTimeout(pronosticoTimer); pronosticoTimer = setTimeout(renderPronosticoCalculadora, 400); }
+['input', 'change'].forEach(function(ev){ document.getElementById('sub-calcular').addEventListener(ev, programarPronostico); });

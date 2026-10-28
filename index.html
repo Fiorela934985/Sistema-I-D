@@ -132,20 +132,20 @@ if(typeof Chart === 'undefined'){
           <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="4" y="2" width="16" height="20" rx="2"/><line x1="8" y1="7" x2="16" y2="7"/><line x1="8" y1="12" x2="16" y2="12"/><line x1="8" y1="17" x2="12" y2="17"/></svg>
           <span class="label">Diseño</span>
         </button>
-        <button class="nav-item" data-panel="roturas">
+        <button class="nav-item" data-panel="disenos" data-sub="historico">
           <span class="nav-step">4</span>
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M9 11l3 3 8-8"/><path d="M20 12v7a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h9"/></svg>
+          <span class="label">Resultados</span>
+        </button>
+        <button class="nav-item" data-panel="roturas">
+          <span class="nav-step">5</span>
           <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 2l3 6-5 4 6 2-8 8 2-7-5-2 4-4-3-5z"/></svg>
-          <span class="label">Roturas</span>
+          <span class="label">Probetas</span>
           <span class="nav-badge" id="nav-roturas-badge" style="display:none;">0</span>
         </button>
         <button class="nav-item nav-sub" data-panel="calendario">
           <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="4" width="18" height="18" rx="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/></svg>
-          <span class="label">Calendario de roturas</span>
-        </button>
-        <button class="nav-item" data-panel="disenos" data-sub="historico">
-          <span class="nav-step">5</span>
-          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M9 11l3 3 8-8"/><path d="M20 12v7a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h9"/></svg>
-          <span class="label">Resultados</span>
+          <span class="label">Calendario</span>
         </button>
         <button class="nav-item" data-panel="reporte-rr">
           <span class="nav-step">6</span>
@@ -231,9 +231,6 @@ if(typeof Chart === 'undefined'){
         <button class="tb-btn" data-atajos title="Atajos de teclado (?)" aria-label="Atajos de teclado">
           <svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="2" y="6" width="20" height="12" rx="2"/><path d="M6 10h.01M10 10h.01M14 10h.01M18 10h.01M7 14h10"/></svg>
         </button>
-        <button class="tb-btn" id="tb-asistente" title="Asistente I+D" data-perm="ver:asistente">
-          <svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/></svg>
-        </button>
         <button class="nav-bell" id="nav-bell-btn" title="Notificaciones">
           <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M18 8a6 6 0 0 0-12 0c0 7-3 9-3 9h18s-3-2-3-9"/><path d="M13.73 21a2 2 0 0 1-3.46 0"/></svg>
           <span class="bell-dot" id="nav-bell-dot" style="display:none;"></span>
@@ -262,7 +259,6 @@ if(typeof Chart === 'undefined'){
 
       <nav class="flujo flujo-inicio" id="inicio-flujo" aria-label="Flujo del ensayo"></nav>
 
-      <div class="accesos-rapidos" id="inicio-accesos"></div>
       <div class="inicio-kpi-strip" id="inicio-kpi-strip"></div>
       <div class="semana-strip" id="inicio-semana"></div>
 
@@ -346,7 +342,7 @@ if(typeof Chart === 'undefined'){
 
       <div class="roturas-subtabs" id="disenos-subtabs">
         <button class="subtab active" data-dsub="calcular" data-perm="disenos:crear">Paso 3 · Calcular diseño</button>
-        <button class="subtab" data-dsub="historico">Paso 5 · Histórico y resultados</button>
+        <button class="subtab" data-dsub="historico">Paso 4 · Diseños y resultados</button>
       </div>
 
       <!-- ===== CALCULAR DISEÑO — réplica de la hoja real ===== -->
@@ -587,6 +583,8 @@ if(typeof Chart === 'undefined'){
           </div>
         </div>
 
+        <div class="card pron-card" id="dis-pronostico"></div>
+
         <button class="btn-add" id="dis-add" data-perm="disenos:crear" style="font-size:.92rem;padding:14px 26px;">Registrar Diseño</button>
       </div>
 
@@ -613,7 +611,7 @@ if(typeof Chart === 'undefined'){
     <!-- ============ ROTURAS ============ -->
     <section id="panel-roturas" class="panel">
       <div class="content-header">
-        <div><h2>Roturas</h2><p>Programación y registro de cargas según NTP 339.034, con tolerancia por edad.</p></div>
+        <div><h2>Probetas</h2><p>Roturas programadas y registro de cargas según NTP 339.034, con tolerancia por edad.</p></div>
         <span class="badge-pill" id="roturas-count">0 registros</span>
       </div>
 
@@ -1363,9 +1361,9 @@ if(typeof Chart === 'undefined'){
       <ol class="atajos-flujo">
         <li><b>Proyecto</b> — creá o elegí el proyecto que vas a trabajar (por ejemplo, el de esta semana). Todo lo demás se hace dentro de él.</li>
         <li><b>Materiales</b> — revisá que estén cargados los materiales que vas a usar.</li>
-        <li><b>Diseño</b> — elegí la iteración, calculá la dosificación y registrala; se programan las roturas.</li>
-        <li><b>Roturas</b> — registrá la carga de cada probeta en su fecha (con el calendario).</li>
-        <li><b>Resultados</b> — estado fresco y resistencia por réplica.</li>
+        <li><b>Diseño</b> — elegí la iteración, calculá la dosificación, revisá el pronóstico y registrala; se programan las roturas.</li>
+        <li><b>Resultados</b> — el día de la mezcla: slump, temperaturas y observaciones por réplica.</li>
+        <li><b>Probetas</b> — registrá la carga de cada probeta en su fecha (con el calendario).</li>
         <li><b>Reporte RR</b> — compará diseños y edades.</li>
         <li><b>Archivo</b> — diseños completados con su informe.</li>
       </ol>
