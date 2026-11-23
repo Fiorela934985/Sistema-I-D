@@ -164,7 +164,7 @@ var EXP_TABS = [
   {id:'resultados', label:'Resultados'},
   {id:'comparativo', label:'Comparativo de iteraciones'},
   {id:'evidencias', label:'Evidencias'},
-  {id:'reportes', label:'Reportes RR'},
+  {id:'reportes', label:'Reportes'},
   {id:'historial', label:'Historial'}
 ];
 function abrirExpediente(nombre, tab){
@@ -199,6 +199,7 @@ function renderExpediente(){
         '<div class="exp-sub">'+tagEstadoProyecto(m.estado)+' <span>'+m.iteraciones.length+' iteraciones · '+m.nDisenos+' diseños · '+(m.ultimaActividad ? 'actividad ' + hace(m.ultimaActividad) : 'sin actividad')+'</span></div></div>' +
       '<div class="ch-actions">' +
         '<button class="btn-add ghost" id="exp-evidencia" data-perm="evidencias:subir">'+CAMERA_ICON+' Subir evidencia</button>' +
+        '<button class="btn-add ghost" data-ver-indicadores title="KPIs y gráficos de este proyecto (paso 7)">'+CHART_ICON+' Indicadores</button>' +
         '<button class="btn-add ghost" id="exp-exportar" data-perm="datos:exportar">Exportar expediente</button>' +
         '<button class="btn-add" id="exp-nuevo-diseno" data-perm="disenos:crear">+ Diseño en este proyecto</button>' +
       '</div>' +
@@ -350,8 +351,12 @@ function renderComparativo(m){
 }
 function expReportesHtml(m){
   var lista = rrDeProyecto(m.nombre, m.disenos);
-  if(!lista.length) return '<div class="empty-note">No hay reportes RR asociados a este proyecto. Generalos desde <a href="#" data-goto="reporte-rr">Reporte RR</a>.</div>';
-  return '<div class="proy-grid">' + lista.map(function(e){
+  // Los reportes del proyecto: los RR (paso 6) y sus indicadores (paso 7), todos ligados al mismo proyecto
+  var barra = '<div class="ev-toolbar"><span class="nota-sm">Reportes de este proyecto: estudios RR e indicadores.</span>' +
+    '<span class="ch-actions"><button class="btn-add ghost" data-ver-indicadores>'+CHART_ICON+' Ver indicadores</button>' +
+    '<button class="btn-add" data-paso="6" data-perm="rr:editar">+ Nuevo Reporte RR</button></span></div>';
+  if(!lista.length) return barra + '<div class="empty-note">Todavía no hay reportes RR de este proyecto.</div>';
+  return barra + '<div class="proy-grid">' + lista.map(function(e){
     return '<article class="proy-card"><div class="pc-head"><h4>'+esc(e.nombre)+'</h4>'+(e.generado?'<span class="tag-pill tag-verde">Generado</span>':'<span class="tag-pill tag-gris">Borrador</span>')+'</div>' +
       '<div class="pc-meta"><span>'+e.tipos.length+' diseños · '+e.edades.length+' edades</span><span>'+esc(e.fecha||'')+'</span></div>' +
       '<div class="pc-foot"><span class="mono">'+esc(e.tipos.slice(0,2).map(function(t){ return t.nombre; }).join(', '))+(e.tipos.length>2?'…':'')+'</span><button class="btn-add" data-abrir-rr="'+esc(e.id)+'">Abrir en visor →</button></div></article>';

@@ -11,16 +11,16 @@ Es una aplicación **100 % estática** (HTML + CSS + JavaScript, sin servidor). 
 | Grupo | Sección | Qué hace |
 |---|---|---|
 | General | **Inicio** | Accesos rápidos según el rol, KPIs del día, semana de roturas, actividad reciente y favoritos |
-| | **Dashboard y KPIs** | Avance por proyecto, KPIs de calidad (resistencia a 28 d, cumplimiento de f'c, dispersión, roturas al día), gráficos en vivo, reporte PDF/Excel |
 | Operación | **Proyectos** | Tarjetas con avance, **expediente** del proyecto (resumen por iteración, resultados, comparativo entre iteraciones, evidencias, reportes RR, historial) y **radar** de seguimiento |
 | | **Diseños** | Calculadora de dosificación, histórico, resultados de ensayo, informe con gráficas, etiquetas, duplicar |
 | | **Roturas** | Pendientes (con vencidas), registro de elaboración, registro de cargas con evidencia y tipo de fractura, formato de roturas |
 | | **Calendario de roturas** | Vista mensual y semanal; registrar la carga desde el día |
 | | **Registro** | Componentes (cemento, adición, agua, pigmento, piedra, arena, aditivo) y proyectos/iteraciones |
-| Resultados | **Reporte RR** | Estudios comparativos con visor (zoom − +), gráficos y exportación a Excel |
-| | **Archivador** | Diseños completados por proyecto |
-| | **Base histórica** | Dataset réplica × edad unido a los parámetros del diseño; Excel, CSV para Colab/XGBoost, respaldo y restauración |
-| Inteligencia | **Predicción** | Modelo entrenado con la base histórica real (gradient boosting y ridge, validados dejando un diseño afuera; se activa el más preciso), simulador de diseños nuevos, curva de madurez con prueba retrospectiva y seguimiento de cada predicción contra el resultado real |
+| | **Reporte RR** (paso 6) | Estudios comparativos con visor (zoom − +), gráficos y exportación a Excel |
+| | **Indicadores** (paso 7) | KPIs y gráficos del **proyecto en curso** (o de todos con el selector): avance por iteración, resistencia a 28 d, cumplimiento de f'c, dispersión, roturas al día; cada KPI lleva al paso que lo resuelve y cada proyecto abre su expediente; reporte PDF/Excel del alcance elegido |
+| | **Archivo** (paso 8) | Diseños completados por proyecto |
+| Inteligencia | **Base histórica** | Dataset réplica × edad unido a los parámetros del diseño; Excel, CSV para Colab/XGBoost, respaldo y restauración |
+| | **Predicción** | Modelo entrenado con la base histórica real (gradient boosting y ridge, validados dejando un diseño afuera; se activa el más preciso), simulador de diseños nuevos, curva de madurez con prueba retrospectiva y seguimiento de cada predicción contra el resultado real |
 | | **Asistente I+D** | Agente con Claude (`claude-opus-5-5`) que responde consultando los datos con 14 herramientas; sin clave o sin internet usa el motor local |
 | Administración | **Usuarios y roles** | Alta/edición de usuarios y matriz de funciones por rol (editable) |
 | | **Historial** | Quién hizo qué y cuándo, con filtros y exportación |

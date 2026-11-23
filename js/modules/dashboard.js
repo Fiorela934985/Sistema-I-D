@@ -1,4 +1,6 @@
-/* Sistema I+D — Dashboard: KPIs y gráficos en vivo */
+/* Sistema I+D — Indicadores (paso 7 del flujo): KPIs y gráficos en vivo.
+   No es una sección aparte: por defecto mide el proyecto en curso (o todos con el selector), todos los gráficos
+   respetan el alcance y el rango, y cada indicador lleva al paso o al expediente donde se trabaja. */
 'use strict';
 
 /* ================= DASHBOARD (KPIs + gráficos en vivo) ================= */
@@ -40,23 +42,61 @@ function poblarFiltroAnioDashboard(){
   sel.innerHTML = lista.map(function(a){ return '<option value="'+a+'">'+a+'</option>'; }).join('');
   sel.value = prev || String(actual);
 }
+/* ---- Alcance: proyecto en curso o todos los proyectos ---- */
+var dashAlcance = 'proyecto';
+function proyectoEnCursoDashboard(){ return typeof proyectoFlujo !== 'undefined' ? proyectoFlujo : null; }
+function dashProyecto(){
+  var enCurso = proyectoEnCursoDashboard();
+  return dashAlcance === 'proyecto' && enCurso ? enCurso : null;
+}
+function sincronizarAlcanceDashboard(){
+  var sel = document.getElementById('dash-alcance');
+  var enCurso = proyectoEnCursoDashboard();
+  var opt = sel.querySelector('option[value="proyecto"]');
+  opt.textContent = enCurso ? 'Proyecto: ' + enCurso : 'Proyecto en curso (sin elegir)';
+  opt.disabled = !enCurso;
+  var p = dashProyecto();
+  sel.value = p ? 'proyecto' : 'todos';
+  document.getElementById('dash-subtitulo').textContent = p
+    ? 'Avance, calidad y cumplimiento del proyecto ' + p + '. Tocá un indicador para ir al paso donde se resuelve.'
+    : 'Avance, calidad y cumplimiento de todos los proyectos del laboratorio. Tocá un proyecto para abrir su expediente.';
+}
+/* Diseños del alcance, sin filtro de fechas */
+function disenosDelAlcance(){
+  var p = dashProyecto();
+  return p ? disenos.filter(function(d){ return proyectoNombre(d.proyectoId) === p; }) : disenos;
+}
 function disenosFiltradosDashboard(){
+  var base = disenosDelAlcance();
   var rango = document.getElementById('dash-filtro-rango').value;
   var anio = Number(document.getElementById('dash-filtro-anio').value);
-  if(rango === 'todo') return disenos;
-  if(rango === 'anio') return disenos.filter(function(d){ return d.ts && new Date(d.ts).getFullYear() === anio; });
+  if(rango === 'todo') return base;
+  if(rango === 'anio') return base.filter(function(d){ return d.ts && new Date(d.ts).getFullYear() === anio; });
   var dias = Number(rango);
   var limite = Date.now() - dias*DAY;
-  return disenos.filter(function(d){ return (d.ts||0) >= limite; });
+  return base.filter(function(d){ return (d.ts||0) >= limite; });
+}
+/* Cargas de rotura de los diseños filtrados (sin ningún filtro, todas) */
+function cargasFiltradasDashboard(disenosF){
+  if(!dashProyecto() && document.getElementById('dash-filtro-rango').value === 'todo') return roturaCargas;
+  var codigos = {}; disenosF.forEach(function(d){ codigos[d.codigo] = true; });
+  return roturaCargas.filter(function(c){ return codigos[c.disenoCodigoDiseno]; });
+}
+/* Con un proyecto se agrupa por iteración; con todos, por proyecto */
+function grupoDashboard(d){
+  return dashProyecto() ? (iteracionNombre(d.iteracionId) || 'Sin iteración') : (proyectoNombre(d.proyectoId) || 'Sin proyecto');
 }
 document.getElementById('dash-filtro-anio').addEventListener('change', function(){ buildDashboard(false); });
 document.getElementById('dash-filtro-rango').addEventListener('change', function(){ buildDashboard(false); });
+document.getElementById('dash-alcance').addEventListener('change', function(){ dashAlcance = this.value; buildDashboard(false); });
 
 function renderAvanceProyecto(disenosF){
   var wrap = document.getElementById('dash-avance-proyecto');
+  var proyecto = dashProyecto();
+  document.getElementById('dash-avance-titulo').textContent = proyecto ? 'Avance por iteración' : 'Avance por proyecto';
   var porProyecto = {};
   disenosF.forEach(function(d){
-    var nombre = proyectoNombre(d.proyectoId) || 'Sin proyecto';
+    var nombre = grupoDashboard(d);
     if(!porProyecto[nombre]) porProyecto[nombre] = [];
     porProyecto[nombre].push(d);
   });
@@ -69,10 +109,15 @@ function renderAvanceProyecto(disenosF){
     var iteraciones = {};
     lista.forEach(function(d){ iteraciones[iteracionNombre(d.iteracionId)] = true; });
     var nIter = Object.keys(iteraciones).length;
-    return '<div class="dash-avance-card">' +
+    // Cada tarjeta abre el expediente: el del proyecto, o el comparativo de iteraciones del proyecto en curso
+    var destino = proyecto || (nombre !== 'Sin proyecto' ? nombre : '');
+    var attrs = destino ? ' data-exp-proyecto="'+esc(destino)+'" data-exp-pestana="'+(proyecto ? 'comparativo' : 'resumen')+'" role="button" tabindex="0"' : '';
+    return '<div class="dash-avance-card"'+attrs+'>' +
       '<div class="dac-top"><span class="dac-nombre">'+esc(nombre)+'</span><span class="dac-pct">'+pct+'%</span></div>' +
       '<div class="dac-bar-track"><div class="dac-bar-fill" style="width:'+pct+'%;"></div></div>' +
-      '<div class="dac-meta"><span>'+completos+'/'+lista.length+' diseños completados</span><span>'+nIter+' iteración'+(nIter===1?'':'es')+'</span></div>' +
+      '<div class="dac-meta"><span>'+completos+'/'+lista.length+' diseños completados</span>' +
+        (proyecto ? '' : '<span>'+nIter+' iteración'+(nIter===1?'':'es')+'</span>') + '</div>' +
+      (destino ? '<span class="dac-ir">'+(proyecto ? 'Ver comparativo →' : 'Abrir expediente →')+'</span>' : '') +
     '</div>';
   }).join('');
 }
@@ -80,15 +125,25 @@ function renderAvanceProyecto(disenosF){
 function buildDashboard(first){
   var todayStr = todayISO();
   if(first) poblarFiltroAnioDashboard();
+  sincronizarAlcanceDashboard();
+  var proyecto = dashProyecto();
   var disenosF = disenosFiltradosDashboard();
+  var cargasF = cargasFiltradasDashboard(disenosF);
   renderAvanceProyecto(disenosF);
 
   // ---- KPIs ----
   var totalDisenos = disenosF.length;
   var completados = disenosF.filter(function(d){ return d.estado==='Completado'; }).length;
   var pct = totalDisenos ? Math.round(completados/totalDisenos*100) : 0;
-  var roturasPend = roturaCargas.filter(function(c){ return c.estado==='pendiente' && c.fechaEnsayo<=todayStr; }).length;
-  var proyectosActivos = todosLosProyectoIds().filter(function(pid){ var l = diseñosDeProyecto(pid); return l.length>0 && l.some(function(d){ return d.estado!=='Completado'; }); }).length;
+  var roturasPend = cargasF.filter(function(c){ return c.estado==='pendiente' && c.fechaEnsayo<=todayStr; }).length;
+  // Cuarto KPI: proyectos activos del laboratorio, o iteraciones del proyecto en curso
+  var iteracionesF = {};
+  disenosF.forEach(function(d){ iteracionesF[iteracionNombre(d.iteracionId) || '-'] = true; });
+  var proyectosActivos = proyecto
+    ? Object.keys(iteracionesF).length
+    : todosLosProyectoIds().filter(function(pid){ var l = diseñosDeProyecto(pid); return l.length>0 && l.some(function(d){ return d.estado!=='Completado'; }); }).length;
+  var kpiCuarto = document.getElementById('kpi-proyectos-activos');
+  kpiCuarto.nextElementSibling.textContent = proyecto ? 'Iteraciones del proyecto' : 'Proyectos activos';
 
   if(first){
     animateCount(document.getElementById('kpi-total-disenos'), totalDisenos);
@@ -106,7 +161,7 @@ function buildDashboard(first){
 
   // ---- 1. Resistencia promedio por edad (agregado real) ----
   var porEdad = {};
-  roturaCargas.forEach(function(c){
+  cargasF.forEach(function(c){
     if(!c.promedio) return;
     porEdad[c.dia] = porEdad[c.dia] || [];
     porEdad[c.dia].push(Number(c.promedio));
@@ -124,7 +179,7 @@ function buildDashboard(first){
   // ---- 2. Diseños por estado (donut) ----
   var estados = ['Iniciado','En desarrollo','Completado'];
   var estadoColors = ['#38bdf8','#f59e0b','#2e9e57'];
-  var estadoCounts = estados.map(function(e){ return disenos.filter(function(d){ return d.estado===e; }).length; });
+  var estadoCounts = estados.map(function(e){ return disenosF.filter(function(d){ return d.estado===e; }).length; });
   upsertChart('chart-dash-estado', 'doughnut', {
     labels: estados,
     datasets:[{data:estadoCounts, backgroundColor:estadoColors, borderWidth:0}]
@@ -132,7 +187,7 @@ function buildDashboard(first){
 
   // ---- 3. Semáforo de roturas por diseño ----
   var semCounts = {rojo:0, naranja:0, verde:0};
-  disenos.forEach(function(d){ semCounts[semaforoDiseno(d)]++; });
+  disenosF.forEach(function(d){ semCounts[semaforoDiseno(d)]++; });
   upsertChart('chart-dash-semaforo', 'bar', {
     labels:['Sin iniciar','En proceso','Completo'],
     datasets:[{data:[semCounts.rojo, semCounts.naranja, semCounts.verde], backgroundColor:['#dc2626','#f59e0b','#2e9e57'], borderRadius:6, maxBarThickness:46}]
@@ -144,34 +199,39 @@ function buildDashboard(first){
   var dayLabels = days.map(function(d){ return String(d.getDate()).padStart(2,'0')+'/'+String(d.getMonth()+1).padStart(2,'0'); });
   var dayCounts = days.map(function(d){
     var iso = d.getFullYear()+'-'+String(d.getMonth()+1).padStart(2,'0')+'-'+String(d.getDate()).padStart(2,'0');
-    return disenos.filter(function(x){ return dmyToISO(x.fecha) === iso; }).length;
+    return disenosDelAlcance().filter(function(x){ return dmyToISO(x.fecha) === iso; }).length;
   });
   upsertChart('chart-dash-timeline', 'bar', {
     labels: dayLabels,
     datasets:[{label:'Diseños registrados', data:dayCounts, backgroundColor:COLOR_PRIMARIO, borderRadius:5, maxBarThickness:28}]
   }, {plugins:{legend:{display:false}}, scales:{y:{beginAtZero:true, ticks:{precision:0}}}});
 
-  // ---- 5. Diseños por proyecto (top 6) ----
-  var proyStats = todosLosProyectoIds().map(function(pid){ return {nombre:proyectoNombre(pid), n: diseñosDeProyecto(pid).length}; })
+  // ---- 5. Diseños por proyecto (top 6) o por iteración del proyecto en curso; un clic abre el expediente ----
+  document.getElementById('dash-tit-grupo').textContent = proyecto ? 'Diseños por iteración' : 'Diseños por proyecto';
+  var porGrupo = {};
+  disenosF.forEach(function(d){ var g = grupoDashboard(d); porGrupo[g] = (porGrupo[g] || 0) + 1; });
+  var proyStats = Object.keys(porGrupo).map(function(g){ return {nombre:g, n:porGrupo[g]}; })
     .sort(function(a,b){ return b.n-a.n; }).slice(0,6);
   upsertChart('chart-dash-proyectos', 'bar', {
     labels: proyStats.map(function(p){ return p.nombre; }),
     datasets:[{data: proyStats.map(function(p){ return p.n; }), backgroundColor:'#0b5f7a', borderRadius:5, maxBarThickness:26}]
-  }, {indexAxis:'y', plugins:{legend:{display:false}}, scales:{x:{beginAtZero:true, ticks:{precision:0}}}});
+  }, {indexAxis:'y', plugins:{legend:{display:false}}, scales:{x:{beginAtZero:true, ticks:{precision:0}}},
+    onClick: abrirDesdeGraficoGrupo, onHover: cursorEnBarra});
 
   // ---- 6. Cumplimiento de plazos ----
-  var aTiempo = roturaCargas.filter(function(c){ return c.estado==='completado'; }).length;
-  var vencidas = roturaCargas.filter(function(c){ return c.estado==='pendiente' && c.fechaEnsayo < todayStr; }).length;
-  var enPlazo = roturaCargas.filter(function(c){ return c.estado==='pendiente' && c.fechaEnsayo >= todayStr; }).length;
+  var aTiempo = cargasF.filter(function(c){ return c.estado==='completado'; }).length;
+  var vencidas = cargasF.filter(function(c){ return c.estado==='pendiente' && c.fechaEnsayo < todayStr; }).length;
+  var enPlazo = cargasF.filter(function(c){ return c.estado==='pendiente' && c.fechaEnsayo >= todayStr; }).length;
   upsertChart('chart-dash-plazos', 'doughnut', {
     labels:['Completadas','En plazo','Vencidas'],
     datasets:[{data:[aTiempo, enPlazo, vencidas], backgroundColor:['#2e9e57','#38bdf8','#dc2626'], borderWidth:0}]
   }, {cutout:'62%', plugins:{legend:{position:'bottom', labels:{boxWidth:10,padding:10}}}});
 
-  // ---- 7. Costo promedio por m³ por proyecto (nueva métrica) ----
+  // ---- 7. Costo promedio por m³ por proyecto o por iteración ----
+  document.getElementById('dash-sub-costo').textContent = proyecto ? 'por iteración' : 'por proyecto';
   var costoPorProyecto = {};
   disenosF.forEach(function(d){
-    var nombre = proyectoNombre(d.proyectoId) || 'Sin proyecto';
+    var nombre = grupoDashboard(d);
     if(d.cvdTotal){ costoPorProyecto[nombre] = costoPorProyecto[nombre] || []; costoPorProyecto[nombre].push(Number(d.cvdTotal)); }
   });
   var costoStats = Object.keys(costoPorProyecto).map(function(nombre){
@@ -181,8 +241,29 @@ function buildDashboard(first){
   upsertChart('chart-dash-costo', 'bar', {
     labels: costoStats.map(function(p){ return p.nombre; }),
     datasets:[{data: costoStats.map(function(p){ return +p.prom.toFixed(2); }), backgroundColor:COLOR_VERDE, borderRadius:5, maxBarThickness:26}]
-  }, {indexAxis:'y', plugins:{legend:{display:false}}, scales:{x:{beginAtZero:true}}});
+  }, {indexAxis:'y', plugins:{legend:{display:false}}, scales:{x:{beginAtZero:true}},
+    onClick: abrirDesdeGraficoGrupo, onHover: cursorEnBarra});
 }
+/* Clic en una barra de proyecto/iteración: abre el expediente (con un proyecto, su comparativo de iteraciones) */
+function abrirDesdeGraficoGrupo(evt, elementos, chart){
+  if(!elementos.length) return;
+  var etiqueta = chart.data.labels[elementos[0].index];
+  var proyecto = dashProyecto();
+  if(proyecto) abrirExpediente(proyecto, 'comparativo');
+  else if(etiqueta && etiqueta !== 'Sin proyecto') abrirExpediente(etiqueta, 'resumen');
+}
+function cursorEnBarra(evt, elementos){ if(evt.native && evt.native.target) evt.native.target.style.cursor = elementos.length ? 'pointer' : 'default'; }
+
+/* Tarjetas de avance: abren el expediente (también con Enter o espacio) */
+document.getElementById('dash-avance-proyecto').addEventListener('click', function(e){
+  var card = e.target.closest('[data-exp-proyecto]');
+  if(card) abrirExpediente(card.dataset.expProyecto, card.dataset.expPestana);
+});
+document.getElementById('panel-reportes').addEventListener('keydown', function(e){
+  if(e.key !== 'Enter' && e.key !== ' ') return;
+  var el = e.target.closest('[data-exp-proyecto], .kpi-link');
+  if(el){ e.preventDefault(); el.click(); }
+});
 function upsertChart(canvasId, type, data, extraOptions){
   if(typeof Chart === 'undefined') return;
   Chart.defaults.color = '#14181a';
@@ -248,22 +329,28 @@ function renderKpisCalidad(disenosF){
     kpiCard('kpi-rojo', ICO_ALERTA, k.alDia + '%', 'Roturas al día (sin vencer)');
 }
 
-/* ---- Exportar reporte completo ---- */
+/* ---- Exportar reporte (del alcance elegido) ---- */
+function nombreReporteDashboard(){
+  var p = dashProyecto();
+  return 'Indicadores I+D - ' + (p ? p.replace(/[\\/:*?"<>|]/g, '-') + ' - ' : '') + todayISO();
+}
 document.getElementById('dash-excel').addEventListener('click', function(){
   var disenosF = disenosFiltradosDashboard();
   var k = kpisCalidad(disenosF);
   var completados = disenosF.filter(function(d){ return d.estado === 'Completado'; }).length;
-  var kpis = [['Reporte completo — Laboratorio I+D'], ['Generado', fechaHora(Date.now())], ['Rango', document.getElementById('dash-filtro-rango').selectedOptions[0].text], [],
+  var proyecto = dashProyecto();
+  var kpis = [['Reporte de indicadores — Laboratorio I+D'], ['Alcance', proyecto ? 'Proyecto ' + proyecto : 'Todos los proyectos'],
+    ['Generado', fechaHora(Date.now())], ['Rango', document.getElementById('dash-filtro-rango').selectedOptions[0].text], [],
     ['Indicador', 'Valor'], ['Diseños totales', disenosF.length], ['% completados', disenosF.length ? Math.round(completados/disenosF.length*100) + '%' : '-'],
-    ['Roturas pendientes (hasta hoy)', roturaCargas.filter(function(c){ return c.estado === 'pendiente' && c.fechaEnsayo <= todayISO(); }).length],
+    ['Roturas pendientes (hasta hoy)', cargasFiltradasDashboard(disenosF).filter(function(c){ return c.estado === 'pendiente' && c.fechaEnsayo <= todayISO(); }).length],
     ['Resistencia promedio a 28 d (kg/cm²)', isFinite(k.r28) ? +k.r28.toFixed(1) : '-'], ['Cumplimiento de f\'c a 28 d', isFinite(k.cumplimiento) ? k.cumplimiento + '%' : '-'],
     ['Coef. de variación promedio', isFinite(k.cv) ? k.cv.toFixed(1) + '%' : '-'], ['Roturas al día', k.alDia + '%']];
   var proy = [['Proyecto','Estado','Diseños','Completados','Avance %','Roturas registradas','Roturas pendientes','Vencidas','Resist. máx (kg/cm²)','CVD prom. (S/.)']]
-    .concat(metricasTodosLosProyectos().filter(function(m){ return m.nDisenos; }).map(function(m){
+    .concat(metricasTodosLosProyectos().filter(function(m){ return m.nDisenos && (!proyecto || m.nombre === proyecto); }).map(function(m){
       return [m.nombre, m.estado, m.nDisenos, m.completados, m.avancePct, m.cargasCompletas, m.cargasPendientes, m.vencidas, isFinite(m.resistMax) ? +m.resistMax.toFixed(1) : '', isFinite(m.costoProm) ? +m.costoProm.toFixed(2) : ''];
     }));
-  if(exportarExcel('Reporte KPIs I+D - ' + todayISO() + '.xlsx', [{nombre:'KPIs', filas:kpis}, {nombre:'Proyectos', filas:proy}])){
-    registrarHistorial('Exportó', 'Dashboard', 'Reporte de KPIs (Excel)');
+  if(exportarExcel(nombreReporteDashboard() + '.xlsx', [{nombre:'KPIs', filas:kpis}, {nombre:'Proyectos', filas:proy}])){
+    registrarHistorial('Exportó', 'Indicadores', 'Reporte de KPIs (Excel)' + (proyecto ? ' · ' + proyecto : ''), {proyecto: proyecto || ''});
     toast('Reporte exportado');
   }
 });
@@ -289,8 +376,9 @@ document.getElementById('dash-pdf').addEventListener('click', function(){
       doc.addImage(trozo.toDataURL('image/png'), 'PNG', margin, margin, imgW, trozo.height / pxPorMm);
       y += altoPagPx; pagina++;
     }
-    doc.save('Reporte KPIs I+D - ' + todayISO() + '.pdf');
-    registrarHistorial('Exportó', 'Dashboard', 'Reporte de KPIs (PDF)');
+    doc.save(nombreReporteDashboard() + '.pdf');
+    var proyectoPdf = dashProyecto();
+    registrarHistorial('Exportó', 'Indicadores', 'Reporte de KPIs (PDF)' + (proyectoPdf ? ' · ' + proyectoPdf : ''), {proyecto: proyectoPdf || ''});
     toast('Reporte PDF descargado');
   }).catch(function(){ panel.classList.remove('capturando'); toast('No se pudo generar el PDF'); });
 });

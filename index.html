@@ -152,27 +152,24 @@ if(typeof Chart === 'undefined'){
           <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M9 3h6a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2H9a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2z"/><path d="M9 8h6"/><path d="M9 12h6"/><path d="M9 16h3"/></svg>
           <span class="label">Reporte RR</span>
         </button>
-        <button class="nav-item" data-panel="archivador">
+        <button class="nav-item" data-panel="reportes">
           <span class="nav-step">7</span>
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 3v18h18"/><rect x="7" y="12" width="3" height="6"/><rect x="12" y="8" width="3" height="10"/><rect x="17" y="5" width="3" height="13"/></svg>
+          <span class="label">Indicadores</span>
+        </button>
+        <button class="nav-item" data-panel="archivador">
+          <span class="nav-step">8</span>
           <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M22 19a2 2 0 0 1-2 2H4a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h5l2 3h9a2 2 0 0 1 2 2z"/></svg>
           <span class="label">Archivo</span>
         </button>
       </div>
 
       <div class="sn-group">
-        <span class="sn-label">Seguimiento</span>
-        <button class="nav-item" data-panel="reportes">
-          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 3v18h18"/><rect x="7" y="12" width="3" height="6"/><rect x="12" y="8" width="3" height="10"/><rect x="17" y="5" width="3" height="13"/></svg>
-          <span class="label">Dashboard y KPIs</span>
-        </button>
+        <span class="sn-label">Inteligencia</span>
         <button class="nav-item" data-panel="base-historica">
           <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><ellipse cx="12" cy="5" rx="9" ry="3"/><path d="M21 12c0 1.66-4 3-9 3s-9-1.34-9-3"/><path d="M3 5v14c0 1.66 4 3 9 3s9-1.34 9-3V5"/></svg>
           <span class="label">Base histórica</span>
         </button>
-      </div>
-
-      <div class="sn-group">
-        <span class="sn-label">Inteligencia</span>
         <button class="nav-item" data-panel="prediccion">
           <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 17l6-6 4 4 8-8"/><path d="M14 7h7v7"/></svg>
           <span class="label">Predicción</span>
@@ -777,10 +774,14 @@ if(typeof Chart === 'undefined'){
     <!-- REPORTES -->
     <section id="panel-reportes" class="panel">
       <div class="content-header">
-        <div><h2>Dashboard y KPIs</h2><p>Reporte completo del laboratorio: avance, calidad de resultados y cumplimiento.</p></div>
+        <div><h2>Indicadores y KPIs</h2><p id="dash-subtitulo">Avance, calidad de resultados y cumplimiento del proyecto en curso o de todo el laboratorio.</p></div>
         <div style="display:flex;gap:10px;align-items:center;flex-wrap:wrap;">
           <button class="btn-add ghost" id="dash-excel" data-perm="datos:exportar">Excel</button>
           <button class="btn-add" id="dash-pdf">Descargar reporte PDF</button>
+          <select id="dash-alcance" title="Qué proyectos se miden">
+            <option value="proyecto">Proyecto en curso</option>
+            <option value="todos">Todos los proyectos</option>
+          </select>
           <select id="dash-filtro-anio"></select>
           <select id="dash-filtro-rango">
             <option value="todo">Todo el histórico</option>
@@ -797,19 +798,19 @@ if(typeof Chart === 'undefined'){
       </div>
 
       <div class="kpi-grid">
-        <div class="kpi-card kpi-naranja">
+        <div class="kpi-card kpi-naranja kpi-link" data-paso="4" role="button" tabindex="0" title="Ir al paso 4 del flujo">
           <div class="kpi-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="4" y="2" width="16" height="20" rx="2"/><line x1="8" y1="7" x2="16" y2="7"/><line x1="8" y1="12" x2="16" y2="12"/><line x1="8" y1="17" x2="12" y2="17"/></svg></div>
           <div><div class="kpi-num" id="kpi-total-disenos">0</div><div class="kpi-label">Diseños totales</div></div>
         </div>
-        <div class="kpi-card kpi-verde">
+        <div class="kpi-card kpi-verde kpi-link" data-paso="8" role="button" tabindex="0" title="Ir al paso 8 del flujo">
           <div class="kpi-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M9 12l2 2 4-4"/><circle cx="12" cy="12" r="10"/></svg></div>
           <div><div class="kpi-num" id="kpi-pct-completado">0%</div><div class="kpi-label">Completados</div></div>
         </div>
-        <div class="kpi-card kpi-rojo">
+        <div class="kpi-card kpi-rojo kpi-link" data-paso="5" role="button" tabindex="0" title="Ir al paso 5 del flujo">
           <div class="kpi-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 2l3 6-5 4 6 2-8 8 2-7-5-2 4-4-3-5z"/></svg></div>
           <div><div class="kpi-num" id="kpi-roturas-pendientes">0</div><div class="kpi-label">Roturas pendientes (hoy y vencidas)</div></div>
         </div>
-        <div class="kpi-card kpi-negro">
+        <div class="kpi-card kpi-negro kpi-link" data-paso="1" role="button" tabindex="0" title="Ir al paso 1 del flujo">
           <div class="kpi-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 7a2 2 0 0 1 2-2h4l2 2h8a2 2 0 0 1 2 2v9a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V7z"/></svg></div>
           <div><div class="kpi-num" id="kpi-proyectos-activos">0</div><div class="kpi-label">Proyectos activos</div></div>
         </div>
@@ -817,7 +818,7 @@ if(typeof Chart === 'undefined'){
       <div class="kpi-grid kpi-calidad" id="dash-kpis-2"></div>
 
       <div class="section-title-row" style="margin-top:6px;">
-        <h3>Avance por proyecto</h3>
+        <h3 id="dash-avance-titulo">Avance por proyecto</h3>
       </div>
       <div id="dash-avance-proyecto" class="dash-avance-grid"></div>
 
@@ -839,7 +840,7 @@ if(typeof Chart === 'undefined'){
           <div class="dash-chart-wrap"><canvas id="chart-dash-timeline"></canvas></div>
         </div>
         <div class="chart-card">
-          <h4>Diseños por proyecto</h4>
+          <h4 id="dash-tit-grupo">Diseños por proyecto</h4>
           <div class="dash-chart-wrap"><canvas id="chart-dash-proyectos"></canvas></div>
         </div>
         <div class="chart-card">
@@ -847,7 +848,7 @@ if(typeof Chart === 'undefined'){
           <div class="dash-chart-wrap"><canvas id="chart-dash-plazos"></canvas></div>
         </div>
         <div class="chart-card">
-          <h4>Costo promedio por m³ (S/.) <span class="chart-sub">por proyecto</span></h4>
+          <h4>Costo promedio por m³ (S/.) <span class="chart-sub" id="dash-sub-costo">por proyecto</span></h4>
           <div class="dash-chart-wrap"><canvas id="chart-dash-costo"></canvas></div>
         </div>
       </div>
@@ -1365,12 +1366,13 @@ if(typeof Chart === 'undefined'){
         <li><b>Resultados</b> — el día de la mezcla: slump, temperaturas y observaciones por réplica.</li>
         <li><b>Probetas</b> — registrá la carga de cada probeta en su fecha (con el calendario).</li>
         <li><b>Reporte RR</b> — compará diseños y edades.</li>
+        <li><b>Indicadores</b> — KPIs y gráficos del proyecto en curso (o de todos los proyectos).</li>
         <li><b>Archivo</b> — diseños completados con su informe.</li>
       </ol>
       <p class="nota-sm">Sin proyecto elegido no se puede pasar del paso 2. Cada sección muestra arriba el paso y el proyecto en curso, y abajo los botones al paso anterior y al siguiente.</p>
       <h4>Atajos de teclado</h4>
       <table class="atajos-tabla">
-        <tr><td><kbd>Alt</kbd> + <kbd>1</kbd> … <kbd>7</kbd></td><td>Ir al paso 1 a 7 del flujo</td></tr>
+        <tr><td><kbd>Alt</kbd> + <kbd>1</kbd> … <kbd>8</kbd></td><td>Ir al paso 1 a 8 del flujo</td></tr>
         <tr><td><kbd>Alt</kbd> + <kbd>0</kbd></td><td>Inicio</td></tr>
         <tr><td><kbd>Alt</kbd> + <kbd>N</kbd></td><td>Nuevo diseño en el proyecto en curso</td></tr>
         <tr><td><kbd>Ctrl</kbd> + <kbd>K</kbd></td><td>Buscar código, diseño, proyecto o material</td></tr>

@@ -112,6 +112,11 @@ h1,h2,h3,h4,h5{color:var(--text);}
 .exp-header{background:var(--surface) !important;color:var(--text) !important;border:1px solid var(--line);box-shadow:none !important;}
 .exp-header *{color:inherit;}
 .exp-header::before{content:"";display:block;height:3px;margin:-1px -1px 14px;border-radius:8px 8px 0 0;background:var(--grad-marca);}
+/* Con el encabezado claro, los botones dejan de ser blancos (antes quedaban invisibles) */
+.exp-header .btn-add.ghost{background:var(--surface);color:var(--text);border-color:var(--line);}
+.exp-header .btn-add.ghost:hover{background:var(--celeste-50);color:var(--celeste-700);border-color:var(--celeste-300);}
+.exp-header .btn-add:not(.ghost){background:var(--grad-marca);color:#fff;border-color:transparent;}
+html[data-theme="dark"] .exp-header .btn-add.ghost:hover{background:rgba(31,176,224,.12);color:var(--celeste-300);}
 
 /* ================= BOTONES ================= */
 .btn-add{background:var(--grad-marca);color:#fff;border:none;border-radius:8px;box-shadow:none;}

@@ -1,5 +1,6 @@
 /* Sistema I+D — Flujo del ensayo: el trabajo del laboratorio en orden, siempre a partir de un proyecto
-   (Proyecto → Materiales → Diseño → Roturas → Resultados → Reporte RR → Archivo).
+   (Proyecto → Materiales → Diseño → Resultados → Probetas → Reporte RR → Indicadores → Archivo).
+   Los Indicadores (dashboard) no son una sección aparte: miden el proyecto en curso y cada KPI lleva al paso que lo resuelve.
    El proyecto elegido en el paso 1 queda "en curso": acompaña a los pasos siguientes (calculadora, histórico,
    roturas, calendario y archivo se abren filtrados por él) y sin proyecto no se puede avanzar más allá de Materiales.
    Dibuja la barra de pasos y los botones Anterior/Siguiente, marca el paso en el menú y define los atajos. */
@@ -18,10 +19,12 @@ var FLUJO = [
    ayuda:'En <b>Pendientes</b> registrá la carga de cada probeta el día que toca; la resistencia pasa sola al diseño. El <b>Calendario</b> muestra la semana.'},
   {n:6, panel:'reporte-rr', titulo:'Reporte RR', sub:'Comparar diseños y edades', proyecto:true,
    ayuda:'Generá el Reporte RR para comparar los diseños de la iteración por edad y exportarlo.'},
-  {n:7, panel:'archivador', titulo:'Archivo', sub:'Diseños completados', proyecto:true,
+  {n:7, panel:'reportes', titulo:'Indicadores', sub:'KPIs del proyecto',
+   ayuda:'Los KPIs y gráficos del <b>proyecto en curso</b> (o de todos con el selector). Tocá un indicador para ir al paso donde se resuelve: roturas pendientes → Probetas, avance → Archivo.'},
+  {n:8, panel:'archivador', titulo:'Archivo', sub:'Diseños completados', proyecto:true,
    ayuda:'Los diseños completados del proyecto quedan guardados con su informe, listos para consultar o imprimir.'}
 ];
-var PANELES_FLUJO = ['proyectos', 'componentes', 'disenos', 'roturas', 'calendario', 'reporte-rr', 'archivador'];
+var PANELES_FLUJO = ['proyectos', 'componentes', 'disenos', 'roturas', 'calendario', 'reporte-rr', 'reportes', 'archivador'];
 var PANELES_CON_PROYECTO = ['disenos', 'roturas', 'calendario', 'reporte-rr', 'archivador'];
 var subTabDisenos = 'calcular';
 
@@ -33,6 +36,7 @@ function fijarProyectoFlujo(nombre){
   if(!nombre || nombre === proyectoFlujo) return;
   proyectoFlujo = nombre;
   roturasSoloProyecto = true;
+  dashAlcance = 'proyecto'; // los indicadores pasan a medir el proyecto nuevo
   save('sid_proyecto_flujo', proyectoFlujo);
   toast('Proyecto en curso: ' + nombre);
 }
@@ -188,9 +192,10 @@ function renderInicioFlujo(){
     4: enCurso + ' en curso',
     5: porRomper ? '<em>' + porRomper + ' por romper</em>' : 'Al día',
     6: rr.length + ' reportes',
-    7: (dis.length - enCurso) + ' completados'
+    7: dis.length ? Math.round((dis.length - enCurso) / dis.length * 100) + '% de avance' : 'Sin datos aún',
+    8: (dis.length - enCurso) + ' completados'
   };
-  el.innerHTML = '<div class="flujo-cab"><span class="flujo-tit">Flujo del ensayo</span><span class="flujo-paso">Trabajá en este orden · Alt+1 a Alt+7</span>' +
+  el.innerHTML = '<div class="flujo-cab"><span class="flujo-tit">Flujo del ensayo</span><span class="flujo-paso">Trabajá en este orden · Alt+1 a Alt+8</span>' +
     chipProyectoHtml() + '</div>' +
     pasosHtml(null, detalle);
 }
@@ -205,6 +210,15 @@ document.addEventListener('click', function(e){
     if(typeof expedienteProyecto !== 'undefined' && expedienteProyecto) cerrarExpediente();
     irAPaso(1);
     toast('Elegí el proyecto con el que vas a trabajar');
+    return;
+  }
+  // Desde el expediente: indicadores del proyecto abierto
+  var ind = e.target.closest('[data-ver-indicadores]');
+  if(ind){
+    e.preventDefault();
+    if(typeof expedienteProyecto !== 'undefined' && expedienteProyecto) fijarProyectoFlujo(expedienteProyecto);
+    dashAlcance = 'proyecto';
+    irAPaso(7);
     return;
   }
   if(e.target.closest('[data-solo-proyecto]')){ roturasSoloProyecto = !roturasSoloProyecto; renderRoturasPendientes(); return; }
@@ -224,7 +238,7 @@ document.addEventListener('keydown', function(e){
   if(!usuarioActual) return;
   // Alt sin Ctrl: en teclados en español AltGr llega como Ctrl+Alt y no debe disparar atajos
   if(e.altKey && !e.ctrlKey && !e.metaKey){
-    var m = /^Digit([0-7])$/.exec(e.code);
+    var m = /^Digit([0-8])$/.exec(e.code);
     if(m){
       e.preventDefault();
       if(m[1] === '0') showPanel('inicio'); else irAPaso(Number(m[1]));

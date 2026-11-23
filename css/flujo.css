@@ -24,7 +24,7 @@
 .flujo-paso{font-size:.76rem;font-weight:600;color:var(--text-muted);}
 .atajos-card kbd{font-family:var(--font-body);font-size:.68rem;font-weight:700;color:var(--text);border:1px solid var(--line);border-bottom-width:2px;
   border-radius:5px;padding:1px 6px;background:var(--surface-2);}
-.flujo-pasos{list-style:none;margin:0;padding:0;display:grid;grid-template-columns:repeat(7,minmax(0,1fr));gap:6px;}
+.flujo-pasos{list-style:none;margin:0;padding:0;display:grid;grid-template-columns:repeat(8,minmax(0,1fr));gap:6px;}
 .flujo-pasos li{position:relative;min-width:0;}
 .flujo-step{width:100%;display:flex;align-items:center;gap:9px;padding:8px 10px;border-radius:10px;text-align:left;
   border:1px solid var(--line);background:var(--surface-2);color:var(--text);transition:border-color .15s, background .15s;}
@@ -99,3 +99,10 @@ html[data-theme="dark"] .pron-valores b{color:var(--celeste-300);}
 .atajos-tabla td{padding:7px 4px;border-bottom:1px solid var(--line);}
 .atajos-tabla td:first-child{white-space:nowrap;width:1%;padding-right:16px;}
 html[data-theme="dark"] .atajos-body h4{color:var(--celeste-300);}
+
+/* ================= INDICADORES CONECTADOS ================= */
+.kpi-link,.dash-avance-card[data-exp-proyecto]{cursor:pointer;transition:border-color .15s, transform .15s;}
+.kpi-link:hover,.dash-avance-card[data-exp-proyecto]:hover{border-color:var(--celeste-300);transform:translateY(-1px);}
+.kpi-link:focus-visible,.dash-avance-card[data-exp-proyecto]:focus-visible{outline:2px solid var(--celeste-600);outline-offset:2px;}
+.dac-ir{font-size:.72rem;font-weight:700;color:var(--celeste-700);margin-top:6px;display:block;}
+html[data-theme="dark"] .dac-ir{color:var(--celeste-300);}
