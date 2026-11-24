@@ -126,26 +126,40 @@ function guardarLecturaPoza(){
   if(document.getElementById('poza-detalle') && document.getElementById('poza-detalle').classList.contains('show')) renderPozaDetalle();
 }
 var pozaCharts = {};
-function serieDias(dias){
-  var out = [], hoy = todayISO();
-  for(var i = dias - 1; i >= 0; i--){ var iso = addDaysISO(hoy, -i); var l = lecturaDelDia(iso); out.push({iso:iso, l:l}); }
-  return out;
+/* Todas las lecturas guardadas (varias por día si se registran) en el rango, de la más antigua a la más reciente */
+function lecturasEnRango(dias){
+  var hoy = todayISO(), desde = addDaysISO(hoy, -(dias - 1));
+  return lecturasPoza.filter(function(l){ return !l.anulada && l.fecha >= desde && l.fecha <= hoy; })
+    .sort(function(a,b){ return (a.fecha + (a.hora || '')).localeCompare(b.fecha + (b.hora || '')); });
 }
+function difDias(a, b){ return Math.round((new Date(b + 'T00:00:00') - new Date(a + 'T00:00:00')) / DAY); }
+function xLectura(base, l){ var h = String(l.hora || '12:00').split(':'); return difDias(base, l.fecha) + (Number(h[0]) + Number(h[1] || 0) / 60) / 24; }
+/* Gráfica: cada lectura es un punto en su fecha y hora; un día sin lectura queda como hueco (no se interpola) */
 function dibujarPoza(canvasId, dias, grande){
   if(typeof Chart === 'undefined') return;
   if(pozaCharts[canvasId]){ pozaCharts[canvasId].destroy(); delete pozaCharts[canvasId]; }
   var el = document.getElementById(canvasId);
   if(!el) return;
-  var s = serieDias(dias), min = Lab.configNum('poza_min'), max = Lab.configNum('poza_max');
-  var datos = s.map(function(x){ return x.l ? x.l.temp : null; });
-  pozaCharts[canvasId] = new Chart(el, {type:'line', data:{labels:s.map(function(x){ return isoToDMY(x.iso).slice(0, 5); }), datasets:[
-      {label:'Máx', data:s.map(function(){ return max; }), borderWidth:0, pointRadius:0, fill:false},
-      {label:'Rango', data:s.map(function(){ return min; }), borderWidth:0, pointRadius:0, fill:'-1', backgroundColor:'rgba(76,175,62,.16)'},
-      {label:'T° agua', data:datos, borderColor:'#0099cc', borderWidth:2, spanGaps:false, tension:.25,
-        pointRadius:grande ? 4 : 2.5, pointBackgroundColor:datos.map(function(v){ return v === null || enRango(v) ? '#0099cc' : '#dc2626'; }), pointBorderColor:datos.map(function(v){ return v === null || enRango(v) ? '#0099cc' : '#dc2626'; })}]},
-    options:{responsive:true, maintainAspectRatio:false, animation:false, plugins:{legend:{display:false},
-      tooltip:{filter:function(i){ return i.datasetIndex === 2; }, callbacks:{label:function(ctx){ var l = s[ctx.dataIndex].l; return l ? l.temp + ' °C · ' + (l.hora || '') + ' · ' + (nombreDe(l.registrado_por) || '') : ''; }}}},
-      scales:{x:{display:grande, ticks:{maxTicksLimit:grande ? 12 : 7}}, y:{display:grande, suggestedMin:min - 3, suggestedMax:max + 3}}}});
+  var base = addDaysISO(todayISO(), -(dias - 1)), min = Lab.configNum('poza_min'), max = Lab.configNum('poza_max');
+  var pts = [];
+  lecturasEnRango(dias).forEach(function(l){
+    var p = {x:xLectura(base, l), y:Number(l.temp), l:l};
+    var prev = pts[pts.length - 1];
+    if(prev && p.x - prev.x > 1.5) pts.push({x:(prev.x + p.x) / 2, y:null});
+    pts.push(p);
+  });
+  var colores = pts.map(function(p){ return p.y === null || enRango(p.y) ? '#0a8fbf' : '#dc2626'; });
+  var temps = pts.filter(function(p){ return p.y !== null; }).map(function(p){ return p.y; });
+  pozaCharts[canvasId] = new Chart(el, {type:'line', data:{datasets:[
+      {label:'Máx', data:[{x:0, y:max}, {x:dias, y:max}], borderWidth:0, pointRadius:0, fill:false},
+      {label:'Rango', data:[{x:0, y:min}, {x:dias, y:min}], borderWidth:0, pointRadius:0, fill:'-1', backgroundColor:'rgba(76,175,62,.14)'},
+      {label:'T° agua', data:pts, borderColor:'#0a8fbf', borderWidth:2, spanGaps:false, tension:.25, fill:false,
+        pointRadius:grande ? 4 : 3, pointHoverRadius:6, pointBackgroundColor:colores, pointBorderColor:colores}]},
+    options:{responsive:true, maintainAspectRatio:false, animation:{duration:grande ? 300 : 0}, parsing:false,
+      plugins:{legend:{display:false}, tooltip:{filter:function(i){ return i.datasetIndex === 2 && i.raw && i.raw.l; },
+        callbacks:{title:function(it){ var l = it[0].raw.l; return isoToDMY(l.fecha) + ' ' + (l.hora || ''); }, label:function(ctx){ var l = ctx.raw.l; return l.temp + ' °C · ' + (nombreDe(l.registrado_por) || '') + (l.observacion ? ' · ' + l.observacion : ''); }}}},
+      scales:{x:{type:'linear', min:0, max:dias, display:grande, ticks:{stepSize:dias <= 7 ? 1 : (dias <= 31 ? 5 : 15), callback:function(v){ return Number.isInteger(v) ? isoToDMY(addDaysISO(base, v)).slice(0, 5) : ''; }}},
+        y:{display:grande, suggestedMin:Math.min(min - 2, temps.length ? Math.min.apply(null, temps) - 1 : min - 2), suggestedMax:Math.max(max + 2, temps.length ? Math.max.apply(null, temps) + 1 : max + 2)}}}});
 }
 var pozaRango = 7;
 function abrirPozaDetalle(){
@@ -155,36 +169,61 @@ function abrirPozaDetalle(){
       var r = e.target.closest('[data-poza-rango]');
       if(r){ pozaRango = Number(r.dataset.pozaRango); renderPozaDetalle(); return; }
       if(e.target.closest('[data-poza-acc="registrar"]')){ abrirRegistroPoza(); return; }
-      if(e.target.closest('[data-poza-acc="excel"]')) exportarPoza();
-      if(e.target.closest('[data-poza-acc="tnc"]')){ cerrarModal('poza-detalle'); showPanel('no-conforme'); }
+      if(e.target.closest('[data-poza-acc="excel"]')){ exportarPoza(); return; }
+      if(e.target.closest('[data-poza-acc="tnc"]')){ cerrarModal('poza-detalle'); showPanel('no-conforme'); return; }
+      var an = e.target.closest('[data-poza-anular]');
+      if(an) anularLecturaPoza(an.dataset.pozaAnular);
     });
   }
   renderPozaDetalle();
   abrirModal('poza-detalle');
 }
 function renderPozaDetalle(){
-  var s = serieDias(pozaRango);
-  var lecturas = s.filter(function(x){ return x.l; }).map(function(x){ return x.l; }).reverse();
-  var fuera = s.filter(function(x){ return x.l && !enRango(x.l.temp); });
+  var lecturas = lecturasEnRango(pozaRango).slice().reverse();
+  var fuera = lecturas.filter(function(l){ return !enRango(l.temp); });
+  var dias = {}; fuera.forEach(function(l){ dias[l.fecha] = true; });
   var afectadas = {};
-  fuera.forEach(function(x){ probetasCurando(x.iso).forEach(function(p){ (afectadas[p.codigo] = afectadas[p.codigo] || []).push(isoToDMY(x.iso).slice(0, 5)); }); });
+  Object.keys(dias).forEach(function(iso){ probetasCurando(iso).forEach(function(p){ (afectadas[p.codigo] = afectadas[p.codigo] || []).push(isoToDMY(iso).slice(0, 5)); }); });
   var codigos = Object.keys(afectadas).sort();
+  var conLectura = {}; lecturas.forEach(function(l){ conLectura[l.fecha] = true; });
+  var temps = lecturas.map(function(l){ return Number(l.temp); });
+  var puede = can('resultados:registrar');
   document.getElementById('poza-detalle-body').innerHTML =
     '<div class="ev-toolbar"><div class="view-toggle">' + [[7, '7 días'], [30, '30 días'], [90, '3 meses']].map(function(r){ return '<button class="view-toggle-btn' + (pozaRango === r[0] ? ' active' : '') + '" data-poza-rango="' + r[0] + '">' + r[1] + '</button>'; }).join('') + '</div>' +
-      '<span class="nota-sm">Rango ' + Lab.configNum('poza_min') + '–' + Lab.configNum('poza_max') + ' °C</span><span class="ch-actions"><button class="btn-add verde" data-poza-acc="registrar" data-perm="resultados:registrar">Registrar lectura</button><button class="btn-add ghost" data-poza-acc="excel" data-perm="datos:exportar">Excel</button></span></div>' +
+      '<span class="ch-actions"><button class="btn-add verde" data-poza-acc="registrar" data-perm="resultados:registrar">Registrar lectura</button><button class="btn-add ghost" data-poza-acc="excel" data-perm="datos:exportar">Excel</button></span></div>' +
+    '<div class="poza-resumen"><span><b>' + lecturas.length + '</b> lecturas</span><span><b>' + Object.keys(conLectura).length + '</b> de ' + pozaRango + ' días con lectura</span>' +
+      (temps.length ? '<span>Mín <b>' + Math.min.apply(null, temps) + ' °C</b></span><span>Máx <b>' + Math.max.apply(null, temps) + ' °C</b></span><span>Promedio <b>' + fmt(promedio(temps), 1) + ' °C</b></span>' : '') +
+      '<span>Rango ' + Lab.configNum('poza_min') + '–' + Lab.configNum('poza_max') + ' °C</span><span class="' + (fuera.length ? 'cv-alto' : '') + '"><b>' + fuera.length + '</b> fuera de rango</span></div>' +
     '<div class="poza-grafica-grande"><canvas id="poza-chart-grande"></canvas></div>' +
-    '<div class="poza-detalle-grid"><div><div class="section-num">Lecturas</div><div class="table-scroll poza-tabla"><table class="data-table"><thead><tr><th>Fecha</th><th>Hora</th><th>T° agua</th><th>Registró</th><th>Observación</th></tr></thead><tbody>' +
-      (lecturas.length ? lecturas.map(function(l){ return '<tr><td>' + isoToDMY(l.fecha) + '</td><td>' + esc(l.hora || '') + '</td><td class="' + (enRango(l.temp) ? '' : 'cv-alto') + '"><b>' + l.temp + ' °C</b></td><td>' + esc(nombreDe(l.registrado_por) || '') + '</td><td>' + esc(l.observacion || '') + (l.tnc ? ' <span class="chip-falta atrasado">' + esc(l.tnc) + '</span>' : '') + '</td></tr>'; }).join('') : '<tr><td colspan="5" class="nota-sm">Sin lecturas.</td></tr>') + '</tbody></table></div></div>' +
+    '<div class="poza-detalle-grid"><div><div class="section-num">Lecturas</div><div class="table-scroll poza-tabla"><table class="data-table"><thead><tr><th>Fecha</th><th>Hora</th><th>T° agua</th><th>Registró</th><th>Observación</th><th></th></tr></thead><tbody>' +
+      (lecturas.length ? lecturas.map(function(l){ return '<tr><td>' + isoToDMY(l.fecha) + '</td><td>' + esc(l.hora || '') + '</td><td class="' + (enRango(l.temp) ? '' : 'cv-alto') + '"><b>' + l.temp + ' °C</b></td><td>' + esc(nombreDe(l.registrado_por) || '') + '</td><td>' + esc(l.observacion || '') + (l.tnc ? ' <span class="chip-falta atrasado">' + esc(l.tnc) + '</span>' : '') + '</td>' +
+        '<td class="acciones-fila">' + (puede ? '<button class="btn-icon danger" data-poza-anular="' + esc(l.id) + '" title="Anular lectura">×</button>' : '') + '</td></tr>'; }).join('') : '<tr><td colspan="6" class="nota-sm">Sin lecturas.</td></tr>') + '</tbody></table></div></div>' +
     '<div><div class="section-num">Probetas afectadas <span class="badge-pill">' + codigos.length + '</span></div>' + (codigos.length ? '<div class="poza-afectadas">' + codigos.map(function(c){ return '<span class="chip-falta atrasado" title="Fuera de rango: ' + afectadas[c].join(', ') + '">' + esc(c) + '</span>'; }).join('') + '</div><button class="btn-link" data-poza-acc="tnc">Ver trabajos no conformes</button>' : '<p class="nota-sm">Sin días fuera de rango.</p>') + '</div></div>';
   dibujarPoza('poza-chart-grande', pozaRango, true);
 }
+function anularLecturaPoza(id){
+  var l = lecturasPoza.filter(function(x){ return x.id === id; })[0];
+  if(!l || !exigir('resultados:registrar')) return;
+  pedirMotivo('Anular la lectura de la poza', '<p>' + isoToDMY(l.fecha) + ' ' + esc(l.hora || '') + ' · <b>' + l.temp + ' °C</b>. No se borra: queda guardada con el motivo.</p>', function(m){
+    l.anulada = true; l.motivo_anulacion = m; l.anulada_por = yoId(); l.anulada_en = new Date().toISOString();
+    savePoza();
+    registrarHistorial('Anuló', 'Poza de curado', isoToDMY(l.fecha) + ' ' + (l.hora || '') + ' · ' + l.temp + ' °C', {ref:l.id, antes:{anulada:false}, despues:{anulada:true}, motivo:m});
+    toast('Lectura anulada');
+    renderPozaDetalle();
+    renderMiSemana();
+  });
+}
+/* Excel: todas las lecturas del rango y los días sin lectura como hueco */
 function exportarPoza(){
   if(!exigir('datos:exportar')) return;
   var filas = [['Fecha', 'Hora', 'T° agua (°C)', 'En rango', 'Registró', 'Observación', 'Trabajo no conforme']];
-  serieDias(pozaRango).forEach(function(x){
-    var l = x.l;
-    filas.push(l ? [isoToDMY(x.iso), l.hora || '', l.temp, enRango(l.temp) ? 'Sí' : 'No', nombreDe(l.registrado_por) || '', l.observacion || '', l.tnc || ''] : [isoToDMY(x.iso), '', '', 'Sin lectura', '', '', '']);
-  });
+  var lect = lecturasEnRango(pozaRango), hoy = todayISO();
+  for(var i = pozaRango - 1; i >= 0; i--){
+    var iso = addDaysISO(hoy, -i);
+    var delDia = lect.filter(function(l){ return l.fecha === iso; });
+    if(!delDia.length) filas.push([isoToDMY(iso), '', '', 'Sin lectura', '', '', '']);
+    delDia.forEach(function(l){ filas.push([isoToDMY(iso), l.hora || '', l.temp, enRango(l.temp) ? 'Sí' : 'No', nombreDe(l.registrado_por) || '', l.observacion || '', l.tnc || '']); });
+  }
   if(exportarExcel('Poza de curado.xlsx', [{nombre:'Poza', filas:filas}])) registrarHistorial('Exportó', 'Poza de curado', pozaRango + ' días');
 }
 
