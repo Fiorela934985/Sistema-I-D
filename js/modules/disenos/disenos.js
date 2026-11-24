@@ -14,19 +14,14 @@ var disenos = load('sid10_disenos', [
 
 
 function diseñoTitulo(d){ return d.nombreTecnico || d.tipo; }
-function semaforoDiseno(d){
-  if(!d.replicaObjs || !d.replicaObjs.length || !d.diasRotura || !d.diasRotura.length) return 'rojo';
-  var total = d.replicaObjs.length * d.diasRotura.length;
-  var completas = roturaCargas.filter(function(c){ return c.disenoCodigoDiseno === d.codigo && c.estado === 'completado'; }).length;
-  if(completas === 0) return 'rojo';
-  if(completas >= total) return 'verde';
-  return 'naranja';
-}
+/* Semáforo del diseño completo (regla 9): se calcula con el checklist de su proyecto */
+function semaforoDiseno(d){ return semaforoChecklist(d); }
 function semaforoDotHtml(color, title){
   return '<span class="semaforo-dot semaforo-'+color+'" title="'+(title||'')+'"></span>';
 }
 function disenoActionsHtml(d,i){
-  return '<button class="btn-icon view" data-act="view" data-i="'+i+'" title="Ver diseño">'+EYE_ICON+'</button>' +
+  return '<button class="btn-icon flujo" data-act="flujo" data-i="'+i+'" title="Flujo del diseño (5 pasos)">'+FLUJO_ICON+'</button>' +
+    '<button class="btn-icon view" data-act="view" data-i="'+i+'" title="Ver diseño">'+EYE_ICON+'</button>' +
     '<button class="btn-icon results" data-perm="resultados:registrar" data-act="results" data-i="'+i+'" title="Cargar resultados">'+RESULTS_ICON+'</button>' +
     '<button class="btn-icon fav'+(d.favorito?' active':'')+'" data-act="fav" data-i="'+i+'" title="Favorito">'+(d.favorito?STAR_FILLED:STAR_OUTLINE)+'</button>' +
     '<div class="more-wrap">' +
@@ -60,7 +55,7 @@ function tipoDisenoLabel(d){ return d.codigo && d.codigo.charAt(0)==='C' ? 'Cubo
 function disenoCardHtml(d){
   var i = disenos.indexOf(d);
   var tagEstado = d.estado === 'Completado' ? 'tag-verde' : (d.estado === 'En desarrollo' ? 'tag-naranja' : 'tag-celeste');
-  var sem = semaforoDotHtml(semaforoDiseno(d), 'Avance de roturas');
+  var sem = semaforoDotHtml(semaforoDiseno(d), 'Semáforo del diseño');
   var nRep = (d.replicaObjs && d.replicaObjs.length) || d.replicas || 0;
   return '<div class="design-card">' +
     '<div class="design-thumb '+estadoColorClass(d.estado)+'"></div>' +
@@ -75,7 +70,8 @@ function disenoCardHtml(d){
         '</div>' +
       '</div>' +
       '<span class="mono dc-meta">'+esc(d.laboratorio||'-')+' · IDs: '+idsDeReplicasHtml(d)+'</span>' +
-      '<div class="tags"><span class="tag-pill '+tagEstado+'">'+d.estado+'</span></div>' +
+      '<div class="tags"><span class="tag-pill '+tagEstado+'">'+estadoCalculado(d)+'</span></div>' +
+      '<div class="chips-fila">'+chipsFaltaHtml(d)+'</div>' +
       '<div class="design-actions">'+disenoActionsHtml(d,i)+'</div>' +
     '</div>' +
   '</div>';
@@ -83,12 +79,12 @@ function disenoCardHtml(d){
 function disenoRowHtml(d){
   var i = disenos.indexOf(d);
   var tagEstado = d.estado === 'Completado' ? 'tag-verde' : (d.estado === 'En desarrollo' ? 'tag-naranja' : 'tag-celeste');
-  var sem = semaforoDotHtml(semaforoDiseno(d), 'Avance de roturas');
+  var sem = semaforoDotHtml(semaforoDiseno(d), 'Semáforo del diseño');
   return '<div class="design-row">' +
     '<div class="drow-thumb"></div>' +
     '<span class="drow-code mono">'+d.codigo+'</span>' +
-    '<div class="drow-main"><h5>'+sem+' '+tituloConIteracion(d)+'</h5><span class="dc-nombre-inline">'+diseñoTitulo(d)+'</span><span>'+esc(d.laboratorio||'-')+' · IDs: '+idsDeReplicasHtml(d)+'</span></div>' +
-    '<div class="drow-tags"><span class="tag-pill '+tagEstado+'">'+d.estado+'</span></div>' +
+    '<div class="drow-main"><h5>'+sem+' '+tituloConIteracion(d)+'</h5><span class="dc-nombre-inline">'+diseñoTitulo(d)+'</span><span>'+esc(d.laboratorio||'-')+' · IDs: '+idsDeReplicasHtml(d)+'</span><div class="chips-fila">'+chipsFaltaHtml(d)+'</div></div>' +
+    '<div class="drow-tags"><span class="tag-pill '+tagEstado+'">'+estadoCalculado(d)+'</span></div>' +
     '<div class="drow-actions">'+disenoActionsHtml(d,i)+'</div>' +
   '</div>';
 }
@@ -214,7 +210,9 @@ function handleCardAction(e){
   if(!btn) return;
   var i = Number(btn.dataset.i);
   var act = btn.dataset.act;
-  if(act === 'view'){
+  if(act === 'flujo'){
+    abrirFlujoDiseno(disenos[i]);
+  } else if(act === 'view'){
     openDesignModal(disenos[i]);
   } else if(act === 'results'){
     if(!exigir('resultados:registrar')) return;
@@ -422,6 +420,7 @@ function renderInicioFavoritos(){
   }).join('');
 }
 function renderAllDesignViews(){
+  if(typeof sincronizarEstadosCalculados === 'function') sincronizarEstadosCalculados();
   renderDisenosHistorico();
   renderInicioKpis();
   renderInicioRecientes();

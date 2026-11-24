@@ -35,6 +35,7 @@ function entrarAlSistema(){
   renderUsuarioShell();
   showPanel('inicio');
   renderRRDetail();
+  abrirDesdeEnlace();
 }
 /* Con servidor, la sesión solo se restaura si el token sigue vigente; se valida en segundo plano */
 if((!Nube.activa() || Nube.tieneToken()) && restaurarSesion()){

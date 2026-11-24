@@ -69,11 +69,6 @@ function actualizarFlujo(){
 
 /* ================= SECCIONES DE FASES POSTERIORES ================= */
 var SECCIONES_POR_FASE = {
-  'etiquetas': {titulo:'Etiquetas', fase:3, sub:'Formatos',
-    items:['Todas las etiquetas acumuladas, listas para imprimir: 3 iguales por edad, en blanco y negro, con QR.',
-      'Contenido: DINO S.R.L, producto, código, proyecto, fecha y hora de elaboración y edad (sin M1/M2/M3).',
-      'Al escanear la etiqueta se abre directo el registro de la rotura de ese código.'],
-    accion:{texto:'Imprimir etiquetas de un diseño (hoy)', goto:'disenos', sub:'historico'}},
   'documentos': {titulo:'Documentos', fase:7, sub:'Calidad',
     items:['Procedimientos y formatos con código, versión vigente, fecha y archivo en Google Drive (17025, 8.3).',
       'Cada formato del sistema mostrará el código y la versión que vienen de aquí; las versiones anteriores quedan como obsoletas.']},

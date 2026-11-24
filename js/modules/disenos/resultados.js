@@ -181,34 +181,16 @@ function registrarResultadosEnHistorial(d){
 document.getElementById('results-save').addEventListener('click', function(){
   if(!currentResultsDesign) return;
   if(!exigir('resultados:registrar')) return;
+  // Regla 4: el técnico solo registra lo asignado y para lo que está autorizado
+  if(!exigirEnsayos(ensayosDeEtapaEnProyecto(currentResultsDesign, 'fresco'), currentResultsDesign)) return;
   var numReplicas = (currentResultsDesign.replicaObjs && currentResultsDesign.replicaObjs.length) || currentResultsDesign.replicas || 1;
   currentResultsDesign.resultados = { replicas: collectResultsFromModal(numReplicas) };
   currentResultsDesign.editedAt = Date.now();
-  if(resultsModalDirty){
-    document.getElementById('completos-confirm-modal').classList.add('show');
-  } else {
-    save('sid10_disenos', disenos);
-    registrarResultadosEnHistorial(currentResultsDesign);
-    document.getElementById('results-modal').classList.remove('show');
-    toast('Resultados guardados');
-    renderAllDesignViews();
-  }
-});
-document.getElementById('completos-confirm-yes').addEventListener('click', function(){
-  if(currentResultsDesign) currentResultsDesign.estado = 'Completado';
+  currentResultsDesign.frescoContexto = {analista_id:usuarioActual.id, analista:usuarioActual.nombre || usuarioActual.usuario, registrado_en:new Date().toISOString()};
+  // Regla 9: el estado (Abierto/Cerrado) se calcula solo con el checklist del proyecto; no se marca a mano
   save('sid10_disenos', disenos);
-  if(currentResultsDesign) registrarResultadosEnHistorial(currentResultsDesign);
-  document.getElementById('completos-confirm-modal').classList.remove('show');
+  registrarResultadosEnHistorial(currentResultsDesign);
   document.getElementById('results-modal').classList.remove('show');
-  toast('Resultados guardados — diseño Completado');
-  renderAllDesignViews();
-});
-document.getElementById('completos-confirm-no').addEventListener('click', function(){
-  if(currentResultsDesign) currentResultsDesign.estado = 'En desarrollo';
-  save('sid10_disenos', disenos);
-  if(currentResultsDesign) registrarResultadosEnHistorial(currentResultsDesign);
-  document.getElementById('completos-confirm-modal').classList.remove('show');
-  document.getElementById('results-modal').classList.remove('show');
-  toast('Resultados guardados — diseño En desarrollo');
-  renderAllDesignViews();
+  toast('Estado fresco guardado · diseño ' + estadoCalculado(currentResultsDesign));
+  refrescarTodoFlujo(currentResultsDesign);
 });

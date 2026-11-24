@@ -238,15 +238,19 @@ function expResumenHtml(ficha, r){
 /* ---- Muestras: probetas y cubos con su código, y evidencias ---- */
 function expMuestrasHtml(ficha, r){
   var codigos = {}; r.disenos.forEach(function(d){ codigos[d.codigo] = true; });
+  var lotes = {}; r.disenos.forEach(function(d){ if(d.loteAgregadoId) (lotes[d.loteAgregadoId] = lotes[d.loteAgregadoId] || []).push(d.codigo); });
+  var lotesHtml = Object.keys(lotes).length ? '<div class="card" style="margin-bottom:16px;"><div class="section-num">Lotes de agregado recibidos</div><div class="table-scroll"><table class="data-table"><thead><tr><th>Lote</th><th>Fino</th><th>Grueso</th><th>Procedencia</th><th>Muestreo</th><th>Diseños</th></tr></thead><tbody>' +
+    Object.keys(lotes).map(function(id){ var l = lotePorId(id) || {}; return '<tr><td class="mono"><b>'+esc(l.codigo || id)+'</b></td><td>'+esc(l.fino || '—')+'</td><td>'+esc(l.grueso || '—')+'</td><td>'+esc(l.procedencia || '—')+'</td><td>'+(l.fecha ? isoToDMY(l.fecha) : '—')+'</td><td class="mono">'+esc(lotes[id].join(', '))+'</td></tr>'; }).join('') +
+    '</tbody></table></div></div>' : '';
   var porCodigo = {};
-  roturaCargas.filter(function(c){ return codigos[c.disenoCodigoDiseno] || c.proyecto === ficha.nombre; }).forEach(function(c){
+  roturaCargas.filter(function(c){ return !c.anulada && (codigos[c.disenoCodigoDiseno] || c.proyecto === ficha.nombre); }).forEach(function(c){
     var k = c.codigo || c.replicaNombre;
     if(!porCodigo[k]) porCodigo[k] = {codigo:c.codigo, producto:c.producto || c.replicaNombre, tipo:c.tipo, elab:c.fechaElaboracion, hora:c.horaElaboracion, edades:[], hechas:0};
     porCodigo[k].edades.push(c.dia);
     if(c.estado === 'completado') porCodigo[k].hechas++;
   });
   var filas = Object.keys(porCodigo).map(function(k){ return porCodigo[k]; }).sort(function(a,b){ return String(a.codigo).localeCompare(String(b.codigo)); });
-  return '<div class="card"><div class="section-num">Probetas y cubos <span class="fase-chip">Etiquetas QR en la Fase 3</span></div>' +
+  return lotesHtml + '<div class="card"><div class="ev-toolbar"><span class="section-num" style="margin:0;">Probetas y cubos</span><button class="btn-add ghost" data-etiquetas-proyecto>'+TAG_ICON+' Etiquetas QR</button></div>' +
     (filas.length ? '<div class="table-scroll"><table class="data-table"><thead><tr><th>Código</th><th>Producto</th><th>Tipo</th><th>Elaboración</th><th>Edades</th><th>Roturas</th></tr></thead><tbody>' + filas.map(function(m){
       return '<tr><td class="mono"><b>'+esc(m.codigo || '—')+'</b></td><td>'+esc(m.producto)+'</td><td>'+esc(m.tipo || '')+'</td><td>'+(m.elab ? isoToDMY(m.elab) : '—')+(m.hora ? ' '+esc(m.hora) : ' <span class="chip-falta">Falta: hora</span>')+'</td>' +
         '<td>'+m.edades.sort(function(a,b){ return a-b; }).map(function(d){ return '<span class="chip-edad">'+d+' d</span>'; }).join('')+'</td><td>'+m.hechas+'/'+m.edades.length+'</td></tr>';
@@ -260,7 +264,8 @@ function filaDisenoHtml(d){
   var rm = resistenciaMaxima(d);
   return '<tr><td>'+semaforoDotHtml(semaforoChecklist(d))+'</td><td class="mono">'+esc(d.codigo)+'</td><td><b class="nombre-tecnico">'+esc(diseñoTitulo(d))+'</b><div class="chips-fila">'+chipsFaltaHtml(d)+'</div></td>' +
     '<td>'+esc(d.iteracionId || '—')+'</td><td>'+esc(d.fecha || '—')+'</td><td>'+(isFinite(rm) ? fmt(rm, 1) : '—')+'</td>' +
-    '<td class="acciones-fila"><button class="btn-icon" data-exp-act="view" data-codigo="'+esc(d.codigo)+'" title="Ver diseño">'+EYE_ICON+'</button>' +
+    '<td class="acciones-fila"><button class="btn-icon" data-exp-act="flujo" data-codigo="'+esc(d.codigo)+'" title="Flujo del diseño (5 pasos)">'+FLUJO_ICON+'</button>' +
+    '<button class="btn-icon" data-exp-act="view" data-codigo="'+esc(d.codigo)+'" title="Ver diseño">'+EYE_ICON+'</button>' +
     '<button class="btn-icon" data-exp-act="resultados" data-codigo="'+esc(d.codigo)+'" data-perm="resultados:registrar" title="Estado fresco">'+RESULTS_ICON+'</button>' +
     '<button class="btn-icon" data-exp-act="informe" data-codigo="'+esc(d.codigo)+'" title="Informe">'+CHART_ICON+'</button>' +
     '<button class="btn-icon" data-exp-act="etiquetas" data-codigo="'+esc(d.codigo)+'" title="Etiquetas">'+TAG_ICON+'</button></td></tr>';
@@ -443,6 +448,7 @@ document.getElementById('proy-expediente').addEventListener('click', function(e)
     return;
   }
   if(e.target.closest('#exp-exportar')){ exportarExpediente(ficha); return; }
+  if(e.target.closest('[data-etiquetas-proyecto]')){ abrirPanelEtiquetas(expedienteProyecto); return; }
   if(e.target.closest('#exp-nuevo-diseno')){
     if(!exigir('disenos:crear')) return;
     showPanel('disenos'); showSubTab('calcular');
@@ -455,7 +461,8 @@ document.getElementById('proy-expediente').addEventListener('click', function(e)
   if(act){
     var d = disenoPorCodigo(act.dataset.codigo);
     if(!d) return;
-    if(act.dataset.expAct === 'view') openDesignModal(d);
+    if(act.dataset.expAct === 'flujo') abrirFlujoDiseno(d);
+    else if(act.dataset.expAct === 'view') openDesignModal(d);
     else if(act.dataset.expAct === 'informe') openInformeModal(d);
     else if(act.dataset.expAct === 'etiquetas') abrirEtiquetas(d.codigo);
     else if(act.dataset.expAct === 'resultados'){ if(exigir('resultados:registrar')) openResultsModal(d, disenos.indexOf(d)); }

@@ -168,3 +168,57 @@ html[data-theme="dark"] .asis-pasos li.actual,html[data-theme="dark"] .asis-ensa
 .exp-resumen .data-table.compacta{table-layout:fixed;width:100%;}
 .exp-resumen .data-table.compacta td:first-child{width:56px;}
 .exp-resumen .data-table.compacta td:last-child{width:44px;text-align:right;}
+
+/* ===== Fase 3: flujo de 5 pasos por diseño, elaboración, ventana NTP y etiquetas ===== */
+.btn-add.verde{background:var(--verde-600,#4caf3e);border-color:var(--verde-600,#4caf3e);color:#fff;}
+.btn-add.verde:hover{filter:brightness(.95);}
+.btn-add[disabled]{opacity:.55;cursor:not-allowed;}
+.btn-link{background:none;border:0;padding:0 2px;color:var(--celeste-700);font-size:.72rem;text-decoration:underline;cursor:pointer;}
+.chip-ok{display:inline-flex;align-items:center;height:20px;padding:0 8px;border-radius:999px;font-size:.68rem;font-weight:700;background:#dcfce7;color:#166534;}
+.ok-mark{color:#166534;font-weight:800;}
+.flujo-card{max-width:980px;}
+.flujo-cab{padding:10px 20px 0;display:flex;flex-direction:column;gap:6px;}
+.flujo-cab-main{display:flex;align-items:center;gap:10px;}
+.flujo-cab-main .id-card-simple{margin-left:auto;}
+.flujo-linea{list-style:none;margin:0 0 12px;padding:0;display:grid;grid-template-columns:repeat(auto-fit,minmax(120px,1fr));gap:6px;counter-reset:none;}
+.flujo-linea li{position:relative;display:flex;flex-direction:column;align-items:flex-start;gap:2px;padding:8px 10px;border:1px solid var(--line);border-radius:10px;background:var(--surface);}
+.flujo-linea .fl-num{width:24px;height:24px;border-radius:50%;display:inline-flex;align-items:center;justify-content:center;font-size:.75rem;font-weight:800;background:#e5e7eb;color:#14181a;}
+.flujo-linea .fl-nombre{font-weight:700;font-size:.82rem;}
+.flujo-linea .fl-cuando{font-size:.68rem;color:var(--text-muted);}
+.flujo-linea li.hecho{border-color:#86efac;background:#f0fdf4;}
+.flujo-linea li.hecho .fl-num{background:#16a34a;color:#fff;}
+.flujo-linea li.actual{border-color:var(--celeste-600,#0099cc);box-shadow:0 0 0 2px rgba(0,153,204,.18);}
+.flujo-linea li.actual .fl-num{background:var(--celeste-600,#0099cc);color:#fff;}
+.flujo-linea li.no-aplica{opacity:.6;}
+.flujo-accion{display:flex;flex-wrap:wrap;align-items:center;justify-content:space-between;gap:8px;padding:10px 12px;border-radius:10px;background:var(--celeste-50,#eef9fd);margin-bottom:12px;}
+.flujo-accion.cerrado{background:#f0fdf4;}
+.flujo-botones{display:flex;flex-wrap:wrap;gap:6px;}
+.flujo-datos{display:grid;grid-template-columns:repeat(auto-fit,minmax(220px,1fr));gap:10px;}
+.flujo-asignar{display:flex;gap:6px;}
+.flujo-asignar select{flex:1;min-width:0;}
+.flujo-reps td{vertical-align:middle;}
+.hora-pendiente{display:inline-flex;gap:4px;align-items:center;}
+.hora-pendiente input{width:96px;}
+.elab-tipo{display:flex;gap:12px;align-items:center;min-height:36px;}
+.mc-ventana{margin-bottom:10px;}
+.mc-ventana .chip-ok,.mc-ventana .chip-falta,.mc-ventana .chip-edad{height:auto;min-height:22px;padding:3px 10px;white-space:normal;}
+.mc-calculos{display:flex;flex-wrap:wrap;gap:14px;padding:8px 12px;border-radius:8px;background:var(--celeste-50,#eef9fd);margin:8px 0 12px;font-size:.85rem;}
+.mc-calculos .cv-alto{color:var(--rojo-600,#dc2626);}
+.mc-res{font-size:.72rem;font-weight:600;color:var(--celeste-700);margin-left:6px;}
+.etq-toolbar{flex-wrap:wrap;gap:8px;}
+.etq-toolbar select,.etq-toolbar input[type=search]{min-width:180px;height:36px;padding:0 10px;border:1px solid var(--line);border-radius:8px;background:var(--surface);color:var(--text);font:inherit;font-size:.85rem;}
+#elab-modal .hora-celda input[type=time]{min-width:118px;}
+#elab-modal textarea{width:100%;font:inherit;font-size:.85rem;padding:8px 10px;border:1px solid var(--line);border-radius:8px;background:var(--surface);color:var(--text);resize:vertical;}
+.etq{border-color:#14181a;color:#14181a;}
+.etq-cod{color:#14181a;}
+.etq-emp{font-size:.62rem;font-weight:800;letter-spacing:.05em;}
+.etq-edad{font-weight:800;font-size:.8rem;}
+.chips-fila .chip-falta,.chips-fila .chip-ok{margin:2px 4px 0 0;}
+html[data-theme="dark"] .flujo-linea li.hecho{background:rgba(22,163,74,.12);}
+html[data-theme="dark"] .flujo-accion,html[data-theme="dark"] .mc-calculos{background:rgba(0,153,204,.12);}
+html[data-theme="dark"] .chip-ok{background:rgba(22,163,74,.18);color:#86efac;}
+@media (max-width:640px){
+  .flujo-linea{grid-template-columns:1fr 1fr;}
+  .flujo-accion{flex-direction:column;align-items:stretch;}
+  .flujo-botones .btn-add{flex:1;}
+}

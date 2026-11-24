@@ -18,7 +18,15 @@ function peekNextCodigoRotura(tipo){
 var TIPO_ROTURA_IMG_URL = 'assets/tipos-rotura.jpg';
 var roturaCargas = load('sid10_rotura_cargas', []); // una fila por (réplica x edad)
 function saveRoturaCargas(){ save('sid10_rotura_cargas', roturaCargas); }
-function nextRoturaId(){ return 'rc' + Date.now() + Math.floor(Math.random()*1000); }
+/* Id único de cada fila: tiempo + contador + azar (antes se repetía al crear varias filas en el mismo milisegundo) */
+var roturaIdContador = 0;
+function nextRoturaId(){ roturaIdContador++; return 'rc' + Date.now().toString(36) + '-' + roturaIdContador.toString(36) + '-' + Math.random().toString(36).slice(2, 7); }
+/* Reparación de datos guardados con ids repetidos: cada fila recibe un id propio */
+(function repararIdsRepetidos(){
+  var vistos = {}, cambio = false;
+  roturaCargas.forEach(function(c){ if(!c.id || vistos[c.id]){ c.id = nextRoturaId(); cambio = true; } vistos[c.id] = true; });
+  if(cambio) saveRoturaCargas();
+})();
 
 function crearCargasParaDiseno(d, origen){
   // Un único Código por réplica — se repite en todas sus edades (días). El correlativo es independiente según Tipo (Cubos/Probetas).
@@ -207,21 +215,21 @@ document.getElementById('ro-registrar-btn').addEventListener('click', function()
 /* Pendientes agrupadas por urgencia (vencidas / hoy / próximas) con filtro por chips. */
 var roturasFiltroEstado = 'todas';
 var GRUPOS_PENDIENTES = [
-  {id:'vencidas', titulo:'Vencidas', desc:'La fecha de ensayo ya pasó'},
-  {id:'hoy', titulo:'Para hoy', desc:'Dentro de la tolerancia de hoy'},
+  {id:'vencidas', titulo:'Atrasadas', desc:'La ventana de tolerancia ya pasó'},
+  {id:'hoy', titulo:'Para hoy', desc:'La ventana ya abrió o abre hoy'},
   {id:'proximas', titulo:'Próximas', desc:'Programadas para los próximos días'}
 ];
-function grupoPendiente(c, hoy){ return c.fechaEnsayo < hoy ? 'vencidas' : (c.fechaEnsayo === hoy ? 'hoy' : 'proximas'); }
+function grupoPendiente(c){ return cargaAtrasada(c) ? 'vencidas' : (cargaActiva(c) ? 'hoy' : 'proximas'); }
 function renderRoturasPendientes(){
   var wrap = document.getElementById('roturas-pendientes-list');
   // Con un proyecto en curso se muestran solo sus roturas (el chip permite ver las de todos)
   var soloProyecto = proyectoFlujo && roturasSoloProyecto;
   var chipProyecto = proyectoFlujo ? '<button class="filtro-chip'+(soloProyecto?' on':'')+'" data-solo-proyecto>'+(soloProyecto ? 'Solo '+esc(proyectoFlujo) : 'Todos los proyectos')+'</button>' : '';
-  var pend = roturaCargas.filter(function(c){ return c.estado === 'pendiente' && (!soloProyecto || c.proyecto === proyectoFlujo); }).sort(function(a,b){ return (a.fechaEnsayo||'').localeCompare(b.fechaEnsayo||''); });
+  var pend = roturaCargas.filter(function(c){ return c.estado === 'pendiente' && !c.anulada && (!soloProyecto || c.proyecto === proyectoFlujo); }).sort(function(a,b){ return (a.fechaEnsayo||'').localeCompare(b.fechaEnsayo||''); });
   if(!pend.length){ wrap.innerHTML = (chipProyecto ? '<div class="filtro-chips">'+chipProyecto+'</div>' : '') + '<div class="empty-note">No hay roturas pendientes'+(soloProyecto ? ' en este proyecto' : '')+'.</div>'; return; }
   var todayStr = todayISO();
   var porGrupo = {vencidas:[], hoy:[], proximas:[]};
-  pend.forEach(function(c){ porGrupo[grupoPendiente(c, todayStr)].push(c); });
+  pend.forEach(function(c){ porGrupo[grupoPendiente(c)].push(c); });
   var chips = '<div class="filtro-chips">' + chipProyecto + [{id:'todas', titulo:'Todas', n:pend.length}].concat(GRUPOS_PENDIENTES.map(function(g){ return {id:g.id, titulo:g.titulo, n:porGrupo[g.id].length}; }))
     .map(function(f){ return '<button class="filtro-chip f-'+f.id+(roturasFiltroEstado===f.id?' on':'')+'" data-filtro-pend="'+f.id+'">'+f.titulo+' <b>'+f.n+'</b></button>'; }).join('') + '</div>';
   var grupos = GRUPOS_PENDIENTES.filter(function(g){ return (roturasFiltroEstado === 'todas' || roturasFiltroEstado === g.id) && porGrupo[g.id].length; });
@@ -231,22 +239,25 @@ function renderRoturasPendientes(){
   }).join('') : '<div class="empty-note">No hay roturas en este grupo.</div>');
 }
 function filaPendienteHtml(c){
-  var todayStr = todayISO();
   var d = disenos.filter(function(x){ return x.codigo === c.disenoCodigoDiseno; })[0];
-  var sem = d ? semaforoDotHtml(semaforoDiseno(d), 'Avance del diseño') : '';
-  var badge = c.fechaEnsayo === todayStr ? '<span class="pendiente-badge hoy">Hoy</span>' :
-    (c.fechaEnsayo < todayStr ? '<span class="pendiente-badge vencido">Vencida</span>' : '');
+  var sem = d ? semaforoDotHtml(semaforoDiseno(d), 'Semáforo del diseño') : '';
+  var atrasada = cargaAtrasada(c), activa = cargaActiva(c), sinHora = !c.horaElaboracion;
+  var badge = atrasada ? '<span class="pendiente-badge vencido">Atrasada</span>' : (activa ? '<span class="pendiente-badge hoy">Hoy</span>' : '');
   var tipoEsProbeta = (c.tipo||'Probetas') !== 'Cubos';
-  return '<div class="pendiente-row g-'+grupoPendiente(c, todayStr)+'">' +
+  var activacion = fechaCorta(diaDeActivacion(c));
+  var accion = sinHora
+    ? '<button class="btn-add ghost" data-act="poner-hora" data-codigo="'+esc(c.disenoCodigoDiseno)+'">Falta hora de elaboración</button>'
+    : '<button class="btn-add" data-perm="roturas:registrar" data-act="registrar-carga" data-id="'+c.id+'"'+(activa ? '' : ' disabled title="Se activa el '+activacion+'"')+'>'+(activa ? 'Registrar rotura' : 'Se activa el '+activacion)+'</button>';
+  return '<div class="pendiente-row g-'+grupoPendiente(c)+'">' +
     sem +
     '<div class="id-card"><span class="id-card-tipo">'+(tipoEsProbeta?'Probeta':'Cubo')+'</span><span class="id-card-codigo">'+c.codigo+'</span></div>' +
     '<div class="pr-info">' +
-      '<h5>'+esc(c.replicaNombre)+' <span class="pr-dia">Día '+c.dia+'</span></h5>' +
-      '<span>'+esc(c.proyecto||'-')+' · Ensayo '+isoToDMY(c.fechaEnsayo)+' · ±'+c.toleranciaHoras+' h</span>' +
+      '<h5>'+esc(c.replicaNombre)+' <span class="pr-dia">'+c.dia+' d</span> '+chipNoConformeHtml(c)+'</h5>' +
+      '<span>'+esc(c.proyecto||'-')+' · Ventana '+esc(textoVentana(c))+' · ±'+c.toleranciaHoras+' h'+(c.aCargoDe ? ' · '+esc(c.aCargoDe) : '')+'</span>' +
     '</div>' +
     badge +
     '<button class="btn-icon" data-act="etiquetas" data-codigo="'+esc(c.disenoCodigoDiseno)+'" title="Imprimir etiquetas">'+TAG_ICON+'</button>' +
-    '<button class="btn-add" data-perm="roturas:registrar" data-act="registrar-carga" data-id="'+c.id+'">Registrar carga</button>' +
+    accion +
   '</div>';
 }
 document.getElementById('roturas-pendientes-list').addEventListener('click', function(e){
@@ -254,8 +265,10 @@ document.getElementById('roturas-pendientes-list').addEventListener('click', fun
   if(filtro){ roturasFiltroEstado = filtro.dataset.filtroPend; renderRoturasPendientes(); return; }
   var etq = e.target.closest('[data-act="etiquetas"]');
   if(etq){ abrirEtiquetas(etq.dataset.codigo); return; }
+  var hora = e.target.closest('[data-act="poner-hora"]');
+  if(hora){ abrirFlujoDiseno(disenoPorCodigo(hora.dataset.codigo)); return; }
   var btn = e.target.closest('[data-act="registrar-carga"]');
-  if(!btn) return;
+  if(!btn || btn.disabled) return;
   if(!exigir('roturas:registrar')) return;
   openRoturaCargaModal(btn.dataset.id);
 });
@@ -370,6 +383,7 @@ function onFormatoChange(e){
   var f = e.target.dataset.f;
   if(!f) return;
   if(!exigir('roturas:registrar')){ renderRoturasFormato(); return; }
+  if(!exigirEnsayos([ensayoDeRotura(c.tipo)], disenoPorCodigo(c.disenoCodigoDiseno), c.aCargoDeId)){ renderRoturasFormato(); return; }
   if(usaEnRRGenerado(c) ){
     if(!confirm('Este resultado ya fue incluido en un reporte RR generado. ¿Deseás continuar con la edición?')) { renderRoturasFormato(); return; }
   }
@@ -408,58 +422,82 @@ function usaEnRRGenerado(c){
 
 /* ---- Registrar la Rotura (Momento 2, panel modal) ---- */
 var roturaCargaModalId = null;
+function kgfPorKn(){ return Lab.configNum('kn_a_kgf') || 101.9716; }
+function cvAlerta(){ return Lab.configNum('cv_alerta_pct') || 10; }
+function estadoVentanaHtml(c, fechaISO, hora){
+  var v = ventanaDeCarga(c);
+  if(!v) return '<span class="chip-falta atrasado">Falta la hora de elaboración: no se puede calcular la ventana</span>';
+  var txt = 'Ventana ' + textoVentana(c) + ' · ±' + v.toleranciaHoras + ' h';
+  if(!fechaISO || !hora) return '<span class="chip-edad">' + esc(txt) + '</span>';
+  var t = new Date(fechaISO + 'T' + hora).getTime();
+  var dentro = t >= v.desde.getTime() && t <= v.hasta.getTime();
+  return '<span class="' + (dentro ? 'chip-ok' : 'chip-falta atrasado') + '">' + esc(txt) + (dentro ? ' · dentro' : ' · fuera de la ventana: se abrirá un trabajo no conforme') + '</span>';
+}
 function openRoturaCargaModal(id){
   roturaCargaModalId = id;
   var c = roturaCargas.filter(function(x){ return x.id === id; })[0];
   if(!c) return;
   var d = disenos.filter(function(x){ return x.codigo === c.disenoCodigoDiseno; })[0];
-  document.getElementById('rotura-carga-title').textContent = 'Registrar la Rotura';
+  var areaDef = String(Lab.configNum('area_defecto_cm2') || 83);
+  document.getElementById('rotura-carga-title').textContent = 'Registrar la rotura · ' + c.dia + ' d';
   document.getElementById('rotura-carga-recap').innerHTML =
-    '<div class="rc-recap-info"><span class="rc-recap-nombre">'+(d?diseñoTitulo(d):esc(c.producto))+'</span><span class="rc-recap-meta">'+esc(c.replicaNombre)+' · día '+c.dia+'</span></div>' +
+    '<div class="rc-recap-info"><span class="rc-recap-nombre">'+(d?esc(diseñoTitulo(d)):esc(c.producto))+'</span><span class="rc-recap-meta">'+esc(c.replicaNombre)+' · '+esc(c.proyecto || '')+' · elaborada '+isoToDMY(c.fechaElaboracion)+' '+esc(c.horaElaboracion || '')+'</span></div>' +
     '<div class="rc-recap-codigo">'+c.codigo+'</div>';
   function especimenBlock(mIdx, label){
     var areaKey = 'a'+mIdx, kNKey = 'm'+mIdx+'kN', kgKey = 'm'+mIdx+'kg', tipoKey = 'tipoRoturaM'+mIdx, evidKey = 'evid'+mIdx;
     return '<div class="m-especimen-block">' +
-      '<h5>'+label+'</h5>' +
+      '<h5>'+label+' <span class="mc-res" id="mc-res-'+mIdx+'"></span></h5>' +
       '<div class="m-especimen-grid">' +
-        '<div class="field-mini"><label>Área (cm²)</label><input type="text" id="mc-'+areaKey+'" value="'+esc(c[areaKey]||'83')+'"></div>' +
-        '<div class="field-mini"><label>Carga (kN)</label><input type="text" id="mc-'+kNKey+'" value="'+esc(c[kNKey])+'"></div>' +
-        '<div class="field-mini"><label>Carga (kg)</label><input type="text" id="mc-'+kgKey+'" value="'+esc(c[kgKey])+'"></div>' +
+        '<div class="field-mini"><label>Área (cm²)</label><input type="text" inputmode="decimal" id="mc-'+areaKey+'" value="'+esc(c[areaKey]||areaDef)+'"></div>' +
+        '<div class="field-mini"><label>Carga (kN)</label><input type="text" inputmode="decimal" id="mc-'+kNKey+'" value="'+esc(c[kNKey])+'"></div>' +
+        '<div class="field-mini"><label>Carga (kg)</label><input type="text" inputmode="decimal" id="mc-'+kgKey+'" value="'+esc(c[kgKey])+'"></div>' +
         '<div class="field-mini"><label>Tipo de rotura</label><select id="mc-'+tipoKey+'">' +
           ['','Tipo 1','Tipo 2','Tipo 3','Tipo 4','Tipo 5','Tipo 6'].map(function(t){ return '<option'+(c[tipoKey]===t?' selected':'')+'>'+t+'</option>'; }).join('') +
         '</select></div>' +
-        '<div class="field-mini"><label>Evidencia</label><div class="evidencia-drop" id="mc-drop-'+mIdx+'" data-evid-key="'+(c[evidKey]||'')+'">'+(c[evidKey]?'Cargando…':'Subir foto')+'<input type="file" accept="image/*" id="mc-file-'+mIdx+'" style="display:none;"></div></div>' +
+        '<div class="field-mini"><label>Evidencia</label><div class="evidencia-drop" id="mc-drop-'+mIdx+'" data-evid-key="'+(c[evidKey]||'')+'">'+(c[evidKey]?'Cargando…':'Subir foto')+'<input type="file" accept="image/*" capture="environment" id="mc-file-'+mIdx+'" style="display:none;"></div></div>' +
       '</div>' +
     '</div>';
   }
   document.getElementById('rotura-carga-body').innerHTML =
-    '<button type="button" class="btn-add ghost" id="mc-toggle-guia" style="margin-bottom:12px;">Ver guía de tipos de fractura (1–6)</button>' +
+    '<div id="mc-ventana" class="mc-ventana"></div>' +
+    '<div class="form-row">' +
+      '<div class="field-mini"><label>Fecha de ensayo</label><input type="date" id="mc-fechaEnsayoReal" value="'+esc(c.fechaEnsayoReal || todayISO())+'"></div>' +
+      '<div class="field-mini"><label>Hora de ensayo</label><div class="hora-celda"><input type="time" id="mc-horaEnsayo" value="'+esc(c.horaEnsayo)+'"><button type="button" class="btn-ahora" id="mc-ahora">Ahora</button></div></div>' +
+      '<div class="field-mini" style="flex:1;"><label>Equipo usado</label><input type="text" id="mc-equipo" value="'+esc(c.equipo || '')+'" placeholder="Código del equipo (inventario)"></div>' +
+    '</div>' +
+    '<div class="mc-unidad-toggle">' +
+      '<span class="mc-unidad-label">Unidad de carga:</span>' +
+      '<label class="pp-check-inline"><input type="radio" name="mc-unidad" value="kg" checked> kg</label>' +
+      '<label class="pp-check-inline"><input type="radio" name="mc-unidad" value="kn"> kN</label>' +
+      '<span class="nota-sm">1 kN = '+kgfPorKn()+' kgf</span>' +
+      '<button type="button" class="btn-add ghost" id="mc-toggle-guia">Guía de tipos de rotura (1–6)</button>' +
+    '</div>' +
     '<div id="mc-guia-imagen" style="display:none;margin-bottom:16px;text-align:center;">' +
       '<img src="'+TIPO_ROTURA_IMG_URL+'" alt="Guía de tipos de fractura NTP 339.034" style="max-width:420px;width:100%;border:1px solid var(--line);border-radius:6px;">' +
     '</div>' +
-    '<div class="mc-unidad-toggle">' +
-      '<span class="mc-unidad-label">Unidad de carga a registrar:</span>' +
-      '<label class="pp-check-inline"><input type="radio" name="mc-unidad" value="kg" checked> KG</label>' +
-      '<label class="pp-check-inline"><input type="radio" name="mc-unidad" value="kn"> KN</label>' +
-    '</div>' +
-    '<div class="form-row"><div class="field-mini" style="flex:1;"><label>Hora de Ensayo</label><input type="time" id="mc-horaEnsayo" value="'+esc(c.horaEnsayo)+'"></div></div>' +
     especimenBlock(1,'M1') + especimenBlock(2,'M2') + especimenBlock(3,'M3') +
+    '<div id="mc-calculos" class="mc-calculos"></div>' +
     '<div class="field-mini"><label>Comentarios</label><input type="text" id="mc-comentarios" value="'+esc(c.comentarios)+'"></div>';
   document.getElementById('mc-toggle-guia').addEventListener('click', function(){
     var img = document.getElementById('mc-guia-imagen');
-    var showing = img.style.display !== 'none';
-    img.style.display = showing ? 'none' : 'block';
-    this.textContent = showing ? 'Ver guía de tipos de fractura (1–6)' : 'Ocultar guía de tipos de fractura';
+    img.style.display = img.style.display !== 'none' ? 'none' : 'block';
+  });
+  document.getElementById('mc-ahora').addEventListener('click', function(){
+    var t = new Date();
+    document.getElementById('mc-horaEnsayo').value = String(t.getHours()).padStart(2,'0') + ':' + String(t.getMinutes()).padStart(2,'0');
+    document.getElementById('mc-fechaEnsayoReal').value = todayISO();
+    actualizarCalculosRotura();
+  });
+  ['mc-fechaEnsayoReal','mc-horaEnsayo'].forEach(function(idEl){
+    document.getElementById(idEl).addEventListener('input', actualizarCalculosRotura);
+    document.getElementById(idEl).addEventListener('change', actualizarCalculosRotura);
   });
 
-  /* Unidad KN/KG: al elegir una, se bloquea la otra y se convierte en automático (1 kN = 101.9716 kgf) */
-  var KGF_POR_KN = 101.9716;
+  /* Unidad kN/kg: se escribe en una y la otra se convierte sola (1 kN = 101.9716 kgf, de Ensayos y métodos) */
   function aplicarUnidadBloqueo(unidad){
     [1,2,3].forEach(function(mIdx){
-      var kgEl = document.getElementById('mc-m'+mIdx+'kg');
-      var knEl = document.getElementById('mc-m'+mIdx+'kN');
-      kgEl.disabled = (unidad === 'kn');
-      knEl.disabled = (unidad === 'kg');
+      document.getElementById('mc-m'+mIdx+'kg').disabled = (unidad === 'kn');
+      document.getElementById('mc-m'+mIdx+'kN').disabled = (unidad === 'kg');
     });
   }
   [1,2,3].forEach(function(mIdx){
@@ -468,13 +506,16 @@ function openRoturaCargaModal(id){
     kgEl.addEventListener('input', function(){
       if(kgEl.disabled) return;
       var v = Number(kgEl.value);
-      knEl.value = v ? (v/KGF_POR_KN).toFixed(2) : '';
+      knEl.value = v ? (v/kgfPorKn()).toFixed(2) : '';
+      actualizarCalculosRotura();
     });
     knEl.addEventListener('input', function(){
       if(knEl.disabled) return;
       var v = Number(knEl.value);
-      kgEl.value = v ? (v*KGF_POR_KN).toFixed(2) : '';
+      kgEl.value = v ? (v*kgfPorKn()).toFixed(2) : '';
+      actualizarCalculosRotura();
     });
+    document.getElementById('mc-a'+mIdx).addEventListener('input', actualizarCalculosRotura);
   });
   document.querySelectorAll('input[name="mc-unidad"]').forEach(function(radio){
     radio.addEventListener('change', function(){ aplicarUnidadBloqueo(this.value); });
@@ -492,7 +533,7 @@ function openRoturaCargaModal(id){
         dropEl.appendChild(fileEl);
       }).catch(function(){ dropEl.innerHTML = 'Subir foto'; dropEl.appendChild(fileEl); });
     }
-    dropEl.addEventListener('click', function(){ fileEl.click(); });
+    dropEl.addEventListener('click', function(ev){ if(ev.target !== fileEl) fileEl.click(); });
     fileEl.addEventListener('change', function(){
       var f = fileEl.files[0];
       if(!f) return;
@@ -501,14 +542,29 @@ function openRoturaCargaModal(id){
       var newKey = c.id + '_m' + mIdx;
       saveEvidenciaBlob(newKey, f).then(function(){
         dropEl.dataset.evidKey = newKey;
-        dropEl.dataset.pendingSave = '1';
         dropEl.innerHTML = '<img src="'+url+'"><br>Cambiar foto';
         dropEl.appendChild(fileEl);
       });
     });
   });
-
+  actualizarCalculosRotura();
   document.getElementById('rotura-carga-modal').classList.add('show');
+}
+/* Cálculos automáticos: kg/cm² por M, promedio f'c, desviación estándar y CV (con alerta si el CV es alto) */
+function actualizarCalculosRotura(){
+  var c = roturaCargas.filter(function(x){ return x.id === roturaCargaModalId; })[0];
+  if(!c) return;
+  var vals = [1,2,3].map(function(mIdx){
+    var v = calcKgCm2(document.getElementById('mc-m'+mIdx+'kg').value, document.getElementById('mc-a'+mIdx).value);
+    document.getElementById('mc-res-'+mIdx).textContent = v ? v + ' kg/cm²' : '';
+    return v;
+  });
+  var st = statsFromValues(vals);
+  var cv = parseFloat(st.coefVar);
+  document.getElementById('mc-calculos').innerHTML = st.promedio
+    ? '<span>f\'c promedio <b>'+st.promedio+' kg/cm²</b></span><span>Desv. estándar <b>'+st.desvest+'</b></span><span class="'+(cv > cvAlerta() ? 'cv-alto' : '')+'">CV <b>'+st.coefVar+'</b>'+(cv > cvAlerta() ? ' · alto (más de '+cvAlerta()+' %)' : '')+'</span>'
+    : '<span class="nota-sm">Escribí las cargas para ver f\'c, desviación estándar y CV.</span>';
+  document.getElementById('mc-ventana').innerHTML = estadoVentanaHtml(c, document.getElementById('mc-fechaEnsayoReal').value, document.getElementById('mc-horaEnsayo').value);
 }
 document.getElementById('rotura-carga-close').addEventListener('click', function(){ document.getElementById('rotura-carga-modal').classList.remove('show'); });
 document.getElementById('rotura-carga-cancel').addEventListener('click', function(){ document.getElementById('rotura-carga-modal').classList.remove('show'); });
@@ -516,7 +572,19 @@ document.getElementById('rotura-carga-save').addEventListener('click', function(
   var c = roturaCargas.filter(function(x){ return x.id === roturaCargaModalId; })[0];
   if(!c) return;
   if(!exigir('roturas:registrar')) return;
-  c.horaEnsayo = document.getElementById('mc-horaEnsayo').value;
+  var d = disenoPorCodigo(c.disenoCodigoDiseno);
+  if(!exigirEnsayos([ensayoDeRotura(c.tipo)], d, c.aCargoDeId)) return;
+  if(!c.horaElaboracion){ toast('Falta la hora de elaboración de ' + c.replicaNombre + ': complétala en el flujo del diseño'); return; }
+  if(c.estado === 'pendiente' && !cargaActiva(c)){ toast('Esta rotura se activa el ' + fechaCorta(diaDeActivacion(c))); return; }
+  var fechaReal = document.getElementById('mc-fechaEnsayoReal').value;
+  var horaReal = document.getElementById('mc-horaEnsayo').value;
+  var hayCargas = [1,2,3].some(function(m){ return document.getElementById('mc-m'+m+'kg').value || document.getElementById('mc-m'+m+'kN').value; });
+  if(hayCargas && (!fechaReal || !horaReal)){ toast('Indicá la fecha y la hora de ensayo'); return; }
+  var antes = {promedio:c.promedio, horaEnsayo:c.horaEnsayo, fechaEnsayoReal:c.fechaEnsayoReal || ''};
+  var eraCompleta = c.estado === 'completado';
+  c.fechaEnsayoReal = fechaReal;
+  c.horaEnsayo = horaReal;
+  c.equipo = document.getElementById('mc-equipo').value.trim();
   c.comentarios = document.getElementById('mc-comentarios').value;
   [1,2,3].forEach(function(mIdx){
     c['a'+mIdx] = document.getElementById('mc-a'+mIdx).value;
@@ -527,19 +595,37 @@ document.getElementById('rotura-carga-save').addEventListener('click', function(
     if(dropEl.dataset.evidKey) c['evid'+mIdx] = dropEl.dataset.evidKey;
   });
   recalcCarga(c);
+  /* Regla 3: cada resultado guarda su contexto (analista, método y versión, fecha y hora, equipo y lote) */
+  var e = Lab.ensayo(ensayoDeRotura(c.tipo));
+  c.contexto = {analista_id:usuarioActual.id, analista:usuarioActual.nombre || usuarioActual.usuario, metodo:e ? e.metodo : '', version:e ? e.version : '',
+    registrado_en:new Date().toISOString(), equipo:c.equipo, lote:c.lote || ''};
+  var avisos = [];
+  if(c.estado === 'completado' && !eraCompleta){
+    var v = ventanaDeCarga(c), t = new Date(fechaReal + 'T' + horaReal).getTime();
+    if(v && (t < v.desde.getTime() || t > v.hasta.getTime())){
+      var tnc = abrirTncAutomatico('fuera-ventana', 'Ensayada el ' + isoToDMY(fechaReal) + ' ' + horaReal + '; ventana ' + textoVentana(c) + ' (±' + v.toleranciaHoras + ' h)', c);
+      c.fueraVentana = true;
+      avisos.push('fuera de la ventana: se abrió ' + tnc.codigo);
+    }
+    if(parseFloat(c.coefVar) > cvAlerta()){
+      var al = abrirTncAutomatico('cv-alto', 'CV ' + c.coefVar + ' (alerta sobre ' + cvAlerta() + ' %) · M1 ' + (c.m1kgcm2 || '-') + ', M2 ' + (c.m2kgcm2 || '-') + ', M3 ' + (c.m3kgcm2 || '-'), c);
+      avisos.push('CV alto: alerta ' + al.codigo);
+    }
+  }
   saveRoturaCargas();
   sincronizarEvidenciasRoturas();
-  registrarHistorial('Registró', 'Rotura', 'Carga ' + c.codigo + ' · ' + c.replicaNombre + ' · día ' + c.dia + (c.promedio ? ' · ' + c.promedio + ' kg/cm²' : ''), {proyecto: c.proyecto, ref: c.disenoCodigoDiseno});
+  registrarHistorial(eraCompleta ? 'Editó' : 'Registró', 'Rotura', c.codigo + ' · ' + c.replicaNombre + ' · ' + c.dia + ' d' + (c.promedio ? ' · ' + c.promedio + ' kg/cm²' : ''),
+    {codigo:c.codigo, proyecto:c.proyecto, ref:c.disenoCodigoDiseno, antes:eraCompleta ? antes : undefined, despues:{promedio:c.promedio, cv:c.coefVar, horaEnsayo:c.horaEnsayo, equipo:c.equipo}});
   document.getElementById('rotura-carga-modal').classList.remove('show');
-  toast('Carga registrada — ' + c.codigo);
-  renderRoturasAll();
+  toast('Rotura registrada — ' + c.codigo + (avisos.length ? ' · ' + avisos.join(' · ') : ''));
+  refrescarTodoFlujo(d);
   updateNavBadges();
 });
 
 /* ---- Bell / notificaciones ---- */
 function updateNavBadges(){
   var todayStr = todayISO();
-  var countBacklog = roturaCargas.filter(function(c){ return c.estado==='pendiente' && c.fechaEnsayo <= todayStr; }).length;
+  var countBacklog = roturaCargas.filter(function(c){ return c.estado==='pendiente' && !c.anulada && c.fechaEnsayo <= todayStr; }).length;
   var badge = document.getElementById('nav-roturas-badge');
   badge.style.display = countBacklog ? 'inline-block' : 'none';
   badge.textContent = countBacklog;

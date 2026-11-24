@@ -3,7 +3,9 @@
 
 /* ================= NTP 339.034 — Tolerancia de rotura ================= */
 var NTP_TABLE = {1:0.5, 3:2, 4:3, 7:6, 28:20, 90:48};
+/* La tabla vigente es la de Administración › Ensayos y métodos (NTP 339.034); NTP_TABLE queda solo como respaldo */
 function toleranciaHoras(diaEdad){
+  if(typeof Lab !== 'undefined' && Lab.tolerancias().length) return +Number(Lab.toleranciaHoras(Number(diaEdad) * 24)).toFixed(2);
   if(NTP_TABLE[diaEdad] !== undefined) return NTP_TABLE[diaEdad];
   return +(diaEdad*24*0.02).toFixed(2);
 }

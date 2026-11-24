@@ -476,8 +476,10 @@ document.getElementById('dis-add').addEventListener('click', function(){
     cvdTotal: Number(totals.cvd.toFixed(2)),
     estado: 'Iniciado',
     replicas: 2,
-    diasRotura: [1,3,7,28],
+    diasRotura: edadesDelProtocolo(proyectoNombre(proyectoId)),
     tipoRotura: '',
+    flujo: 3,
+    asignadoA: '',
     fechaElaboracionISO: fechaISO,
     horaElaboracion: '10:00',
     fecha: fecha, ts: new Date(fechaISO).getTime() || Date.now(), favorito:false
@@ -494,11 +496,12 @@ document.getElementById('dis-add').addEventListener('click', function(){
 });
 
 /* ---- Flujo post-registro: réplicas → días de rotura → Roturas automático (con confirmación+redirect) → ¿imprimir? ---- */
-var DIAS_COMUNES = [1,3,4,7,28,90];
+var DIAS_COMUNES = [1,3,4,7,28,56,90,180,360];
 function askReplicasThenPrint(d){
   document.getElementById('replicas-modal-name').textContent = diseñoTitulo(d);
   document.getElementById('replicas-modal-input').value = d.replicas || 2;
   document.getElementById('replicas-modal-tipo').value = d.tipoRotura || 'Probetas';
+  document.getElementById('replicas-modal-asignado').innerHTML = opcionesUsuariosHtml(d.asignadoA || (usuarioActual && usuarioActual.id) || '', '', true);
   document.getElementById('replicas-modal-step1').style.display = 'block';
   document.getElementById('replicas-modal-step2').style.display = 'none';
   document.getElementById('replicas-modal').classList.add('show');
@@ -508,7 +511,7 @@ function askReplicasThenPrint(d){
   function irAPasoDias(count, tipo){
     cantidadElegida = count;
     tipoElegido = tipo;
-    var yaElegidos = d.diasRotura || [1,3,7,28];
+    var yaElegidos = d.diasRotura && d.diasRotura.length ? d.diasRotura : edadesDelProtocolo(proyectoNombre(d.proyectoId));
     var todos = DIAS_COMUNES.slice();
     yaElegidos.forEach(function(dia){ if(todos.indexOf(dia)===-1) todos.push(dia); });
     todos.sort(function(a,b){ return a-b; });
@@ -521,27 +524,30 @@ function askReplicasThenPrint(d){
     document.getElementById('replicas-modal-step1').style.display = 'none';
     document.getElementById('replicas-modal-step2').style.display = 'block';
   }
+  /* Al guardar el diseño con N réplicas nacen juntas Nombre-R1, Nombre-R2…; el código ID nace recién en la elaboración (paso 3) */
   function finishReplicas(diasElegidos){
+    var asignado = document.getElementById('replicas-modal-asignado').value;
+    if(!asignado){ toast('Elegí a quién se asigna el diseño'); return; }
+    var yaElaboradas = (d.replicaObjs || []).filter(function(r){ return r.codigo; });
     d.diasRotura = diasElegidos;
     d.replicas = cantidadElegida;
     d.tipoRotura = tipoElegido;
-    d.replicaObjs = [];
-    for(var i=1;i<=cantidadElegida;i++){ d.replicaObjs.push({n:i, nombre:diseñoTitulo(d)+'-R'+i, codigo:''}); }
-    var creados = crearCargasParaDiseno(d, 'automatico'); // ya deja el código correcto (uno por réplica) en cada rep.codigo
+    if(!d.flujo && !yaElaboradas.length) d.flujo = 3;
+    var nuevas = [];
+    for(var i=1;i<=cantidadElegida;i++){
+      var previa = (d.replicaObjs || []).filter(function(r){ return r.n === i; })[0];
+      nuevas.push(previa && previa.codigo ? previa : {n:i, nombre:diseñoTitulo(d)+'-R'+i, codigo:''});
+    }
+    d.replicaObjs = nuevas;
+    d.asignadoA = asignado;
     save('sid10_disenos', disenos);
-    registrarHistorial('Registró', 'Rotura', creados.length + ' roturas programadas para ' + d.codigo + ' (' + cantidadElegida + ' réplicas · días ' + diasElegidos.join(', ') + ')', {proyecto: proyectoNombre(d.proyectoId), ref: d.codigo});
+    registrarHistorial('Registró', 'Réplicas', d.codigo + ' · ' + cantidadElegida + ' réplica(s) · edades ' + diasElegidos.join(', ') + ' · asignado a ' + nombreDe(asignado), {codigo:d.codigo, proyecto: proyectoNombre(d.proyectoId), ref: d.codigo,
+      despues:{replicas:nuevas.map(function(r){ return r.nombre; }), edades:diasElegidos, asignado:nombreDe(asignado)}});
     document.getElementById('replicas-modal').classList.remove('show');
     renderAllDesignViews();
     renderRoturasAll();
-    document.getElementById('roturas-auto-modal-text').innerHTML =
-      '<div class="rac-summary">'+creados.length+' registros creados en Roturas ('+(tipoElegido==='Cubos'?'Cubos':'Probetas')+') — '+d.diasRotura.length+' día(s) × '+cantidadElegida+' réplica(s), un código por réplica</div>' +
-      d.replicaObjs.map(function(rep){
-        var suyos = creados.filter(function(c){ return c.replicaNombre === rep.nombre; }).sort(function(a,b){ return a.dia-b.dia; });
-        return '<div class="rac-replica-block"><b>'+esc(rep.nombre)+' <span class="rac-code">'+rep.codigo+'</span></b>' +
-          '<div class="rac-dia-chips">' + suyos.map(function(c){ return '<span class="rac-dia-chip">Día '+c.dia+'</span>'; }).join('') + '</div>' +
-        '</div>';
-      }).join('');
-    document.getElementById('roturas-auto-modal').classList.add('show');
+    toast('Réplicas ' + nuevas.map(function(r){ return 'R' + r.n; }).join(', ') + ' creadas · siguiente paso: Elaboración');
+    abrirFlujoDiseno(d);
   }
   document.getElementById('replicas-modal-confirm').onclick = function(){
     var v = Number(document.getElementById('replicas-modal-input').value) || 2;

@@ -1032,7 +1032,21 @@ if(typeof Chart === 'undefined'){
     </section>
 
     <!-- ============ PLANIFICACIÓN (una sola entrada con tres botones) ============ -->
-    <section id="panel-planificacion" class="panel">
+    <section id="panel-etiquetas" class="panel">
+  <div class="content-header"><div><h2>Etiquetas</h2><p class="nota-sm">3 etiquetas iguales por edad, en blanco y negro, con QR. Al escanearla se abre el registro de esa rotura.</p></div></div>
+  <div class="card">
+    <div class="ev-toolbar etq-toolbar">
+      <select id="etqp-proyecto"></select>
+      <input type="search" id="etqp-buscar" placeholder="Código o producto">
+      <label class="pp-check-inline"><input type="checkbox" id="etqp-pendientes" checked> Solo roturas pendientes</label>
+      <span class="nota-sm" id="etqp-cuenta"></span>
+      <button class="btn-add" id="etqp-imprimir">Imprimir seleccionadas</button>
+    </div>
+    <div class="table-scroll"><table class="data-table"><thead><tr><th><input type="checkbox" id="etqp-todas" title="Seleccionar todas"></th><th>Código</th><th>Producto</th><th>Proyecto</th><th>Elaboración</th><th>Edad</th><th>Ventana de rotura</th><th>Estado</th></tr></thead><tbody id="etqp-tbody"></tbody></table></div>
+  </div>
+</section>
+
+<section id="panel-planificacion" class="panel">
       <div class="content-header"><div><h2>Planificación</h2></div></div>
       <div class="plan-botones">
         <button class="plan-boton" disabled><b>Plan de trabajo</b><span>Generador de Gantt por proyecto · exporta a PPTX y PDF</span><em class="fase-chip">Fase 5</em></button>
@@ -1207,11 +1221,6 @@ if(typeof Chart === 'undefined'){
       <p id="etq-diseno-nombre" class="mono" style="margin-bottom:10px;"></p>
       <div id="etq-opciones">
       <div class="form-row" style="align-items:center;">
-        <label class="pp-check-inline"><input type="radio" name="etq-modo" value="especimen" checked> Una por espécimen (réplica × edad × M1–M3)</label>
-        <label class="pp-check-inline"><input type="radio" name="etq-modo" value="rotura"> Una por rotura (réplica × edad)</label>
-        <label class="pp-check-inline"><input type="radio" name="etq-modo" value="replica"> Una por réplica</label>
-      </div>
-      <div class="form-row" style="align-items:center;">
         <label class="pp-check-inline"><input type="checkbox" id="etq-solo-pendientes" checked> Solo roturas pendientes</label>
         <span class="nota-sm" id="etq-cuenta"></span>
       </div>
@@ -1274,7 +1283,7 @@ if(typeof Chart === 'undefined'){
       <svg viewBox="0 0 24 24" width="26" height="26" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="4" y="4" width="7" height="7" rx="1"/><rect x="13" y="4" width="7" height="7" rx="1"/><rect x="4" y="13" width="7" height="7" rx="1"/><rect x="13" y="13" width="7" height="7" rx="1"/></svg>
     </div>
     <div id="replicas-modal-step1">
-      <h3>Diseño registrado — completá estos datos</h3>
+      <h3>Réplicas del diseño</h3>
       <p id="replicas-modal-name"></p>
       <div class="rm-step1-row">
         <div class="rm-step1-field">
@@ -1289,6 +1298,12 @@ if(typeof Chart === 'undefined'){
           <input type="number" id="replicas-modal-input" min="1" max="6" value="2">
         </div>
       </div>
+      <div class="rm-step1-row">
+        <div class="rm-step1-field" style="flex:1;">
+          <label>Asignar a</label>
+          <select id="replicas-modal-asignado"></select>
+        </div>
+      </div>
       <div class="confirm-actions">
         <button class="btn-add" id="replicas-modal-confirm">Siguiente: elegir días →</button>
       </div>
@@ -1298,7 +1313,7 @@ if(typeof Chart === 'undefined'){
       <div id="replicas-dias-checks" style="display:flex;gap:10px;flex-wrap:wrap;justify-content:center;margin-bottom:18px;"></div>
       <div class="confirm-actions">
         <button class="btn-ghost" id="replicas-dias-atras">← Atrás</button>
-        <button class="btn-add" id="replicas-dias-confirm">Crear réplicas y roturas</button>
+        <button class="btn-add" id="replicas-dias-confirm">Crear réplicas</button>
       </div>
     </div>
   </div>
@@ -1316,21 +1331,6 @@ if(typeof Chart === 'undefined'){
       <button class="btn-ghost" id="roturas-auto-modal-close">Seguir aquí</button>
       <button class="btn-add ghost" id="roturas-auto-modal-etiquetas">Imprimir etiquetas</button>
       <button class="btn-add" id="roturas-auto-modal-go">Ir a Roturas</button>
-    </div>
-  </div>
-</div>
-
-<!-- ============ MODAL: ¿Datos completos? ============ -->
-<div id="completos-confirm-modal">
-  <div class="confirm-card">
-    <div class="confirm-icon">
-      <svg viewBox="0 0 24 24" width="26" height="26" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M9 12l2 2 4-4"/><circle cx="12" cy="12" r="10"/></svg>
-    </div>
-    <h3>¿Los datos están completos?</h3>
-    <p>Esto define si el diseño queda como Completado o En desarrollo.</p>
-    <div class="confirm-actions">
-      <button class="btn-ghost" id="completos-confirm-no">No, aún falta</button>
-      <button class="btn-add" id="completos-confirm-yes">Sí, están completos</button>
     </div>
   </div>
 </div>
@@ -1372,7 +1372,7 @@ if(typeof Chart === 'undefined'){
     <div class="rc-recap" id="rotura-carga-recap"></div>
     <div class="modal-body" id="rotura-carga-body"></div>
     <div class="modal-actions">
-      <button class="btn-add" id="rotura-carga-save" data-perm="roturas:registrar">Guardar carga</button>
+      <button class="btn-add" id="rotura-carga-save" data-perm="roturas:registrar">Guardar rotura</button>
       <button class="btn-add ghost" id="rotura-carga-cancel">Cancelar</button>
     </div>
   </div>
@@ -1567,6 +1567,7 @@ if(typeof Chart === 'undefined'){
 <script src="js/modules/proyecto-asistente.js"></script>
 <script src="js/modules/calendario.js"></script>
 <script src="js/modules/etiquetas.js"></script>
+<script src="js/modules/flujo-diseno.js"></script>
 <script src="js/modules/base-historica.js"></script>
 <script src="js/modules/prediccion.js"></script>
 <script src="js/modules/asistente.js"></script>

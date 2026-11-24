@@ -48,10 +48,17 @@ function etapasDelChecklist(ficha){
   (ficha ? ficha.ensayos : []).forEach(function(id){ var e = Lab.ensayo(id); if(e) et[e.etapa] = true; });
   return et;
 }
-function tieneFresco(d){
-  return ((d.resultados && d.resultados.replicas) || []).some(function(r){
-    return (r.slump || []).some(function(s){ return s && (s.slump !== '' && s.slump != null || s.tempc !== '' && s.tempc != null); }) || r.pesoUnitario || r.aire || r.thermoIni;
-  });
+function replicaTieneFresco(r){
+  if(!r) return false;
+  return (r.slump || []).some(function(s){ return s && (s.slump !== '' && s.slump != null || s.tempc !== '' && s.tempc != null); }) || !!r.pesoUnitario || !!r.aire || !!r.thermoIni;
+}
+function tieneFresco(d){ return ((d.resultados && d.resultados.replicas) || []).some(replicaTieneFresco); }
+/* Lo que falta se mide por réplica (sección 11): en los diseños de la Fase 3, cada réplica elaborada necesita su estado fresco */
+function frescoCompleto(d){
+  if(!d.flujo) return tieneFresco(d);
+  var reps = d.replicaObjs || [], res = (d.resultados && d.resultados.replicas) || [];
+  if(!reps.length) return false;
+  return reps.every(function(r, i){ return replicaTieneFresco(res[i]); });
 }
 function fechaCorta(iso){ var p = String(iso || '').split('-'); return p.length === 3 ? p[2] + '/' + p[1] : ''; }
 /* Lo que falta a un diseño según el checklist de su proyecto: [{tipo, texto, atrasado}] */
@@ -59,23 +66,27 @@ function faltaDiseno(d){
   var ficha = fichaDeProyecto(proyectoNombre(d.proyectoId));
   var et = etapasDelChecklist(ficha || {ensayos:ensayosDelFlujo(FLUJO_POR_DEFECTO)});
   var out = [];
-  if(et.fresco && !tieneFresco(d)) out.push({tipo:'fresco', texto:'Falta: Estado fresco'});
+  var reps = d.replicaObjs || [];
+  if(d.flujo && et.caracterizacion && !d.loteAgregadoId) out.push({tipo:'agregados', texto:'Falta: Agregados'});
+  if(d.flujo && (et.elaboracion || et.endurecido || et.fresco)){
+    var sinElab = reps.filter(function(r){ return !r.codigo; });
+    if(!reps.length) out.push({tipo:'diseno', texto:'Falta: Réplicas'});
+    else if(sinElab.length) out.push({tipo:'elaboracion', texto:'Falta: Elaboración ' + sinElab.map(function(r){ return 'R' + r.n; }).join(', ')});
+  }
+  if(et.fresco && !frescoCompleto(d)) out.push({tipo:'fresco', texto:'Falta: Estado fresco'});
   if(et.endurecido){
-    var cs = cargasDeDiseno(d);
-    var hoy = todayISO();
-    var pend = cs.filter(function(c){ return c.estado === 'pendiente'; }).sort(function(a,b){ return (a.fechaEnsayo || '').localeCompare(b.fechaEnsayo || ''); });
-    var total = (d.replicaObjs || []).length * (d.diasRotura || []).length;
-    if(!cs.length && !total) out.push({tipo:'endurecido', texto:'Falta: Endurecido'});
-    else if(pend.length){
-      var atr = pend.filter(function(c){ return c.fechaEnsayo && c.fechaEnsayo < hoy; });
-      if(atr.length) out.push({tipo:'atrasado', texto:'Atrasado: ' + atr[0].dia + 'd', atrasado:true});
-      var prox = pend.filter(function(c){ return !c.fechaEnsayo || c.fechaEnsayo >= hoy; });
-      if(prox.length){
-        var edadesProx = {}; prox.forEach(function(c){ edadesProx[c.dia] = true; });
-        var n = Object.keys(edadesProx).length;
-        out.push({tipo:'endurecido', texto:'Falta: Endurecido · ' + prox[0].dia + 'd' + (prox[0].fechaEnsayo ? ' el ' + fechaCorta(prox[0].fechaEnsayo) : '') + (n > 1 ? ' +' + (n - 1) : '')});
-      }
+    var cs = cargasDeDiseno(d).filter(function(c){ return !c.anulada; });
+    var total = reps.length * (d.diasRotura || []).length;
+    var pend = cs.filter(function(c){ return c.estado === 'pendiente'; }).sort(function(a,b){ return (a.fechaEnsayo || '').localeCompare(b.fechaEnsayo || '') || a.dia - b.dia; });
+    var atr = pend.filter(cargaAtrasada);
+    var prox = pend.filter(function(c){ return !cargaAtrasada(c); });
+    if(atr.length) out.push({tipo:'atrasado', texto:'Atrasado: ' + atr[0].dia + 'd', atrasado:true});
+    if(prox.length){
+      var edadesProx = {}; prox.forEach(function(c){ edadesProx[c.dia] = true; });
+      var nEd = Object.keys(edadesProx).length;
+      out.push({tipo:'endurecido', texto:'Falta: Endurecido · ' + prox[0].dia + 'd el ' + textoVentana(prox[0]) + (nEd > 1 ? ' +' + (nEd - 1) : '')});
     }
+    if(!pend.length && (d.flujo ? cs.length < Math.max(total, 1) : (!cs.length && !total))) out.push({tipo:'endurecido', texto:'Falta: Endurecido'});
   }
   return out;
 }
@@ -84,7 +95,8 @@ function estadoCalculado(d){ return faltaDiseno(d).length ? 'Abierto' : 'Cerrado
 function semaforoChecklist(d){
   var falta = faltaDiseno(d);
   if(!falta.length) return 'verde';
-  var hayAvance = tieneFresco(d) || cargasDeDiseno(d).some(function(c){ return c.estado === 'completado'; });
+  var hayAvance = tieneFresco(d) || cargasDeDiseno(d).some(function(c){ return c.estado === 'completado'; }) ||
+    (d.flujo && (!!d.loteAgregadoId || (d.replicaObjs || []).some(function(r){ return r.codigo; })));
   return hayAvance ? 'naranja' : 'rojo';
 }
 function chipsFaltaHtml(d){
@@ -97,14 +109,14 @@ function resumenProyecto(ficha){
   var abiertos = lista.filter(function(d){ return estadoCalculado(d) === 'Abierto'; });
   var hoy = todayISO();
   var codigos = {}; lista.forEach(function(d){ codigos[d.codigo] = true; });
-  var pend = roturaCargas.filter(function(c){ return codigos[c.disenoCodigoDiseno] && c.estado === 'pendiente' && c.fechaEnsayo; })
+  var pend = roturaCargas.filter(function(c){ return codigos[c.disenoCodigoDiseno] && !c.anulada && c.estado === 'pendiente' && c.fechaEnsayo; })
     .sort(function(a,b){ return a.fechaEnsayo.localeCompare(b.fechaEnsayo); });
-  var prox = pend.filter(function(c){ return c.fechaEnsayo >= hoy; });
+  var prox = pend.filter(function(c){ return !cargaAtrasada(c); });
   return {
     disenos:lista, abiertos:abiertos, cerrados:lista.length - abiertos.length,
     avancePct: lista.length ? Math.round((lista.length - abiertos.length) / lista.length * 100) : 0,
     estado: lista.length && !abiertos.length ? 'Cerrado' : 'Abierto',
-    proximaRotura: prox[0] || null, atrasadas: pend.filter(function(c){ return c.fechaEnsayo < hoy; }).length, pendientes: pend
+    proximaRotura: prox[0] || null, atrasadas: pend.filter(cargaAtrasada).length, pendientes: pend
   };
 }
 /* Etapa del flujo en la que está el proyecto: el primer paso que todavía tiene algo pendiente */
@@ -117,9 +129,9 @@ function etapaProyecto(ficha){
   if(!r.disenos.length) idx = Math.max(0, idxDe('diseno'));
   else if(!r.abiertos.length) idx = pasos.length;
   else {
-    var faltas = {}; r.abiertos.forEach(function(d){ faltaDiseno(d).forEach(function(f){ faltas[f.tipo === 'atrasado' ? 'endurecido' : f.tipo] = true; }); });
+    var faltas = {}; r.abiertos.forEach(function(d){ faltaDiseno(d).forEach(function(f){ faltas[f.tipo === 'atrasado' ? 'endurecido' : (f.tipo === 'diseno' ? 'elaboracion' : f.tipo)] = true; }); });
     idx = pasos.length;
-    ['fresco','endurecido'].forEach(function(t){ var i = idxDe(t); if(faltas[t] && i > -1 && i < idx) idx = i; });
+    ['agregados','elaboracion','fresco','endurecido'].forEach(function(t){ var i = idxDe(t); if(faltas[t] && i > -1 && i < idx) idx = i; });
     if(idx === pasos.length) idx = Math.max(0, pasos.length - 1);
   }
   return {pasos:pasos, indice:idx, cerrado: r.disenos.length > 0 && !r.abiertos.length};
