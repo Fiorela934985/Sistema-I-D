@@ -38,23 +38,36 @@ if(typeof Chart === 'undefined'){
 
 <!-- ============ LOGIN ============ -->
 <div id="login-view">
+  <div class="login-caja">
   <aside class="login-marca">
-    <div class="lm-logo"><img src="assets/logo-nexus.png" alt="">Sistema I+D</div>
-    <div><h2>ERP de proyectos del Laboratorio I+D</h2>
-      <div class="lm-mods"><span>Proyectos</span><span>Formatos</span><span>Roturas NTP 339.034</span><span>Planificación</span><span>Calidad ISO/IEC 17025</span></div></div>
-    <div class="lm-pie">Cementos Pacasmayo · NEW I+D - SSCC</div>
+    <div class="lm-logo"><img src="assets/logo-nexus.png" alt=""><span>Sistema I+D</span></div>
+    <svg class="lm-curva" viewBox="0 0 320 170" aria-hidden="true">
+      <g stroke="rgba(255,255,255,.10)" stroke-width="1">
+        <line x1="0" y1="34" x2="320" y2="34"/><line x1="0" y1="68" x2="320" y2="68"/><line x1="0" y1="102" x2="320" y2="102"/><line x1="0" y1="136" x2="320" y2="136"/>
+        <line x1="64" y1="0" x2="64" y2="170"/><line x1="128" y1="0" x2="128" y2="170"/><line x1="192" y1="0" x2="192" y2="170"/><line x1="256" y1="0" x2="256" y2="170"/>
+      </g>
+      <path d="M10 150 C 60 70, 110 52, 170 40 S 270 24, 312 20" fill="none" stroke="rgba(255,255,255,.18)" stroke-width="10" stroke-linecap="round"/>
+      <path d="M10 150 C 60 70, 110 52, 170 40 S 270 24, 312 20" fill="none" stroke="#fff" stroke-width="2.5" stroke-linecap="round"/>
+      <path d="M10 158 C 60 96, 110 80, 170 70 S 270 56, 312 52" fill="none" stroke="#7fd36f" stroke-width="2" stroke-dasharray="5 6" stroke-linecap="round"/>
+      <g fill="#0b5674" stroke="#fff" stroke-width="2.5"><circle cx="38" cy="104" r="5"/><circle cx="104" cy="56" r="5"/><circle cx="170" cy="40" r="5"/><circle cx="300" cy="21" r="5"/></g>
+    </svg>
+    <div class="lm-texto"><h2>Laboratorio I+D</h2><p>ERP de proyectos · Cementos Pacasmayo</p></div>
+    <ul class="lm-lista">
+      <li><i></i>Proyectos y diseños de mezcla</li>
+      <li><i></i>Roturas según NTP 339.034</li>
+      <li><i></i>Calidad guiada por ISO/IEC 17025</li>
+    </ul>
   </aside>
   <div class="login-bg-shapes">
     <span class="lbs s1"></span><span class="lbs s2"></span><span class="lbs s3"></span><span class="lbs s4"></span>
   </div>
   <div class="login-card">
-    <div class="login-icon"><img src="assets/logo-nexus.png" alt="I+D Nexus"></div>
-    <h1 class="login-title">Sistema I+D</h1>
-    <p class="login-sub">Laboratorio I+D · Gestión de Calidad</p>
+        <h1 class="login-title">Bienvenido</h1>
+    <p class="login-sub">Inicia sesión para continuar</p>
     <form id="login-form" autocomplete="off">
       <div class="login-field">
         <svg viewBox="0 0 24 24" width="17" height="17" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>
-        <input type="text" id="login-user" placeholder="Usuario" autocomplete="username">
+        <input type="text" id="login-user" placeholder="Usuario" aria-label="Usuario" autocomplete="username">
       </div>
       <div class="login-field">
         <svg viewBox="0 0 24 24" width="17" height="17" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="11" width="18" height="11" rx="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/></svg>
@@ -69,6 +82,7 @@ if(typeof Chart === 'undefined'){
         <svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h14"/><path d="M13 6l6 6-6 6"/></svg>
       </button>
     </form>
+  </div>
   </div>
 </div>
 
