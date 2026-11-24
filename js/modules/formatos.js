@@ -228,7 +228,7 @@ function renderFormatoFresco(){
   var filas = filasFresco();
   var editable = can('resultados:registrar');
   document.getElementById('ffre-cuenta').textContent = filas.length + ' réplicas';
-  document.getElementById('ffre-tabla').innerHTML = '<thead><tr><th></th><th>Código</th><th>Réplica</th><th>Proyecto</th><th>Iteración</th><th>Elaboración</th>' + COLS_FRESCO.map(function(c){ return '<th>' + esc(c.l) + '</th>'; }).join('') + '</tr></thead><tbody>' +
+  document.getElementById('ffre-tabla').innerHTML = '<thead><tr><th></th><th>Código</th><th>Réplica</th><th>Proyecto</th><th>Iteración</th><th>Elaboración</th>' + COLS_FRESCO.map(function(c){ return '<th>' + esc(c.l) + '</th>'; }).join('') + '<th></th></tr></thead><tbody>' +
     (filas.length ? filas.map(function(x){
       var el = x.rep.elaboracion || {};
       var falta = x.d.flujo && x.rep.codigo && !replicaTieneFresco(x.res);
@@ -239,7 +239,7 @@ function renderFormatoFresco(){
         COLS_FRESCO.map(function(c){
           var v = valorFresco(x.res, c.k);
           return '<td>' + (editable ? '<input type="text" class="fmt-in fmt-corto" data-ffre-campo="' + c.k + '" data-codigo="' + esc(x.d.codigo) + '" data-rep="' + x.i + '" value="' + esc(v) + '">' : esc(v || '—')) + '</td>';
-        }).join('') + '</tr>';
+        }).join('') + '<td class="acciones-fila"><button class="btn-icon" data-ffre-abrir="' + esc(x.d.codigo) + '" title="Abrir en ventana">' + EDIT_ICON + '</button></td></tr>';
     }).join('') : '<tr><td colspan="' + (6 + COLS_FRESCO.length) + '" class="nota-sm">Sin registros.</td></tr>') + '</tbody>';
 }
 document.getElementById('sub-fresco').addEventListener('change', function(e){
@@ -260,6 +260,8 @@ document.getElementById('sub-fresco').addEventListener('change', function(e){
     }, refrescar:function(){ refrescarTodoFlujo(d); renderFormatoFresco(); }});
 });
 document.getElementById('sub-fresco').addEventListener('click', function(e){
+  var ab = e.target.closest('[data-ffre-abrir]');
+  if(ab){ var dA = disenoPorCodigo(ab.dataset.ffreAbrir); if(dA && exigir('resultados:registrar')) openResultsModal(dA, disenos.indexOf(dA)); return; }
   if(!e.target.closest('[data-ffre="excel"]')) return;
   exportarFormato('Formato de Estado Fresco', ['Código','Réplica','Proyecto','Iteración','Elaboración'].concat(COLS_FRESCO.map(function(c){ return c.l; })),
     filasFresco().map(function(x){ var el = x.rep.elaboracion || {}; return [x.rep.codigo || '', x.rep.nombre, proyectoNombre(x.d.proyectoId), x.d.iteracionId || '', el.fecha ? isoToDMY(el.fecha) + ' ' + (el.hora || '') : (x.d.fecha || '')]
@@ -307,7 +309,7 @@ function filaRoturaHtml(c){
     '<td class="ro-locked">' + (c.m1kgcm2 || '—') + '</td><td class="ro-locked">' + (c.m2kgcm2 || '—') + '</td><td class="ro-locked">' + (c.m3kgcm2 || '—') + '</td>' +
     '<td class="ro-locked"><b>' + (c.promedio || '—') + '</b></td><td class="ro-locked' + (parseFloat(c.coefVar) > cvAlerta() ? ' cv-alto' : '') + '">' + (c.coefVar || '—') + '</td><td class="ro-locked">' + (c.desvest || '—') + '</td>' +
     '<td>' + inp('equipo', 'text', 'fmt-medio') + '</td><td>' + inp('comentarios', 'text', 'fmt-largo') + '</td>' +
-    '<td><button class="btn-icon danger" data-perm="roturas:eliminar" data-act="anular-carga" title="Anular (con motivo)">×</button></td></tr>';
+    '<td class="acciones-fila"><button class="btn-icon" data-act="abrir-carga" title="Abrir en ventana">' + EDIT_ICON + '</button><button class="btn-icon danger" data-perm="roturas:eliminar" data-act="anular-carga" title="Anular (con motivo)">×</button></td></tr>';
 }
 var CABECERA_ROTURAS = ['Código','Producto','Proyecto','Iteración','A cargo de','Elaboración','Edad','F. ensayo','Ventana','Estado','Correo','F. ensayo real','Hora ensayo','A1','A2','A3',
   'M1 kN','M2 kN','M3 kN','M1 kg','M2 kg','M3 kg','Tipo M1','Tipo M2','Tipo M3','M1 kg/cm²','M2 kg/cm²','M3 kg/cm²',"Promedio f'c",'CV','Desv.','Equipo','Comentarios'];
@@ -384,6 +386,8 @@ document.getElementById('ro-sub-formato').addEventListener('click', function(e){
     }), 'roturas');
     return;
   }
+  var ab = e.target.closest('[data-act="abrir-carga"]');
+  if(ab){ openRoturaCargaModal(ab.closest('tr').dataset.id); return; }
   var an = e.target.closest('[data-act="anular-carga"]');
   if(an){
     if(!exigir('roturas:eliminar')) return;

@@ -11,6 +11,7 @@ var msAlcance = null;
 var msLunes = lunesDe(todayISO());
 var msExpandido = {};
 var MS_MAX = 5;
+var msTab = 'act';
 
 function esEquipo(){ return msAlcance === 'equipo'; }
 function yoId(){ return usuarioActual ? usuarioActual.id : ''; }
@@ -245,16 +246,15 @@ function renderMiSemana(){
         return '<button class="ms-dia' + (iso === hoy ? ' hoy' : '') + '" data-ms-dia="' + iso + '"><span class="ms-dia-n">' + DIAS_SEMANA_CORTOS[k] + ' ' + Number(iso.slice(8)) + '</span>' +
           (na ? '<span class="ms-dia-c act">' + na + ' act.</span>' : '') + (nr.length ? '<span class="ms-dia-c rot' + (np && iso < hoy ? ' atr' : '') + '">' + nr.length + ' rot.</span>' : '') + (!na && !nr.length ? '<span class="ms-dia-c vacio">—</span>' : '') + '</button>';
       }).join('') + '</div></section>' +
-      '<section class="ms-bloque ms-act"><div class="ms-cab"><h3>Actividades de la semana <span class="ms-n">' + acts.length + '</span></h3><span>' + verTodoBtn('act', acts.length) + '<button class="ms-vertodo" data-ms-acc="tablero">Tablero</button></span></div>' +
-        (acts.length ? '<ul class="ms-lista' + (msExpandido.act ? ' expandida' : '') + '">' + recortar('act', acts).map(function(a){
-          var hecha = actividadHecha(a), automatica = !!(a.diseno_codigo && a.paso);
-          return '<li class="ms-fila' + (hecha ? ' hecha' : '') + '"><input type="checkbox" data-ms-hecha="' + esc(a.id) + '"' + (hecha ? ' checked' : '') + (automatica || !(a.responsable_id === yoId() || can('actividades:publicar')) ? ' disabled' : '') + '>' +
-            '<span class="ms-cod">' + esc(a.titulo) + '</span><span class="ms-txt">' + esc(a.proyecto) + ' · ' + DIAS_SEMANA_CORTOS[(new Date(a.desde + 'T00:00:00').getDay() + 6) % 7] + (a.hasta !== a.desde ? '–' + DIAS_SEMANA_CORTOS[(new Date(a.hasta + 'T00:00:00').getDay() + 6) % 7] : '') + (esEquipo() ? ' · ' + esc(nombreDe(a.responsable_id)) : '') + '</span></li>';
-        }).join('') + '</ul>' : '<div class="empty-note">Sin actividades.</div>') + '</section>' +
-      '<section class="ms-bloque ms-dis"><div class="ms-cab"><h3>Diseños de la semana <span class="ms-n">' + dis.length + '</span></h3>' + verTodoBtn('dis', dis.length) + '</div>' +
-        (dis.length ? '<ul class="ms-chips">' + recortar('dis', dis).map(function(d){ return '<li><button class="ms-chip" data-ms-acc="flujo" data-codigo="' + esc(d.codigo) + '">' + semaforoDotHtml(semaforoChecklist(d)) + esc(diseñoTitulo(d)) + '</button></li>'; }).join('') + '</ul>' : '<div class="empty-note">Sin diseños.</div>') + '</section>' +
-      '<section class="ms-bloque ms-proy"><div class="ms-cab"><h3>Proyectos de esta semana <span class="ms-n">' + proys.length + '</span></h3>' + verTodoBtn('proy', proys.length) + '</div>' +
-        (proys.length ? '<ul class="ms-chips">' + recortar('proy', proys).map(function(p){ return '<li><button class="ms-chip" data-ms-proy="' + esc(p.nombre) + '"><b>' + esc(p.nombre) + '</b><span class="ms-pct">' + p.avance + '%</span></button></li>'; }).join('') + '</ul>' : '<div class="empty-note">Sin proyectos.</div>') + '</section>' +
+      '<section class="ms-bloque ms-tabs"><div class="ms-cab"><div class="view-toggle ms-tab-btns">' +
+          '<button class="view-toggle-btn' + (msTab === 'act' ? ' active' : '') + '" data-ms-tab="act">Actividades <span class="ms-n">' + acts.length + '</span></button>' +
+          '<button class="view-toggle-btn' + (msTab === 'dis' ? ' active' : '') + '" data-ms-tab="dis">Diseños de la semana <span class="ms-n">' + dis.length + '</span></button>' +
+          '<button class="view-toggle-btn' + (msTab === 'proy' ? ' active' : '') + '" data-ms-tab="proy">Proyectos <span class="ms-n">' + proys.length + '</span></button></div>' +
+          '<span>' + verTodoBtn(msTab, msTab === 'act' ? acts.length : msTab === 'dis' ? dis.length : proys.length) + (msTab === 'act' ? '<button class="ms-vertodo" data-ms-acc="tablero">Tablero</button>' : '') + '</span></div>' +
+        '<div class="ms-act"' + (msTab === 'act' ? '' : ' hidden') + '>' + (acts.length ? '<ul class="ms-lista">' + acts.slice(0, MS_MAX).map(filaActividadMs).join('') + '</ul>' : '<div class="empty-note">Sin actividades.</div>') + '</div>' +
+        '<div class="ms-dis"' + (msTab === 'dis' ? '' : ' hidden') + '>' + (dis.length ? '<ul class="ms-chips">' + dis.slice(0, MS_MAX).map(function(d){ return '<li><button class="ms-chip" data-ms-acc="flujo" data-codigo="' + esc(d.codigo) + '">' + semaforoDotHtml(semaforoChecklist(d)) + esc(diseñoTitulo(d)) + '</button></li>'; }).join('') + '</ul>' : '<div class="empty-note">Sin diseños.</div>') + '</div>' +
+        '<div class="ms-proy"' + (msTab === 'proy' ? '' : ' hidden') + '>' + (proys.length ? '<ul class="ms-chips">' + proys.slice(0, MS_MAX).map(function(p){ return '<li><button class="ms-chip" data-ms-proy="' + esc(p.nombre) + '"><b>' + esc(p.nombre) + '</b><span class="ms-pct">' + p.avance + '%</span></button></li>'; }).join('') + '</ul>' : '<div class="empty-note">Sin proyectos.</div>') + '</div>' +
+      '</section>' +
     '</div>';
   dibujarPoza('poza-chart-mini', 7, false);
 }
@@ -284,6 +284,8 @@ function accionMs(e){
 }
 document.addEventListener('click', function(e){
   if(!e.target.closest('#mi-semana') && !e.target.closest('#ms-dia-modal') && !e.target.closest('#ms-pantalla')) return;
+  var tb = e.target.closest('[data-ms-tab]');
+  if(tb){ msTab = tb.dataset.msTab; renderMiSemana(); return; }
   var al = e.target.closest('[data-ms-alcance]');
   if(al){ msAlcance = al.dataset.msAlcance; msExpandido = {}; renderMiSemana(); return; }
   var s = e.target.closest('[data-ms-sem]');
@@ -336,10 +338,8 @@ function kpisInicioHtml(pend, acts, lh){
   var k = function(dest, tono, ico, valor, etiqueta){ return '<button class="ms-kpi" data-ms-kpi="' + dest + '"><i class="' + tono + '">' + ICO_MS[ico] + '</i><div><b>' + valor + '</b><span>' + etiqueta + '</span></div></button>'; };
   return '<div class="ms-kpis">' +
     k('proyectos', 't-celeste', 'proy', abiertos, 'Proyectos activos') +
-    k('disenos', 't-verde', 'dis', disAb, 'Diseños abiertos') +
-    k('roturas', 't-indigo', 'hoy', hoyN, 'Roturas de hoy') +
-    k('roturas', atrN ? 't-rojo' : 't-verde', 'atr', atrN, 'Roturas atrasadas') +
-    k('tablero', 't-ambar', 'act', hechas + '/' + acts.length, 'Actividades hechas') +
+    k('disenos', 't-celeste', 'dis', disAb, 'Diseños abiertos') +
+    k('roturas', atrN ? 't-rojo' : 't-celeste', 'atr', hoyN + ' · ' + atrN, 'Roturas hoy · atrasadas') +
     k('poza', lh ? (enRango(lh.temp) ? 't-verde' : 't-rojo') : 't-ambar', 'poza', lh ? lh.temp + ' °C' : '—', 'Poza de curado hoy') + '</div>';
 }
 document.addEventListener('click', function(e){

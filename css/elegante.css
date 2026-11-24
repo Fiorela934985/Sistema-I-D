@@ -76,3 +76,39 @@ html:not([data-theme="dark"]) .ms-hero.ms-barra{background:#fff;color:var(--e-te
 .pantalla-cab .btn-volver:hover{background:var(--e-tenue);}
 .pantalla .ms-lista{max-height:none;}
 html[data-theme="dark"] .pantalla{background:var(--bg);}
+
+/* ===== Sereno: menos color, menos cajas, acciones discretas ===== */
+/* Botones dentro de listas: contorno, no bloque de color */
+.ms-fila .btn-add,.pendiente-row .btn-add,.cdr-btn,.cal-dia-item .btn-add{background:#fff;color:var(--e-acento-osc);border:1px solid var(--e-borde-2);box-shadow:none;min-height:1.8rem;font-weight:600;}
+.ms-fila .btn-add:hover,.pendiente-row .btn-add:hover,.cdr-btn:hover{background:var(--e-acento-claro);border-color:var(--e-acento);}
+/* Etiquetas de estado sin relleno */
+.ms-tag{background:none !important;padding:0 2px;font-size:.64rem;letter-spacing:.05em;}
+.ms-tag.rojo{color:#c0272d;}
+.ms-tag.hoy{color:var(--e-acento-osc);}
+.pendiente-badge{background:none !important;font-size:.64rem;letter-spacing:.05em;}
+.pendiente-badge.vencido{color:#c0272d;}
+.pendiente-badge.hoy{color:var(--e-acento-osc);}
+.pendiente-row{border:1px solid var(--e-borde) !important;border-left-width:1px !important;box-shadow:none !important;background:#fff;}
+.chip-falta,.chip-ok,.chip-edad{border:1px solid transparent;}
+.chip-falta{background:#fffaf0;color:#8a5a00;border-color:#f3e2bd;}
+.chip-falta.atrasado{background:#fff5f5;color:#b4282e;border-color:#f3cfd0;}
+.chip-ok{background:#f3faf2;color:#2f7a28;border-color:#d3ebcf;}
+.semaforo-dot{box-shadow:none !important;width:9px;height:9px;}
+/* Avisos del menú en tono suave */
+.side-nav .nav-item .nav-badge,.side-nav .sn-badge{background:#fdecec !important;color:#b4282e !important;font-weight:700;}
+.side-nav .nav-item.active .nav-badge{background:#fff !important;}
+/* Tablas de Formatos: se ven como texto; el cuadro aparece al pasar el mouse */
+.fmt-tabla .fmt-in{border-color:transparent;background:transparent;box-shadow:none;}
+.fmt-tabla select.fmt-in{appearance:none;-webkit-appearance:none;}
+.fmt-tabla tr:hover .fmt-in{border-color:var(--e-borde-2);background:#fff;}
+.fmt-tabla tr:hover select.fmt-in{appearance:auto;-webkit-appearance:auto;}
+.fmt-tabla .fmt-in:focus{border-color:var(--e-acento);background:#fff;outline:none;box-shadow:0 0 0 3px rgba(10,143,191,.12);}
+table.roturas-table.fmt-tabla td.ro-locked{background:transparent;color:var(--e-texto-2);}
+.fmt-tabla .id-card{background:transparent;border:0;padding:0;}
+.fmt-tabla .acciones-fila .btn-icon{opacity:.55;}
+.fmt-tabla tr:hover .acciones-fila .btn-icon{opacity:1;}
+/* Inicio: pestañas en una sola tarjeta */
+.ms-tabs{grid-column:span 12;}
+.ms-tab-btns .view-toggle-btn .ms-n{margin-left:4px;}
+.ms-kpis{grid-template-columns:repeat(4,minmax(0,1fr));}
+@media (max-width:900px){ .ms-kpis{grid-template-columns:repeat(2,minmax(0,1fr));} }
