@@ -39,8 +39,9 @@ document.getElementById('pp-nueva-iter-confirmar').addEventListener('click', fun
 function showSubTab(name){
   subTabDisenos = name;
   document.querySelectorAll('#disenos-subtabs .subtab').forEach(function(b){ b.classList.toggle('active', b.dataset.dsub === name); });
-  document.getElementById('sub-calcular').style.display = name === 'calcular' ? 'block' : 'none';
-  document.getElementById('sub-historico').style.display = name === 'historico' ? 'block' : 'none';
+  ['tabla','calcular','fresco','historico'].forEach(function(s){ document.getElementById('sub-' + s).style.display = name === s ? 'block' : 'none'; });
+  if(name === 'tabla') renderFormatoDisenos();
+  if(name === 'fresco') renderFormatoFresco();
   if(name === 'historico'){ rebuildHistProyectoFiltro(); renderDisenosHistorico(); }
   if(name === 'calcular'){
     var proyActual = document.getElementById('pp-proyecto').value;

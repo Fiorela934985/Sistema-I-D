@@ -38,7 +38,12 @@ INSERT OR IGNORE INTO configuracion (clave, valor) VALUES
 ('cv_alerta_pct','10'),
 ('agregados_modo','lote_compartido'),
 ('semanas_corte_mes','partir'),
-('kn_a_kgf','101.9716');
+('kn_a_kgf','101.9716'),
+('doc_formato_disenos','D-CC-F-148 · v1'),
+('doc_formato_fresco','Código por definir'),
+('doc_formato_roturas','Código por definir'),
+('doc_formato_cargas','Código por definir'),
+('doc_formato_rr','Código por definir');
 
 INSERT OR IGNORE INTO permisos_rol (rol, permiso) VALUES
 ('admin','config:laboratorio'),('admin','personal:autorizar'),('admin','proyectos:editar'),('admin','planes:gestionar'),('admin','actividades:publicar'),('admin','disenos:crear'),('admin','disenos:eliminar'),('admin','resultados:registrar'),('admin','roturas:registrar'),('admin','roturas:eliminar'),('admin','informes:aprobar'),('admin','tnc:cerrar'),('admin','tnc:reportar'),('admin','inicio:equipo'),('admin','componentes:editar'),('admin','rr:editar'),('admin','evidencias:subir'),('admin','datos:exportar'),('admin','datos:respaldo'),

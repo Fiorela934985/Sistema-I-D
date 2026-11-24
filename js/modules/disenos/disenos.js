@@ -13,6 +13,8 @@ var disenos = load('sid10_disenos', [
 }));
 
 
+var disenosAnulados = load('sid_disenos_anulados', []);
+
 function diseñoTitulo(d){ return d.nombreTecnico || d.tipo; }
 /* Semáforo del diseño completo (regla 9): se calcula con el checklist de su proyecto */
 function semaforoDiseno(d){ return semaforoChecklist(d); }
@@ -38,7 +40,7 @@ function disenoActionsHtml(d,i){
         '<button data-act="edit-iter" data-perm="disenos:crear" data-i="'+i+'">'+EDIT_ICON+' Editar iteración</button>' +
         '<button data-act="dup" data-perm="disenos:crear" data-i="'+i+'">'+DUP_ICON+' Duplicar</button>' +
         '<div class="more-menu-divider" data-perm="disenos:eliminar"></div>' +
-        '<button class="danger" data-act="del" data-perm="disenos:eliminar" data-i="'+i+'">'+TRASH_ICON+' Eliminar</button>' +
+        '<button class="danger" data-act="del" data-perm="disenos:eliminar" data-i="'+i+'">'+TRASH_ICON+' Anular</button>' +
       '</div>' +
     '</div>';
 }
@@ -429,29 +431,35 @@ function renderAllDesignViews(){
   updateStats();
   updateNavBadges();
 }
-/* El correlativo sale del número más alto existente (no de la cantidad): así no se repite tras eliminar. */
+/* El correlativo sale del número más alto existente, incluidos los anulados: un código nunca se repite. */
 function nextCodigoDiseno(){
-  var max = disenos.reduce(function(m, d){ var x = parseInt(String(d.codigo||'').replace(/[^0-9]/g,''), 10); return isNaN(x) ? m : Math.max(m, x); }, 0);
+  var max = disenos.concat(disenosAnulados).reduce(function(m, d){ var x = parseInt(String(d.codigo||'').replace(/[^0-9]/g,''), 10); return isNaN(x) ? m : Math.max(m, x); }, 0);
   return 'DID-' + String(max + 1).padStart(4,'0');
 }
-/* Eliminar un diseño también elimina sus roturas y fotos asociadas (antes quedaban huérfanas). */
-function eliminarDiseno(d){
+/* Regla 2: nada se borra. Anular un diseño lo saca de las listas y lo guarda con su motivo; sus roturas se anulan con él
+   (las fotos de evidencia se conservan). */
+function datosAnulacion(motivo){ return {anulado:true, motivo_anulacion:motivo, anulado_por:usuarioActual ? usuarioActual.id : '', anulado_en:new Date().toISOString()}; }
+function eliminarDiseno(d){ anularDiseno(d); }
+function anularDiseno(d){
   var cargas = roturaCargas.filter(function(c){ return c.disenoCodigoDiseno === d.codigo; });
-  var msg = '¿Eliminar el diseño "' + diseñoTitulo(d) + '" (' + d.codigo + ')?';
-  if(cargas.length) msg += '\n\nTambién se eliminarán sus ' + cargas.length + ' registros de rotura.';
-  if(!confirm(msg)) return;
-  cargas.forEach(function(c){ [1,2,3].forEach(function(m){ if(c['evid'+m]) deleteEvidencia(c['evid'+m]).catch(function(){}); }); });
-  roturaCargas = roturaCargas.filter(function(c){ return c.disenoCodigoDiseno !== d.codigo; });
-  saveRoturaCargas();
-  evidenciasIdx.filter(function(ev){ return ev.disenoCodigo === d.codigo; }).forEach(function(ev){ deleteEvidencia(ev.key).catch(function(){}); });
-  evidenciasIdx = evidenciasIdx.filter(function(ev){ return ev.disenoCodigo !== d.codigo; });
-  saveEvidenciasIdx();
-  disenos.splice(disenos.indexOf(d), 1);
-  save('sid10_disenos', disenos);
-  registrarHistorial('Eliminó', 'Diseño', d.codigo + ' · ' + diseñoTitulo(d) + (cargas.length ? ' (+' + cargas.length + ' roturas)' : ''), {proyecto: proyectoNombre(d.proyectoId), ref: d.codigo});
-  toast('Diseño eliminado');
-  renderAllDesignViews();
-  renderRoturasAll();
+  var cuerpo = '<p><b>' + esc(d.codigo) + ' · ' + esc(diseñoTitulo(d)) + '</b>' + (cargas.length ? ' y sus ' + cargas.length + ' registros de rotura' : '') +
+    ' saldrán de las listas. No se borran: quedan guardados con el motivo y en el Historial de cambios.</p>';
+  pedirMotivo('Anular el diseño', cuerpo, function(motivo){
+    var meta = datosAnulacion(motivo);
+    cargas.forEach(function(c){ roturasAnuladas.push(Object.assign(c, meta)); });
+    roturaCargas = roturaCargas.filter(function(c){ return c.disenoCodigoDiseno !== d.codigo; });
+    disenos.splice(disenos.indexOf(d), 1);
+    disenosAnulados.push(Object.assign(d, meta));
+    save('sid_roturas_anuladas', roturasAnuladas);
+    saveRoturaCargas();
+    save('sid_disenos_anulados', disenosAnulados);
+    save('sid10_disenos', disenos);
+    registrarHistorial('Anuló', 'Diseño', d.codigo + ' · ' + diseñoTitulo(d) + (cargas.length ? ' (+' + cargas.length + ' roturas)' : ''),
+      {codigo:d.codigo, proyecto: proyectoNombre(d.proyectoId), ref: d.codigo, antes:{anulado:false}, despues:{anulado:true}, motivo:motivo});
+    toast('Diseño anulado');
+    renderAllDesignViews();
+    renderRoturasAll();
+  });
 }
 
 var editIterIdx = null;

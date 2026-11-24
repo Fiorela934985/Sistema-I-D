@@ -73,7 +73,7 @@ navItems.forEach(function(btn){
     showPanel(btn.dataset.panel);
     if(btn.dataset.panel === 'componentes'){ renderComponentesPanel(); }
     // Diseños abre la calculadora (paso 2) y Resultados el histórico (paso 4); sin permiso de crear, siempre el histórico
-    if(btn.dataset.panel === 'disenos'){ showSubTab(btn.dataset.sub === 'historico' || !can('disenos:crear') ? 'historico' : 'calcular'); }
+    if(btn.dataset.panel === 'disenos'){ showSubTab(btn.dataset.sub || 'tabla'); }
     if(btn.dataset.panel === 'roturas'){ showRoturasSub('pendientes'); }
   });
 });

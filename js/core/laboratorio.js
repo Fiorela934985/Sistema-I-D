@@ -66,7 +66,8 @@ var LAB_SEMILLA = {
     {id:'tol-90d', edad_horas:2160, etiqueta:'90 d', tolerancia_horas:48}
   ],
   configuracion: {tolerancia_otras_pct:'2', poza_min:'21', poza_max:'25', poza_objetivo:'23', area_defecto_cm2:'83', cv_alerta_pct:'10',
-    agregados_modo:'lote_compartido', semanas_corte_mes:'partir', kn_a_kgf:'101.9716'},
+    agregados_modo:'lote_compartido', semanas_corte_mes:'partir', kn_a_kgf:'101.9716',
+    doc_formato_disenos:'D-CC-F-148 · v1', doc_formato_fresco:'Código por definir', doc_formato_roturas:'Código por definir', doc_formato_cargas:'Código por definir', doc_formato_rr:'Código por definir'},
   personal: [], capacitaciones: [], autorizaciones: []
 };
 var CONFIG_ETIQUETAS = {
@@ -243,6 +244,6 @@ function sincronizarLaboratorio(){
     if(usuarioActual){ var yo = usuarioPorId(usuarioActual.id); if(yo){ usuarioActual = yo; } }
     aplicarPermisosServidor(d.permisos || []);
     Nube.procesarCola();
-    return typeof sincronizarProyectos === 'function' ? sincronizarProyectos().then(function(){ return true; }) : true;
+    return (typeof sincronizarProyectos === 'function' ? sincronizarProyectos() : Promise.resolve()).then(function(){ return typeof Sync !== 'undefined' ? Sync.descargar() : true; }).then(function(){ return true; });
   }).catch(function(e){ if(!e.red) toast('No se pudo leer la configuración del servidor: ' + e.mensaje); return false; });
 }

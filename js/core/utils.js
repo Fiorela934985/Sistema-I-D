@@ -11,7 +11,7 @@ if(typeof Chart !== 'undefined'){
 }
 
 function load(key, fallback){ try{ var raw = localStorage.getItem(key); return raw ? JSON.parse(raw) : fallback; }catch(e){ return fallback; } }
-function save(key, value){ try{ localStorage.setItem(key, JSON.stringify(value)); }catch(e){} }
+function save(key, value){ try{ localStorage.setItem(key, JSON.stringify(value)); }catch(e){} if(typeof window.alGuardar === 'function') window.alGuardar(key, value); }
 function esc(s){ return (s===undefined||s===null) ? '' : String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;').replace(/'/g,'&#39;'); }
 function n(v){ var x = parseFloat(v); return isNaN(x) ? 0 : x; }
 function pad4(x){ return String(x).padStart(4,'0'); }

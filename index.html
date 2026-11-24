@@ -122,12 +122,12 @@ if(typeof Chart === 'undefined'){
       </div>
       <div class="sn-group">
         <span class="sn-label">Formatos</span>
-        <button class="nav-item" data-panel="disenos" data-sub="calcular">
+        <button class="nav-item" data-panel="disenos" data-sub="tabla">
           <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="4" y="2" width="16" height="20" rx="2"/><line x1="8" y1="7" x2="16" y2="7"/><line x1="8" y1="12" x2="16" y2="12"/><line x1="8" y1="17" x2="12" y2="17"/></svg>
           <span class="label">Formato de Diseños</span>
           <kbd class="nav-kbd">Alt 2</kbd>
         </button>
-        <button class="nav-item" data-panel="disenos" data-sub="historico">
+        <button class="nav-item" data-panel="disenos" data-sub="fresco">
           <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 3s6 6.5 6 11a6 6 0 0 1-12 0c0-4.5 6-11 6-11z"/></svg>
           <span class="label">Formato de Estado Fresco</span>
           <kbd class="nav-kbd">Alt 3</kbd>
@@ -352,11 +352,15 @@ if(typeof Chart === 'undefined'){
       </div>
 
       <div class="roturas-subtabs" id="disenos-subtabs">
-        <button class="subtab active" data-dsub="calcular" data-perm="disenos:crear">Paso 3 · Calcular diseño</button>
-        <button class="subtab" data-dsub="historico">Paso 4 · Diseños y resultados</button>
+        <button class="subtab" data-dsub="tabla">Formato de Diseños</button>
+        <button class="subtab active" data-dsub="calcular" data-perm="disenos:crear">Calcular diseño</button>
+        <button class="subtab" data-dsub="fresco">Formato de Estado Fresco</button>
+        <button class="subtab" data-dsub="historico">Galería de diseños</button>
       </div>
 
       <!-- ===== CALCULAR DISEÑO — réplica de la hoja real ===== -->
+      <div class="card sub-panel" id="sub-tabla" style="display:none;"></div>
+      <div class="card sub-panel" id="sub-fresco" style="display:none;"></div>
       <div class="sub-panel" id="sub-calcular">
 
         <!-- PROYECTO / ITERACIÓN -->
@@ -622,13 +626,13 @@ if(typeof Chart === 'undefined'){
     <!-- ============ ROTURAS ============ -->
     <section id="panel-roturas" class="panel">
       <div class="content-header">
-        <div><h2>Probetas</h2><p>Roturas programadas y registro de cargas según NTP 339.034, con tolerancia por edad.</p></div>
+        <div><h2>Roturas</h2><p>Pendientes por ventana NTP 339.034, registro manual y el Formato de Roturas I+D (probetas y cubos).</p></div>
         <span class="badge-pill" id="roturas-count">0 registros</span>
       </div>
 
       <div class="roturas-subtabs" id="roturas-subtabs">
         <button class="subtab active" data-rosub="pendientes">Pendientes</button>
-        <button class="subtab" data-rosub="registrar" data-perm="roturas:registrar">Registrar</button>
+        <button class="subtab" data-rosub="registrar" data-perm="roturas:registrar">+ Registro manual</button>
         <button class="subtab" data-rosub="formato">Formato de Roturas I+D</button>
       </div>
 
@@ -685,47 +689,8 @@ if(typeof Chart === 'undefined'){
           </div>
         </div>
 
-      <!-- FORMATO (tabla grande, editable/insertable) -->
-      <div class="ro-sub" id="ro-sub-formato" style="display:none;">
-        <div class="hist-toolbar" style="margin-bottom:14px;">
-          <input type="text" id="ro-formato-search" placeholder="Buscar por código o nombre…">
-          <div class="view-toggle" id="ro-formato-tipo-tabs">
-            <button class="view-toggle-btn active" data-tipo="Probetas">Probetas <span class="col-count-badge" id="ro-formato-count-probetas">0</span></button>
-            <button class="view-toggle-btn" data-tipo="Cubos">Cubos <span class="col-count-badge" id="ro-formato-count-cubos">0</span></button>
-          </div>
-          <button class="btn-add" id="ro-formato-nuevo" data-perm="roturas:registrar" style="margin-left:auto;">+ Registrar</button>
-        </div>
-
-        <div class="roturas-table-wrap" id="ro-formato-wrap-probetas">
-          <table class="roturas-table">
-            <thead><tr>
-              <th>Código ID</th><th>Producto</th><th>Proyecto</th><th>Iteración</th><th>A cargo de</th>
-              <th>F. Elaboración</th><th>Días</th><th>F. Ensayo</th><th>Tolerancia</th><th>Correo</th>
-              <th>Hora Ensayo</th><th>A1</th><th>A2</th><th>A3</th>
-              <th>M1(kN)</th><th>M2(kN)</th><th>M3(kN)</th><th>M1(kg)</th><th>M2(kg)</th><th>M3(kg)</th>
-              <th>Tipo M1</th><th>Tipo M2</th><th>Tipo M3</th>
-              <th>M1(kg/cm²)</th><th>M2(kg/cm²)</th><th>M3(kg/cm²)</th><th>Promedio f'c</th><th>Coef.Var.</th><th>Desvest</th>
-              <th>Comentarios</th><th></th>
-            </tr></thead>
-            <tbody id="ro-formato-tbody-probetas"></tbody>
-          </table>
-        </div>
-
-        <div class="roturas-table-wrap" id="ro-formato-wrap-cubos" style="display:none;">
-          <table class="roturas-table">
-            <thead><tr>
-              <th>Código ID</th><th>Producto</th><th>Proyecto</th><th>Iteración</th><th>A cargo de</th>
-              <th>F. Elaboración</th><th>Días</th><th>F. Ensayo</th><th>Tolerancia</th><th>Correo</th>
-              <th>Hora Ensayo</th><th>A1</th><th>A2</th><th>A3</th>
-              <th>M1(kN)</th><th>M2(kN)</th><th>M3(kN)</th><th>M1(kg)</th><th>M2(kg)</th><th>M3(kg)</th>
-              <th>Tipo M1</th><th>Tipo M2</th><th>Tipo M3</th>
-              <th>M1(kg/cm²)</th><th>M2(kg/cm²)</th><th>M3(kg/cm²)</th><th>Promedio f'c</th><th>Coef.Var.</th><th>Desvest</th>
-              <th>Comentarios</th><th></th>
-            </tr></thead>
-            <tbody id="ro-formato-tbody-cubos"></tbody>
-          </table>
-        </div>
-      </div>
+      <!-- FORMATO DE ROTURAS I+D: tabla unificada (formatos.js) -->
+      <div class="ro-sub" id="ro-sub-formato" style="display:none;"></div>
     </section>
 
     <!-- REPORTE RR -->
@@ -1542,6 +1507,7 @@ if(typeof Chart === 'undefined'){
 <script src="data/disenos-reales.js"></script>
 <script src="js/core/utils.js"></script>
 <script src="js/core/nube.js"></script>
+<script src="js/core/sincronizacion.js"></script>
 <script src="js/core/auth.js"></script>
 <script src="js/core/historial.js"></script>
 <script src="js/core/laboratorio.js"></script>
@@ -1568,6 +1534,8 @@ if(typeof Chart === 'undefined'){
 <script src="js/modules/calendario.js"></script>
 <script src="js/modules/etiquetas.js"></script>
 <script src="js/modules/flujo-diseno.js"></script>
+<script src="js/modules/formatos.js"></script>
+<script src="js/modules/informes.js"></script>
 <script src="js/modules/base-historica.js"></script>
 <script src="js/modules/prediccion.js"></script>
 <script src="js/modules/asistente.js"></script>

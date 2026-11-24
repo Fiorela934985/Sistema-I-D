@@ -4,7 +4,7 @@
    · nada se borra: los registros se anulan o desactivan con motivo;
    · toda edición exige motivo y queda en historial_cambios con el valor anterior y el nuevo. */
 
-const VERSION = '1.0.0';
+const VERSION = '1.1.0';
 const PBKDF2_ITERACIONES = 100000;
 const SESION_HORAS = 12;
 
@@ -452,6 +452,87 @@ ruta('GET', '/api/historial', async (req, env, s) => {
   const limite = Math.min(2000, Math.max(1, Number(q.get('limite')) || 500));
   const filas = await env.DB.prepare(`SELECT * FROM historial_cambios ${filtros.length ? 'WHERE ' + filtros.join(' AND ') : ''} ORDER BY ts DESC LIMIT ${limite}`).bind(...valores).all();
   return filas.results;
+});
+
+/* ---------------- registros del laboratorio (Fase 4): diseños, roturas, lotes, informes, no conformes ----------------
+   Cada documento se guarda completo en registros.datos. Nada se borra: se marca anulado con motivo.
+   Regla 7: un informe solo pasa a aprobado o emitido con permiso de aprobar, y lo aprueba alguien distinto de quien lo elaboró. */
+const COLECCIONES = {
+  disenos: ['disenos:crear', 'resultados:registrar', 'roturas:registrar'],
+  roturas: ['roturas:registrar'],
+  lotes: ['resultados:registrar', 'disenos:crear'],
+  informes: ['rr:editar', 'informes:aprobar'],
+  tnc: ['roturas:registrar', 'tnc:reportar', 'tnc:cerrar'],
+  contadores: ['roturas:registrar', 'disenos:crear']
+};
+function exigirAlguno(sesion, permisos) {
+  if (!sesion) falla(401, 'Sesión vencida o inválida');
+  if (sesion.rol !== 'admin' && !permisos.some((p) => sesion.permisos.includes(p))) falla(403, 'Tu rol no tiene permiso para esta acción');
+}
+const MODULO_COLECCION = { disenos: 'Diseño', roturas: 'Rotura', lotes: 'Lote de agregado', informes: 'Informes', tnc: 'Trabajo no conforme', contadores: 'Códigos' };
+
+ruta('GET', '/api/registros', async (req, env, s) => {
+  exigir(s);
+  const filas = await env.DB.prepare('SELECT coleccion, datos FROM registros').all();
+  const colecciones = {};
+  Object.keys(COLECCIONES).forEach((c) => { colecciones[c] = []; });
+  filas.results.forEach((f) => { try { colecciones[f.coleccion].push(JSON.parse(f.datos)); } catch { } });
+  return { colecciones };
+});
+
+ruta('POST', '/api/registros', async (req, env, s) => {
+  exigir(s);
+  const b = await cuerpo(req);
+  const items = Array.isArray(b.items) ? b.items : [];
+  if (!items.length) return { ok: true, n: 0 };
+  if (items.length > 200) falla(400, 'Demasiados registros en un envío');
+  const sentencias = [];
+  for (const it of items) {
+    const col = String(it.coleccion || '');
+    if (!COLECCIONES[col]) falla(400, 'Colección desconocida');
+    exigirAlguno(s, COLECCIONES[col]);
+    const id = texto(it.id, 120);
+    if (!id) falla(400, 'Registro sin id');
+    const datos = it.datos && typeof it.datos === 'object' ? it.datos : null;
+    if (!datos) falla(400, 'Registro sin datos');
+    const json = JSON.stringify(datos);
+    if (json.length > 300000) falla(400, 'Registro demasiado grande');
+    const anulado = bool(it.anulado || datos.anulado);
+    const previa = await env.DB.prepare('SELECT datos, anulado FROM registros WHERE coleccion = ? AND id = ?').bind(col, id).first();
+    const antes = previa ? JSON.parse(previa.datos) : null;
+    if (col === 'informes') {
+      const ePrev = (antes && antes.estado) || 'borrador';
+      const eNuevo = datos.estado || 'borrador';
+      if (ePrev === 'emitido' && eNuevo === 'emitido' && previa.datos !== json) falla(409, 'El informe ya fue emitido: crea una nueva versión para cambiarlo');
+      if (!previa && (eNuevo === 'aprobado' || eNuevo === 'emitido')) {
+        exigir(s, 'informes:aprobar');
+      } else if (eNuevo !== ePrev && (eNuevo === 'aprobado' || eNuevo === 'emitido')) {
+        exigir(s, 'informes:aprobar');
+        if (eNuevo === 'emitido' && ePrev !== 'aprobado') falla(400, 'Un informe no se emite sin revisión y aprobación');
+        if (eNuevo === 'aprobado') {
+          if (datos.aprobado_por !== s.id) falla(400, 'La aprobación debe registrarse con tu usuario');
+          if (datos.elaborado_por === s.id && s.rol !== 'admin') falla(403, 'Quien elaboró el informe no puede aprobarlo');
+        }
+      }
+    }
+    if (anulado && !(previa && previa.anulado) && !texto(datos.motivo_anulacion)) falla(400, 'Indicá el motivo de la anulación');
+    sentencias.push(env.DB.prepare(
+      'INSERT INTO registros (coleccion, id, proyecto, codigo, datos, anulado, version, actualizado_por, actualizado_en) VALUES (?,?,?,?,?,?,1,?,?) ' +
+      'ON CONFLICT(coleccion, id) DO UPDATE SET proyecto = excluded.proyecto, codigo = excluded.codigo, datos = excluded.datos, anulado = excluded.anulado, version = registros.version + 1, actualizado_por = excluded.actualizado_por, actualizado_en = excluded.actualizado_en'
+    ).bind(col, id, texto(datos.proyecto || datos.proyectoId, 200), texto(datos.codigo, 120), json, anulado, s.id, ahora()));
+    if (anulado && !(previa && previa.anulado)) {
+      sentencias.push(env.DB.prepare(
+        'INSERT INTO historial_cambios (id, usuario_id, usuario, rol, accion, modulo, entidad_id, codigo, detalle, valor_anterior, valor_nuevo, motivo, proyecto) VALUES (?,?,?,?,?,?,?,?,?,?,?,?,?)'
+      ).bind(nuevoId(), s.id, s.usuario, s.rol, 'Anuló', MODULO_COLECCION[col], id, texto(datos.codigo, 120), null, JSON.stringify({ anulado: 0 }), JSON.stringify({ anulado: 1 }), texto(datos.motivo_anulacion), texto(datos.proyecto || datos.proyectoId, 200)));
+    }
+    if (col === 'informes' && antes && (antes.estado || 'borrador') !== (datos.estado || 'borrador')) {
+      sentencias.push(env.DB.prepare(
+        'INSERT INTO historial_cambios (id, usuario_id, usuario, rol, accion, modulo, entidad_id, codigo, detalle, valor_anterior, valor_nuevo, motivo, proyecto) VALUES (?,?,?,?,?,?,?,?,?,?,?,?,?)'
+      ).bind(nuevoId(), s.id, s.usuario, s.rol, 'Cambió estado', 'Informes', id, texto(datos.codigo, 120), texto(datos.nombre, 200), JSON.stringify({ estado: antes.estado || 'borrador' }), JSON.stringify({ estado: datos.estado }), texto(datos.motivo_estado), texto(datos.proyecto || datos.proyectoId, 200)));
+    }
+  }
+  await env.DB.batch(sentencias);
+  return { ok: true, n: items.length };
 });
 
 /* ---------------- despacho ---------------- */

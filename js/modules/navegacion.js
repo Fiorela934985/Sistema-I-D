@@ -58,11 +58,12 @@ function aplicarProyectoFlujo(){
 function actualizarFlujo(){
   aplicarProyectoFlujo();
   document.querySelectorAll('.side-nav .nav-item[data-panel]').forEach(function(btn){
-    var activo = btn.dataset.panel === panelActual && (!btn.dataset.sub || panelActual !== 'disenos' || btn.dataset.sub === subTabDisenos);
+    var grupoSub = (subTabDisenos === 'tabla' || subTabDisenos === 'calcular') ? 'tabla' : 'fresco';
+    var activo = btn.dataset.panel === panelActual && (!btn.dataset.sub || panelActual !== 'disenos' || btn.dataset.sub === grupoSub);
     btn.classList.toggle('active', activo);
   });
   var info = panelInfo(panelActual);
-  var etiqueta = panelActual === 'disenos' ? (subTabDisenos === 'historico' ? 'Formato de Estado Fresco' : 'Formato de Diseños (D-CC-F-148)') : info.label;
+  var etiqueta = panelActual === 'disenos' ? ((subTabDisenos === 'historico' || subTabDisenos === 'fresco') ? 'Formato de Estado Fresco' : 'Formato de Diseños (D-CC-F-148)') : info.label;
   document.getElementById('tb-panel-title').textContent = etiqueta;
   document.getElementById('tb-crumb').textContent = info.grupo;
 }
@@ -125,7 +126,7 @@ var ATAJOS = {
   Digit0: function(){ showPanel('inicio'); },
   Digit1: function(){ showPanel('proyectos'); },
   Digit2: function(){ showPanel('disenos'); showSubTab(can('disenos:crear') ? 'calcular' : 'historico'); },
-  Digit3: function(){ showPanel('disenos'); showSubTab('historico'); },
+  Digit3: function(){ showPanel('disenos'); showSubTab('fresco'); },
   Digit4: function(){ showPanel('roturas'); showRoturasSub('pendientes'); },
   Digit5: function(){ showPanel('planificacion'); },
   KeyN: function(){ if(exigir('disenos:crear')){ showPanel('disenos'); showSubTab('calcular'); } }

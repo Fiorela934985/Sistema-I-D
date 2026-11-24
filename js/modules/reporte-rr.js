@@ -134,6 +134,15 @@ var rrEstudios = load('sid10_rr', [{
 var rrActiveId = rrEstudios.length ? rrEstudios[0].id : null;
 
 function rrFind(id){ return rrEstudios.filter(function(e){ return e.id === id; })[0]; }
+/* Filas del RR: los generados desde los datos llevan sus materiales reales; los anteriores, la lista fija */
+function filasRR(estudio){
+  if(!estudio || !estudio.filasMateriales) return RR_ROWS;
+  var iAc = RR_ROWS.findIndex(function(r){ return r.key === 'ac'; });
+  var iPar = RR_ROWS.findIndex(function(r){ return r.t === 'section' && /Parámetros/.test(r.label); });
+  var filas = estudio.filasMateriales.concat(RR_ROWS.slice(iAc, iAc + 2));
+  if((estudio.filasDosis || []).length) filas = filas.concat([{t:'section', label:'Dosis aditivo (% masa cemento)'}]).concat(estudio.filasDosis);
+  return filas.concat(RR_ROWS.slice(iPar));
+}
 
 function renderRRStudyList(){
   var wrap = document.getElementById('rr-study-list');
@@ -207,7 +216,7 @@ function renderRRDetail(){
     '</div></th>';
   }).join('') + '<th>Observ.</th>';
 
-  var rowsHtml = RR_ROWS.map(function(r){
+  var rowsHtml = filasRR(estudio).map(function(r){
     if(r.t === 'section') return '<tr class="rr-section"><td colspan="'+(estudio.tipos.length+2)+'">'+r.label+'</td></tr>';
     if(r.t === 'subsection') return '<tr class="rr-subsection"><td colspan="'+(estudio.tipos.length+2)+'">'+r.label+'</td></tr>';
     var cells = estudio.tipos.map(function(t,ti){
@@ -521,15 +530,18 @@ document.getElementById('rr-exportar').addEventListener('click', function(){
   var estudio = rrFind(rrActiveId);
   if(!estudio){ toast('Elegí un estudio'); return; }
   var cab = estudio.cabecera || {};
+  var noEmitido = estudio.estado !== 'emitido';
   var filas = [
-    ['Resumen de reporte de resultados de mezclas de prueba'],
+    [(noEmitido ? 'NO EMITIDO (' + (ESTADOS_INFORME[estudio.estado || 'borrador'] || {}).l + ') · ' : '') + 'Resumen de reporte de resultados de mezclas de prueba' + (Lab.config('doc_formato_rr') ? ' · ' + Lab.config('doc_formato_rr') : '')],
+    ['Código', estudio.codigo || '', 'Versión', estudio.version || 1],
     ['Estudio', estudio.nombre, 'Fecha', estudio.fecha],
+    ['Elaboró', nombreDe(estudio.elaborado_por) || '', 'Aprobó', nombreDe(estudio.aprobado_por) || ''],
     ['Planta', cab.planta||'', 'Proyecto', estudio.proyectoId ? proyectoNombre(estudio.proyectoId) : ''],
     ['Colaborador', cab.colaborador||'', 'Responsable', cab.responsable||''],
     [],
     ['Diseño'].concat(estudio.tipos.map(function(t){ return t.nombre; })).concat(['Observ.'])
   ];
-  RR_ROWS.forEach(function(r){
+  filasRR(estudio).forEach(function(r){
     if(r.t !== 'row'){ filas.push([r.label]); return; }
     filas.push([r.label + (r.unit ? ' (' + r.unit + ')' : '')]
       .concat(estudio.tipos.map(function(t){ return t.valores[r.key] !== undefined ? t.valores[r.key] : ''; }))
@@ -540,7 +552,7 @@ document.getElementById('rr-exportar').addEventListener('click', function(){
   estudio.edades.forEach(function(e){
     filas.push([e.edad].concat(estudio.tipos.map(function(t){ var v = e.valores[t.id]; return v === '' || v === undefined ? '' : (isNaN(Number(v)) ? v : Number(v)); })).concat([e.requisito||'']));
   });
-  if(exportarExcel('RR - ' + estudio.nombre + '.xlsx', [{nombre:'Reporte RR', filas:filas}])){
+  if(exportarExcel('RR - ' + (estudio.codigo ? estudio.codigo + ' ' : '') + estudio.nombre + (noEmitido ? ' (NO EMITIDO)' : '') + '.xlsx', [{nombre:'Reporte RR', filas:filas}])){
     registrarHistorial('Exportó', 'Reporte RR', estudio.nombre);
     toast('Reporte RR exportado a Excel');
   }

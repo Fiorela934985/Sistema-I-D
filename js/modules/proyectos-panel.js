@@ -469,7 +469,7 @@ document.getElementById('proy-expediente').addEventListener('click', function(e)
     return;
   }
   var rr = e.target.closest('[data-abrir-rr]');
-  if(rr){ rrActiveId = rr.dataset.abrirRr; showPanel('reporte-rr'); renderRRStudyList(); renderRRDetail(); return; }
+  if(rr){ abrirRR(rr.dataset.abrirRr); return; }
   if(e.target.closest('#exp-galeria')){ manejarClickGaleria(e, function(){ renderExpediente(); }); }
 });
 document.getElementById('proy-expediente').addEventListener('change', function(e){

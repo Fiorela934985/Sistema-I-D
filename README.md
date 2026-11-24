@@ -14,12 +14,12 @@ ERP de proyectos para el Laboratorio I+D (NEW I+D - SSCC): proyectos con sus ens
 | 1 | Login, usuarios, roles, Personal, Ensayos y métodos | **Lista** |
 | 2 | Proyectos con su asistente de 4 pasos y sus pestañas | **Lista** |
 | 3 | Flujo por diseño (5 pasos), estado fresco, Roturas y etiquetas QR | **Lista** |
-| 4 | Formatos, Informes y RR con aprobación | Pendiente |
+| 4 | Formatos, Informes y RR con aprobación | **Lista** |
 | 5 | Planificación (Gantt, actividades de la semana) y notificaciones por correo | Pendiente |
 | 6 | Inicio "Mi semana" y card de la poza de curado | Pendiente |
 | 7 | Calidad (documentos, trabajo no conforme), integración con inventario e Inteligencia | Pendiente |
 
-El esquema de base de datos (`worker/schema.sql`) ya incluye las tablas de todas las fases. Con servidor, hoy se guardan en D1 la configuración del laboratorio, el personal, los proyectos y el historial; los diseños, lotes, réplicas y roturas pasan a D1 en la Fase 4, junto con los Formatos.
+El esquema de base de datos (`worker/schema.sql`) incluye las tablas de todas las fases. **Con servidor, todo vive en D1:** configuración del laboratorio, personal, proyectos, historial y, desde la Fase 4, diseños, réplicas, roturas, lotes de agregado, informes RR, informes finales y trabajos no conformes (tabla `registros`). Al conectar el servidor por primera vez, lo que ya existía en el navegador se sube solo. Los permisos y la regla de aprobación de informes se verifican en el servidor.
 
 ## Menú
 
@@ -27,7 +27,7 @@ El esquema de base de datos (`worker/schema.sql`) ya incluye las tablas de todas
 |---|---|---|
 | Inicio | Inicio | Actual (Mi semana en la Fase 6) |
 | Proyectos | Proyectos | **Fase 2:** lista con filtros y radar de etapas, asistente de 4 pasos y pestañas Resumen · Muestras · Diseños · Ensayos · Informes · Plan de trabajo · Archivo |
-| Formatos | Formato de Diseños (D-CC-F-148) · Formato de Estado Fresco · Formato de Roturas I+D · Formato de Cargas y Promediados · Etiquetas | **Fase 3:** ventana NTP en Roturas, registro con fecha y hora de ensayo, equipo y cálculos; Etiquetas acumuladas con QR. Tablas unificadas en la Fase 4 |
+| Formatos | Formato de Diseños (D-CC-F-148) · Formato de Estado Fresco · Formato de Roturas I+D · Formato de Cargas y Promediados · Etiquetas | **Fase 4:** tablas unificadas editables en la celda, con filtros (proyecto, iteración, código, responsable, fechas), semáforo y chips, motivo en cada edición y Excel. Registro manual de roturas. Etiquetas QR (Fase 3) |
 | Planificación | Plan de trabajo · Asignar actividades · Calendario | Calendario actual; lo demás en la Fase 5 |
 | Recursos | Personal | **Fase 1:** fichas y matriz de autorización |
 | Calidad | Documentos · Trabajo no conforme · Historial de cambios | Historial con valor anterior, nuevo y motivo; trabajos no conformes automáticos (Fase 3); evaluar y cerrar en la Fase 7 |
@@ -44,7 +44,9 @@ El esquema de base de datos (`worker/schema.sql`) ya incluye las tablas de todas
 | Asignar y publicar actividades | Sí | Sí | No |
 | Crear diseños y asignarlos | Sí | Sí | Sí |
 | Registrar ensayos y roturas | Sí | Sí | Solo lo asignado y para lo que está autorizado |
-| Aprobar informes / cerrar trabajos no conformes | Sí | Sí | No (solo reportar) |
+| Elaborar reportes RR | Sí | Sí | Sí |
+| Revisar, aprobar y emitir informes | Sí | Sí (no los que elaboró) | No |
+| Cerrar trabajos no conformes | Sí | Sí | No (solo reportar) |
 
 Los usuarios con el rol anterior *Jefatura* pasan solos a *Líder*.
 
@@ -57,7 +59,11 @@ Los usuarios con el rol anterior *Jefatura* pasan solos a *Líder*.
 - **Solo registra quien está autorizado:** el técnico registra solo lo asignado y los ensayos para los que tiene autorización en *Recursos › Personal*.
 - **Cada rotura guarda su contexto:** analista, método y versión, fecha y hora, equipo y lote de agregado.
 - **Etiquetas:** 3 iguales por edad, en blanco y negro, con QR; al escanearla se abre el registro de esa rotura.
-- **Nada se borra:** los usuarios se desactivan; los ensayos y flujos se desactivan; las capacitaciones se anulan; las autorizaciones se revocan. Siempre con motivo.
+- **Nada se borra:** los usuarios se desactivan; los ensayos y flujos se desactivan; las capacitaciones se anulan; las autorizaciones se revocan; los diseños y las roturas se **anulan**. Siempre con motivo.
+- **Formatos = proyecto:** lo que se llena en un Formato aparece dentro del proyecto y viceversa (es el mismo registro). Cambiar un valor que ya existía pide el motivo.
+- **El RR sale sin pasar por Excel:** desde la pestaña *Informes* del proyecto se elige iteración, tipo (promediado o detallado), nombre y requisito, y se añaden los registros promediados. Se llena con la receta, el estado fresco y la resistencia por edad.
+- **Ningún informe se emite sin revisión y aprobación** (17025, 7.8): Borrador → En revisión → Aprobado → Emitido. Lo aprueba un responsable distinto de quien lo elaboró. Aprobado o emitido ya no se edita: se crea una nueva versión con motivo. Lo no emitido se exporta marcado como *NO EMITIDO*.
+- **Informe final del proyecto** con objetivos y cumplimiento, diseños, resistencias, RR y no conformes, por el mismo circuito.
 - **Toda edición pide el motivo** y queda en *Calidad › Historial de cambios* con quién, cuándo, valor anterior y valor nuevo.
 - **Con servidor, los permisos se verifican en el servidor** (no en el navegador), las contraseñas usan PBKDF2 y las sesiones vencen a las 12 h.
 
@@ -91,6 +97,12 @@ Requisitos: Node.js 18 o superior y una cuenta de Cloudflare.
 
 Si el sitio se publica en otro dominio, agregalo en `ORIGENES_PERMITIDOS` de `wrangler.toml` (separado por comas) y repetí el paso 5.
 
+**Si ya habías ejecutado `schema.sql` antes de la Fase 4**, ejecutá también (una sola vez) y volvé a publicar:
+```bash
+npx wrangler d1 execute erp-laboratorio-id --remote --file=migracion-fase4.sql
+npx wrangler deploy
+```
+
 ## Estructura
 
 ```
@@ -99,6 +111,7 @@ css/                            Estilos (erp.css: secciones del ERP)
 js/core/
   utils.js                      Almacenamiento, formato, fechas, ventanas, exportación
   nube.js                       Conexión con el Worker, sesión y cola de reintentos
+  sincronizacion.js             Diseños, roturas, lotes, informes y no conformes en el servidor (envía solo lo que cambió)
   auth.js                       Usuarios, roles (Administrador, Líder, Técnico) y permisos
   historial.js                  Historial de cambios (antes, después, motivo) y ventana de motivo
   laboratorio.js                Ensayos, flujos, tolerancias, poza, personal y autorizaciones
@@ -110,6 +123,8 @@ js/modules/
   proyecto-asistente.js         Asistente de Nuevo proyecto (4 pasos)
   flujo-diseno.js               Flujo de 5 pasos por diseño, lotes de agregado, elaboración, ventana NTP y trabajo no conforme
   etiquetas.js                  Etiquetas QR (3 por edad) y Formatos › Etiquetas
+  formatos.js                   Formatos: Diseños, Estado Fresco, Roturas I+D (con registro manual) y Cargas y Promediados
+  informes.js                   Reporte RR desde los datos, revisión, aprobación y emisión; informe final del proyecto
   personal.js                   Recursos › Personal
   ensayos-metodos.js            Administración › Ensayos y métodos
   usuarios.js, historial-panel.js, ajustes.js
@@ -117,6 +132,7 @@ js/modules/
 worker/
   src/index.js                  API (Cloudflare Workers)
   schema.sql                    Esquema D1 de todas las fases
+  migracion-fase4.sql           Tabla registros (solo si el esquema se ejecutó antes de la Fase 4)
   seed.sql                      Ensayos, flujos, tolerancias NTP 339.034, poza 23 ± 2 °C, permisos
   wrangler.toml                 Configuración del Worker
 ```
