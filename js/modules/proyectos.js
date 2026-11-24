@@ -37,6 +37,7 @@ function renombrarProyectoEnTodo(viejo, nuevo){
   saveEvidenciasIdx();
   historial.forEach(function(h){ if(h.proyecto === viejo) h.proyecto = nuevo; });
   saveHistorial();
+  if(typeof fichasProyecto !== 'undefined'){ fichasProyecto.forEach(function(f){ if(f.nombre === viejo) f.nombre = nuevo; }); saveFichas(); }
 }
 function proyectoNombre(pid){ if(!pid) return ''; var idx = pid.indexOf('::'); return idx>-1 ? pid.slice(idx+2) : pid; }
 function iteracionNombre(val){ return val || ''; }

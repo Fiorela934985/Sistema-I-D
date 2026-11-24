@@ -342,6 +342,94 @@ ruta('PUT', '/api/configuracion/:clave', async (req, env, s, p) => {
   return { ok: true };
 });
 
+/* ---------------- Fase 2: proyectos con su ficha, objetivos y ensayos ---------------- */
+async function proyectoCompleto(env, id) {
+  const p = await env.DB.prepare('SELECT * FROM proyectos WHERE id = ?').bind(id).first();
+  if (!p) return null;
+  const [eq, ob, en] = await env.DB.batch([
+    env.DB.prepare('SELECT usuario_id FROM proyecto_equipo WHERE proyecto_id = ? ORDER BY usuario_id').bind(id),
+    env.DB.prepare('SELECT * FROM objetivos WHERE proyecto_id = ? ORDER BY rowid').bind(id),
+    env.DB.prepare('SELECT pe.ensayo_id, pe.edades, e.etapa FROM proyecto_ensayos pe JOIN ensayos e ON e.id = pe.ensayo_id WHERE pe.proyecto_id = ? ORDER BY pe.rowid').bind(id)
+  ]);
+  const conEdades = en.results.find((r) => r.edades);
+  return {
+    id: p.id, codigo: p.codigo, nombre: p.nombre, tipo_flujo_id: p.tipo_flujo_id, responsable_id: p.responsable_id,
+    fecha_inicio: p.fecha_inicio || '', fecha_fin: p.fecha_fin || '', creado_en: p.creado_en, anulado: p.anulado,
+    equipo: eq.results.map((r) => r.usuario_id),
+    objetivos: ob.results.map((o) => ({ id: o.id, descripcion: o.descripcion === '-' ? '' : o.descripcion, ensayo_id: o.ensayo_id, edad_dias: o.edad_dias, operador: o.operador, valor_min: o.valor_min, valor_max: o.valor_max ?? '', unidad: o.unidad || '' })),
+    ensayos: en.results.map((r) => r.ensayo_id),
+    edades: conEdades ? JSON.parse(conEdades.edades) : []
+  };
+}
+ruta('GET', '/api/proyectos', async (req, env, s) => {
+  exigir(s);
+  const ids = (await env.DB.prepare('SELECT id FROM proyectos WHERE anulado = 0 ORDER BY nombre').all()).results;
+  const out = [];
+  for (const r of ids) out.push(await proyectoCompleto(env, r.id));
+  return out;
+});
+ruta('PUT', '/api/proyectos/:id', async (req, env, s, p) => {
+  exigir(s, 'proyectos:editar');
+  const b = await cuerpo(req);
+  const nombre = texto(b.nombre, 120), codigo = texto(b.codigo, 30)?.toUpperCase();
+  if (!nombre) falla(400, 'Ingresá el nombre del proyecto');
+  if (!codigo) falla(400, 'Ingresá el código');
+  const fecha = (v) => (v && /^\d{4}-\d{2}-\d{2}$/.test(v)) ? v : null;
+  const ini = fecha(b.fecha_inicio), fin = fecha(b.fecha_fin);
+  if (ini && fin && fin < ini) falla(400, 'La fecha de fin no puede ser anterior al inicio');
+  const repetido = await env.DB.prepare('SELECT id FROM proyectos WHERE (nombre = ? OR codigo = ?) AND id <> ?').bind(nombre, codigo, p.id).first();
+  if (repetido) falla(409, 'Ya existe un proyecto con ese nombre o código');
+  if (!(await env.DB.prepare('SELECT id FROM flujos WHERE id = ?').bind(b.tipo_flujo_id || '').first())) falla(400, 'Tipo de proyecto inexistente');
+  if (!(await env.DB.prepare('SELECT id FROM usuarios WHERE id = ? AND activo = 1').bind(b.responsable_id || '').first())) falla(400, 'Elegí un responsable activo');
+  const equipo = [...new Set((b.equipo || []).map(String))];
+  for (const u of equipo) if (!(await env.DB.prepare('SELECT id FROM usuarios WHERE id = ?').bind(u).first())) falla(400, 'Usuario del equipo inexistente');
+  const ensayos = [...new Set((b.ensayos || []).map(String))];
+  if (!ensayos.length) falla(400, 'Elegí al menos un ensayo');
+  const etapas = {};
+  for (const e of ensayos) {
+    const fila = await env.DB.prepare('SELECT etapa FROM ensayos WHERE id = ?').bind(e).first();
+    if (!fila) falla(400, 'Ensayo inexistente: ' + e);
+    etapas[e] = fila.etapa;
+  }
+  const edades = [...new Set((b.edades || []).map(Number).filter((x) => x > 0))].sort((x, y) => x - y);
+  if (Object.values(etapas).includes('endurecido') && !edades.length) falla(400, 'Elegí al menos una edad de rotura');
+  const objetivos = (b.objetivos || []).map((o) => {
+    if (!ensayos.includes(o.ensayo_id)) falla(400, 'Un objetivo usa un ensayo que no está en el proyecto');
+    if (!['>=', '<=', 'entre', '='].includes(o.operador) || numero(o.valor_min) === null) falla(400, 'Objetivo incompleto');
+    if (o.operador === 'entre' && !(numero(o.valor_max) > numero(o.valor_min))) falla(400, 'En un objetivo "entre", el valor hasta debe ser mayor');
+    return { id: texto(o.id, 60) || nuevoId(), descripcion: texto(o.descripcion, 200) || '-', ensayo_id: o.ensayo_id, edad_dias: numero(o.edad_dias), operador: o.operador,
+      valor_min: numero(o.valor_min), valor_max: o.operador === 'entre' ? numero(o.valor_max) : null, unidad: texto(o.unidad, 20) };
+  });
+  const nuevo = { codigo, nombre, tipo_flujo_id: b.tipo_flujo_id, responsable_id: b.responsable_id, fecha_inicio: ini || '', fecha_fin: fin || '', equipo: [...equipo].sort(),
+    objetivos: objetivos.map((o) => ({ ...o, descripcion: o.descripcion === '-' ? '' : o.descripcion, valor_max: o.valor_max ?? '', unidad: o.unidad || '' })), ensayos, edades };
+  const previo = await proyectoCompleto(env, p.id);
+  let antes, despues;
+  if (previo) {
+    previo.equipo = [...previo.equipo].sort();
+    antes = {}; despues = {};
+    for (const k of Object.keys(nuevo)) if (JSON.stringify(previo[k] ?? '') !== JSON.stringify(nuevo[k] ?? '')) { antes[k] = previo[k]; despues[k] = nuevo[k]; }
+    if (!Object.keys(despues).length) return { ok: true, sinCambios: true };
+    if (!texto(b.motivo)) falla(400, 'Indicá el motivo del cambio');
+  }
+  const stmts = [];
+  if (previo) stmts.push(env.DB.prepare('UPDATE proyectos SET codigo = ?, nombre = ?, tipo_flujo_id = ?, responsable_id = ?, fecha_inicio = ?, fecha_fin = ? WHERE id = ?')
+    .bind(codigo, nombre, b.tipo_flujo_id, b.responsable_id, ini, fin, p.id));
+  else stmts.push(env.DB.prepare('INSERT INTO proyectos (id, codigo, nombre, tipo_flujo_id, responsable_id, fecha_inicio, fecha_fin, creado_por) VALUES (?,?,?,?,?,?,?,?)')
+    .bind(p.id, codigo, nombre, b.tipo_flujo_id, b.responsable_id, ini, fin, s.id));
+  stmts.push(env.DB.prepare('DELETE FROM proyecto_equipo WHERE proyecto_id = ?').bind(p.id));
+  stmts.push(env.DB.prepare('DELETE FROM objetivos WHERE proyecto_id = ?').bind(p.id));
+  stmts.push(env.DB.prepare('DELETE FROM proyecto_ensayos WHERE proyecto_id = ?').bind(p.id));
+  equipo.forEach((u) => stmts.push(env.DB.prepare('INSERT INTO proyecto_equipo (proyecto_id, usuario_id) VALUES (?,?)').bind(p.id, u)));
+  objetivos.forEach((o) => stmts.push(env.DB.prepare('INSERT INTO objetivos (id, proyecto_id, descripcion, ensayo_id, edad_dias, operador, valor_min, valor_max, unidad) VALUES (?,?,?,?,?,?,?,?,?)')
+    .bind(o.id, p.id, o.descripcion, o.ensayo_id, o.edad_dias, o.operador, o.valor_min, o.valor_max, o.unidad)));
+  ensayos.forEach((e) => stmts.push(env.DB.prepare('INSERT INTO proyecto_ensayos (proyecto_id, ensayo_id, edades) VALUES (?,?,?)')
+    .bind(p.id, e, etapas[e] === 'endurecido' ? JSON.stringify(edades) : null)));
+  await env.DB.batch(stmts);
+  await registrar(env, s, { accion: previo ? 'Editó' : 'Creó', modulo: 'Proyectos', entidadId: p.id, codigo, proyecto: nombre,
+    antes: previo ? antes : undefined, despues: previo ? despues : { codigo, nombre, tipo: b.tipo_flujo_id, ensayos: ensayos.length, edades }, motivo: texto(b.motivo) });
+  return { ok: true };
+});
+
 /* Eventos que registran los módulos que todavía guardan en el navegador (fases 2 a 7) */
 ruta('POST', '/api/historial', async (req, env, s) => {
   exigir(s);

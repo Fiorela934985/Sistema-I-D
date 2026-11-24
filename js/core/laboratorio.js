@@ -243,6 +243,6 @@ function sincronizarLaboratorio(){
     if(usuarioActual){ var yo = usuarioPorId(usuarioActual.id); if(yo){ usuarioActual = yo; } }
     aplicarPermisosServidor(d.permisos || []);
     Nube.procesarCola();
-    return true;
+    return typeof sincronizarProyectos === 'function' ? sincronizarProyectos().then(function(){ return true; }) : true;
   }).catch(function(e){ if(!e.red) toast('No se pudo leer la configuración del servidor: ' + e.mensaje); return false; });
 }

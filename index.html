@@ -872,52 +872,23 @@ if(typeof Chart === 'undefined'){
     <section id="panel-proyectos" class="panel">
       <div id="proy-vista-principal">
         <div class="content-header">
-          <div><h2>Proyectos</h2><p>Cada proyecto tiene su expediente: iteraciones, diseños, resultados, evidencias y reportes.</p></div>
-          <div class="ch-actions">
-            <div class="view-toggle" id="proy-vista-toggle">
-              <button class="view-toggle-btn active" data-vista="lista">Proyectos</button>
-              <button class="view-toggle-btn" data-vista="radar">Radar</button>
-            </div>
-            <button class="btn-add" id="proy-nuevo-btn" data-perm="proyectos:editar">+ Nuevo proyecto</button>
-          </div>
+          <div><h2>Proyectos</h2></div>
+          <div class="ch-actions"><button class="btn-add" id="proy-nuevo-btn" data-perm="proyectos:editar">+ Nuevo proyecto</button></div>
         </div>
-        <div class="kpi-grid" id="proy-kpis"></div>
-
-        <div id="proy-vista-lista">
-          <div class="hist-toolbar">
-            <input type="text" id="proy-buscar" placeholder="Buscar proyecto…">
-            <select id="proy-filtro-estado">
-              <option value="">Todos los estados</option>
-              <option value="En curso">En curso</option>
-              <option value="Completado">Completado</option>
-              <option value="Sin diseños">Sin diseños</option>
-            </select>
-            <select id="proy-orden">
-              <option value="actividad">Más reciente primero</option>
-              <option value="nombre">Nombre (A–Z)</option>
-              <option value="avance">Mayor avance</option>
-              <option value="disenos">Más diseños</option>
-            </select>
-          </div>
-          <div class="proy-grid" id="proy-grid"></div>
+        <div class="hist-toolbar proy-toolbar">
+          <input type="text" id="proy-buscar" placeholder="Buscar proyecto o código…">
+          <select id="proy-f-responsable"><option value="">Todos los responsables</option></select>
+          <select id="proy-f-tipo"><option value="">Todos los tipos</option></select>
+          <select id="proy-f-anio"><option value="">Todos los años</option></select>
+          <label class="proy-agrupar">Agrupar por
+            <select id="proy-agrupar"><option value="fecha">Fecha</option><option value="estado">Estado</option><option value="responsable">Responsable</option></select>
+          </label>
         </div>
-
-        <div id="proy-vista-radar" style="display:none;">
-          <div class="radar-layout">
-            <div class="chart-card">
-              <h4>Radar de proyectos <span class="chart-sub">(0–100 en cada eje)</span></h4>
-              <div class="radar-picker" id="radar-picker"></div>
-              <div class="radar-wrap"><canvas id="chart-radar-proyectos"></canvas></div>
-              <p class="nota-sm">Ejes: <b>Avance</b> (diseños completados), <b>Roturas</b> (cargas registradas), <b>Puntualidad</b> (roturas no vencidas), <b>Resistencia</b> (máxima alcanzada vs. el mejor proyecto), <b>Actividad</b> (diseños en los últimos 30 días) y <b>Costo</b> (CVD más bajo = mejor).</p>
-            </div>
-            <div class="chart-card">
-              <h4>Seguimiento de proyectos</h4>
-              <div class="table-scroll"><table class="data-table" id="radar-tabla"></table></div>
-            </div>
-          </div>
+        <div class="proy-layout">
+          <div id="proy-grupos"></div>
+          <aside class="card proy-radar"><div class="section-num">Radar de proyectos</div><div id="proy-radar"></div></aside>
         </div>
       </div>
-
       <div id="proy-expediente" style="display:none;"></div>
     </section>
 
@@ -1591,7 +1562,9 @@ if(typeof Chart === 'undefined'){
 <script src="js/modules/reporte-rr.js"></script>
 <script src="js/core/analitica.js"></script>
 <script src="js/core/ml.js"></script>
+<script src="js/modules/proyecto-ficha.js"></script>
 <script src="js/modules/proyectos-panel.js"></script>
+<script src="js/modules/proyecto-asistente.js"></script>
 <script src="js/modules/calendario.js"></script>
 <script src="js/modules/etiquetas.js"></script>
 <script src="js/modules/base-historica.js"></script>

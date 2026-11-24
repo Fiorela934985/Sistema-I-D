@@ -12,7 +12,7 @@ ERP de proyectos para el Laboratorio I+D (NEW I+D - SSCC): proyectos con sus ens
 | Fase | Qué se construye | Estado |
 |---|---|---|
 | 1 | Login, usuarios, roles, Personal, Ensayos y métodos | **Lista** |
-| 2 | Proyectos con su asistente de 4 pasos y sus pestañas | Pendiente |
+| 2 | Proyectos con su asistente de 4 pasos y sus pestañas | **Lista** |
 | 3 | Flujo por diseño (5 pasos), estado fresco, Roturas y etiquetas QR | Pendiente |
 | 4 | Formatos, Informes y RR con aprobación | Pendiente |
 | 5 | Planificación (Gantt, actividades de la semana) y notificaciones por correo | Pendiente |
@@ -26,7 +26,7 @@ El esquema de base de datos (`worker/schema.sql`) ya incluye las tablas de todas
 | Grupo | Entrada | Estado |
 |---|---|---|
 | Inicio | Inicio | Actual (Mi semana en la Fase 6) |
-| Proyectos | Proyectos | Actual (asistente y pestañas en la Fase 2) |
+| Proyectos | Proyectos | **Fase 2:** lista con filtros y radar de etapas, asistente de 4 pasos y pestañas Resumen · Muestras · Diseños · Ensayos · Informes · Plan de trabajo · Archivo |
 | Formatos | Formato de Diseños (D-CC-F-148) · Formato de Estado Fresco · Formato de Roturas I+D · Formato de Cargas y Promediados · Etiquetas | Calculadora, histórico, roturas y RR actuales; tablas unificadas en las fases 3 y 4 |
 | Planificación | Plan de trabajo · Asignar actividades · Calendario | Calendario actual; lo demás en la Fase 5 |
 | Recursos | Personal | **Fase 1:** fichas y matriz de autorización |
@@ -50,6 +50,7 @@ Los usuarios con el rol anterior *Jefatura* pasan solos a *Líder*.
 
 ## Reglas que ya se cumplen
 
+- **Los estados se calculan:** un diseño está *Abierto* mientras falte algo del checklist de su proyecto (estado fresco, roturas) y *Cerrado* cuando no falta nada; chips de "Falta" y semáforo.
 - **Nada se borra:** los usuarios se desactivan; los ensayos y flujos se desactivan; las capacitaciones se anulan; las autorizaciones se revocan. Siempre con motivo.
 - **Toda edición pide el motivo** y queda en *Calidad › Historial de cambios* con quién, cuándo, valor anterior y valor nuevo.
 - **Con servidor, los permisos se verifican en el servidor** (no en el navegador), las contraseñas usan PBKDF2 y las sesiones vencen a las 12 h.
@@ -98,6 +99,9 @@ js/core/
   shell.js, icons.js, analitica.js, ml.js
 js/modules/
   navegacion.js                 Menú del prompt maestro, Planificación y atajos de teclado
+  proyecto-ficha.js             Ficha del proyecto y estados calculados (Abierto/Cerrado, Falta, semáforo)
+  proyectos-panel.js            Lista de proyectos, radar de etapas y pestañas del proyecto
+  proyecto-asistente.js         Asistente de Nuevo proyecto (4 pasos)
   personal.js                   Recursos › Personal
   ensayos-metodos.js            Administración › Ensayos y métodos
   usuarios.js, historial-panel.js, ajustes.js

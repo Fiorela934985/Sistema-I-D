@@ -96,3 +96,75 @@ html[data-theme="dark"] .matriz-aut .mat-etapa{color:var(--celeste-300);}
 .side-nav .nav-item .label{white-space:normal;overflow:visible;text-overflow:clip;line-height:1.2;text-align:left;flex:1;}
 .side-nav .nav-kbd{display:none;}
 @media (min-width:981px){ body.sidebar-mini .side-nav .nav-item{min-height:42px;padding:0;} }
+
+/* ================= FASE 2: PROYECTOS ================= */
+.proy-toolbar{flex-wrap:wrap;margin-bottom:16px;}
+.proy-agrupar{display:inline-flex;align-items:center;gap:8px;font-size:.8rem;font-weight:600;color:var(--text-muted);margin-left:auto;}
+.proy-layout{display:grid;grid-template-columns:minmax(0,1fr) 340px;gap:18px;align-items:start;}
+@media (max-width:1180px){ .proy-layout{grid-template-columns:1fr;} }
+.proy-grupo{margin-bottom:18px;}
+.proy-grupo-cab{font-size:.72rem;font-weight:800;letter-spacing:.08em;text-transform:uppercase;color:var(--celeste-700);margin:0 0 10px;}
+#proy-grupos .proy-grid{grid-template-columns:repeat(auto-fill,minmax(280px,1fr));}
+.proy-card{cursor:pointer;}
+.proy-card:focus-visible{outline:2px solid var(--celeste-600);outline-offset:2px;}
+.pc-codigo{display:block;font-size:.72rem;color:var(--text-muted);margin-top:2px;}
+.pc-datos{display:flex;justify-content:space-between;gap:8px;flex-wrap:wrap;font-size:.8rem;margin:10px 0 8px;}
+.chip-falta.atrasado{background:#fee2e2;color:var(--rojo-600);}
+.proy-radar{position:sticky;top:84px;max-height:calc(100vh - 110px);overflow:auto;}
+.radar-fila{padding:9px 6px;border-bottom:1px solid var(--line);cursor:pointer;border-radius:8px;}
+.radar-fila:hover{background:var(--celeste-50);}
+.rf-top{display:flex;justify-content:space-between;gap:8px;font-size:.8rem;margin-bottom:6px;}
+.rf-top b{white-space:nowrap;overflow:hidden;text-overflow:ellipsis;}
+.rf-etapa{font-size:.7rem;font-weight:700;color:var(--celeste-700);white-space:nowrap;}
+.rf-etapa.ok{color:var(--verde-700);}
+.rf-pasos{list-style:none;margin:0;padding:0;display:flex;gap:4px;}
+.rf-pasos li{flex:1;height:6px;border-radius:3px;background:var(--line);}
+.rf-pasos li.hecho{background:var(--verde-500);}
+.rf-pasos li.actual{background:var(--celeste-500);}
+.rf-pasos li.actual.atrasado{background:var(--rojo-600);}
+.aviso-ficha{margin:0 0 14px;padding:10px 14px;border-radius:10px;background:#fef3c7;color:#92400e;font-size:.84rem;}
+.exp-resumen{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:14px;}
+.exp-resumen .card{margin:0;}
+.exp-resumen .exp-movs{grid-column:span 2;}
+@media (max-width:1100px){ .exp-resumen{grid-template-columns:1fr;} .exp-resumen .exp-movs{grid-column:auto;} }
+.obj-lista{list-style:none;margin:0;padding:0;display:flex;flex-direction:column;gap:8px;font-size:.84rem;}
+.obj-lista li{display:flex;gap:8px;align-items:baseline;flex-wrap:wrap;}
+.avance-grande{display:flex;align-items:baseline;gap:10px;margin-bottom:8px;}
+.avance-grande b{font-family:var(--font-display);font-size:2rem;color:var(--celeste-700);}
+.mov-lista{list-style:none;margin:0;padding:0;font-size:.8rem;display:flex;flex-direction:column;gap:6px;}
+.data-table.compacta td{padding:6px 8px;font-size:.8rem;}
+.nombre-tecnico{color:var(--verde-700);}
+.tag-rojo{background:#fee2e2;color:var(--rojo-600);}
+
+/* Asistente de nuevo proyecto */
+.asis-card{max-width:980px;}
+.asis-pasos{list-style:none;display:flex;gap:6px;margin:0;padding:12px 20px;border-bottom:1px solid var(--line);}
+.asis-pasos li{flex:1;display:flex;align-items:center;gap:8px;padding:8px 10px;border-radius:10px;font-size:.82rem;font-weight:600;color:var(--text-muted);border:1px solid var(--line);cursor:pointer;}
+.asis-pasos li span{width:22px;height:22px;border-radius:50%;display:inline-flex;align-items:center;justify-content:center;font-size:.72rem;font-weight:800;border:2px solid var(--line);}
+.asis-pasos li.actual{color:var(--text);border-color:var(--celeste-600);background:var(--celeste-50);}
+.asis-pasos li.actual span{background:var(--grad-marca);color:#fff;border-color:transparent;}
+.asis-pasos li.hecho span{background:var(--verde-50);border-color:var(--verde-500);color:var(--verde-700);}
+.asis-acciones{justify-content:space-between;align-items:center;}
+.asis-error{flex:1;text-align:center;font-size:.82rem;font-weight:600;color:var(--rojo-600);}
+.asis-etapas{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:12px;}
+@media (max-width:760px){ .asis-etapas{grid-template-columns:1fr;} .asis-pasos{flex-wrap:wrap;} }
+.asis-etapa{border:1px solid var(--line);border-radius:12px;padding:10px;}
+.asis-etapa-cab{display:flex;justify-content:space-between;align-items:center;margin-bottom:6px;font-size:.84rem;}
+.asis-ensayo{display:grid;grid-template-columns:auto 1fr;column-gap:8px;align-items:center;padding:6px 8px;border-radius:8px;cursor:pointer;font-size:.82rem;}
+.asis-ensayo small{grid-column:2;font-size:.7rem;color:var(--text-muted);}
+.asis-ensayo.on{background:var(--celeste-50);}
+.chip-edad-btn{height:30px;padding:0 12px;border-radius:999px;border:1px solid var(--line);background:var(--surface);font-weight:700;font-size:.78rem;color:var(--text-muted);}
+.chip-edad-btn.on{background:var(--celeste-600);border-color:var(--celeste-600);color:#fff;}
+.asis-otra{display:inline-flex;gap:6px;align-items:center;}
+.asis-otra input{width:80px;}
+.obj-tabla input,.obj-tabla select{width:100%;min-width:70px;}
+.asis-confirmar{display:grid;grid-template-columns:1fr 1fr;gap:14px;}
+.asis-confirmar > div{display:flex;flex-direction:column;gap:4px;padding:12px;border:1px solid var(--line);border-radius:12px;}
+.asis-confirmar > div:nth-child(n+4){grid-column:span 2;}
+.asis-conf-etapa{font-size:.82rem;margin-top:4px;}
+@media (max-width:760px){ .asis-confirmar{grid-template-columns:1fr;} .asis-confirmar > div:nth-child(n+4){grid-column:auto;} }
+html[data-theme="dark"] .aviso-ficha{background:rgba(245,158,11,.14);color:#fcd34d;}
+html[data-theme="dark"] .asis-pasos li.actual,html[data-theme="dark"] .asis-ensayo.on,html[data-theme="dark"] .radar-fila:hover{background:rgba(31,176,224,.12);}
+.exp-resumen .data-table.compacta{table-layout:fixed;width:100%;}
+.exp-resumen .data-table.compacta td:first-child{width:56px;}
+.exp-resumen .data-table.compacta td:last-child{width:44px;text-align:right;}

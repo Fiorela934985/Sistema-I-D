@@ -1,10 +1,14 @@
-/* Sistema I+D — Panel PROYECTOS: tarjetas con avance, expediente del proyecto, comparativo entre
-   iteraciones y radar de seguimiento. */
+/* Sistema I+D — Proyectos (prompt maestro, sección 6). Una sola entrada en el menú.
+   · Lista: buscador, filtros (responsable, tipo, año), Agrupar por Fecha · Estado · Responsable; tarjetas con tipo,
+     responsable, fechas, % de avance (diseños cerrados / total), diseños abiertos y próxima rotura; a la derecha el
+     radar con la etapa del flujo en la que está cada proyecto.
+   · Dentro de un proyecto: Resumen · Muestras · Diseños · Ensayos · Informes · Plan de trabajo · Archivo.
+     Diseños y Ensayos solo aparecen si el proyecto incluye esos ensayos. Los estados se calculan. */
 'use strict';
 
-var proyVista = 'lista';
 var expedienteProyecto = null;
 var expedienteTab = 'resumen';
+var expDisenosSub = 'abiertos';
 var proyCharts = {};
 function destruirProyChart(id){ if(proyCharts[id]){ proyCharts[id].destroy(); delete proyCharts[id]; } }
 
@@ -14,12 +18,10 @@ function ordenIteracion(it){
   return (m < 0 ? 99 : m) * 10 + Math.max(0, NUMERAL_ROMANO.indexOf(p.numeral));
 }
 function tagEstadoDiseno(estado){
-  var cls = estado === 'Completado' ? 'tag-verde' : (estado === 'En desarrollo' ? 'tag-naranja' : 'tag-celeste');
-  return '<span class="tag-pill '+cls+'">'+esc(estado)+'</span>';
+  return '<span class="tag-pill ' + (estado === 'Cerrado' ? 'tag-verde' : 'tag-celeste') + '">' + esc(estado) + '</span>';
 }
 function tagEstadoProyecto(estado){
-  var cls = estado === 'Completado' ? 'tag-verde' : (estado === 'En curso' ? 'tag-celeste' : 'tag-gris');
-  return '<span class="tag-pill '+cls+'">'+esc(estado)+'</span>';
+  return '<span class="tag-pill ' + (estado === 'Cerrado' ? 'tag-verde' : 'tag-celeste') + '">' + esc(estado) + '</span>';
 }
 function kpiCard(clase, icono, valor, etiqueta){
   return '<div class="kpi-card '+clase+'"><div class="kpi-icon">'+icono+'</div><div><div class="kpi-num">'+valor+'</div><div class="kpi-label">'+etiqueta+'</div></div></div>';
@@ -30,147 +32,123 @@ var ICO_DISENO = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" str
 var ICO_ALERTA = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M10.29 3.86L1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z"/><line x1="12" y1="9" x2="12" y2="13"/><line x1="12" y1="17" x2="12.01" y2="17"/></svg>';
 var ICO_RESIST = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 17l6-6 4 4 8-8"/></svg>';
 
+function nombreDe(id){ var u = id ? usuarioPorId(id) : null; return u ? (u.nombre || u.usuario) : ''; }
+function tipoDe(ficha){ var f = Lab.flujo(ficha.tipo_flujo_id); return f ? f.tipo_proyecto : '—'; }
+function rangoFechas(ficha){
+  if(!ficha.fecha_inicio && !ficha.fecha_fin) return '<span class="chip-falta">Falta: fechas</span>';
+  return esc(ficha.fecha_inicio ? isoToDMY(ficha.fecha_inicio) : '?') + ' – ' + esc(ficha.fecha_fin ? isoToDMY(ficha.fecha_fin) : '?');
+}
+
 /* ================= LISTA DE PROYECTOS ================= */
+function fichasFiltradas(){
+  var txt = normalizar(document.getElementById('proy-buscar').value);
+  var resp = document.getElementById('proy-f-responsable').value;
+  var tipo = document.getElementById('proy-f-tipo').value;
+  var anio = document.getElementById('proy-f-anio').value;
+  return fichasProyecto.filter(function(f){
+    if(f.anulado) return false;
+    if(txt && normalizar(f.nombre + ' ' + f.codigo).indexOf(txt) === -1) return false;
+    if(resp && f.responsable_id !== resp) return false;
+    if(tipo && f.tipo_flujo_id !== tipo) return false;
+    if(anio && String(f.fecha_inicio || f.creado_en || '').slice(0, 4) !== anio) return false;
+    return true;
+  });
+}
+function poblarFiltrosProyectos(){
+  var selR = document.getElementById('proy-f-responsable'), vR = selR.value;
+  var resp = {}; fichasProyecto.forEach(function(f){ if(f.responsable_id) resp[f.responsable_id] = nombreDe(f.responsable_id); });
+  selR.innerHTML = '<option value="">Todos los responsables</option>' + Object.keys(resp).map(function(id){ return '<option value="'+esc(id)+'"'+(id===vR?' selected':'')+'>'+esc(resp[id])+'</option>'; }).join('');
+  var selT = document.getElementById('proy-f-tipo'), vT = selT.value;
+  selT.innerHTML = '<option value="">Todos los tipos</option>' + Lab.flujos(false).map(function(f){ return '<option value="'+esc(f.id)+'"'+(f.id===vT?' selected':'')+'>'+esc(f.tipo_proyecto)+'</option>'; }).join('');
+  var selA = document.getElementById('proy-f-anio'), vA = selA.value;
+  var anios = {}; fichasProyecto.forEach(function(f){ var a = String(f.fecha_inicio || f.creado_en || '').slice(0, 4); if(/^\d{4}$/.test(a)) anios[a] = true; });
+  selA.innerHTML = '<option value="">Todos los años</option>' + Object.keys(anios).sort().reverse().map(function(a){ return '<option'+(a===vA?' selected':'')+'>'+a+'</option>'; }).join('');
+}
 function renderProyectosPanel(){
+  asegurarFichas();
   if(expedienteProyecto){ renderExpediente(); return; }
   document.getElementById('proy-vista-principal').style.display = 'block';
   document.getElementById('proy-expediente').style.display = 'none';
-  var metricas = metricasTodosLosProyectos();
-  var enCurso = metricas.filter(function(m){ return m.estado === 'En curso'; }).length;
-  var totalDis = metricas.reduce(function(a,m){ return a + m.nDisenos; }, 0);
-  var vencidas = metricas.reduce(function(a,m){ return a + m.vencidas; }, 0);
-  document.getElementById('proy-kpis').innerHTML =
-    kpiCard('kpi-naranja', ICO_CARPETA, metricas.length, 'Proyectos registrados') +
-    kpiCard('kpi-verde', ICO_ACTIVO, enCurso, 'Proyectos en curso') +
-    kpiCard('kpi-negro', ICO_DISENO, totalDis, 'Diseños en total') +
-    kpiCard('kpi-rojo', ICO_ALERTA, vencidas, 'Roturas vencidas');
-  document.getElementById('proy-vista-lista').style.display = proyVista === 'lista' ? 'block' : 'none';
-  document.getElementById('proy-vista-radar').style.display = proyVista === 'radar' ? 'block' : 'none';
-  if(proyVista === 'lista') renderProyGrid(metricas); else renderRadar(metricas);
+  poblarFiltrosProyectos();
+  renderListaProyectos();
 }
-function renderProyGrid(metricas){
-  var txt = normalizar(document.getElementById('proy-buscar').value);
-  var est = document.getElementById('proy-filtro-estado').value;
-  var orden = document.getElementById('proy-orden').value;
-  var lista = metricas.filter(function(m){
-    if(txt && normalizar(m.nombre).indexOf(txt) === -1) return false;
-    if(est && m.estado !== est) return false;
-    return true;
-  });
-  lista.sort(function(a,b){
-    if(orden === 'nombre') return a.nombre.localeCompare(b.nombre);
-    if(orden === 'avance') return b.avancePct - a.avancePct;
-    if(orden === 'disenos') return b.nDisenos - a.nDisenos;
-    return b.ultimaActividad - a.ultimaActividad;
-  });
-  var grid = document.getElementById('proy-grid');
-  if(!lista.length){ grid.innerHTML = '<div class="empty-note">No hay proyectos con ese filtro.</div>'; return; }
-  grid.innerHTML = lista.map(function(m){
-    return '<article class="proy-card" data-proy="'+esc(m.nombre)+'">' +
-      '<div class="pc-head"><h4>'+esc(m.nombre)+'</h4>'+tagEstadoProyecto(m.estado)+'</div>' +
-      '<div class="pc-stats">' +
-        '<div><b>'+m.nDisenos+'</b><span>Diseños</span></div>' +
-        '<div><b>'+m.iteraciones.length+'</b><span>Iteraciones</span></div>' +
-        '<div><b>'+m.cargasCompletas+'/'+m.cargas.length+'</b><span>Roturas</span></div>' +
-        '<div><b>'+(isFinite(m.resistMax) ? fmt(m.resistMax,0) : '-')+'</b><span>Máx. kg/cm²</span></div>' +
-      '</div>' +
-      '<div class="pc-bar"><div class="pc-bar-fill" style="width:'+m.avancePct+'%"></div></div>' +
-      '<div class="pc-meta"><span>'+m.avancePct+'% diseños completados</span>' +
-        (m.vencidas ? '<span class="pc-alerta">'+m.vencidas+' vencida'+(m.vencidas===1?'':'s')+'</span>' :
-          (m.proximaRotura ? '<span>Próx. rotura '+isoToDMY(m.proximaRotura)+'</span>' : '<span>Sin roturas pendientes</span>')) +
-      '</div>' +
-      '<div class="pc-foot"><span class="mono">'+(m.ultimaActividad ? 'Actividad ' + hace(m.ultimaActividad) : 'Sin actividad')+'</span>' +
-        '<button class="btn-add" data-abrir-exp="'+esc(m.nombre)+'">Abrir expediente →</button></div>' +
-    '</article>';
-  }).join('');
+function tarjetaProyectoHtml(f){
+  var r = resumenProyecto(f);
+  var prox = r.proximaRotura;
+  return '<article class="proy-card" data-proy="'+esc(f.nombre)+'" tabindex="0">' +
+    '<div class="pc-head"><div><h4>'+esc(f.nombre)+'</h4><span class="pc-codigo mono">'+esc(f.codigo || '')+' · '+esc(tipoDe(f))+'</span></div>'+tagEstadoProyecto(r.estado)+'</div>' +
+    '<div class="pc-datos"><span>'+(f.responsable_id ? esc(nombreDe(f.responsable_id)) : '<span class="chip-falta">Falta: responsable</span>')+'</span><span>'+rangoFechas(f)+'</span></div>' +
+    '<div class="pc-bar"><div class="pc-bar-fill" style="width:'+r.avancePct+'%"></div></div>' +
+    '<div class="pc-meta"><span><b>'+r.avancePct+'%</b> · '+r.cerrados+'/'+r.disenos.length+' diseños cerrados</span><span>'+r.abiertos.length+' abierto'+(r.abiertos.length===1?'':'s')+'</span></div>' +
+    '<div class="pc-meta">' + (r.atrasadas ? '<span class="chip-falta atrasado">'+r.atrasadas+' rotura'+(r.atrasadas===1?'':'s')+' atrasada'+(r.atrasadas===1?'':'s')+'</span>' :
+      (prox ? '<span>Próxima rotura: <b>'+prox.dia+'d</b> el '+isoToDMY(prox.fechaEnsayo)+'</span>' : '<span class="nota-sm">Sin roturas pendientes</span>')) + '</div>' +
+  '</article>';
 }
-['proy-buscar','proy-filtro-estado','proy-orden'].forEach(function(id){
-  document.getElementById(id).addEventListener(id === 'proy-buscar' ? 'input' : 'change', function(){ renderProyGrid(metricasTodosLosProyectos()); });
+function renderListaProyectos(){
+  var lista = fichasFiltradas();
+  var modo = document.getElementById('proy-agrupar').value;
+  var grupos = {}, orden = [];
+  var meses = ['Enero','Febrero','Marzo','Abril','Mayo','Junio','Julio','Agosto','Septiembre','Octubre','Noviembre','Diciembre'];
+  lista.forEach(function(f){
+    var clave, etiqueta;
+    if(modo === 'estado'){ var e = resumenProyecto(f).estado; clave = e === 'Abierto' ? '0' : '1'; etiqueta = e === 'Abierto' ? 'Abiertos' : 'Cerrados'; }
+    else if(modo === 'responsable'){ clave = f.responsable_id ? nombreDe(f.responsable_id) : '~'; etiqueta = f.responsable_id ? nombreDe(f.responsable_id) : 'Sin responsable'; }
+    else { var fe = f.fecha_inicio || ''; clave = fe ? fe.slice(0, 7) : '0000'; etiqueta = fe ? meses[Number(fe.slice(5, 7)) - 1] + ' ' + fe.slice(0, 4) : 'Sin fecha de inicio'; }
+    if(!grupos[clave]){ grupos[clave] = {etiqueta:etiqueta, items:[]}; orden.push(clave); }
+    grupos[clave].items.push(f);
+  });
+  orden.sort(); if(modo === 'fecha') orden.reverse();
+  document.getElementById('proy-grupos').innerHTML = lista.length ? orden.map(function(k){
+    var g = grupos[k];
+    g.items.sort(function(a,b){ return (b.fecha_inicio || '').localeCompare(a.fecha_inicio || '') || a.nombre.localeCompare(b.nombre); });
+    return '<div class="proy-grupo"><div class="proy-grupo-cab">'+esc(g.etiqueta)+' <span class="col-count-badge suave">'+g.items.length+'</span></div><div class="proy-grid">' + g.items.map(tarjetaProyectoHtml).join('') + '</div></div>';
+  }).join('') : '<div class="empty-note">No hay proyectos con ese filtro.</div>';
+  renderRadarEtapas(lista);
+}
+/* Radar: en qué etapa del flujo está cada proyecto */
+function renderRadarEtapas(lista){
+  var filas = lista.map(function(f){ return {f:f, e:etapaProyecto(f), r:resumenProyecto(f)}; })
+    .sort(function(a,b){ return (a.e.cerrado - b.e.cerrado) || (b.r.atrasadas - a.r.atrasadas) || a.f.nombre.localeCompare(b.f.nombre); });
+  document.getElementById('proy-radar').innerHTML = filas.length ? filas.map(function(x){
+    var actual = x.e.pasos[x.e.indice];
+    return '<div class="radar-fila" data-proy="'+esc(x.f.nombre)+'" title="Abrir el proyecto"><div class="rf-top"><b>'+esc(x.f.nombre)+'</b><span class="rf-etapa'+(x.e.cerrado?' ok':'')+'">'+(x.e.cerrado ? 'Cerrado' : esc(actual ? actual.nombre : '—'))+'</span></div>' +
+      '<ol class="rf-pasos">' + x.e.pasos.map(function(p, i){
+        var cls = x.e.cerrado || i < x.e.indice ? 'hecho' : (i === x.e.indice ? 'actual' + (x.r.atrasadas && p.id === 'endurecido' ? ' atrasado' : '') : '');
+        return '<li class="'+cls+'" title="'+esc(p.nombre)+'"></li>';
+      }).join('') + '</ol></div>';
+  }).join('') : '<p class="nota-sm">Sin proyectos.</p>';
+}
+['proy-buscar','proy-f-responsable','proy-f-tipo','proy-f-anio','proy-agrupar'].forEach(function(id){
+  document.getElementById(id).addEventListener(id === 'proy-buscar' ? 'input' : 'change', renderListaProyectos);
 });
-document.getElementById('proy-grid').addEventListener('click', function(e){
-  var card = e.target.closest('[data-abrir-exp], .proy-card');
-  if(!card) return;
-  abrirExpediente(card.dataset.abrirExp || card.dataset.proy);
+document.getElementById('proy-vista-principal').addEventListener('click', function(e){
+  var card = e.target.closest('[data-proy]');
+  if(card) abrirExpediente(card.dataset.proy);
 });
-document.getElementById('proy-vista-toggle').addEventListener('click', function(e){
-  var btn = e.target.closest('.view-toggle-btn');
-  if(!btn) return;
-  proyVista = btn.dataset.vista;
-  document.querySelectorAll('#proy-vista-toggle .view-toggle-btn').forEach(function(b){ b.classList.toggle('active', b === btn); });
-  renderProyectosPanel();
-});
-document.getElementById('proy-nuevo-btn').addEventListener('click', function(){
-  if(!exigir('proyectos:editar')) return;
-  showPanel('componentes');
-  activeCompCat = 'Proyecto';
-  renderComponentesPanel();
-  setTimeout(function(){ document.getElementById('proy-nombre').focus(); }, 50);
+document.getElementById('proy-vista-principal').addEventListener('keydown', function(e){
+  if(e.key === 'Enter'){ var card = e.target.closest('[data-proy]'); if(card) abrirExpediente(card.dataset.proy); }
 });
 
-/* ================= RADAR DE PROYECTOS ================= */
-var radarSeleccion = null;
-function renderRadar(metricas){
-  var conDatos = metricas.filter(function(m){ return m.nDisenos > 0; });
-  if(!radarSeleccion){
-    radarSeleccion = conDatos.slice().sort(function(a,b){ return b.nDisenos - a.nDisenos; }).slice(0,4).map(function(m){ return m.nombre; });
-  }
-  document.getElementById('radar-picker').innerHTML = conDatos.map(function(m){
-    var on = radarSeleccion.indexOf(m.nombre) > -1;
-    return '<label class="chip-check'+(on?' on':'')+'"><input type="checkbox" data-radar="'+esc(m.nombre)+'"'+(on?' checked':'')+'> '+esc(m.nombre)+'</label>';
-  }).join('') || '<span class="nota-sm">Todavía no hay proyectos con diseños.</span>';
-  var ejes = ejesRadar(conDatos).filter(function(x){ return radarSeleccion.indexOf(x.nombre) > -1; });
-  destruirProyChart('radar');
-  if(typeof Chart !== 'undefined'){
-    proyCharts.radar = new Chart(document.getElementById('chart-radar-proyectos'), {
-      type:'radar',
-      data:{labels:EJES_RADAR, datasets: ejes.map(function(x, i){
-        var col = PALETA[i % PALETA.length];
-        return {label:x.nombre, data:x.valores, borderColor:col, backgroundColor:col+'26', pointBackgroundColor:col, borderWidth:2};
-      })},
-      options:{responsive:true, maintainAspectRatio:false, scales:{r:{min:0, max:100, ticks:{stepSize:25, display:false}, pointLabels:{font:{size:12, weight:'600'}}}},
-        plugins:{legend:{position:'bottom', labels:{boxWidth:10}}}}
-    });
-  }
-  var filas = metricas.slice().sort(function(a,b){ return (b.vencidas - a.vencidas) || (b.cargasPendientes - a.cargasPendientes); });
-  document.getElementById('radar-tabla').innerHTML =
-    '<thead><tr><th></th><th>Proyecto</th><th>Diseños</th><th>En desarrollo</th><th>Roturas pend.</th><th>Vencidas</th><th>Próxima rotura</th><th>Avance</th></tr></thead><tbody>' +
-    filas.map(function(m){
-      var sem = m.vencidas ? 'rojo' : (m.cargasPendientes ? 'naranja' : 'verde');
-      if(!m.nDisenos) sem = 'gris';
-      return '<tr class="fila-click" data-abrir-exp="'+esc(m.nombre)+'"><td><span class="semaforo-dot semaforo-'+sem+'"></span></td><td><b>'+esc(m.nombre)+'</b></td>' +
-        '<td>'+m.nDisenos+'</td><td>'+m.enDesarrollo+'</td><td>'+m.cargasPendientes+'</td><td>'+(m.vencidas?'<b class="txt-rojo">'+m.vencidas+'</b>':'0')+'</td>' +
-        '<td>'+(m.proximaRotura ? isoToDMY(m.proximaRotura) : '-')+'</td><td><div class="mini-bar"><div style="width:'+m.avancePct+'%"></div></div> '+m.avancePct+'%</td></tr>';
-    }).join('') + '</tbody>';
-}
-document.getElementById('radar-picker').addEventListener('change', function(e){
-  var nombre = e.target.dataset.radar;
-  if(!nombre) return;
-  if(e.target.checked){
-    if(radarSeleccion.length >= 6){ e.target.checked = false; toast('Máximo 6 proyectos en el radar'); return; }
-    radarSeleccion.push(nombre);
-  } else {
-    radarSeleccion = radarSeleccion.filter(function(x){ return x !== nombre; });
-  }
-  renderRadar(metricasTodosLosProyectos());
-});
-document.getElementById('radar-tabla').addEventListener('click', function(e){
-  var tr = e.target.closest('[data-abrir-exp]');
-  if(tr) abrirExpediente(tr.dataset.abrirExp);
-});
-
-/* ================= EXPEDIENTE DEL PROYECTO ================= */
+/* ================= DENTRO DE UN PROYECTO ================= */
 var EXP_TABS = [
   {id:'resumen', label:'Resumen'},
-  {id:'resultados', label:'Resultados'},
-  {id:'comparativo', label:'Comparativo de iteraciones'},
-  {id:'evidencias', label:'Evidencias'},
-  {id:'reportes', label:'Reportes'},
-  {id:'historial', label:'Historial'}
+  {id:'muestras', label:'Muestras'},
+  {id:'disenos', label:'Diseños', requiere:['diseno']},
+  {id:'ensayos', label:'Ensayos', requiere:['fresco','endurecido']},
+  {id:'informes', label:'Informes'},
+  {id:'plan', label:'Plan de trabajo'},
+  {id:'archivo', label:'Archivo'}
 ];
+/* Nombres viejos de pestañas que todavía usan otros módulos */
+var EXP_TAB_ALIAS = {resultados:'ensayos', comparativo:'ensayos', evidencias:'muestras', reportes:'informes', historial:'resumen'};
+function tabsDeProyecto(ficha){
+  var et = etapasDelChecklist(ficha);
+  return EXP_TABS.filter(function(t){ return !t.requiere || t.requiere.some(function(x){ return et[x]; }); });
+}
 function abrirExpediente(nombre, tab){
   if(!nombre){ toast('El diseño no tiene proyecto asignado'); return; }
   expedienteProyecto = nombre;
-  expedienteTab = tab || 'resumen';
+  expedienteTab = EXP_TAB_ALIAS[tab] || tab || 'resumen';
   if(panelActual !== 'proyectos') showPanel('proyectos'); else renderExpediente();
 }
 function cerrarExpediente(){
@@ -185,79 +163,141 @@ function rrDeProyecto(nombre, lista){
   });
 }
 function renderExpediente(){
-  var nombre = expedienteProyecto;
-  var m = metricasProyecto(nombre);
+  var ficha = fichaDeProyecto(expedienteProyecto);
+  if(!ficha){ expedienteProyecto = null; renderProyectosPanel(); return; }
+  var r = resumenProyecto(ficha);
+  var tabs = tabsDeProyecto(ficha);
+  if(!tabs.some(function(t){ return t.id === expedienteTab; })) expedienteTab = 'resumen';
   document.getElementById('proy-vista-principal').style.display = 'none';
   var wrap = document.getElementById('proy-expediente');
   wrap.style.display = 'block';
-  var nEvid = evidenciasDeProyecto(nombre).length;
-  var nRR = rrDeProyecto(nombre, m.disenos).length;
+  var cuenta = {disenos:r.disenos.length, archivo:r.cerrados, informes:rrDeProyecto(ficha.nombre, r.disenos).length};
   wrap.innerHTML =
-    '<button class="comp-back" id="exp-volver">← Volver a proyectos</button>' +
+    '<button class="comp-back" id="exp-volver">← Todos los proyectos</button>' +
     '<div class="exp-header">' +
-      '<div><span class="exp-kicker">Expediente del proyecto</span><h2>'+esc(nombre)+'</h2>' +
-        '<div class="exp-sub">'+tagEstadoProyecto(m.estado)+' <span>'+m.iteraciones.length+' iteraciones · '+m.nDisenos+' diseños · '+(m.ultimaActividad ? 'actividad ' + hace(m.ultimaActividad) : 'sin actividad')+'</span></div></div>' +
+      '<div><span class="exp-kicker">'+esc(ficha.codigo || '')+' · '+esc(tipoDe(ficha))+'</span><h2>'+esc(ficha.nombre)+'</h2>' +
+        '<div class="exp-sub">'+tagEstadoProyecto(r.estado)+' <span>'+(ficha.responsable_id ? 'Responsable: ' + esc(nombreDe(ficha.responsable_id)) : '<span class="chip-falta">Falta: responsable</span>')+' · '+rangoFechas(ficha)+' · '+r.avancePct+'% de avance</span></div></div>' +
       '<div class="ch-actions">' +
-        '<button class="btn-add ghost" id="exp-evidencia" data-perm="evidencias:subir">'+CAMERA_ICON+' Subir evidencia</button>' +
-        '<button class="btn-add ghost" data-ver-indicadores title="KPIs y gráficos de este proyecto (paso 7)">'+CHART_ICON+' Indicadores</button>' +
-        '<button class="btn-add ghost" id="exp-exportar" data-perm="datos:exportar">Exportar expediente</button>' +
-        '<button class="btn-add" id="exp-nuevo-diseno" data-perm="disenos:crear">+ Diseño en este proyecto</button>' +
+        '<button class="btn-add ghost" id="exp-editar" data-perm="proyectos:editar">'+EDIT_ICON+' Editar proyecto</button>' +
+        '<button class="btn-add ghost" data-ver-indicadores>'+CHART_ICON+' Indicadores</button>' +
+        '<button class="btn-add ghost" id="exp-exportar" data-perm="datos:exportar">Exportar</button>' +
+        (etapasDelChecklist(ficha).diseno ? '<button class="btn-add" id="exp-nuevo-diseno" data-perm="disenos:crear">+ Diseño en este proyecto</button>' : '') +
       '</div>' +
     '</div>' +
-    '<div class="kpi-grid">' +
-      kpiCard('kpi-naranja', ICO_DISENO, m.completados + '/' + m.nDisenos, 'Diseños completados') +
-      kpiCard('kpi-verde', ICO_ACTIVO, m.roturasPct + '%', 'Roturas registradas ('+m.cargasCompletas+'/'+m.cargas.length+')') +
-      kpiCard('kpi-negro', ICO_RESIST, isFinite(m.resistMax) ? fmt(m.resistMax,0) : '-', 'Resistencia máx. (kg/cm²)') +
-      kpiCard('kpi-rojo', ICO_ALERTA, m.vencidas, 'Roturas vencidas') +
-    '</div>' +
-    '<div class="roturas-subtabs exp-tabs">' + EXP_TABS.map(function(t){
-      var extra = t.id === 'evidencias' ? ' <span class="col-count-badge suave">'+nEvid+'</span>' : (t.id === 'reportes' ? ' <span class="col-count-badge suave">'+nRR+'</span>' : '');
-      return '<button class="subtab'+(t.id===expedienteTab?' active':'')+'" data-exp-tab="'+t.id+'">'+t.label+extra+'</button>';
+    (ficha.migrado ? '<div class="aviso-ficha">Este proyecto venía de la versión anterior: se le asignó el flujo de Concreto. Completá su ficha con <b>Editar proyecto</b>.</div>' : '') +
+    '<div class="roturas-subtabs exp-tabs">' + tabs.map(function(t){
+      return '<button class="subtab'+(t.id===expedienteTab?' active':'')+'" data-exp-tab="'+t.id+'">'+t.label+(cuenta[t.id] !== undefined ? ' <span class="col-count-badge suave">'+cuenta[t.id]+'</span>' : '')+'</button>';
     }).join('') + '</div>' +
     '<div id="exp-contenido"></div>';
-  renderExpedienteTab(m);
+  renderExpedienteTab(ficha, r);
 }
-function renderExpedienteTab(m){
-  Object.keys(proyCharts).forEach(function(k){ if(k !== 'radar') destruirProyChart(k); });
+function renderExpedienteTab(ficha, r){
+  Object.keys(proyCharts).forEach(destruirProyChart);
   var c = document.getElementById('exp-contenido');
-  if(expedienteTab === 'resumen') c.innerHTML = expResumenHtml(m);
-  else if(expedienteTab === 'resultados'){ c.innerHTML = expResultadosHtml(m); dibujarExpResultados(m); }
-  else if(expedienteTab === 'comparativo'){ c.innerHTML = '<div id="cmp-wrap"></div>'; renderComparativo(m); }
-  else if(expedienteTab === 'evidencias'){
-    c.innerHTML = '<div class="card"><div class="ev-toolbar"><span></span>' +
-      '<button class="btn-add" id="exp-evidencia-2" data-perm="evidencias:subir">+ Subir evidencia</button></div><div id="exp-galeria">'+galeriaEvidenciasHtml(evidenciasDeProyecto(m.nombre))+'</div></div>';
-    cargarMiniaturas(c);
-  }
-  else if(expedienteTab === 'reportes') c.innerHTML = expReportesHtml(m);
-  else if(expedienteTab === 'historial') c.innerHTML = expHistorialHtml(m);
+  var m = metricasProyecto(ficha.nombre);
+  if(expedienteTab === 'resumen') c.innerHTML = expResumenHtml(ficha, r);
+  else if(expedienteTab === 'muestras'){ c.innerHTML = expMuestrasHtml(ficha, r); cargarMiniaturas(c); }
+  else if(expedienteTab === 'disenos') c.innerHTML = expDisenosHtml(ficha, r);
+  else if(expedienteTab === 'ensayos'){ c.innerHTML = expFrescoHtml(r) + expResultadosHtml(m) + '<div id="cmp-wrap" style="margin-top:16px;"></div>'; dibujarExpResultados(m); renderComparativo(m); }
+  else if(expedienteTab === 'informes') c.innerHTML = expReportesHtml(m);
+  else if(expedienteTab === 'plan') c.innerHTML = '<div class="card fase-card"><div class="section-num">Plan de trabajo <span class="fase-chip">Fase 5</span></div><ul class="fase-lista">' +
+    '<li>Gantt del proyecto con etapas e ítems, responsables y recursos del inventario (solo reserva).</li>' +
+    '<li>Subir un plan existente (PDF, PPTX, XLSX) y exportar a PPTX y PDF con la plantilla Plan_de_Trabajo_SSCC_2026.</li></ul></div>';
+  else if(expedienteTab === 'archivo') c.innerHTML = expArchivoHtml(ficha, r);
 }
-function expResumenHtml(m){
-  if(!m.nDisenos) return '<div class="empty-note">Este proyecto todavía no tiene diseños. Usá "+ Diseño en este proyecto" para empezar.</div>';
-  var porIter = {};
-  m.disenos.forEach(function(d){ (porIter[d.iteracionId || 'Sin iteración'] = porIter[d.iteracionId || 'Sin iteración'] || []).push(d); });
-  var iters = Object.keys(porIter).sort(function(a,b){ return ordenIteracion(a) - ordenIteracion(b); });
-  return '<div class="exp-timeline">' + iters.map(function(it){
-    var lista = porIter[it];
-    var comp = lista.filter(function(d){ return d.estado === 'Completado'; }).length;
-    return '<div class="exp-iter">' +
-      '<div class="exp-iter-head"><span class="exp-iter-dot"></span><h4>'+esc(it)+'</h4><span class="nota-sm">'+lista.length+' diseño'+(lista.length===1?'':'s')+' · '+comp+' completado'+(comp===1?'':'s')+'</span></div>' +
-      '<div class="table-scroll"><table class="data-table"><thead><tr><th></th><th>Código</th><th>Diseño</th><th>Fecha</th><th>a/mc</th><th>Roturas</th><th>Máx. kg/cm²</th><th>Estado</th><th></th></tr></thead><tbody>' +
-      lista.map(function(d){
-        var cs = cargasDeDiseno(d), ok = cs.filter(function(c){ return c.estado === 'completado'; }).length;
-        var rm = resistenciaMaxima(d);
-        return '<tr><td>'+semaforoDotHtml(semaforoDiseno(d))+'</td><td class="mono">'+esc(d.codigo)+'</td><td><b>'+esc(diseñoTitulo(d))+'</b></td><td>'+esc(d.fecha||'-')+'</td>' +
-          '<td>'+esc(d.amcEfectiva||'-')+'</td><td>'+ok+'/'+cs.length+'</td><td>'+(isFinite(rm)?fmt(rm,1):'-')+'</td><td>'+tagEstadoDiseno(d.estado)+'</td>' +
-          '<td class="acciones-fila"><button class="btn-icon" data-exp-act="view" data-codigo="'+esc(d.codigo)+'" title="Ver diseño">'+EYE_ICON+'</button>' +
-          '<button class="btn-icon" data-exp-act="informe" data-codigo="'+esc(d.codigo)+'" title="Informe">'+CHART_ICON+'</button>' +
-          '<button class="btn-icon" data-exp-act="etiquetas" data-codigo="'+esc(d.codigo)+'" title="Etiquetas">'+TAG_ICON+'</button></td></tr>';
-      }).join('') + '</tbody></table></div></div>';
-  }).join('') + '</div>';
+
+/* ---- Resumen ---- */
+function expResumenHtml(ficha, r){
+  var ensayos = ficha.ensayos.map(Lab.ensayo).filter(Boolean);
+  var obj = ficha.objetivos || [];
+  var objHtml = obj.length ? '<ul class="obj-lista">' + obj.map(function(o){
+    var c = cumplimientoObjetivo(o, r.disenos);
+    var tag = c.estado === 'cumple' ? '<span class="tag-pill tag-verde">Cumple</span>' : c.estado === 'no-cumple' ? '<span class="tag-pill tag-rojo">No cumple</span>' : '<span class="tag-pill tag-gris">Sin datos</span>';
+    return '<li>'+tag+' <span>'+esc(textoObjetivo(o))+'</span>'+(isFinite(c.valor) ? ' <b class="mono">→ '+fmt(c.valor, 1)+'</b>' : '')+'</li>';
+  }).join('') + '</ul>' : '<p class="nota-sm">Sin objetivos. <span class="chip-falta">Falta: objetivos</span></p>';
+  var prox = r.pendientes.slice(0, 5);
+  var movs = historialDeProyecto(ficha.nombre).slice(0, 5);
+  return '<div class="exp-resumen">' +
+    '<div class="card"><div class="section-num">Objetivos y cumplimiento</div>'+objHtml+'</div>' +
+    '<div class="card"><div class="section-num">Avance</div><div class="avance-grande"><b>'+r.avancePct+'%</b><span>'+r.cerrados+' de '+r.disenos.length+' diseños cerrados</span></div>' +
+      '<div class="pc-bar"><div class="pc-bar-fill" style="width:'+r.avancePct+'%"></div></div>' +
+      '<p class="nota-sm">'+r.abiertos.length+' abiertos'+(r.atrasadas ? ' · <span class="txt-rojo">'+r.atrasadas+' roturas atrasadas</span>' : '')+'</p></div>' +
+    '<div class="card"><div class="section-num">Responsables</div><p><b>'+(ficha.responsable_id ? esc(nombreDe(ficha.responsable_id)) : '—')+'</b> <span class="nota-sm">responsable</span></p>' +
+      '<div class="chips-fila">'+((ficha.equipo || []).map(function(id){ return '<span class="chip-campo">'+esc(nombreDe(id))+'</span>'; }).join('') || '<span class="nota-sm">Sin equipo asignado</span>')+'</div>' +
+      '<p class="nota-sm" style="margin-top:8px;">'+ensayos.length+' ensayos elegidos · edades de rotura: '+(ficha.edades || []).map(function(d){ return d + ' d'; }).join(', ')+'</p></div>' +
+    '<div class="card"><div class="section-num">Próximas fechas</div>' + (prox.length ? '<table class="data-table compacta"><tbody>' + prox.map(function(c){
+      var atr = c.fechaEnsayo < todayISO();
+      return '<tr title="'+esc(c.codigo || '')+'"><td class="mono'+(atr?' txt-rojo':'')+'">'+isoToDMY(c.fechaEnsayo).slice(0,5)+'</td><td class="celda-larga">'+esc(c.producto || c.replicaNombre)+'</td><td>'+c.dia+' d</td></tr>';
+    }).join('') + '</tbody></table>' : '<p class="nota-sm">Sin roturas pendientes.</p>') + '</div>' +
+    '<div class="card exp-movs"><div class="section-num">Últimos movimientos</div>' + (movs.length ? '<ul class="mov-lista">' + movs.map(function(h){
+      return '<li><span class="mono">'+fechaHora(h.ts)+'</span> <b>'+esc(h.usuario)+'</b> '+esc(h.accion.toLowerCase())+' '+esc(h.entidad.toLowerCase())+(h.detalle ? ': '+esc(h.detalle) : '')+(h.motivo ? ' <span class="nota-sm">('+esc(h.motivo)+')</span>' : '')+'</li>';
+    }).join('') + '</ul>' : '<p class="nota-sm">Sin movimientos.</p>') + '</div>' +
+  '</div>';
+}
+
+/* ---- Muestras: probetas y cubos con su código, y evidencias ---- */
+function expMuestrasHtml(ficha, r){
+  var codigos = {}; r.disenos.forEach(function(d){ codigos[d.codigo] = true; });
+  var porCodigo = {};
+  roturaCargas.filter(function(c){ return codigos[c.disenoCodigoDiseno] || c.proyecto === ficha.nombre; }).forEach(function(c){
+    var k = c.codigo || c.replicaNombre;
+    if(!porCodigo[k]) porCodigo[k] = {codigo:c.codigo, producto:c.producto || c.replicaNombre, tipo:c.tipo, elab:c.fechaElaboracion, hora:c.horaElaboracion, edades:[], hechas:0};
+    porCodigo[k].edades.push(c.dia);
+    if(c.estado === 'completado') porCodigo[k].hechas++;
+  });
+  var filas = Object.keys(porCodigo).map(function(k){ return porCodigo[k]; }).sort(function(a,b){ return String(a.codigo).localeCompare(String(b.codigo)); });
+  return '<div class="card"><div class="section-num">Probetas y cubos <span class="fase-chip">Etiquetas QR en la Fase 3</span></div>' +
+    (filas.length ? '<div class="table-scroll"><table class="data-table"><thead><tr><th>Código</th><th>Producto</th><th>Tipo</th><th>Elaboración</th><th>Edades</th><th>Roturas</th></tr></thead><tbody>' + filas.map(function(m){
+      return '<tr><td class="mono"><b>'+esc(m.codigo || '—')+'</b></td><td>'+esc(m.producto)+'</td><td>'+esc(m.tipo || '')+'</td><td>'+(m.elab ? isoToDMY(m.elab) : '—')+(m.hora ? ' '+esc(m.hora) : ' <span class="chip-falta">Falta: hora</span>')+'</td>' +
+        '<td>'+m.edades.sort(function(a,b){ return a-b; }).map(function(d){ return '<span class="chip-edad">'+d+' d</span>'; }).join('')+'</td><td>'+m.hechas+'/'+m.edades.length+'</td></tr>';
+    }).join('') + '</tbody></table></div>' : '<p class="nota-sm">Todavía no hay especímenes elaborados en este proyecto.</p>') + '</div>' +
+    '<div class="card" style="margin-top:16px;"><div class="ev-toolbar"><span class="section-num" style="margin:0;">Evidencias fotográficas</span>' +
+      '<button class="btn-add" id="exp-evidencia-2" data-perm="evidencias:subir">'+CAMERA_ICON+' Subir evidencia</button></div><div id="exp-galeria">'+galeriaEvidenciasHtml(evidenciasDeProyecto(ficha.nombre))+'</div></div>';
+}
+
+/* ---- Diseños: Abiertos y Cerrados, con chips de "Falta" y semáforo ---- */
+function filaDisenoHtml(d){
+  var rm = resistenciaMaxima(d);
+  return '<tr><td>'+semaforoDotHtml(semaforoChecklist(d))+'</td><td class="mono">'+esc(d.codigo)+'</td><td><b class="nombre-tecnico">'+esc(diseñoTitulo(d))+'</b><div class="chips-fila">'+chipsFaltaHtml(d)+'</div></td>' +
+    '<td>'+esc(d.iteracionId || '—')+'</td><td>'+esc(d.fecha || '—')+'</td><td>'+(isFinite(rm) ? fmt(rm, 1) : '—')+'</td>' +
+    '<td class="acciones-fila"><button class="btn-icon" data-exp-act="view" data-codigo="'+esc(d.codigo)+'" title="Ver diseño">'+EYE_ICON+'</button>' +
+    '<button class="btn-icon" data-exp-act="resultados" data-codigo="'+esc(d.codigo)+'" data-perm="resultados:registrar" title="Estado fresco">'+RESULTS_ICON+'</button>' +
+    '<button class="btn-icon" data-exp-act="informe" data-codigo="'+esc(d.codigo)+'" title="Informe">'+CHART_ICON+'</button>' +
+    '<button class="btn-icon" data-exp-act="etiquetas" data-codigo="'+esc(d.codigo)+'" title="Etiquetas">'+TAG_ICON+'</button></td></tr>';
+}
+function tablaDisenosHtml(lista, vacio){
+  if(!lista.length) return '<div class="empty-note">'+vacio+'</div>';
+  lista = lista.slice().sort(function(a,b){ return ordenIteracion(b.iteracionId) - ordenIteracion(a.iteracionId) || (b.ts||0) - (a.ts||0); });
+  return '<div class="table-scroll"><table class="data-table"><thead><tr><th></th><th>Código</th><th>Diseño</th><th>Iteración</th><th>Fecha</th><th>Máx. kg/cm²</th><th></th></tr></thead><tbody>' +
+    lista.map(filaDisenoHtml).join('') + '</tbody></table></div>';
+}
+function expDisenosHtml(ficha, r){
+  var cerrados = r.disenos.filter(function(d){ return estadoCalculado(d) === 'Cerrado'; });
+  return '<div class="card"><div class="ev-toolbar"><div class="view-toggle" id="exp-dis-sub">' +
+      '<button class="view-toggle-btn'+(expDisenosSub==='abiertos'?' active':'')+'" data-dis-sub="abiertos">Abiertos ('+r.abiertos.length+')</button>' +
+      '<button class="view-toggle-btn'+(expDisenosSub==='cerrados'?' active':'')+'" data-dis-sub="cerrados">Cerrados ('+cerrados.length+')</button></div></div>' +
+    (expDisenosSub === 'abiertos' ? tablaDisenosHtml(r.abiertos, 'No hay diseños abiertos.') : tablaDisenosHtml(cerrados, 'Todavía no hay diseños cerrados.')) + '</div>';
+}
+
+/* ---- Ensayos: estado fresco y endurecido ---- */
+function expFrescoHtml(r){
+  var filas = [];
+  r.disenos.forEach(function(d){
+    ((d.resultados && d.resultados.replicas) || []).forEach(function(rep, i){
+      var s0 = (rep.slump || [])[0] || {};
+      if(!(s0.slump || s0.tempc || rep.pesoUnitario || rep.aire)) return;
+      var nombreRep = (d.replicaObjs && d.replicaObjs[i] && d.replicaObjs[i].nombre) || (diseñoTitulo(d) + '-R' + (i + 1));
+      filas.push('<tr><td class="mono">'+esc(d.codigo)+'</td><td>'+esc(nombreRep)+'</td><td>'+esc(s0.slump || '—')+'</td><td>'+esc(s0.tempc || '—')+'</td><td>'+esc(s0.tempa || '—')+'</td><td>'+esc(rep.pesoUnitario || '—')+'</td><td>'+esc(rep.aire || '—')+'</td><td>'+esc(rep.cohesividad || '—')+'</td></tr>');
+    });
+  });
+  return '<div class="card" style="margin-bottom:16px;"><div class="section-num">Estado fresco</div>' + (filas.length ? '<div class="table-scroll"><table class="data-table"><thead><tr><th>Código</th><th>Réplica</th><th>Slump 0\' (pulg)</th><th>T° concreto</th><th>T° ambiente</th><th>Peso unitario</th><th>Aire %</th><th>Cohesividad</th></tr></thead><tbody>' + filas.join('') + '</tbody></table></div>'
+    : '<p class="nota-sm">Todavía no hay resultados de estado fresco.</p>') + '</div>';
 }
 function expResultadosHtml(m){
   var edades = {};
   m.disenos.forEach(function(d){ Object.keys(resistenciaPorEdad(d)).forEach(function(e){ edades[e] = true; }); });
   var lista = Object.keys(edades).map(Number).sort(function(a,b){ return a-b; });
-  if(!lista.length) return '<div class="empty-note">Todavía no hay roturas registradas en este proyecto.</div>';
+  if(!lista.length) return '<div class="card"><div class="section-num">Estado endurecido</div><p class="nota-sm">Todavía no hay roturas registradas en este proyecto.</p></div>';
   var filas = m.disenos.map(function(d){
     var r = resistenciaPorEdad(d);
     if(!Object.keys(r).length) return '';
@@ -269,13 +309,13 @@ function expResultadosHtml(m){
         return '<td'+ok+'>'+(isFinite(v) ? fmt(v,1) : '-')+'</td>';
       }).join('') + '</tr>';
   }).join('');
-  return '<div class="chart-card"><h4>Resistencia vs. edad <span class="chart-sub">(promedio combinado de réplicas, kg/cm²)</span></h4><div class="dash-chart-wrap alto"><canvas id="chart-exp-resultados"></canvas></div></div>' +
+  return '<div class="chart-card"><h4>Estado endurecido: resistencia vs. edad <span class="chart-sub">(promedio de M1–M3 de todas las réplicas, kg/cm²)</span></h4><div class="dash-chart-wrap alto"><canvas id="chart-exp-resultados"></canvas></div></div>' +
     '<div class="card" style="margin-top:16px;"><div class="table-scroll"><table class="data-table"><thead><tr><th>Código</th><th>Diseño</th><th>Iteración</th><th>f\'c</th>' +
     lista.map(function(e){ return '<th>'+e+' d</th>'; }).join('') + '</tr></thead><tbody>'+filas+'</tbody></table></div>' +
     '<p class="nota-sm">A 28 días o más: verde si alcanza el f\'c especificado, rojo si queda por debajo.</p></div>';
 }
 function dibujarExpResultados(m){
-  if(typeof Chart === 'undefined') return;
+  if(typeof Chart === 'undefined' || !document.getElementById('chart-exp-resultados')) return;
   var datasets = m.disenos.map(function(d, i){
     var r = resistenciaPorEdad(d);
     var pts = Object.keys(r).map(Number).sort(function(a,b){ return a-b; }).map(function(e){ return {x:e, y:+r[e].toFixed(1)}; });
@@ -289,15 +329,16 @@ function dibujarExpResultados(m){
   });
 }
 
-/* ---- Comparativo entre iteraciones ---- */
+/* ---- Comparativo entre iteraciones (dentro de Ensayos) ---- */
 var cmpSeleccion = {};
 function renderComparativo(m){
   destruirProyChart('cmp');
   var wrap = document.getElementById('cmp-wrap');
+  if(!wrap) return;
   var porIter = {};
   m.disenos.forEach(function(d){ if(d.iteracionId) (porIter[d.iteracionId] = porIter[d.iteracionId] || []).push(d); });
   var iters = Object.keys(porIter).sort(function(a,b){ return ordenIteracion(a) - ordenIteracion(b); });
-  if(iters.length < 1){ wrap.innerHTML = '<div class="empty-note">El proyecto no tiene iteraciones con diseños para comparar.</div>'; return; }
+  if(iters.length < 2){ wrap.innerHTML = ''; return; }
   var sel = cmpSeleccion[m.nombre] || iters.slice(-4);
   sel = sel.filter(function(it){ return iters.indexOf(it) > -1; });
   cmpSeleccion[m.nombre] = sel;
@@ -311,12 +352,9 @@ function renderComparativo(m){
     });
     var res = {};
     Object.keys(porEdad).forEach(function(e){ res[e] = promedio(porEdad[e]); });
-    return {iter:it, n:lista.length,
-      completados: lista.filter(function(d){ return d.estado === 'Completado'; }).length,
-      amc: promedio(lista.map(function(d){ return n(d.amcEfectiva) || NaN; })),
-      cemento: promedio(lista.map(contenidoCemento)),
-      costo: promedio(lista.map(function(d){ return n(d.cvdTotal) || NaN; })),
-      res: res};
+    return {iter:it, n:lista.length, cerrados: lista.filter(function(d){ return estadoCalculado(d) === 'Cerrado'; }).length,
+      amc: promedio(lista.map(function(d){ return n(d.amcEfectiva) || NaN; })), cemento: promedio(lista.map(contenidoCemento)),
+      costo: promedio(lista.map(function(d){ return n(d.cvdTotal) || NaN; })), res: res};
   });
   var edades = Object.keys(edadesSet).map(Number).sort(function(a,b){ return a-b; });
   var mejorPorEdad = {};
@@ -325,14 +363,14 @@ function renderComparativo(m){
     mejorPorEdad[e] = vals.length ? Math.max.apply(null, vals) : NaN;
   });
   wrap.innerHTML =
-    '<div class="card"><div class="section-num">Elegí las iteraciones a comparar</div><div class="radar-picker">' +
+    '<div class="card"><div class="section-num">Comparativo de iteraciones</div><div class="radar-picker">' +
       iters.map(function(it){ var on = sel.indexOf(it) > -1; return '<label class="chip-check'+(on?' on':'')+'"><input type="checkbox" data-cmp="'+esc(it)+'"'+(on?' checked':'')+'> '+esc(it)+' <span class="mono">('+porIter[it].length+')</span></label>'; }).join('') +
     '</div></div>' +
     '<div class="chart-card" style="margin-top:16px;"><h4>Resistencia promedio por edad <span class="chart-sub">(cada línea es una iteración)</span></h4><div class="dash-chart-wrap alto"><canvas id="chart-cmp"></canvas></div></div>' +
-    '<div class="card" style="margin-top:16px;"><div class="table-scroll"><table class="data-table"><thead><tr><th>Iteración</th><th>Diseños</th><th>Completados</th><th>a/mc prom.</th><th>Cemento prom. (kg/m³)</th><th>CVD prom. (S/.)</th>' +
+    '<div class="card" style="margin-top:16px;"><div class="table-scroll"><table class="data-table"><thead><tr><th>Iteración</th><th>Diseños</th><th>Cerrados</th><th>a/mc prom.</th><th>Cemento prom. (kg/m³)</th><th>CVD prom. (S/.)</th>' +
       edades.map(function(e){ return '<th>'+e+' d (kg/cm²)</th>'; }).join('') + '</tr></thead><tbody>' +
       resumen.filter(function(r){ return sel.indexOf(r.iter) > -1; }).map(function(r){
-        return '<tr><td><b>'+esc(r.iter)+'</b></td><td>'+r.n+'</td><td>'+r.completados+'</td><td>'+fmt(r.amc,2)+'</td><td>'+fmt(r.cemento,0)+'</td><td>'+fmt(r.costo,2)+'</td>' +
+        return '<tr><td><b>'+esc(r.iter)+'</b></td><td>'+r.n+'</td><td>'+r.cerrados+'</td><td>'+fmt(r.amc,2)+'</td><td>'+fmt(r.cemento,0)+'</td><td>'+fmt(r.costo,2)+'</td>' +
           edades.map(function(e){ var v = r.res[e]; var mejor = isFinite(v) && v === mejorPorEdad[e] && sel.length > 1; return '<td'+(mejor?' class="ok"':'')+'>'+(isFinite(v)?fmt(v,1):'-')+'</td>'; }).join('') + '</tr>';
       }).join('') +
     '</tbody></table></div><p class="nota-sm">En verde, la iteración con mayor resistencia en cada edad.</p></div>';
@@ -349,60 +387,68 @@ function renderComparativo(m){
     });
   }
 }
+
+/* ---- Informes ---- */
 function expReportesHtml(m){
   var lista = rrDeProyecto(m.nombre, m.disenos);
-  // Los reportes del proyecto: los RR (paso 6) y sus indicadores (paso 7), todos ligados al mismo proyecto
-  var barra = '<div class="ev-toolbar"><span class="nota-sm">Reportes de este proyecto: estudios RR e indicadores.</span>' +
+  var barra = '<div class="ev-toolbar"><span class="section-num" style="margin:0;">Reportes RR</span>' +
     '<span class="ch-actions"><button class="btn-add ghost" data-ver-indicadores>'+CHART_ICON+' Ver indicadores</button>' +
     '<button class="btn-add" data-goto="reporte-rr" data-perm="rr:editar">+ Nuevo Reporte RR</button></span></div>';
-  if(!lista.length) return barra + '<div class="empty-note">Todavía no hay reportes RR de este proyecto.</div>';
-  return barra + '<div class="proy-grid">' + lista.map(function(e){
+  var rr = lista.length ? '<div class="proy-grid">' + lista.map(function(e){
     return '<article class="proy-card"><div class="pc-head"><h4>'+esc(e.nombre)+'</h4>'+(e.generado?'<span class="tag-pill tag-verde">Generado</span>':'<span class="tag-pill tag-gris">Borrador</span>')+'</div>' +
       '<div class="pc-meta"><span>'+e.tipos.length+' diseños · '+e.edades.length+' edades</span><span>'+esc(e.fecha||'')+'</span></div>' +
       '<div class="pc-foot"><span class="mono">'+esc(e.tipos.slice(0,2).map(function(t){ return t.nombre; }).join(', '))+(e.tipos.length>2?'…':'')+'</span><button class="btn-add" data-abrir-rr="'+esc(e.id)+'">Abrir en visor →</button></div></article>';
-  }).join('') + '</div>';
+  }).join('') + '</div>' : '<div class="empty-note">Todavía no hay reportes RR de este proyecto.</div>';
+  return '<div class="card">' + barra + rr + '</div>' +
+    '<div class="card fase-card" style="margin-top:16px;"><div class="section-num">Informe final del proyecto <span class="fase-chip">Fase 4</span></div>' +
+    '<p class="nota-sm">Con revisión y aprobación de un responsable antes de emitirse (17025, 7.8).</p></div>';
 }
-function expHistorialHtml(m){
-  var lista = historialDeProyecto(m.nombre);
-  var filas = lista.length ? lista.slice(0, 200).map(function(h){
-    return '<tr><td class="mono">'+fechaHora(h.ts)+'</td><td>'+esc(h.usuario)+'</td><td>'+esc(h.accion)+'</td><td>'+esc(h.entidad)+'</td><td>'+esc(h.detalle)+'</td></tr>';
-  }).join('') : '';
-  var base = m.disenos.slice().sort(function(a,b){ return (b.ts||0)-(a.ts||0); }).map(function(d){
-    return '<tr><td class="mono">'+esc(d.fecha||'')+'</td><td>'+esc(d.colaborador||'-')+'</td><td>Creó</td><td>Diseño</td><td>'+esc(d.codigo+' · '+diseñoTitulo(d))+'</td></tr>';
-  }).join('');
-  return '<div class="card"><div class="table-scroll"><table class="data-table"><thead><tr><th>Fecha</th><th>Usuario</th><th>Acción</th><th>Entidad</th><th>Detalle</th></tr></thead><tbody>' +
-    (filas || base || '<tr><td colspan="5" class="empty-note">Sin movimientos registrados.</td></tr>') + '</tbody></table></div></div>';
+
+/* ---- Archivo: diseños cerrados con sus informes ---- */
+function expArchivoHtml(ficha, r){
+  var cerrados = r.disenos.filter(function(d){ return estadoCalculado(d) === 'Cerrado'; });
+  return '<div class="card"><div class="section-num">Diseños cerrados</div>' + tablaDisenosHtml(cerrados, 'Todavía no hay diseños cerrados en este proyecto.') + '</div>' +
+    '<div class="card fase-card" style="margin-top:16px;"><div class="section-num">Documentos del proyecto <span class="fase-chip">Fase 7</span></div><p class="nota-sm">Procedimientos y archivos en Google Drive ligados al proyecto.</p></div>';
 }
-function exportarExpediente(m){
-  var resumen = [['Expediente del proyecto', m.nombre], ['Estado', m.estado], ['Iteraciones', m.iteraciones.join(', ')],
-    ['Diseños', m.nDisenos], ['Completados', m.completados], ['Roturas registradas', m.cargasCompletas + ' de ' + m.cargas.length],
-    ['Roturas vencidas', m.vencidas], ['Resistencia máxima (kg/cm²)', isFinite(m.resistMax) ? +m.resistMax.toFixed(1) : ''],
-    ['CVD promedio (S/.)', isFinite(m.costoProm) ? +m.costoProm.toFixed(2) : ''], ['Exportado', fechaHora(Date.now()) + ' por ' + (usuarioActual ? usuarioActual.usuario : '')]];
-  var dis = [['Código','Diseño','Iteración','Fecha','Planta','f\'c','a/mc','Cemento','CVD (S/.)','Estado','Colaborador','Responsable']].concat(m.disenos.map(function(d){
-    return [d.codigo, diseñoTitulo(d), d.iteracionId||'', d.fecha||'', d.planta||'', n(d.fc)||'', n(d.amcEfectiva)||'', d.cementoTipo||'', n(d.cvdTotal)||'', d.estado, d.colaborador||'', d.responsable||''];
+
+function exportarExpediente(ficha){
+  var r = resumenProyecto(ficha), m = metricasProyecto(ficha.nombre);
+  var resumen = [['Proyecto', ficha.nombre], ['Código', ficha.codigo], ['Tipo', tipoDe(ficha)], ['Responsable', nombreDe(ficha.responsable_id)],
+    ['Equipo', (ficha.equipo || []).map(nombreDe).join(', ')], ['Inicio', ficha.fecha_inicio ? isoToDMY(ficha.fecha_inicio) : ''], ['Fin estimado', ficha.fecha_fin ? isoToDMY(ficha.fecha_fin) : ''],
+    ['Estado', r.estado], ['Avance', r.avancePct + '%'], ['Diseños', r.disenos.length], ['Cerrados', r.cerrados], ['Roturas atrasadas', r.atrasadas],
+    ['Exportado', fechaHora(Date.now()) + ' por ' + (usuarioActual ? usuarioActual.usuario : '')]];
+  var obj = [['Objetivo','Cumplimiento','Valor']].concat((ficha.objetivos || []).map(function(o){ var c = cumplimientoObjetivo(o, r.disenos); return [textoObjetivo(o), c.estado, isFinite(c.valor) ? +c.valor.toFixed(1) : '']; }));
+  var ens = [['Código','Ensayo','Etapa','Norma / método','Versión']].concat(ficha.ensayos.map(Lab.ensayo).filter(Boolean).map(function(e){ return [e.codigo, e.nombre, etapaLabel(e.etapa), e.metodo, e.version]; }));
+  var dis = [['Código','Diseño','Iteración','Fecha','f\'c','a/mc','CVD (S/.)','Estado','Falta']].concat(r.disenos.map(function(d){
+    return [d.codigo, diseñoTitulo(d), d.iteracionId||'', d.fecha||'', n(d.fc)||'', n(d.amcEfectiva)||'', n(d.cvdTotal)||'', estadoCalculado(d), faltaDiseno(d).map(function(f){ return f.texto; }).join('; ')];
   }));
   var filasBH = baseHistoricaFilas().filter(function(f){ return f.proyecto === m.nombre; });
   var res = [BH_COLUMNAS.map(function(c){ return c.t; })].concat(filasBH.map(function(f){ return BH_COLUMNAS.map(function(c){ return f[c.k]; }); }));
-  var his = [['Fecha','Usuario','Acción','Entidad','Detalle']].concat(historialDeProyecto(m.nombre).map(function(h){ return [fechaHora(h.ts), h.usuario, h.accion, h.entidad, h.detalle]; }));
-  if(exportarExcel('Expediente - ' + m.nombre + '.xlsx', [{nombre:'Resumen', filas:resumen}, {nombre:'Diseños', filas:dis}, {nombre:'Resultados', filas:res}, {nombre:'Historial', filas:his}])){
-    registrarHistorial('Exportó', 'Proyecto', 'Expediente ' + m.nombre, {proyecto:m.nombre});
-    toast('Expediente exportado a Excel');
+  var his = [['Fecha','Usuario','Acción','Módulo','Detalle','Motivo']].concat(historialDeProyecto(m.nombre).map(function(h){ return [fechaHora(h.ts), h.usuario, h.accion, h.entidad, h.detalle, h.motivo || '']; }));
+  if(exportarExcel('Proyecto - ' + ficha.nombre + '.xlsx', [{nombre:'Resumen', filas:resumen}, {nombre:'Objetivos', filas:obj}, {nombre:'Ensayos', filas:ens}, {nombre:'Diseños', filas:dis}, {nombre:'Resultados', filas:res}, {nombre:'Historial', filas:his}])){
+    registrarHistorial('Exportó', 'Proyectos', 'Expediente ' + ficha.nombre, {proyecto:ficha.nombre, codigo:ficha.codigo});
+    toast('Proyecto exportado a Excel');
   }
 }
 document.getElementById('proy-expediente').addEventListener('click', function(e){
   if(e.target.closest('#exp-volver')){ cerrarExpediente(); return; }
   var tab = e.target.closest('[data-exp-tab]');
   if(tab){ expedienteTab = tab.dataset.expTab; renderExpediente(); return; }
-  if(e.target.closest('#exp-evidencia, #exp-evidencia-2')){
-    abrirModalEvidencia(expedienteProyecto, '', function(){ expedienteTab = 'evidencias'; renderExpediente(); });
+  var sub = e.target.closest('[data-dis-sub]');
+  if(sub){ expDisenosSub = sub.dataset.disSub; renderExpediente(); return; }
+  var ficha = fichaDeProyecto(expedienteProyecto);
+  if(e.target.closest('#exp-editar')){ if(exigir('proyectos:editar')) abrirAsistenteProyecto(ficha); return; }
+  if(e.target.closest('#exp-evidencia-2')){
+    abrirModalEvidencia(expedienteProyecto, '', function(){ expedienteTab = 'muestras'; renderExpediente(); });
     return;
   }
-  if(e.target.closest('#exp-exportar')){ exportarExpediente(metricasProyecto(expedienteProyecto)); return; }
+  if(e.target.closest('#exp-exportar')){ exportarExpediente(ficha); return; }
   if(e.target.closest('#exp-nuevo-diseno')){
     if(!exigir('disenos:crear')) return;
     showPanel('disenos'); showSubTab('calcular');
     fillProyectoCatalogoSelect(document.getElementById('pp-proyecto'), expedienteProyecto);
     fillPpIteracionSelect(expedienteProyecto, '');
+    refreshNombrePreview();
     return;
   }
   var act = e.target.closest('[data-exp-act]');
@@ -412,6 +458,7 @@ document.getElementById('proy-expediente').addEventListener('click', function(e)
     if(act.dataset.expAct === 'view') openDesignModal(d);
     else if(act.dataset.expAct === 'informe') openInformeModal(d);
     else if(act.dataset.expAct === 'etiquetas') abrirEtiquetas(d.codigo);
+    else if(act.dataset.expAct === 'resultados'){ if(exigir('resultados:registrar')) openResultsModal(d, disenos.indexOf(d)); }
     return;
   }
   var rr = e.target.closest('[data-abrir-rr]');
@@ -428,5 +475,5 @@ document.getElementById('proy-expediente').addEventListener('change', function(e
   renderComparativo(metricasProyecto(expedienteProyecto));
 });
 PANEL_HOOKS.proyectos = function(){ renderProyectosPanel(); };
-// Tocar "Proyectos" en el menú siempre vuelve a la lista (cierra el expediente abierto).
+// Tocar "Proyectos" en el menú siempre vuelve a la lista (cierra el proyecto abierto).
 document.querySelector('.side-nav [data-panel="proyectos"]').addEventListener('click', function(){ expedienteProyecto = null; }, true);
