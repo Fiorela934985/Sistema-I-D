@@ -188,7 +188,21 @@ function exportarPoza(){
 }
 
 /* ================= RENDER ================= */
-function verTodoBtn(clave, total){ return total > MS_MAX ? '<button class="ms-vertodo" data-ms-vertodo="' + clave + '">' + (msExpandido[clave] ? 'Ver menos' : 'Ver todo (' + total + ')') + '</button>' : ''; }
+function verTodoBtn(clave, total){ return total > MS_MAX ? '<button class="ms-vertodo" data-ms-vertodo="' + clave + '">Ver todo (' + total + ')</button>' : ''; }
+function filaActividadMs(a){
+  var hecha = actividadHecha(a), automatica = !!(a.diseno_codigo && a.paso);
+  return '<li class="ms-fila' + (hecha ? ' hecha' : '') + '"><input type="checkbox" data-ms-hecha="' + esc(a.id) + '"' + (hecha ? ' checked' : '') + (automatica || !(a.responsable_id === yoId() || can('actividades:publicar')) ? ' disabled' : '') + '>' +
+    '<span class="ms-cod">' + esc(a.titulo) + '</span><span class="ms-txt">' + esc(a.proyecto) + ' · ' + DIAS_SEMANA_CORTOS[(new Date(a.desde + 'T00:00:00').getDay() + 6) % 7] + (a.hasta !== a.desde ? '–' + DIAS_SEMANA_CORTOS[(new Date(a.hasta + 'T00:00:00').getDay() + 6) % 7] : '') + (esEquipo() ? ' · ' + esc(nombreDe(a.responsable_id)) : '') + '</span></li>';
+}
+/* Ver todo: pantalla nueva con la lista completa */
+function abrirVerTodoMs(clave){
+  var t, html;
+  if(clave === 'pend'){ var p = pendientesInicio(); t = (esEquipo() ? 'Pendientes del equipo' : 'Mis pendientes') + ' · ' + p.length; html = '<div class="card"><ul class="ms-lista">' + p.map(filaPendienteMs).join('') + '</ul></div>'; }
+  else if(clave === 'act'){ var a = actividadesInicio(msLunes); t = 'Actividades de la semana · ' + a.length; html = '<div class="card"><ul class="ms-lista">' + a.map(filaActividadMs).join('') + '</ul></div>'; }
+  else if(clave === 'dis'){ var d = disenosSemana(msLunes); t = 'Diseños de la semana · ' + d.length; html = '<div class="card"><ul class="ms-chips">' + d.map(function(x){ return '<li><button class="ms-chip" data-ms-acc="flujo" data-codigo="' + esc(x.codigo) + '">' + semaforoDotHtml(semaforoChecklist(x)) + esc(diseñoTitulo(x)) + '</button></li>'; }).join('') + '</ul></div>'; }
+  else { var pr = proyectosSemana(msLunes); t = 'Proyectos de esta semana · ' + pr.length; html = '<div class="card"><ul class="ms-chips">' + pr.map(function(x){ return '<li><button class="ms-chip" data-ms-proy="' + esc(x.nombre) + '"><b>' + esc(x.nombre) + '</b><span class="ms-pct">' + x.avance + '%</span></button></li>'; }).join('') + '</ul></div>'; }
+  abrirPantalla(t, '<div id="ms-pantalla">' + html + '</div>', renderMiSemana);
+}
 function recortar(clave, lista){ return msExpandido[clave] ? lista : lista.slice(0, MS_MAX); }
 function filaPendienteMs(p){
   if(p.tipo === 'rotura'){
@@ -269,17 +283,17 @@ function accionMs(e){
   return true;
 }
 document.addEventListener('click', function(e){
-  if(!e.target.closest('#mi-semana') && !e.target.closest('#ms-dia-modal')) return;
+  if(!e.target.closest('#mi-semana') && !e.target.closest('#ms-dia-modal') && !e.target.closest('#ms-pantalla')) return;
   var al = e.target.closest('[data-ms-alcance]');
   if(al){ msAlcance = al.dataset.msAlcance; msExpandido = {}; renderMiSemana(); return; }
   var s = e.target.closest('[data-ms-sem]');
   if(s){ msLunes = s.dataset.msSem === 'hoy' ? lunesDe(todayISO()) : addDaysISO(msLunes, Number(s.dataset.msSem)); renderMiSemana(); return; }
   var v = e.target.closest('[data-ms-vertodo]');
-  if(v){ msExpandido[v.dataset.msVertodo] = !msExpandido[v.dataset.msVertodo]; renderMiSemana(); return; }
+  if(v){ abrirVerTodoMs(v.dataset.msVertodo); return; }
   var dia = e.target.closest('[data-ms-dia]');
   if(dia){ abrirDiaMs(dia.dataset.msDia); return; }
   var p = e.target.closest('[data-ms-proy]');
-  if(p){ abrirExpediente(p.dataset.msProy, 'resumen'); return; }
+  if(p){ if(pantallaAbierta()) cerrarPantalla(); abrirExpediente(p.dataset.msProy, 'resumen'); return; }
   if(e.target.closest('input[type=checkbox]')) return;
   accionMs(e);
 });

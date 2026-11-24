@@ -159,3 +159,22 @@ html:not([data-theme="dark"]) .ms-hero.ms-barra{background:linear-gradient(120de
 #login-view{align-items:stretch !important;justify-content:stretch !important;height:100vh;}
 #login-view .login-card{align-self:center;}
 #login-view .login-card::before{display:none;}
+
+/* ---------- Calidad ---------- */
+.tnc-estado{display:inline-flex;align-items:center;height:20px;padding:0 8px;border-radius:999px;font-size:.66rem;font-weight:700;}
+.tnc-estado.e0{background:var(--c-rojo-claro);color:#c0272d;}
+.tnc-estado.e1{background:var(--c-ambar-claro);color:#9a5b00;}
+.tnc-estado.e2{background:var(--c-indigo-claro);color:var(--c-indigo);}
+.tnc-estado.e3{background:var(--c-verde-claro);color:var(--c-verde-osc);}
+.tnc-linea{grid-template-columns:repeat(4,minmax(0,1fr));}
+.tnc-paso{border:1px solid var(--c-borde);border-radius:12px;padding:10px 12px;margin-bottom:8px;opacity:.7;}
+.tnc-paso.actual{opacity:1;border-color:var(--c-celeste);box-shadow:0 0 0 3px rgba(0,153,204,.1);}
+.tnc-paso.hecho{opacity:1;}
+.tnc-paso-cab{display:flex;align-items:center;gap:8px;margin-bottom:4px;}
+.tnc-paso-cab span{width:22px;height:22px;border-radius:50%;background:var(--c-fondo);display:inline-flex;align-items:center;justify-content:center;font-size:.72rem;font-weight:800;}
+.tnc-paso.hecho .tnc-paso-cab span{background:var(--c-verde);color:#fff;}
+.tnc-paso.actual .tnc-paso-cab span{background:var(--c-celeste);color:#fff;}
+.tnc-paso p{margin:4px 0;font-size:.84rem;}
+.tnc-paso textarea,.tnc-paso select{width:100%;}
+.tnc-decisiones{display:flex;flex-wrap:wrap;gap:12px;margin-bottom:8px;}
+tr.doc-obsoleta td{background:#fafcfd;}

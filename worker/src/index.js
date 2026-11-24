@@ -4,7 +4,7 @@
    · nada se borra: los registros se anulan o desactivan con motivo;
    · toda edición exige motivo y queda en historial_cambios con el valor anterior y el nuevo. */
 
-const VERSION = '1.1.0';
+const VERSION = '1.2.0';
 const PBKDF2_ITERACIONES = 100000;
 const SESION_HORAS = 12;
 
@@ -468,14 +468,15 @@ const COLECCIONES = {
   actividades: ['actividades:publicar', 'resultados:registrar', 'roturas:registrar'],
   correos: ['actividades:publicar', 'disenos:crear', 'resultados:registrar', 'roturas:registrar'],
   semanas: ['actividades:publicar'],
-  poza: ['resultados:registrar', 'roturas:registrar']
+  poza: ['resultados:registrar', 'roturas:registrar'],
+  documentos: ['informes:aprobar', 'config:laboratorio']
 };
 const sesion_esTecnico = (s) => s && s.rol !== 'admin' && !s.permisos.includes('actividades:publicar');
 function exigirAlguno(sesion, permisos) {
   if (!sesion) falla(401, 'Sesión vencida o inválida');
   if (sesion.rol !== 'admin' && !permisos.some((p) => sesion.permisos.includes(p))) falla(403, 'Tu rol no tiene permiso para esta acción');
 }
-const MODULO_COLECCION = { disenos: 'Diseño', roturas: 'Rotura', lotes: 'Lote de agregado', informes: 'Informes', tnc: 'Trabajo no conforme', contadores: 'Códigos', planes: 'Planificación', actividades: 'Actividades', correos: 'Correos', semanas: 'Actividades', poza: 'Poza de curado' };
+const MODULO_COLECCION = { disenos: 'Diseño', roturas: 'Rotura', lotes: 'Lote de agregado', informes: 'Informes', tnc: 'Trabajo no conforme', contadores: 'Códigos', planes: 'Planificación', actividades: 'Actividades', correos: 'Correos', semanas: 'Actividades', poza: 'Poza de curado', documentos: 'Documentos' };
 
 ruta('GET', '/api/registros', async (req, env, s) => {
   exigir(s);
@@ -526,6 +527,11 @@ ruta('POST', '/api/registros', async (req, env, s) => {
       const soloMarca = antes && Object.keys(datos).every((k) => ['hecha', 'hecha_en', 'hecha_por'].includes(k) || JSON.stringify(datos[k]) === JSON.stringify(antesA[k]));
       if (!soloMarca || antesA.responsable_id !== s.id) falla(403, 'El técnico solo marca como hechas sus propias actividades');
     }
+    if (col === 'tnc') {
+      const a = antes || {};
+      const gestion = ['evaluacion', 'decision', 'cierre'].some((k) => JSON.stringify(a[k] || null) !== JSON.stringify(datos[k] || null)) || (a.estado && a.estado !== datos.estado);
+      if (gestion) exigir(s, 'tnc:cerrar');
+    }
     if (anulado && !(previa && previa.anulado) && !texto(datos.motivo_anulacion)) falla(400, 'Indicá el motivo de la anulación');
     sentencias.push(env.DB.prepare(
       'INSERT INTO registros (coleccion, id, proyecto, codigo, datos, anulado, version, actualizado_por, actualizado_en) VALUES (?,?,?,?,?,?,1,?,?) ' +
@@ -544,6 +550,57 @@ ruta('POST', '/api/registros', async (req, env, s) => {
   }
   await env.DB.batch(sentencias);
   return { ok: true, n: items.length };
+});
+
+/* ---------- Inventario (base D1 "inventario", solo lectura) ----------
+   Equipos con su calibración vigente (regla 5) y materiales con su stock. El ERP nunca escribe en el inventario. */
+function mesesFrecuencia(f, otro) {
+  const t = String(f || '').toUpperCase();
+  if (t === 'NO APLICA' || !t) return 0;
+  if (t === 'ANUAL') return 12;
+  if (t === 'SEMESTRAL') return 6;
+  if (t === 'TRIMESTRAL') return 3;
+  if (t === 'MENSUAL') return 1;
+  const o = String(otro || '').toUpperCase();
+  let m = /CADA\s+(\d+)\s+AÑOS?/.exec(o); if (m) return Number(m[1]) * 12;
+  m = /CADA\s+(\d+)\s+MESES?/.exec(o); if (m) return Number(m[1]);
+  m = /(\d+)\s+VECES\s+AL\s+AÑO/.exec(o); if (m) return Math.max(1, Math.round(12 / Number(m[1])));
+  return 12;
+}
+function sumarMeses(iso, meses) {
+  const d = new Date(iso + 'T00:00:00Z'); if (isNaN(d)) return '';
+  d.setUTCMonth(d.getUTCMonth() + meses);
+  return d.toISOString().slice(0, 10);
+}
+function estadoCalibracion(e, hoy) {
+  const meses = mesesFrecuencia(e.frecuencia_calibracion, e.frecuencia_otro);
+  if (e.estado !== 'HABILITADO') return { vigente: false, vence: '', motivo: e.estado === 'PRESTADO' ? 'Prestado' : 'Inhabilitado' };
+  if (!meses) return { vigente: true, vence: '', motivo: 'No requiere calibración' };
+  if (e.estado_calibracion !== 'CALIBRADO' || !e.fecha_ultima_calibracion) return { vigente: false, vence: '', motivo: 'Sin calibración registrada' };
+  const vence = sumarMeses(e.fecha_ultima_calibracion, meses);
+  return vence && vence >= hoy ? { vigente: true, vence, motivo: 'Calibrado' } : { vigente: false, vence, motivo: 'Calibración vencida' };
+}
+ruta('GET', '/api/inventario/equipos', async (req, env, s) => {
+  exigir(s);
+  if (!env.INV) return { conectado: false, equipos: [] };
+  const hoy = ahora().slice(0, 10);
+  const filas = await env.INV.prepare("SELECT id, codigo, identificacion_metrologica, instrumento, categoria, laboratorio, estado, estado_calibracion, frecuencia_calibracion, frecuencia_otro, fecha_ultima_calibracion, marca, modelo, ubicacion FROM equipos ORDER BY laboratorio, instrumento").all();
+  return {
+    conectado: true,
+    equipos: filas.results.map((e) => ({
+      id: e.id, codigo: e.codigo || e.identificacion_metrologica, identificacion: e.identificacion_metrologica, nombre: e.instrumento, categoria: e.categoria,
+      laboratorio: e.laboratorio, marca: e.marca, modelo: e.modelo, ubicacion: e.ubicacion, ultima_calibracion: e.fecha_ultima_calibracion, ...estadoCalibracion(e, hoy)
+    }))
+  };
+});
+ruta('GET', '/api/inventario/materiales', async (req, env, s) => {
+  exigir(s);
+  if (!env.INV) return { conectado: false, materiales: [] };
+  const filas = await env.INV.prepare(
+    "SELECT p.codigo, p.nombre, p.tipo, p.marca, p.laboratorio, p.unidad_medida, p.cantidad_minima, " +
+    "COALESCE((SELECT SUM(cantidad) FROM ingresos i WHERE i.producto_codigo = p.codigo), 0) - COALESCE((SELECT SUM(cantidad) FROM salidas o WHERE o.producto_codigo = p.codigo), 0) AS stock " +
+    "FROM productos p ORDER BY p.tipo, p.nombre").all();
+  return { conectado: true, materiales: filas.results.map((m) => ({ ...m, stock: Math.round(m.stock * 1000) / 1000, bajo: m.cantidad_minima > 0 && m.stock < m.cantidad_minima })) };
 });
 
 /* ---------------- despacho ---------------- */

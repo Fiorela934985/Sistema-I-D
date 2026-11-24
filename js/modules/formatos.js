@@ -360,6 +360,7 @@ document.getElementById('ro-sub-formato').addEventListener('change', function(e)
   var d = c.disenoCodigoDiseno ? disenoPorCodigo(c.disenoCodigoDiseno) : null;
   if(!exigirEnsayos([ensayoDeRotura(c.tipo)], d, c.aCargoDeId)){ renderRoturasFormato(); return; }
   var v = e.target.type === 'checkbox' ? e.target.checked : e.target.value.trim();
+  if(f === 'equipo' && v){ var eqF = Inventario.equipo(v); if(Inventario.conectado() && !eqF){ toast(v + ' no está en el inventario'); renderRoturasFormato(); return; } if(eqF && !eqF.vigente){ toast(eqF.codigo + ': ' + eqF.motivo.toLowerCase() + '. No se puede usar.'); renderRoturasFormato(); return; } }
   if(ROTURA_CAMPOS_CARGA.indexOf(f) > -1 && v){
     if(!c.horaElaboracion){ toast('Falta la hora de elaboración: complétala primero'); renderRoturasFormato(); return; }
     if(c.estado === 'pendiente' && !cargaActiva(c)){ toast('Esta rotura se activa el ' + fechaCorta(diaDeActivacion(c))); renderRoturasFormato(); return; }

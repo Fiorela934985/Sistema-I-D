@@ -47,6 +47,7 @@ var PANEL_HOOKS = {
 };
 function panelInfo(name){ return PANELES.filter(function(p){ return p.id === name; })[0] || {label:name, grupo:''}; }
 function showPanel(name){
+  if(typeof pantallaAbierta === 'function' && pantallaAbierta()){ var pp = document.getElementById('pantalla'); pp.style.display = 'none'; pantallaAlCerrar = null; }
   if(usuarioActual && !can('ver:' + name)){
     toast('Tu rol no tiene acceso a ' + panelInfo(name).label);
     name = 'inicio';

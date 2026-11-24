@@ -13,3 +13,8 @@ binding = "ASSETS"
 binding = "DB"
 database_name = "erp-laboratorio-id"
 database_id = "712b53b4-2b42-4472-acbd-25f1325f2e2c"
+
+[[d1_databases]]
+binding = "INV"
+database_name = "inventario"
+database_id = "7b62cbe4-fc76-4d53-8a31-8958ff160cbd"

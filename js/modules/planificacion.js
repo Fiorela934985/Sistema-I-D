@@ -199,7 +199,7 @@ function avisosItem(plan, it){
       if(cruza && comun.length) av.push('Recurso «' + comun[0] + '» ocupado en ' + p.codigo + ' (' + o.nombre + ')');
     }); });
   });
-  return av;
+  return av.concat(avisosRecursosInventario(it));
 }
 function renderPlanes(){
   var cont = document.getElementById('plan-vista-plan');
@@ -229,7 +229,7 @@ function editorPlanHtml(p){
       '<td><select class="fmt-in" data-pf="responsable_id"' + dis + '>' + opcionesUsuariosHtml(it.responsable_id, '—') + '</select></td>' +
       '<td><select class="fmt-in" data-pf="ensayo_id"' + dis + '><option value="">—</option>' + ensayos.map(function(x){ return '<option value="' + x.id + '"' + (it.ensayo_id === x.id ? ' selected' : '') + '>' + esc(x.nombre) + '</option>'; }).join('') + '</select></td>' +
       '<td><select class="fmt-in" data-pf="diseno_codigo"' + dis + '><option value="">—</option>' + disenosProy.map(function(d){ return '<option value="' + esc(d.codigo) + '"' + (it.diseno_codigo === d.codigo ? ' selected' : '') + '>' + esc(d.codigo + ' ' + diseñoTitulo(d)) + '</option>'; }).join('') + '</select></td>' +
-      '<td><input class="fmt-in fmt-medio" data-pf="recursos" value="' + esc(it.recursos) + '" placeholder="Equipos, materiales"' + dis + '></td>' +
+      '<td><input class="fmt-in fmt-medio" data-pf="recursos" list="recursos-inventario" value="' + esc(it.recursos) + '" placeholder="Equipos, materiales"' + dis + '></td>' +
       '<td>' + (av.length ? av.map(function(a){ return '<span class="chip-falta">' + esc(a) + '</span>'; }).join(' ') : '<span class="nota-sm">—</span>') + '</td>' +
       '<td class="acciones-fila">' + (p.nuevo ? '' : '<button class="btn-add ghost" data-plan-acc="actividad" data-perm="actividades:publicar" title="Pasar a actividades de la semana">→ Actividad</button>') +
         (editable ? '<button class="btn-icon danger" data-plan-acc="quitar-item" title="Quitar ítem">×</button>' : '') + '</td></tr>';
@@ -250,7 +250,7 @@ function editorPlanHtml(p){
         '<div class="table-scroll"><table class="data-table plan-items"><thead><tr><th>Ítem</th><th>Inicio</th><th>Fin</th><th>Marca</th><th>Responsable</th><th>Ensayo</th><th>Diseño ligado</th><th>Recursos</th><th>Avisos</th><th></th></tr></thead><tbody>' +
         (e.items.length ? e.items.map(function(it){ return filaItem(e, it); }).join('') : '<tr><td colspan="10" class="nota-sm">Sin ítems.</td></tr>') + '</tbody></table></div></div>';
     }).join('') + (editable ? '<button class="btn-add ghost" data-plan-acc="etapa">+ Etapa</button>' : '') + '</div>' : '') +
-    '<div class="plan-acciones">' + (editable ? '<button class="btn-add verde" data-plan-acc="guardar">Guardar plan</button>' : '') +
+    datalistRecursosHtml() + '<div class="plan-acciones">' + (editable ? '<button class="btn-add verde" data-plan-acc="guardar">Guardar plan</button>' : '') +
       (p.origen !== 'archivo' ? '<button class="btn-add ghost" data-plan-acc="pdf">Descargar PDF</button><button class="btn-add ghost" data-plan-acc="pptx">Descargar PPTX</button>' : '') + '</div>' +
     (p.origen !== 'archivo' ? '<div class="card"><div class="section-num">Gantt</div><div class="gantt-leyenda"><span><i class="gl-ejec"></i>Ejecución</span><span><i class="gl-prel"></i>Preliminar</span><span><i class="gl-rep">R</i>Reporte</span><span><i class="gl-hito">◆</i>Hitos R7 · R28 · R56</span></div><div class="table-scroll" id="gantt-wrap"></div></div>' : '');
 }

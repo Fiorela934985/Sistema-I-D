@@ -384,7 +384,7 @@ function openRoturaCargaModal(id){
     '<div class="form-row">' +
       '<div class="field-mini"><label>Fecha de ensayo</label><input type="date" id="mc-fechaEnsayoReal" min="'+esc(c.fechaElaboracion || '')+'" value="'+esc(c.fechaEnsayoReal || todayISO())+'"></div>' +
       '<div class="field-mini"><label>Hora de ensayo</label><div class="hora-celda"><input type="time" id="mc-horaEnsayo" value="'+esc(c.horaEnsayo)+'"><button type="button" class="btn-ahora" id="mc-ahora">Ahora</button></div></div>' +
-      '<div class="field-mini" style="flex:1;"><label>Equipo usado</label><input type="text" id="mc-equipo" value="'+esc(c.equipo || '')+'" placeholder="Código del equipo (inventario)"></div>' +
+      '<div class="field-mini" style="flex:1;"><label>Equipo usado</label>'+campoEquipoHtml('mc-equipo', c.equipo)+'</div>' +
     '</div>' +
     '<div class="mc-unidad-toggle">' +
       '<span class="mc-unidad-label">Unidad de carga:</span>' +
@@ -515,6 +515,9 @@ document.getElementById('rotura-carga-save').addEventListener('click', function(
   var fechaReal = document.getElementById('mc-fechaEnsayoReal').value;
   var horaReal = document.getElementById('mc-horaEnsayo').value;
   var hayCargas = [1,2,3].some(function(m){ return document.getElementById('mc-m'+m+'kg').value || document.getElementById('mc-m'+m+'kN').value; });
+  var eqSel = document.getElementById('mc-equipo').value.trim(), eqInv = Inventario.equipo(eqSel);
+  if(hayCargas && Inventario.conectado() && !eqSel){ toast('Elegí el equipo usado'); return; }
+  if(eqInv && !eqInv.vigente){ toast(eqInv.codigo + ': ' + eqInv.motivo.toLowerCase() + '. No se puede usar.'); return; }
   if(hayCargas && (!fechaReal || !horaReal)){ toast('Indicá la fecha y la hora de ensayo'); return; }
   var antes = {promedio:c.promedio, horaEnsayo:c.horaEnsayo, fechaEnsayoReal:c.fechaEnsayoReal || ''};
   var eraCompleta = c.estado === 'completado';

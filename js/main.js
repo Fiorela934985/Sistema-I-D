@@ -37,6 +37,7 @@ function entrarAlSistema(){
   renderRRDetail();
   if(usuarioActual && (usuarioActual.rol === 'admin' || usuarioActual.rol === 'lider')) generarListaDiaria(false);
   abrirEnlaceSistema();
+  Inventario.cargar();
 }
 /* Con servidor, la sesión solo se restaura si el token sigue vigente; se valida en segundo plano */
 if((!Nube.activa() || Nube.tieneToken()) && restaurarSesion()){

@@ -19,7 +19,7 @@ ERP de proyectos para el Laboratorio I+D (NEW I+D - SSCC): proyectos con sus ens
 | 4 | Formatos, Informes y RR con aprobación | **Lista** |
 | 5 | Planificación (Gantt, actividades de la semana) y notificaciones por correo | **Lista** |
 | 6 | Inicio "Mi semana" y card de la poza de curado | **Lista** |
-| 7 | Calidad (documentos, trabajo no conforme), integración con inventario e Inteligencia | Pendiente |
+| 7 | Calidad (documentos, trabajo no conforme), integración con inventario e Inteligencia | **Lista** |
 
 El esquema de base de datos (`worker/schema.sql`) incluye las tablas de todas las fases. **Con servidor, todo vive en D1:** configuración del laboratorio, personal, proyectos, historial y, desde la Fase 4, diseños, réplicas, roturas, lotes de agregado, informes RR, informes finales y trabajos no conformes (tabla `registros`). Al conectar el servidor por primera vez, lo que ya existía en el navegador se sube solo. Los permisos y la regla de aprobación de informes se verifican en el servidor.
 
@@ -68,6 +68,9 @@ Los usuarios con el rol anterior *Jefatura* pasan solos a *Líder*.
 - **Correos:** cada evento (semana publicada, diseño asignado, lista diaria con roturas de hoy y atrasadas, trabajo no conforme) deja su correo en *Planificación › Correos por enviar*, con el enlace a la pantalla exacta. Hoy se envían con «Enviar con Gmail»; el envío automático desde el servidor queda para las integraciones (Fase 7).
 - **Inicio "Mi semana":** nadie lo llena; junta lo de Proyectos, Planificación y Formatos en una sola pantalla. El técnico entra a *Mío* (ve el equipo en solo lectura) y el líder a *Todo el equipo*. Cada bloque muestra hasta 5 y tiene *Ver todo*.
 - **Poza de curado:** lectura diaria con semáforo y gráfica con el rango sombreado (7 días, 30 días, 3 meses). Un día sin lectura queda como hueco. Una lectura fuera de rango abre un trabajo no conforme con las probetas que estaban curando.
+- **Documentos (8.3):** código, versión vigente, fecha, enlace o archivo. La versión anterior queda obsoleta. Cada formato del sistema toma de aquí su código y versión.
+- **Trabajo no conforme (7.10):** se abre (automático o *Reportar*) → se evalúa (responsable y causa) → se decide (aceptar con nota, repetir el ensayo, anular el resultado) → se cierra. Un resultado anulado no entra al promedio ni al RR; *repetir* crea una rotura nueva; la nota de *aceptar* aparece en el RR.
+- **Inventario (solo lectura):** el servidor lee la base D1 `inventario` de la misma cuenta. Solo se eligen equipos con calibración vigente (regla 5); el plan de trabajo avisa si una calibración vence en sus fechas o si un material tiene stock bajo.
 - **Etiquetas:** 3 iguales por edad, en blanco y negro, con QR; al escanearla se abre el registro de esa rotura.
 - **Nada se borra:** los usuarios se desactivan; los ensayos y flujos se desactivan; las capacitaciones se anulan; las autorizaciones se revocan; los diseños y las roturas se **anulan**. Siempre con motivo.
 - **Formatos = proyecto:** lo que se llena en un Formato aparece dentro del proyecto y viceversa (es el mismo registro). Cambiar un valor que ya existía pide el motivo.
