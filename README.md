@@ -16,7 +16,7 @@ ERP de proyectos para el Laboratorio I+D (NEW I+D - SSCC): proyectos con sus ens
 | 3 | Flujo por diseño (5 pasos), estado fresco, Roturas y etiquetas QR | **Lista** |
 | 4 | Formatos, Informes y RR con aprobación | **Lista** |
 | 5 | Planificación (Gantt, actividades de la semana) y notificaciones por correo | **Lista** |
-| 6 | Inicio "Mi semana" y card de la poza de curado | Pendiente |
+| 6 | Inicio "Mi semana" y card de la poza de curado | **Lista** |
 | 7 | Calidad (documentos, trabajo no conforme), integración con inventario e Inteligencia | Pendiente |
 
 El esquema de base de datos (`worker/schema.sql`) incluye las tablas de todas las fases. **Con servidor, todo vive en D1:** configuración del laboratorio, personal, proyectos, historial y, desde la Fase 4, diseños, réplicas, roturas, lotes de agregado, informes RR, informes finales y trabajos no conformes (tabla `registros`). Al conectar el servidor por primera vez, lo que ya existía en el navegador se sube solo. Los permisos y la regla de aprobación de informes se verifican en el servidor.
@@ -28,7 +28,7 @@ El menú sigue la secuencia del prompt maestro. Inicio, Proyectos y Planificaci�
 
 | Grupo | Entrada | Estado |
 |---|---|---|
-| Inicio | Inicio | Actual (Mi semana en la Fase 6) |
+| Inicio | Inicio | **Fase 6:** Mi semana (Mis pendientes, poza de curado, calendario semanal, actividades, diseños y proyectos de la semana) con Mío / Todo el equipo |
 | Proyectos | Proyectos | **Fase 2:** lista con filtros y radar de etapas, asistente de 4 pasos y pestañas Resumen · Muestras · Diseños · Ensayos · Informes · Plan de trabajo · Archivo |
 | Formatos | Formato de Diseños (D-CC-F-148) · Formato de Estado Fresco · Formato de Roturas I+D · Formato de Cargas y Promediados · Etiquetas | **Fase 4:** tablas unificadas editables en la celda, con filtros (proyecto, iteración, código, responsable, fechas), semáforo y chips, motivo en cada edición y Excel. Registro manual de roturas. Etiquetas QR (Fase 3) |
 | Planificación | Una sola entrada con tres botones: Plan de trabajo · Asignar actividades · Calendario | **Fase 5:** Gantt por proyecto con semanas partidas por mes, actividades de la semana con publicación, calendario con actividades, roturas e hitos, y bandeja de correos |
@@ -64,6 +64,8 @@ Los usuarios con el rol anterior *Jefatura* pasan solos a *Líder*.
 - **Semanas del plan partidas por mes:** lunes a domingo, cortadas en el cambio de mes. El lunes 30/11/2026 es W5 de noviembre (solo ese día) y 01–06/12 es W1 de diciembre; una barra que cruza el mes se pinta en las dos semanas. Si el mes empieza en domingo, ese día se suma a W1.
 - **Actividades de la semana:** la semana queda en Borrador hasta *Publicar semana*, que deja un solo correo por usuario. Lo que se agrega después sale como correo corto solo con lo nuevo. Una actividad ligada a un paso de un diseño se marca sola cuando el diseño completa ese paso.
 - **Correos:** cada evento (semana publicada, diseño asignado, lista diaria con roturas de hoy y atrasadas, trabajo no conforme) deja su correo en *Planificación › Correos por enviar*, con el enlace a la pantalla exacta. Hoy se envían con «Enviar con Gmail»; el envío automático desde el servidor queda para las integraciones (Fase 7).
+- **Inicio "Mi semana":** nadie lo llena; junta lo de Proyectos, Planificación y Formatos en una sola pantalla. El técnico entra a *Mío* (ve el equipo en solo lectura) y el líder a *Todo el equipo*. Cada bloque muestra hasta 5 y tiene *Ver todo*.
+- **Poza de curado:** lectura diaria con semáforo y gráfica con el rango sombreado (7 días, 30 días, 3 meses). Un día sin lectura queda como hueco. Una lectura fuera de rango abre un trabajo no conforme con las probetas que estaban curando.
 - **Etiquetas:** 3 iguales por edad, en blanco y negro, con QR; al escanearla se abre el registro de esa rotura.
 - **Nada se borra:** los usuarios se desactivan; los ensayos y flujos se desactivan; las capacitaciones se anulan; las autorizaciones se revocan; los diseños y las roturas se **anulan**. Siempre con motivo.
 - **Formatos = proyecto:** lo que se llena en un Formato aparece dentro del proyecto y viceversa (es el mismo registro). Cambiar un valor que ya existía pide el motivo.
@@ -126,6 +128,7 @@ js/core/
 js/modules/
   navegacion.js                 Menú del prompt maestro y atajos de teclado
   planificacion.js              Plan de trabajo (Gantt), actividades de la semana, calendario y bandeja de correos
+  mi-semana.js                  Inicio "Mi semana" y poza de curado
   proyecto-ficha.js             Ficha del proyecto y estados calculados (Abierto/Cerrado, Falta, semáforo)
   proyectos-panel.js            Lista de proyectos, radar de etapas y pestañas del proyecto
   proyecto-asistente.js         Asistente de Nuevo proyecto (4 pasos)

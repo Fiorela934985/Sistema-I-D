@@ -143,14 +143,13 @@ function renderBandeja(){
   var pend = lista.filter(function(c){ return c.estado === 'pendiente'; });
   wrap.innerHTML = '<div class="ev-toolbar"><span class="section-num" style="margin:0;">Correos por enviar <span class="badge-pill">' + pend.length + '</span></span>' +
     (lider ? '<button class="btn-add ghost" data-correo-acc="diaria">Armar lista diaria</button>' : '') + '</div>' +
-    '<p class="nota-sm">Cada correo lleva el enlace a la pantalla exacta. «Enviar con Gmail» lo abre listo para enviar; el envío automático desde el servidor se configura con las integraciones (Fase 7).</p>' +
     (lista.length ? '<div class="table-scroll"><table class="data-table"><thead><tr><th>Evento</th><th>Para</th><th>Asunto</th><th>Creado</th><th>Estado</th><th></th></tr></thead><tbody>' + lista.slice(0, 40).map(function(c){
       return '<tr><td>' + esc(c.evento) + '</td><td>' + esc(c.para) + (c.correo ? '<div class="nota-sm">' + esc(c.correo) + '</div>' : '<div class="nota-sm chip-falta">sin correo</div>') + '</td>' +
         '<td>' + esc(c.asunto) + '</td><td>' + new Date(c.creado_en).toLocaleString('es-PE', {dateStyle:'short', timeStyle:'short'}) + '</td>' +
         '<td>' + (c.estado === 'enviado' ? '<span class="chip-ok">Enviado</span>' : '<span class="chip-falta">Pendiente</span>') + '</td>' +
         '<td class="acciones-fila"><button class="btn-add ghost" data-correo-acc="ver" data-id="' + esc(c.id) + '">Ver</button>' +
         (c.estado === 'pendiente' && lider ? '<a class="btn-add" target="_blank" rel="noopener" href="' + esc(enlaceGmail(c)) + '" data-correo-acc="gmail" data-id="' + esc(c.id) + '">Enviar con Gmail</a>' : '') + '</td></tr>';
-    }).join('') + '</tbody></table></div>' : '<p class="nota-sm">No hay correos.</p>');
+    }).join('') + '</tbody></table></div>' : '<p class="nota-sm">Sin correos.</p>');
 }
 function marcarCorreoEnviado(id){
   var c = correos.filter(function(x){ return x.id === id; })[0];
@@ -209,8 +208,8 @@ function renderPlanes(){
       '<button class="btn-add verde" data-plan-acc="nuevo" data-perm="planes:gestionar">+ Nuevo plan</button></div>' +
     '<div class="plan-layout"><aside class="plan-lista-planes">' + (lista.length ? lista.map(function(p){
       return '<button class="plan-item-lista' + (planEd && planEd.id === p.id ? ' activo' : '') + '" data-plan-sel="' + esc(p.id) + '"><b>' + esc(p.nombre) + '</b><span class="mono">' + esc(p.codigo) + '</span><span>' + esc(p.proyecto) + ' · ' + nombreMes(p.mes_inicio).slice(0, 3) + '–' + nombreMes(p.mes_fin) + '</span></button>';
-    }).join('') : '<p class="nota-sm">Todavía no hay planes.</p>') + '</aside>' +
-    '<div class="plan-editor" id="plan-editor">' + (planEd ? editorPlanHtml(planEd) : '<div class="empty-note">Elegí un plan o creá uno nuevo.</div>') + '</div></div>';
+    }).join('') : '<p class="nota-sm">Sin planes.</p>') + '</aside>' +
+    '<div class="plan-editor" id="plan-editor">' + (planEd ? editorPlanHtml(planEd) : '<div class="empty-note">Sin plan seleccionado.</div>') + '</div></div>';
   if(planEd) renderGantt();
 }
 function editorPlanHtml(p){
@@ -241,7 +240,7 @@ function editorPlanHtml(p){
       '<div class="pp-field"><label>Mes de fin</label><input type="month" id="pl-mes-fin" value="' + esc(p.mes_fin) + '"' + dis + '></div>' +
       '<div class="pp-field"><label>Código</label><input value="' + esc(p.codigo) + '" disabled></div>' +
     '</div>' +
-    (p.origen === 'archivo' ? '<div class="card plan-archivo"><div class="section-num">Plan subido</div>' + (p.archivo ? '<p><b>' + esc(p.archivo.nombre) + '</b> · ' + Math.round(p.archivo.tam / 1024) + ' KB · <button class="btn-link" data-plan-acc="descargar">Descargar</button></p>' : '<p class="nota-sm">Todavía no se subió el archivo.</p>') +
+    (p.origen === 'archivo' ? '<div class="card plan-archivo"><div class="section-num">Plan subido</div>' + (p.archivo ? '<p><b>' + esc(p.archivo.nombre) + '</b> · ' + Math.round(p.archivo.tam / 1024) + ' KB · <button class="btn-link" data-plan-acc="descargar">Descargar</button></p>' : '<p class="nota-sm">Sin archivo.</p>') +
       (editable ? '<input type="file" id="pl-archivo" accept=".pdf,.pptx,.xlsx,application/pdf,application/vnd.openxmlformats-officedocument.presentationml.presentation,application/vnd.openxmlformats-officedocument.spreadsheetml.sheet">' : '') + '</div>' : '') +
     (p.origen !== 'archivo' ? '<div class="plan-etapas">' + p.etapas.map(function(e){
       return '<div class="card plan-etapa" data-et="' + esc(e.id) + '"><div class="ev-toolbar"><input class="fmt-in plan-etapa-nombre" data-ef="nombre" value="' + esc(e.nombre) + '"' + dis + '>' +
@@ -251,7 +250,7 @@ function editorPlanHtml(p){
     }).join('') + (editable ? '<button class="btn-add ghost" data-plan-acc="etapa">+ Etapa</button>' : '') + '</div>' : '') +
     '<div class="plan-acciones">' + (editable ? '<button class="btn-add verde" data-plan-acc="guardar">Guardar plan</button>' : '') +
       (p.origen !== 'archivo' ? '<button class="btn-add ghost" data-plan-acc="pdf">Descargar PDF</button><button class="btn-add ghost" data-plan-acc="pptx">Descargar PPTX</button>' : '') + '</div>' +
-    (p.origen !== 'archivo' ? '<div class="card"><div class="section-num">Vista previa <span class="nota-sm">Arrastrá una barra a otra semana para mover sus fechas</span></div><div class="gantt-leyenda"><span><i class="gl-ejec"></i>Ejecución</span><span><i class="gl-prel"></i>Preliminar</span><span><i class="gl-rep">R</i>Reporte</span><span><i class="gl-hito">◆</i>Hitos R7 · R28 · R56</span></div><div class="table-scroll" id="gantt-wrap"></div></div>' : '');
+    (p.origen !== 'archivo' ? '<div class="card"><div class="section-num">Gantt</div><div class="gantt-leyenda"><span><i class="gl-ejec"></i>Ejecución</span><span><i class="gl-prel"></i>Preliminar</span><span><i class="gl-rep">R</i>Reporte</span><span><i class="gl-hito">◆</i>Hitos R7 · R28 · R56</span></div><div class="table-scroll" id="gantt-wrap"></div></div>' : '');
 }
 function renderGantt(){
   var wrap = document.getElementById('gantt-wrap');
@@ -374,7 +373,6 @@ function renderTablero(){
       '<div class="cal-toolbar plan-semana"><button class="cal-nav" data-act-sem="-7">‹</button><b>' + isoToDMY(lunes).slice(0, 5) + ' – ' + isoToDMY(dom) + '</b><button class="cal-nav" data-act-sem="7">›</button><button class="btn-ghost" data-act-sem="hoy">Esta semana</button>' +
       '<span class="tag-pill ' + (pub ? 'tag-verde' : 'tag-gris') + '">' + (pub ? 'Publicada ' + new Date(pub.publicada_en).toLocaleDateString('es-PE') : 'Borrador') + '</span>' + (borr && pub ? '<span class="chip-falta">' + borr + ' nueva(s) sin enviar</span>' : '') + '</div>' +
       (puede ? '<span class="ch-actions"><button class="btn-add ghost" data-act-acc="nueva" data-perm="actividades:publicar">+ Actividad</button><button class="btn-add verde" data-act-acc="publicar" data-perm="actividades:publicar">' + (pub ? 'Enviar novedades' : 'Publicar semana') + '</button></span>' : '') + '</div>' +
-    (!pub && puede ? '<p class="nota-sm">La semana está en Borrador: nadie recibe nada mientras se edita.</p>' : '') +
     '<div class="tablero" style="--cols:' + Math.max(1, personas.length) + '">' + personas.map(function(u){
       var suyas = lista.filter(function(a){ return a.responsable_id === u.id; }).sort(function(a,b){ return a.desde.localeCompare(b.desde) || ({alta:0, media:1, baja:2}[a.prioridad] - {alta:0, media:1, baja:2}[b.prioridad]); });
       return '<div class="tab-col"><div class="tab-col-cab"><b>' + esc(u.nombre || u.usuario) + '</b><span class="nota-sm">' + esc(rolLabel(u.rol)) + ' · ' + suyas.length + '</span></div>' +
@@ -647,5 +645,26 @@ abrirTncAutomatico = function(tipo, detalle, carga){
   para.forEach(function(id){ encolarCorreo(id, 'Trabajo no conforme', t.codigo + ' · ' + (TIPOS_TNC[tipo] || tipo), [t.codigo + ': ' + (TIPOS_TNC[tipo] || tipo), 'Afecta a: ' + carga.codigo + ' · ' + carga.dia + ' d · ' + (carga.proyecto || ''), detalle], '#no-conforme'); });
   return t;
 };
+
+/* ================= PESTAÑA PLAN DE TRABAJO DEL PROYECTO ================= */
+function expPlanHtml(ficha){
+  var planes = planesTrabajo.filter(function(p){ return !p.anulado && p.proyecto === ficha.nombre; });
+  var lunes = lunesDe(todayISO()), dom = addDaysISO(lunes, 6);
+  var acts = actividades.filter(function(a){ return !a.anulada && a.proyecto === ficha.nombre && a.desde <= dom && a.hasta >= lunes; });
+  return '<div class="card"><div class="ev-toolbar"><span class="section-num" style="margin:0;">Planes de trabajo</span><button class="btn-add verde" data-nuevo-plan="' + esc(ficha.nombre) + '" data-perm="planes:gestionar">+ Plan de trabajo</button></div>' +
+    (planes.length ? '<div class="table-scroll"><table class="data-table"><thead><tr><th>Código</th><th>Nombre</th><th>Origen</th><th>Rango</th><th>Ítems</th><th></th></tr></thead><tbody>' + planes.map(function(p){
+      var n = (p.etapas || []).reduce(function(a, e){ return a + e.items.length; }, 0);
+      return '<tr><td class="mono"><b>' + esc(p.codigo) + '</b></td><td>' + esc(p.nombre) + '</td><td>' + (p.origen === 'archivo' ? 'Archivo' : 'Generador') + '</td><td>' + esc(nombreMes(p.mes_inicio)) + ' – ' + esc(nombreMes(p.mes_fin)) + '</td><td>' + n + '</td><td><button class="btn-add ghost" data-abrir-plan="' + esc(p.id) + '">Abrir</button></td></tr>';
+    }).join('') + '</tbody></table></div>' : '<div class="empty-note">Sin planes.</div>') + '</div>' +
+    '<div class="card" style="margin-top:12px;"><div class="section-num">Actividades de la semana</div>' + (acts.length ? '<div class="table-scroll"><table class="data-table"><thead><tr><th>Actividad</th><th>Responsable</th><th>Fecha</th><th>Estado</th></tr></thead><tbody>' + acts.map(function(a){
+      return '<tr><td>' + esc(a.titulo) + '</td><td>' + esc(nombreDe(a.responsable_id)) + '</td><td>' + isoToDMY(a.desde).slice(0, 5) + (a.hasta !== a.desde ? '–' + isoToDMY(a.hasta).slice(0, 5) : '') + '</td><td>' + (actividadHecha(a) ? '<span class="chip-ok">Hecha</span>' : '<span class="tag-pill ' + (a.estado === 'publicada' ? 'tag-verde' : 'tag-gris') + '">' + (a.estado === 'publicada' ? 'Publicada' : 'Borrador') + '</span>') + '</td></tr>';
+    }).join('') + '</tbody></table></div>' : '<div class="empty-note">Sin actividades.</div>') + '</div>';
+}
+document.addEventListener('click', function(e){
+  var np = e.target.closest('[data-nuevo-plan]');
+  if(np){ if(!exigir('planes:gestionar')) return; planVista = 'plan'; planEd = nuevoPlan(np.dataset.nuevoPlan); planSelId = planEd.id; showPanel('planificacion'); return; }
+  var ap = e.target.closest('[data-abrir-plan]');
+  if(ap){ planVista = 'plan'; planSelId = ap.dataset.abrirPlan; planEd = null; showPanel('planificacion'); }
+});
 
 PANEL_HOOKS.planificacion = function(){ mostrarVistaPlan(planVista); };

@@ -467,14 +467,15 @@ const COLECCIONES = {
   planes: ['planes:gestionar'],
   actividades: ['actividades:publicar', 'resultados:registrar', 'roturas:registrar'],
   correos: ['actividades:publicar', 'disenos:crear', 'resultados:registrar', 'roturas:registrar'],
-  semanas: ['actividades:publicar']
+  semanas: ['actividades:publicar'],
+  poza: ['resultados:registrar', 'roturas:registrar']
 };
 const sesion_esTecnico = (s) => s && s.rol !== 'admin' && !s.permisos.includes('actividades:publicar');
 function exigirAlguno(sesion, permisos) {
   if (!sesion) falla(401, 'Sesión vencida o inválida');
   if (sesion.rol !== 'admin' && !permisos.some((p) => sesion.permisos.includes(p))) falla(403, 'Tu rol no tiene permiso para esta acción');
 }
-const MODULO_COLECCION = { disenos: 'Diseño', roturas: 'Rotura', lotes: 'Lote de agregado', informes: 'Informes', tnc: 'Trabajo no conforme', contadores: 'Códigos', planes: 'Planificación', actividades: 'Actividades', correos: 'Correos', semanas: 'Actividades' };
+const MODULO_COLECCION = { disenos: 'Diseño', roturas: 'Rotura', lotes: 'Lote de agregado', informes: 'Informes', tnc: 'Trabajo no conforme', contadores: 'Códigos', planes: 'Planificación', actividades: 'Actividades', correos: 'Correos', semanas: 'Actividades', poza: 'Poza de curado' };
 
 ruta('GET', '/api/registros', async (req, env, s) => {
   exigir(s);

@@ -150,7 +150,7 @@ document.getElementById('usr-tabla').addEventListener('click', function(e){
     if(!u) return;
     if(u.activo && u.rol === 'admin' && !hayOtroAdminActivo(u.id)){ toast('Tiene que quedar al menos un administrador activo'); return; }
     var accion = u.activo ? 'Desactivar' : 'Reactivar';
-    pedirMotivo(accion + ' usuario', '<p><b>' + esc(u.usuario) + '</b> · ' + esc(u.nombre || '') + (u.activo ? '<br><span class="nota-sm">No podrá ingresar. Su historial y sus registros se conservan.</span>' : '') + '</p>', function(motivo){
+    pedirMotivo(accion + ' usuario', '<p><b>' + esc(u.usuario) + '</b> · ' + esc(u.nombre || '') + (u.activo ? '<br><span class="nota-sm">No podrá ingresar.</span>' : '') + '</p>', function(motivo){
       var previo = JSON.parse(JSON.stringify(u));
       var nuevo = Object.assign({}, u, {activo:!u.activo});
       persistirUsuario(nuevo, previo, '', motivo).then(function(){ toast('Usuario ' + (nuevo.activo ? 'reactivado' : 'desactivado')); }).catch(function(){});

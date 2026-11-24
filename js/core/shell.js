@@ -61,7 +61,7 @@ function showPanel(name){
   document.querySelectorAll('.panel').forEach(function(sec){ sec.classList.toggle('active', sec.id === 'panel-' + name); });
   var info = panelInfo(name);
   document.getElementById('tb-panel-title').textContent = info.label;
-  document.getElementById('tb-crumb').textContent = info.grupo;
+  document.getElementById('tb-crumb').textContent = info.grupo === info.label ? '' : info.grupo;
   if(PANEL_HOOKS[name]) PANEL_HOOKS[name]();
   actualizarFlujo();
   cerrarMenuMovil();

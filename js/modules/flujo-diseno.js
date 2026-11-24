@@ -127,13 +127,13 @@ function renderTncPanel(){
   if(!sec) return;
   var card = document.getElementById('tnc-lista');
   if(!card){ card = document.createElement('div'); card.id = 'tnc-lista'; card.className = 'card'; card.style.marginTop = '16px'; sec.appendChild(card); }
-  card.innerHTML = '<div class="section-num">Abiertos automáticamente <span class="fase-chip">Evaluar, decidir y cerrar llega en la Fase 7</span></div>' +
+  card.innerHTML = '<div class="section-num">Trabajos no conformes</div>' +
     (trabajosNoConformes.length ? '<div class="table-scroll"><table class="data-table"><thead><tr><th>Código</th><th>Caso</th><th>Afecta a</th><th>Proyecto</th><th>Detalle</th><th>Abierto</th><th>Estado</th></tr></thead><tbody>' +
       trabajosNoConformes.map(function(t){
         return '<tr><td class="mono"><b>' + esc(t.codigo) + '</b></td><td>' + esc(TIPOS_TNC[t.tipo] || t.tipo) + (t.alerta ? ' <span class="fase-chip">alerta</span>' : '') + '</td>' +
           '<td class="mono">' + esc(t.codigos.join(', ')) + (t.edad ? ' · ' + t.edad + ' d' : '') + '</td><td>' + esc(t.proyecto || '—') + '</td><td>' + esc(t.detalle) + '</td>' +
           '<td>' + new Date(t.creado_en).toLocaleString('es-PE', {dateStyle:'short', timeStyle:'short'}) + '</td><td><span class="chip-falta' + (t.estado === 'Abierto' ? ' atrasado' : '') + '">' + esc(t.estado) + '</span></td></tr>';
-      }).join('') + '</tbody></table></div>' : '<p class="nota-sm">No hay trabajos no conformes.</p>');
+      }).join('') + '</tbody></table></div>' : '<p class="nota-sm">Sin registros.</p>');
 }
 
 /* ================= LOTES DE AGREGADO (lote compartido) ================= */
@@ -165,7 +165,7 @@ function abrirLoteModal(d, modo){
       return '<tr><td class="mono"><b>' + esc(l.codigo) + '</b></td><td>' + esc(l.fino || '—') + '</td><td>' + esc(l.grueso || '—') + '</td><td>' + esc(l.procedencia || '—') + '</td>' +
         '<td>' + (l.fecha ? isoToDMY(l.fecha) : '—') + '</td><td>' + esc(l.resultados.modulo_finura || '—') + '</td><td>' + disenosDeLote(l.id).length + ' diseño(s)</td>' +
         '<td><button class="btn-add" data-lote-usar="' + esc(l.id) + '"' + (d.loteAgregadoId === l.id ? ' disabled' : '') + '>' + (d.loteAgregadoId === l.id ? 'En uso' : 'Usar') + '</button></td></tr>';
-    }).join('') + '</tbody></table></div>' : '<p class="nota-sm">Todavía no hay lotes caracterizados.</p>';
+    }).join('') + '</tbody></table></div>' : '<p class="nota-sm">Sin lotes.</p>';
   var ensayosCar = ensayosDeEtapaEnProyecto(d, 'caracterizacion');
   var campos = CAMPOS_LOTE.filter(function(c){ return !ensayosCar.length || ensayosCar.indexOf(c.ens) > -1; });
   var form = '<div class="pred-form">' +
@@ -259,7 +259,7 @@ function lineaPasosHtml(d){
 }
 function tablaReplicasHtml(d){
   var reps = d.replicaObjs || [];
-  if(!reps.length) return '<p class="nota-sm">Todavía no se definieron las réplicas de este diseño.</p>';
+  if(!reps.length) return '<p class="nota-sm">Sin réplicas.</p>';
   return '<div class="table-scroll"><table class="data-table flujo-reps"><thead><tr><th>Réplica</th><th>Código</th><th>Elaboración</th><th>A cargo de</th><th>Fresco</th><th>Roturas</th><th>Próxima ventana</th><th></th></tr></thead><tbody>' +
     reps.map(function(r, i){
       var cs = cargasActivas(d).filter(function(c){ return c.replicaNombre === r.nombre; });
@@ -299,7 +299,7 @@ function renderFlujoDiseno(){
     '<div class="flujo-datos">' +
       '<div class="pp-field"><label>Asignado a</label><div class="flujo-asignar"><select id="flujo-asignado">' + opcionesUsuariosHtml(d.asignadoA || '', 'Sin asignar', true) + '</select>' +
         '<button class="btn-add ghost" data-flujo-acc="asignar" data-perm="disenos:crear">Asignar</button></div></div>' +
-      '<div class="pp-field"><label>Lote de agregado</label><div>' + (lote ? '<b class="mono">' + esc(lote.codigo) + '</b> · ' + esc([lote.fino, lote.grueso].filter(Boolean).join(' + ') || '—') : '<span class="nota-sm">' + (d.flujo ? 'Sin lote' : 'Diseño anterior a la Fase 3') + '</span>') + '</div></div>' +
+      '<div class="pp-field"><label>Lote de agregado</label><div>' + (lote ? '<b class="mono">' + esc(lote.codigo) + '</b> · ' + esc([lote.fino, lote.grueso].filter(Boolean).join(' + ') || '—') : '<span class="nota-sm">' + 'Sin lote' + '</span>') + '</div></div>' +
       '<div class="pp-field"><label>Protocolo de edades</label><div>' + (d.diasRotura || []).map(function(x){ return '<span class="chip-edad">' + x + ' d</span>'; }).join('') + '</div></div>' +
     '</div>' +
     '<div class="section-num" style="margin-top:14px;">Réplicas</div>' + tablaReplicasHtml(d);
@@ -366,7 +366,7 @@ function abrirElaboracion(d, repIdx, iniciar){
       '<div class="pp-field"><label>A cargo de</label><select id="elab-acargo">' + opcionesUsuariosHtml(d.asignadoA || (usuarioActual && usuarioActual.id) || '') + '</select></div>' +
       '<div class="pp-field"><label>Fecha de elaboración</label><input type="date" id="elab-fecha" value="' + todayISO() + '"></div>' +
       '<div class="pp-field"><label>Hora de contacto (0\')</label><div class="hora-celda"><input type="time" id="elab-hora"><button type="button" class="btn-add verde" id="elab-iniciar">Iniciar (0\')</button></div>' +
-        '<small class="nota-sm">Puede llenarse al final del turno; sin hora no se calcula la ventana.</small></div>' +
+        '</div>' +
       '<div class="pp-field span-2"><label>Edades del protocolo y ventanas de rotura</label><div id="elab-ventanas"></div></div>' +
       '<div class="pp-field span-2"><label>Ajustes a la receta en el momento (si hubo)</label><textarea id="elab-ajustes" rows="2" placeholder="Ej. se agregaron 0.5 L de agua para llegar al slump"></textarea></div>' +
     '</div>';
@@ -383,7 +383,7 @@ function actualizarElabPreview(){
   document.getElementById('elab-ventanas').innerHTML = (d.diasRotura || []).map(function(dia){
     var c = {fechaElaboracion:fecha, horaElaboracion:hora, dia:dia, fechaEnsayo:calcularFechaEnsayo(fecha, dia)};
     return '<span class="chip-edad">' + dia + ' d · ' + esc(fecha ? textoVentana(c) : '—') + ' · ±' + toleranciaHoras(dia) + ' h</span>';
-  }).join(' ') + '<div class="nota-sm" style="margin-top:4px;">Se crean ' + (d.diasRotura || []).length + ' roturas (una por edad, M1–M3 en cada una).</div>';
+  }).join(' ');
 }
 function guardarElaboracion(){
   var d = disenoPorCodigo(elabDisenoCodigo);

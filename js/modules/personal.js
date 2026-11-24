@@ -102,7 +102,7 @@ function renderFichaModal(){
   document.getElementById('fi-auts').innerHTML = auts.length ? '<div class="chips-fila">' + auts.map(function(a){
     var e = Lab.ensayo(a.ensayo_id);
     return '<span class="chip-aut" title="Autorizó: '+esc(nombreUsuario(a.autorizado_por))+'"><b>'+esc(e ? e.codigo : '?')+'</b> '+esc(e ? e.nombre : '')+' · desde '+isoToDMY(a.desde)+'</span>';
-  }).join('') + '</div>' : '<p class="nota-sm">Sin ensayos autorizados. Se otorgan desde la matriz de autorización.</p>';
+  }).join('') + '</div>' : '<p class="nota-sm">Sin ensayos autorizados.</p>';
 }
 function guardarFichaPersonal(){
   if(!exigir('personal:autorizar')) return;
@@ -164,7 +164,7 @@ function asegurarModalAutorizar(){
   m.className = 'sid-modal';
   m.innerHTML = '<div class="modal-card"><div class="modal-header"><h3>Autorizar ensayo</h3><button class="modal-close" data-close="autorizar-modal">×</button></div>' +
     '<div class="modal-body"><p id="aut-resumen"></p><div class="pp-field"><label for="aut-desde">Autorizado desde</label><input type="date" id="aut-desde"></div>' +
-    '<p class="nota-sm">Queda registrado que lo autorizaste vos (' + esc(usuarioActual ? (usuarioActual.nombre || usuarioActual.usuario) : '') + ').</p></div>' +
+    '</div>' +
     '<div class="modal-actions"><button class="btn-add" id="aut-ok">Autorizar</button><button class="btn-add ghost" data-close="autorizar-modal">Cancelar</button></div></div>';
   document.body.appendChild(m);
 }

@@ -116,7 +116,7 @@ function renderAsistente(){
     }).join('') + '</div>';
   } else if(asis.paso === 1){
     var opciones = ensayosParaObjetivo();
-    c.innerHTML = '<p class="nota-sm">Objetivos medibles del proyecto. Se evalúan solos con los resultados de los diseños.</p>' +
+    c.innerHTML = '<p class="nota-sm">Objetivos medibles</p>' +
       (f.objetivos.length ? '<div class="table-scroll"><table class="data-table obj-tabla"><thead><tr><th>Ensayo</th><th>Edad</th><th>Condición</th><th>Valor</th><th>Hasta</th><th>Unidad</th><th>Descripción</th><th></th></tr></thead><tbody>' +
         f.objetivos.map(function(o, i){
           var e = Lab.ensayo(o.ensayo_id);
@@ -158,7 +158,7 @@ function renderAsistente(){
       '<div><span class="nota-sm">Responsable y equipo</span><b>'+esc(nombreDe(f.responsable_id))+'</b><span>'+(f.equipo.map(nombreDe).join(', ') || 'Sin equipo')+'</span></div>' +
       '<div><span class="nota-sm">Fechas estimadas</span><b>'+(f.fecha_inicio ? isoToDMY(f.fecha_inicio) : '?')+' – '+(f.fecha_fin ? isoToDMY(f.fecha_fin) : '?')+'</b></div>' +
       '<div><span class="nota-sm">Objetivos</span>'+(f.objetivos.length ? '<ul class="obj-lista">' + f.objetivos.map(function(o){ return '<li>'+esc(textoObjetivo(o))+'</li>'; }).join('') + '</ul>' : '<span>Sin objetivos</span>')+'</div>' +
-      '<div><span class="nota-sm">Checklist que heredará cada diseño ('+f.ensayos.length+' ensayos)</span>' + ETAPAS_ENSAYO.filter(function(et){ return porEtapa[et.id]; }).map(function(et){
+      '<div><span class="nota-sm">Checklist ('+f.ensayos.length+' ensayos)</span>' + ETAPAS_ENSAYO.filter(function(et){ return porEtapa[et.id]; }).map(function(et){
         return '<div class="asis-conf-etapa"><b>'+esc(et.label)+':</b> '+porEtapa[et.id].map(function(cod){ return '<span class="chip-campo">'+esc(cod)+'</span>'; }).join('')+'</div>';
       }).join('') + (porEtapa.endurecido ? '<div class="asis-conf-etapa"><b>Edades de rotura:</b> '+f.edades.map(function(d){ return '<span class="chip-edad">'+d+' d</span>'; }).join('')+'</div>' : '') + '</div>' +
       '<div><span class="nota-sm">Pestañas del proyecto</span><div class="chips-fila">'+tabs.map(function(t){ return '<span class="chip-aut">'+esc(t)+'</span>'; }).join('')+'</div></div>' +

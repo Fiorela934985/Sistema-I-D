@@ -20,7 +20,8 @@ var Sync = (function(){
     'sid_planes': {col:'planes', id:function(p){ return p.id; }},
     'sid_actividades': {col:'actividades', id:function(a){ return a.id; }},
     'sid_correos': {col:'correos', id:function(c){ return c.id; }},
-    'sid_semanas_publicadas': {col:'semanas', unico:'publicadas'}
+    'sid_semanas_publicadas': {col:'semanas', unico:'publicadas'},
+    'sid_poza': {col:'poza', id:function(l){ return l.id; }}
   };
   var snap = load('sid_sync_snap', {});
   var pausado = false;
@@ -84,6 +85,7 @@ var Sync = (function(){
         informesFinales = inf.filter(function(e){ return e.tipo === 'final'; });
         trabajosNoConformes = mezclar(trabajosNoConformes, c.tnc || [], porIdF).sort(function(a,b){ return (b.creado_en || '').localeCompare(a.creado_en || ''); });
         planesTrabajo = mezclar(planesTrabajo, c.planes || [], porIdF);
+        lecturasPoza = mezclar(lecturasPoza, c.poza || [], porIdF);
         actividades = mezclar(actividades, c.actividades || [], porIdF);
         correos = mezclar(correos, c.correos || [], porIdF).sort(function(a,b){ return (b.creado_en || '').localeCompare(a.creado_en || ''); });
         var sp = Object.assign({}, (c.semanas || [])[0] || {}); delete sp.id;
@@ -91,7 +93,7 @@ var Sync = (function(){
         var cont = (c.contadores || [])[0] || {};
         CODIGO_COUNTERS = {Probetas:Math.max(CODIGO_COUNTERS.Probetas || 0, cont.Probetas || 0), Cubos:Math.max(CODIGO_COUNTERS.Cubos || 0, cont.Cubos || 0)};
         // Lo que vino del servidor queda marcado como ya sincronizado
-        [['disenos', c.disenos, porCodigo], ['roturas', c.roturas, porIdF], ['lotes', c.lotes, porIdF], ['informes', c.informes, porIdF], ['tnc', c.tnc, porIdF], ['planes', c.planes, porIdF], ['actividades', c.actividades, porIdF], ['correos', c.correos, porIdF]].forEach(function(t){
+        [['disenos', c.disenos, porCodigo], ['roturas', c.roturas, porIdF], ['lotes', c.lotes, porIdF], ['informes', c.informes, porIdF], ['tnc', c.tnc, porIdF], ['planes', c.planes, porIdF], ['actividades', c.actividades, porIdF], ['correos', c.correos, porIdF], ['poza', c.poza, porIdF]].forEach(function(t){
           (t[1] || []).forEach(function(doc){ snap[t[0] + '/' + t[2](doc)] = hash(JSON.stringify(doc) + (doc.anulado ? '#a' : '')); });
         });
       } finally { pausado = false; }
@@ -101,7 +103,7 @@ var Sync = (function(){
       save('sid10_rotura_cargas', roturaCargas); save('sid_roturas_anuladas', roturasAnuladas);
       save('sid_lotes_agregado', lotesAgregado); save('sid10_rr', rrEstudios); save('sid_informes_finales', informesFinales); save('sid_tnc', trabajosNoConformes);
       save('sid10_codigo_counters', CODIGO_COUNTERS);
-      save('sid_planes', planesTrabajo); save('sid_actividades', actividades); save('sid_correos', correos); save('sid_semanas_publicadas', semanasPublicadas);
+      save('sid_planes', planesTrabajo); save('sid_actividades', actividades); save('sid_correos', correos); save('sid_semanas_publicadas', semanasPublicadas); save('sid_poza', lecturasPoza);
       if(typeof refrescarTodoFlujo === 'function') refrescarTodoFlujo();
       if(typeof renderRRStudyList === 'function'){ renderRRStudyList(); renderRRDetail(); }
       return true;

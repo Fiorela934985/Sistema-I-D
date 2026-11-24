@@ -484,7 +484,7 @@ function actualizarCalculosRotura(){
   var cv = parseFloat(st.coefVar);
   document.getElementById('mc-calculos').innerHTML = st.promedio
     ? '<span>f\'c promedio <b>'+st.promedio+' kg/cm²</b></span><span>Desv. estándar <b>'+st.desvest+'</b></span><span class="'+(cv > cvAlerta() ? 'cv-alto' : '')+'">CV <b>'+st.coefVar+'</b>'+(cv > cvAlerta() ? ' · alto (más de '+cvAlerta()+' %)' : '')+'</span>'
-    : '<span class="nota-sm">Escribí las cargas para ver f\'c, desviación estándar y CV.</span>';
+    : '';
   document.getElementById('mc-ventana').innerHTML = estadoVentanaHtml(c, document.getElementById('mc-fechaEnsayoReal').value, document.getElementById('mc-horaEnsayo').value);
 }
 /* Regla 6: al completarse una rotura, fuera de la ventana abre un trabajo no conforme y un CV alto, una alerta */

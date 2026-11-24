@@ -65,7 +65,7 @@ function actualizarFlujo(){
   var info = panelInfo(panelActual);
   var etiqueta = panelActual === 'disenos' ? ((subTabDisenos === 'historico' || subTabDisenos === 'fresco') ? 'Formato de Estado Fresco' : 'Formato de Diseños (D-CC-F-148)') : info.label;
   document.getElementById('tb-panel-title').textContent = etiqueta;
-  document.getElementById('tb-crumb').textContent = info.grupo;
+  document.getElementById('tb-crumb').textContent = info.grupo === etiqueta ? '' : info.grupo;
   actualizarMenuSecciones();
 }
 
@@ -87,10 +87,8 @@ function crearSeccionesPorFase(){
     var sec = document.createElement('section');
     sec.id = 'panel-' + id;
     sec.className = 'panel';
-    sec.innerHTML = '<div class="content-header"><div><h2>' + esc(s.titulo) + '</h2></div><span class="fase-chip">Llega en la fase ' + s.fase + '</span></div>' +
-      '<div class="card fase-card"><ul class="fase-lista">' + s.items.map(function(t){ return '<li>' + esc(t) + '</li>'; }).join('') + '</ul>' +
-      (s.accion ? '<div class="form-actions"><button class="btn-add ghost" data-goto="' + s.accion.goto + '"' + (s.accion.sub ? ' data-sub="' + s.accion.sub + '"' : '') + '>' + esc(s.accion.texto) + '</button></div>' : '') +
-      '</div>';
+    sec.innerHTML = '<div class="content-header"><div><h2>' + esc(s.titulo) + '</h2></div>' + (id === 'no-conforme' ? '' : '<span class="fase-chip">Fase ' + s.fase + '</span>') + '</div>' +
+      (id === 'no-conforme' ? '' : '<div class="card"><div class="empty-note">Sin registros.</div></div>');
     main.appendChild(sec);
   });
 }

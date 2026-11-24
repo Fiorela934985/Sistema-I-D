@@ -143,7 +143,7 @@ function renderEtiquetasPanel(){
       '<td>' + isoToDMY(c.fechaElaboracion) + ' ' + (c.horaElaboracion ? esc(c.horaElaboracion) : '<span class="chip-falta">Falta: hora</span>') + '</td>' +
       '<td><span class="chip-edad">' + c.dia + ' d</span></td><td>' + esc(textoVentana(c)) + '</td>' +
       '<td>' + (c.estado === 'completado' ? '<span class="chip-ok">Rota</span>' : '<span class="chip-falta' + (cargaAtrasada(c) ? ' atrasado' : '') + '">' + (cargaAtrasada(c) ? 'Atrasada' : 'Pendiente') + '</span>') + '</td></tr>';
-  }).join('') : '<tr><td colspan="8" class="nota-sm">No hay etiquetas con este filtro. Los códigos nacen al registrar la elaboración de cada réplica.</td></tr>';
+  }).join('') : '<tr><td colspan="8" class="nota-sm">Sin etiquetas.</td></tr>';
   var n = Object.keys(etqpSeleccion).length;
   document.getElementById('etqp-todas').checked = lista.length > 0 && n === lista.length;
   document.getElementById('etqp-cuenta').textContent = lista.length + ' rotura(s) · ' + n + ' seleccionada(s) = ' + (n * ETIQUETAS_POR_EDAD) + ' etiquetas';

@@ -144,7 +144,7 @@ function renderFormatoDisenos(){
         '<td class="mono">' + ((d.replicaObjs || []).map(function(r){ return 'R' + r.n + ' ' + (r.codigo || '—'); }).join('<br>') || '—') + '</td>' +
         '<td>' + estadoDisenoHtml(d) + '</td>' +
         '<td class="acciones-fila"><button class="btn-icon" data-fdis="flujo" data-codigo="' + esc(d.codigo) + '" title="Flujo del diseño">' + FLUJO_ICON + '</button><button class="btn-icon" data-fdis="ver" data-codigo="' + esc(d.codigo) + '" title="Ver diseño">' + EYE_ICON + '</button></td></tr>';
-    }).join('') : '<tr><td colspan="16" class="nota-sm">No hay diseños con este filtro.</td></tr>') + '</tbody>';
+    }).join('') : '<tr><td colspan="16" class="nota-sm">Sin registros.</td></tr>') + '</tbody>';
 }
 document.getElementById('sub-tabla').addEventListener('click', function(e){
   var b = e.target.closest('[data-fdis]');
@@ -234,7 +234,7 @@ function renderFormatoFresco(){
           var v = valorFresco(x.res, c.k);
           return '<td>' + (editable ? '<input type="text" class="fmt-in fmt-corto" data-ffre-campo="' + c.k + '" data-codigo="' + esc(x.d.codigo) + '" data-rep="' + x.i + '" value="' + esc(v) + '">' : esc(v || '—')) + '</td>';
         }).join('') + '</tr>';
-    }).join('') : '<tr><td colspan="' + (6 + COLS_FRESCO.length) + '" class="nota-sm">No hay réplicas con este filtro.</td></tr>') + '</tbody>';
+    }).join('') : '<tr><td colspan="' + (6 + COLS_FRESCO.length) + '" class="nota-sm">Sin registros.</td></tr>') + '</tbody>';
 }
 document.getElementById('sub-fresco').addEventListener('change', function(e){
   var k = e.target.dataset.ffreCampo;
@@ -322,7 +322,7 @@ function renderRoturasFormato(){
   document.querySelectorAll('#ro-formato-tipo-tabs .view-toggle-btn').forEach(function(b){ b.classList.toggle('active', b.dataset.tipo === roFormatoTipo); });
   var filas = roFormatoTipo === 'Cubos' ? cubos : probetas;
   document.getElementById('ro-formato-tabla').innerHTML = '<thead><tr><th></th>' + CABECERA_ROTURAS.map(function(h){ return '<th>' + esc(h) + '</th>'; }).join('') + '<th></th></tr></thead><tbody>' +
-    (filas.length ? filas.map(filaRoturaHtml).join('') : '<tr><td colspan="' + (CABECERA_ROTURAS.length + 2) + '" class="nota-sm">Sin registros de ' + roFormatoTipo + ' con este filtro.</td></tr>') + '</tbody>';
+    (filas.length ? filas.map(filaRoturaHtml).join('') : '<tr><td colspan="' + (CABECERA_ROTURAS.length + 2) + '" class="nota-sm">Sin registros.</td></tr>') + '</tbody>';
 }
 function aplicarCampoRotura(c, f, v){
   var kgf = kgfPorKn();
@@ -403,7 +403,7 @@ function abrirRegistroManual(){
   if(!exigir('roturas:registrar')) return;
   var m = document.getElementById('manual-modal');
   if(!m){
-    document.body.insertAdjacentHTML('beforeend', '<div id="manual-modal" class="sid-modal"><div class="modal-card wide"><div class="modal-header"><div><h3>Registro manual de roturas</h3><div class="nota-sm">Para roturas que no vienen de un diseño. Los que vienen de un diseño nacen en su paso de Elaboración.</div></div><button class="modal-close" data-close="manual-modal">×</button></div>' +
+    document.body.insertAdjacentHTML('beforeend', '<div id="manual-modal" class="sid-modal"><div class="modal-card wide"><div class="modal-header"><h3>Registro manual de roturas</h3><button class="modal-close" data-close="manual-modal">×</button></div>' +
       '<div class="modal-body" id="manual-body"></div><div class="modal-actions"><button class="btn-add verde" id="manual-guardar">Registrar</button><button class="btn-add ghost" data-close="manual-modal">Cancelar</button></div></div></div>');
     document.getElementById('manual-modal').addEventListener('change', actualizarManualPreview);
     document.getElementById('manual-modal').addEventListener('input', actualizarManualPreview);
@@ -491,7 +491,6 @@ function filasCargas(){
 function renderFormatoCargas(){
   var cont = document.getElementById('rr-vista-cargas');
   if(!cont.querySelector('.fmt-cab')) cont.innerHTML = cabeceraFormatoHtml('cargas', 'Formato de Cargas y Promediados', '<span class="badge-pill" id="fcar-cuenta"></span><button class="btn-add ghost" data-fcar="excel" data-perm="datos:exportar">Excel</button>') +
-    '<p class="nota-sm">El promedio combina M1–M3 de todas las réplicas (R1, R2…) por edad y por nombre unificado. Es el número que entra al RR; los informes se generan desde la pestaña Informes del proyecto.</p>' +
     '<div id="fcar-filtros"></div><div class="table-scroll fmt-scroll"><table class="data-table fmt-tabla" id="fcar-tabla"></table></div>';
   montarFiltros('car', document.getElementById('fcar-filtros'), renderFormatoCargas);
   var filas = filasCargas();
@@ -508,7 +507,7 @@ function renderFormatoCargas(){
         '<td><b>' + esc(x.st.promedio || '—') + '</b></td><td>' + esc(x.st.desvest || '—') + '</td><td class="' + (parseFloat(x.st.coefVar) > cvAlerta() ? 'cv-alto' : '') + '">' + esc(x.st.coefVar || '—') + '</td><td>' + x.n + '</td>' +
         '<td>' + (x.hechas === x.total ? '<span class="chip-ok">' + x.hechas + '/' + x.total + '</span>' : '<span class="chip-falta">' + x.hechas + '/' + x.total + '</span>') + (x.nc ? ' <span class="chip-falta atrasado">No conforme</span>' : '') + '</td>' +
         '<td>' + (rr.map(function(e){ return '<span class="chip-edad" title="' + esc(e.nombre) + '">' + esc(e.codigo || e.nombre) + '</span>'; }).join('') || '—') + '</td></tr>';
-    }).join('') : '<tr><td colspan="' + (11 + maxRep) + '" class="nota-sm">Todavía no hay roturas registradas con este filtro.</td></tr>') + '</tbody>';
+    }).join('') : '<tr><td colspan="' + (11 + maxRep) + '" class="nota-sm">Sin registros.</td></tr>') + '</tbody>';
 }
 function montarVistasRR(){
   var sec = document.getElementById('panel-reporte-rr');
@@ -517,7 +516,6 @@ function montarVistasRR(){
   layout.id = 'rr-vista-informes';
   layout.insertAdjacentHTML('beforebegin', '<div class="view-toggle rr-vistas" id="rr-vistas"><button class="view-toggle-btn active" data-rr-vista="cargas">Cargas y promediados</button><button class="view-toggle-btn" data-rr-vista="informes">Informes RR</button></div><div class="card" id="rr-vista-cargas"></div>');
   sec.querySelector('.content-header h2').textContent = 'Formato de Cargas y Promediados';
-  sec.querySelector('.content-header p').textContent = 'Resistencia promedio por nombre unificado y edad, y los Reportes RR con su revisión y aprobación.';
   document.getElementById('rr-vistas').addEventListener('click', function(e){ var b = e.target.closest('[data-rr-vista]'); if(b) mostrarVistaRR(b.dataset.rrVista); });
   document.getElementById('rr-vista-cargas').addEventListener('click', function(e){
     if(!e.target.closest('[data-fcar="excel"]')) return;

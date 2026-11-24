@@ -20,6 +20,7 @@
 <link rel="stylesheet" href="css/pro.css">
 <link rel="stylesheet" href="css/flujo.css">
 <link rel="stylesheet" href="css/erp.css">
+<link rel="stylesheet" href="css/erp-compacto.css">
 <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.4/dist/chart.umd.min.js"></script>
 <script>
@@ -263,6 +264,8 @@ if(typeof Chart === 'undefined'){
 
     <!-- INICIO — sin cards -->
     <section id="panel-inicio" class="panel active">
+      <div id="mi-semana"></div>
+      <div hidden aria-hidden="true">
       <div class="inicio-header-centered">
         <h1 class="inicio-bienvenido" id="inicio-bienvenido">¡Bienvenido!</h1>
         <div class="inicio-fecha-hora" id="inicio-fecha-hora">—</div>
@@ -290,13 +293,14 @@ if(typeof Chart === 'undefined'){
           <div id="favoritos-grid"></div>
         </div>
       </div>
+    </div>
     </section>
 
 
     <!-- COMPONENTES -->
     <section id="panel-componentes" class="panel">
       <div class="content-header">
-        <div><h2 id="comp-title">Registro</h2><p>Materiales y proyectos que alimentan la calculadora de diseños.</p></div>
+        <div><h2 id="comp-title">Registro</h2></div>
         <span class="badge-pill" id="comp-count">0 registros</span>
       </div>
 
@@ -347,7 +351,7 @@ if(typeof Chart === 'undefined'){
     <!-- DISEÑOS -->
     <section id="panel-disenos" class="panel">
       <div class="content-header">
-        <div><h2>Diseños</h2><p>Calculá la dosificación (formato D-CC-F-148) o consultá el histórico de diseños.</p></div>
+        <div><h2>Diseños</h2></div>
         <span class="badge-pill" id="disenos-count">0 registros</span>
       </div>
 
@@ -626,7 +630,7 @@ if(typeof Chart === 'undefined'){
     <!-- ============ ROTURAS ============ -->
     <section id="panel-roturas" class="panel">
       <div class="content-header">
-        <div><h2>Roturas</h2><p>Pendientes por ventana NTP 339.034, registro manual y el Formato de Roturas I+D (probetas y cubos).</p></div>
+        <div><h2>Roturas</h2></div>
         <span class="badge-pill" id="roturas-count">0 registros</span>
       </div>
 
@@ -696,7 +700,7 @@ if(typeof Chart === 'undefined'){
     <!-- REPORTE RR -->
     <section id="panel-reporte-rr" class="panel">
       <div class="content-header">
-        <div><h2>Reporte RR</h2><p>Resumen de resultados de mezclas de prueba: comparativo de diseños, edades y gráficos.</p></div>
+        <div><h2>Reporte RR</h2></div>
         <div style="display:flex;gap:10px;align-items:center;">
           <span class="badge-pill" id="rr-count">0 estudios</span>
           <button class="btn-add" id="btn-generar-rr" data-perm="rr:editar">Generar Reporte RR</button>
@@ -743,7 +747,7 @@ if(typeof Chart === 'undefined'){
     <!-- ARCHIVADOR -->
     <section id="panel-archivador" class="panel">
       <div class="content-header">
-        <div><h2>Archivador</h2><p>Diseños completados, organizados por proyecto, con su informe listo para consultar o imprimir.</p></div>
+        <div><h2>Archivador</h2></div>
         <span class="badge-pill" id="archivador-count">0 diseños completados</span>
       </div>
       <div id="archivador-carpetas"></div>
@@ -753,7 +757,7 @@ if(typeof Chart === 'undefined'){
     <!-- REPORTES -->
     <section id="panel-reportes" class="panel">
       <div class="content-header">
-        <div><h2>Indicadores y KPIs</h2><p id="dash-subtitulo">Avance, calidad de resultados y cumplimiento del proyecto en curso o de todo el laboratorio.</p></div>
+        <div><h2>Indicadores y KPIs</h2><p id="dash-subtitulo" hidden>Avance, calidad de resultados y cumplimiento del proyecto en curso o de todo el laboratorio.</p></div>
         <div style="display:flex;gap:10px;align-items:center;flex-wrap:wrap;">
           <button class="btn-add ghost" id="dash-excel" data-perm="datos:exportar">Excel</button>
           <button class="btn-add" id="dash-pdf">Descargar reporte PDF</button>
@@ -860,7 +864,7 @@ if(typeof Chart === 'undefined'){
     <!-- ============ CALENDARIO DE ROTURAS ============ -->
     <section id="panel-calendario" class="panel">
       <div class="content-header">
-        <div><h2>Calendario</h2><p>Actividades, roturas programadas e hitos de los planes.</p></div>
+        <div><h2>Calendario</h2></div>
         <div class="ch-actions">
           <select id="cal-proyecto"><option value="">Todos los proyectos</option></select>
           <select id="cal-usuario"><option value="">Todos los usuarios</option></select>
@@ -895,7 +899,7 @@ if(typeof Chart === 'undefined'){
     <!-- ============ BASE HISTÓRICA ============ -->
     <section id="panel-base-historica" class="panel">
       <div class="content-header">
-        <div><h2>Base histórica</h2><p>Todos los resultados unidos a los parámetros de su diseño: una fila por réplica y edad. Es la fuente para reportes, comparaciones y predicción.</p></div>
+        <div><h2>Base histórica</h2></div>
         <div class="ch-actions">
           <button class="btn-add ghost" id="bh-export-csv">CSV (Colab / XGBoost)</button>
           <button class="btn-add" id="bh-export-xlsx">Exportar Excel</button>
@@ -914,7 +918,7 @@ if(typeof Chart === 'undefined'){
       </div>
       <div class="card" data-perm="datos:respaldo">
         <div class="section-num">Respaldo y restauración</div>
-        <p class="nota-sm">Los datos viven en este navegador. Descargá un respaldo periódicamente; con él podés restaurar todo en otro equipo. Las fotos de evidencia no se incluyen en el respaldo.</p>
+        
         <div class="form-actions" style="margin-top:12px;">
           <button class="btn-add" id="bh-respaldo-descargar">Descargar respaldo completo (.json)</button>
           <label class="btn-add ghost" for="bh-respaldo-archivo" style="cursor:pointer;">Restaurar desde archivo…</label>
@@ -928,7 +932,7 @@ if(typeof Chart === 'undefined'){
     <!-- ============ PREDICCIÓN ============ -->
     <section id="panel-prediccion" class="panel">
       <div class="content-header">
-        <div><h2>Predicción</h2><p>Modelos que aprenden de la base histórica para anticipar resultados antes de romper.</p></div>
+        <div><h2>Predicción</h2></div>
         <div class="roturas-subtabs" id="pred-tabs" style="margin-bottom:0;border-bottom:none;">
           <button class="subtab active" data-predtab="madurez">Curva de madurez</button>
           <button class="subtab" data-predtab="simulador">Simulador de diseño</button>
@@ -940,7 +944,7 @@ if(typeof Chart === 'undefined'){
         <div class="pred-layout">
           <div class="card">
             <div class="section-num">Proyección a 28 días desde edades tempranas</div>
-            <p class="nota-sm">Ajusta f(t) = a + b·ln(t) con las roturas ya registradas del diseño y proyecta la resistencia a 28, 56 y 90 días.</p>
+            
             <div class="pp-field" style="margin-top:10px;"><label>Diseño</label><select id="pred-diseno"></select></div>
             <div id="pred-madurez-resultado"></div>
           </div>
@@ -980,7 +984,7 @@ if(typeof Chart === 'undefined'){
     <!-- ============ ASISTENTE I+D ============ -->
     <section id="panel-asistente" class="panel">
       <div class="content-header">
-        <div><h2>Asistente I+D</h2><p>Preguntá en lenguaje natural sobre proyectos, diseños, roturas y resultados registrados.</p></div>
+        <div><h2>Asistente I+D</h2></div>
         <div class="ch-actions">
           <span class="chat-modo" id="chat-modo">Motor local</span>
           <button class="btn-add ghost" id="chat-nueva">Nueva conversación</button>
@@ -999,7 +1003,7 @@ if(typeof Chart === 'undefined'){
 
     <!-- ============ PLANIFICACIÓN (una sola entrada con tres botones) ============ -->
     <section id="panel-etiquetas" class="panel">
-  <div class="content-header"><div><h2>Etiquetas</h2><p class="nota-sm">3 etiquetas iguales por edad, en blanco y negro, con QR. Al escanearla se abre el registro de esa rotura.</p></div></div>
+  <div class="content-header"><div><h2>Etiquetas</h2></div></div>
   <div class="card">
     <div class="ev-toolbar etq-toolbar">
       <select id="etqp-proyecto"></select>
@@ -1013,7 +1017,7 @@ if(typeof Chart === 'undefined'){
 </section>
 
 <section id="panel-planificacion" class="panel">
-      <div class="content-header"><div><h2>Planificación</h2><p>Plan de trabajo por proyecto, actividades de la semana y calendario del laboratorio.</p></div></div>
+      <div class="content-header"><div><h2>Planificación</h2></div></div>
       <div class="plan-botones">
         <button class="plan-boton" data-plan-vista="plan"><b>Plan de trabajo</b><span>Gantt por proyecto · semanas partidas por mes · PDF y PPTX</span></button>
         <button class="plan-boton" data-plan-vista="actividades"><b>Asignar actividades</b><span>Tablero lun–dom por usuario · publicar la semana</span></button>
@@ -1068,7 +1072,7 @@ if(typeof Chart === 'undefined'){
     <!-- ============ USUARIOS Y ROLES ============ -->
     <section id="panel-usuarios" class="panel">
       <div class="content-header">
-        <div><h2>Usuarios y roles</h2><p>Administrador, Líder y Técnico. Un usuario no se elimina: se desactiva con motivo.</p></div>
+        <div><h2>Usuarios y roles</h2></div>
         <button class="btn-add" id="usr-nuevo">+ Nuevo usuario</button>
       </div>
       <div class="card table-scroll"><table class="data-table" id="usr-tabla"></table></div>
@@ -1081,7 +1085,7 @@ if(typeof Chart === 'undefined'){
     <!-- ============ HISTORIAL ============ -->
     <section id="panel-historial" class="panel">
       <div class="content-header">
-        <div><h2>Historial de cambios</h2><p>Quién, cuándo, valor anterior, valor nuevo y motivo. Solo lectura.</p></div>
+        <div><h2>Historial de cambios</h2></div>
         <button class="btn-add ghost" id="his-exportar">Exportar Excel</button>
       </div>
       <div class="kpi-grid" id="his-kpis"></div>
@@ -1101,7 +1105,7 @@ if(typeof Chart === 'undefined'){
 
     <!-- AJUSTES -->
     <section id="panel-ajustes" class="panel">
-      <div class="content-header"><div><h2>Ajustes</h2><p>Preferencias de este equipo y de tu cuenta.</p></div></div>
+      <div class="content-header"><div><h2>Ajustes</h2></div></div>
       <div class="ajustes-grid">
         <div class="card">
           <div class="section-num">Preferencias</div>
@@ -1122,7 +1126,7 @@ if(typeof Chart === 'undefined'){
         </div>
         <div class="card" data-perm="ver:usuarios">
           <div class="section-num">Asistente con IA (Claude)</div>
-          <p class="nota-sm">Con una clave de la API de Anthropic, el Asistente I+D responde con Claude consultando los datos del sistema (diseños, roturas, proyectos, predicciones). La clave queda guardada solo en este navegador. Cada consulta tiene un costo según el uso de la API.</p>
+          
           <div class="pp-field" style="margin-top:10px;"><label>Clave de API</label><input type="password" id="ia-clave" placeholder="sk-ant-…" autocomplete="off"></div>
           <div class="setting-row" style="padding:10px 0;"><div><h4>Usar el agente con IA</h4><p>Si se apaga, el asistente usa el motor local.</p></div><label class="switch"><input type="checkbox" id="ia-activo" checked><span class="slider"></span></label></div>
           <div class="form-actions" style="margin-top:6px;">
@@ -1141,7 +1145,7 @@ if(typeof Chart === 'undefined'){
             <button class="btn-add ghost" id="nube-desconectar">Volver a modo local</button>
           </div>
           <div id="nube-instalar" style="display:none;margin-top:12px;">
-            <p class="nota-sm">El servidor está vacío. Creá el primer administrador (tus datos de este navegador):</p>
+            <p class="nota-sm">Servidor sin usuarios: primer administrador</p>
             <div class="pred-form">
               <div class="pp-field"><label for="nube-inst-correo">Correo</label><input type="email" id="nube-inst-correo"></div>
               <div class="pp-field"><label for="nube-inst-clave">Contraseña nueva (mín. 8)</label><input type="password" id="nube-inst-clave" autocomplete="new-password"></div>
@@ -1175,7 +1179,7 @@ if(typeof Chart === 'undefined'){
         <div class="pp-field"><label id="um-pass-label">Contraseña</label><input type="password" id="um-pass" autocomplete="new-password" placeholder="Mínimo 8 caracteres"></div>
         <div class="pp-field"><label>Estado</label><select id="um-activo"><option value="1">Activo</option><option value="0">Inactivo</option></select></div>
       </div>
-      <p class="nota-sm" id="um-rol-desc"></p>
+      <p class="nota-sm" id="um-rol-desc" hidden></p>
     </div>
     <div class="modal-actions">
       <button class="btn-add" id="um-guardar">Guardar</button>
@@ -1553,6 +1557,7 @@ if(typeof Chart === 'undefined'){
 <script src="js/modules/dashboard.js"></script>
 <script src="js/modules/ajustes.js"></script>
 <script src="js/modules/inicio.js"></script>
+<script src="js/modules/mi-semana.js"></script>
 <script src="js/modules/navegacion.js"></script>
 <script src="js/modules/planificacion.js"></script>
 <script src="js/modules/personal.js"></script>

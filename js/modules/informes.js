@@ -132,7 +132,7 @@ function abrirNuevoRR(proyecto, fijo){
   nrr = {proyecto:proyecto || proyectoFlujo || PROYECTO_CATALOGO[0] || '', fijo:!!fijo, sel:[]};
   var m = document.getElementById('nuevo-rr-modal');
   if(!m){
-    document.body.insertAdjacentHTML('beforeend', '<div id="nuevo-rr-modal" class="sid-modal"><div class="modal-card wide"><div class="modal-header"><div><h3>Nuevo Reporte RR</h3><div class="nota-sm">Se llena con los datos del sistema: receta, estado fresco y resistencias por edad.</div></div><button class="modal-close" data-close="nuevo-rr-modal">×</button></div>' +
+    document.body.insertAdjacentHTML('beforeend', '<div id="nuevo-rr-modal" class="sid-modal"><div class="modal-card wide"><div class="modal-header"><h3>Nuevo Reporte RR</h3><button class="modal-close" data-close="nuevo-rr-modal">×</button></div>' +
       '<div class="modal-body" id="nrr-body"></div><div class="modal-actions"><button class="btn-add verde" id="nrr-generar">Generar RR</button><button class="btn-add ghost" data-close="nuevo-rr-modal">Cancelar</button></div></div></div>');
     m = document.getElementById('nuevo-rr-modal');
     m.addEventListener('change', function(e){
@@ -166,7 +166,7 @@ function renderNrrLista(){
       return '<tr><td>' + semaforoDotHtml(semaforoChecklist(d)) + '</td><td><b class="nombre-tecnico">' + esc(diseñoTitulo(d)) + '</b><div class="nota-sm mono">' + esc(d.codigo) + '</div></td><td>' + esc(d.iteracionId || '—') + '</td><td>' + estadoDisenoHtml(d) + '</td>' +
         '<td class="mono">' + (Object.keys(comb).sort(function(a,b){ return a - b; }).map(function(dia){ return dia + 'd: <b>' + comb[dia].promedio + '</b>'; }).join(' · ') || '—') + '</td>' +
         '<td><button class="btn-add ' + (sel ? 'verde' : 'ghost') + '" data-nrr-add="' + esc(d.codigo) + '">' + (sel ? '✓ Añadido' : '+ Añadir') + '</button></td></tr>';
-    }).join('') + '</tbody></table></div>' : '<p class="nota-sm">No hay registros promediados (diseños con roturas registradas) en este proyecto' + (it ? ' e iteración' : '') + '.</p>';
+    }).join('') + '</tbody></table></div>' : '<p class="nota-sm">Sin registros promediados.</p>';
 }
 function generarNuevoRR(){
   var nombre = document.getElementById('nrr-nombre').value.trim();
@@ -247,7 +247,7 @@ function botonesEstadoHtml(inf){
 }
 function firmasHtml(inf){
   var f = function(et, id, en){ return id ? '<span><b>' + et + ':</b> ' + esc(nombreDe(id) || '—') + (en ? ' · ' + new Date(en).toLocaleDateString('es-PE') : '') + '</span>' : ''; };
-  return [f('Elaboró', inf.elaborado_por, inf.elaborado_en), f('Revisó y aprobó', inf.aprobado_por, inf.aprobado_en), f('Emitió', inf.emitido_por, inf.emitido_en)].filter(Boolean).join('') || '<span class="nota-sm">Sin firmas todavía</span>';
+  return [f('Elaboró', inf.elaborado_por, inf.elaborado_en), f('Revisó y aprobó', inf.aprobado_por, inf.aprobado_en), f('Emitió', inf.emitido_por, inf.emitido_en)].filter(Boolean).join('') || '<span class="nota-sm">—</span>';
 }
 function accionEstado(inf, acc, alTerminar){
   if(acc === 'devolver') pedirMotivo('Devolver ' + inf.codigo + ' a borrador', '<p>Indicá qué hay que corregir.</p>', function(m){ cambiarEstadoInforme(inf, 'borrador', m, alTerminar); });
@@ -276,7 +276,7 @@ function renderEstadoRR(){
     '<span class="nota-sm">' + esc((est.tipo === 'detallado' ? 'Detallado' : 'Promediado') + (est.iteracion ? ' · ' + est.iteracion : '') + (est.requisito ? ' · Requisito: ' + est.requisito : '')) + '</span></div>' +
     '<div class="inf-firmas">' + firmasHtml(est) + '</div>' +
     '<div class="flujo-botones">' + (rrEditable(est) && (est.items || []).length ? '<button class="btn-add ghost" data-inf-acc="actualizar">Actualizar desde los datos</button>' : '') + botonesEstadoHtml(est) + '</div>' +
-    (est.estado !== 'emitido' ? '<div class="inf-marca">' + (est.estado === 'borrador' ? 'Borrador: se puede editar.' : 'Bloqueado para edición.') + ' No emitido: al exportarlo sale marcado como no emitido.</div>' : '');
+    '';
 }
 var _renderRRDetailBase = renderRRDetail;
 renderRRDetail = function(){
@@ -293,7 +293,7 @@ renderRRStudyList = function(){
     return '<div class="rr-study-card' + (e.id === rrActiveId ? ' active' : '') + '" data-id="' + esc(e.id) + '">' +
       '<h5>' + esc(e.nombre) + '</h5><span class="mono">' + esc(e.codigo || '') + '</span> ' + chipEstadoInforme(e) +
       '<span>' + (e.tipos || []).length + ' columnas · ' + esc(e.fecha || '') + (e.proyecto || e.proyectoId ? ' · ' + esc(e.proyecto || proyectoNombre(e.proyectoId)) : '') + '</span></div>';
-  }).join('') || '<div class="empty-note">Todavía no hay reportes RR.</div>';
+  }).join('') || '<div class="empty-note">Sin reportes RR.</div>';
   document.getElementById('rr-count').textContent = rrEstudios.length + ' reportes';
   updateStats();
 };
@@ -408,11 +408,11 @@ expReportesHtml = function(m){
   var rr = lista.length ? '<div class="table-scroll"><table class="data-table"><thead><tr><th>Código</th><th>Nombre</th><th>Tipo</th><th>Registros</th><th>Estado</th><th>Firmas</th><th></th></tr></thead><tbody>' + lista.map(function(e){
     return '<tr><td class="mono"><b>' + esc(e.codigo || '') + '</b></td><td>' + esc(e.nombre) + (e.requisito ? '<div class="nota-sm">Requisito: ' + esc(e.requisito) + '</div>' : '') + '</td><td>' + (e.tipo === 'detallado' ? 'Detallado' : 'Promediado') + (e.iteracion ? '<div class="nota-sm">' + esc(e.iteracion) + '</div>' : '') + '</td>' +
       '<td>' + (e.tipos || []).length + '</td><td>' + chipEstadoInforme(e) + '</td><td class="inf-firmas-mini">' + firmasHtml(e) + '</td><td><button class="btn-add ghost" data-abrir-rr="' + esc(e.id) + '">Abrir</button></td></tr>';
-  }).join('') + '</tbody></table></div>' : '<div class="empty-note">Todavía no hay reportes RR de este proyecto.</div>';
+  }).join('') + '</tbody></table></div>' : '<div class="empty-note">Sin reportes RR.</div>';
   var fin = '<div class="ev-toolbar"><span class="section-num" style="margin:0;">Informe final del proyecto</span><button class="btn-add verde" data-final-nuevo="' + esc(m.nombre) + '" data-perm="rr:editar">Generar informe final</button></div>' +
     (finales.length ? '<div class="table-scroll"><table class="data-table"><thead><tr><th>Código</th><th>Versión</th><th>Estado</th><th>Firmas</th><th></th></tr></thead><tbody>' + finales.map(function(f){
       return '<tr><td class="mono"><b>' + esc(f.codigo) + '</b></td><td>v' + (f.version || 1) + '</td><td>' + chipEstadoInforme(f) + '</td><td class="inf-firmas-mini">' + firmasHtml(f) + '</td><td><button class="btn-add ghost" data-final-abrir="' + esc(f.id) + '">Abrir</button></td></tr>';
-    }).join('') + '</tbody></table></div>' : '<p class="nota-sm">Reúne objetivos y cumplimiento, diseños, resistencias, RR y no conformes. Se emite solo después de revisión y aprobación (17025, 7.8).</p>');
+    }).join('') + '</tbody></table></div>' : '<p class="nota-sm">Sin informe final.</p>');
   return '<div class="card">' + barra + rr + '</div><div class="card" style="margin-top:16px;">' + fin + '</div>';
 };
 document.addEventListener('click', function(e){

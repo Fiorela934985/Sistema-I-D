@@ -200,9 +200,7 @@ function renderExpedienteTab(ficha, r){
   else if(expedienteTab === 'disenos') c.innerHTML = expDisenosHtml(ficha, r);
   else if(expedienteTab === 'ensayos'){ c.innerHTML = expFrescoHtml(r) + expResultadosHtml(m) + '<div id="cmp-wrap" style="margin-top:16px;"></div>'; dibujarExpResultados(m); renderComparativo(m); }
   else if(expedienteTab === 'informes') c.innerHTML = expReportesHtml(m);
-  else if(expedienteTab === 'plan') c.innerHTML = '<div class="card fase-card"><div class="section-num">Plan de trabajo <span class="fase-chip">Fase 5</span></div><ul class="fase-lista">' +
-    '<li>Gantt del proyecto con etapas e ítems, responsables y recursos del inventario (solo reserva).</li>' +
-    '<li>Subir un plan existente (PDF, PPTX, XLSX) y exportar a PPTX y PDF con la plantilla Plan_de_Trabajo_SSCC_2026.</li></ul></div>';
+  else if(expedienteTab === 'plan') c.innerHTML = expPlanHtml(ficha);
   else if(expedienteTab === 'archivo') c.innerHTML = expArchivoHtml(ficha, r);
 }
 
@@ -254,7 +252,7 @@ function expMuestrasHtml(ficha, r){
     (filas.length ? '<div class="table-scroll"><table class="data-table"><thead><tr><th>Código</th><th>Producto</th><th>Tipo</th><th>Elaboración</th><th>Edades</th><th>Roturas</th></tr></thead><tbody>' + filas.map(function(m){
       return '<tr><td class="mono"><b>'+esc(m.codigo || '—')+'</b></td><td>'+esc(m.producto)+'</td><td>'+esc(m.tipo || '')+'</td><td>'+(m.elab ? isoToDMY(m.elab) : '—')+(m.hora ? ' '+esc(m.hora) : ' <span class="chip-falta">Falta: hora</span>')+'</td>' +
         '<td>'+m.edades.sort(function(a,b){ return a-b; }).map(function(d){ return '<span class="chip-edad">'+d+' d</span>'; }).join('')+'</td><td>'+m.hechas+'/'+m.edades.length+'</td></tr>';
-    }).join('') + '</tbody></table></div>' : '<p class="nota-sm">Todavía no hay especímenes elaborados en este proyecto.</p>') + '</div>' +
+    }).join('') + '</tbody></table></div>' : '<p class="nota-sm">Sin especímenes.</p>') + '</div>' +
     '<div class="card" style="margin-top:16px;"><div class="ev-toolbar"><span class="section-num" style="margin:0;">Evidencias fotográficas</span>' +
       '<button class="btn-add" id="exp-evidencia-2" data-perm="evidencias:subir">'+CAMERA_ICON+' Subir evidencia</button></div><div id="exp-galeria">'+galeriaEvidenciasHtml(evidenciasDeProyecto(ficha.nombre))+'</div></div>';
 }
@@ -296,13 +294,13 @@ function expFrescoHtml(r){
     });
   });
   return '<div class="card" style="margin-bottom:16px;"><div class="section-num">Estado fresco</div>' + (filas.length ? '<div class="table-scroll"><table class="data-table"><thead><tr><th>Código</th><th>Réplica</th><th>Slump 0\' (pulg)</th><th>T° concreto</th><th>T° ambiente</th><th>Peso unitario</th><th>Aire %</th><th>Cohesividad</th></tr></thead><tbody>' + filas.join('') + '</tbody></table></div>'
-    : '<p class="nota-sm">Todavía no hay resultados de estado fresco.</p>') + '</div>';
+    : '<p class="nota-sm">Sin resultados.</p>') + '</div>';
 }
 function expResultadosHtml(m){
   var edades = {};
   m.disenos.forEach(function(d){ Object.keys(resistenciaPorEdad(d)).forEach(function(e){ edades[e] = true; }); });
   var lista = Object.keys(edades).map(Number).sort(function(a,b){ return a-b; });
-  if(!lista.length) return '<div class="card"><div class="section-num">Estado endurecido</div><p class="nota-sm">Todavía no hay roturas registradas en este proyecto.</p></div>';
+  if(!lista.length) return '<div class="card"><div class="section-num">Estado endurecido</div><p class="nota-sm">Sin roturas registradas.</p></div>';
   var filas = m.disenos.map(function(d){
     var r = resistenciaPorEdad(d);
     if(!Object.keys(r).length) return '';
@@ -317,7 +315,7 @@ function expResultadosHtml(m){
   return '<div class="chart-card"><h4>Estado endurecido: resistencia vs. edad <span class="chart-sub">(promedio de M1–M3 de todas las réplicas, kg/cm²)</span></h4><div class="dash-chart-wrap alto"><canvas id="chart-exp-resultados"></canvas></div></div>' +
     '<div class="card" style="margin-top:16px;"><div class="table-scroll"><table class="data-table"><thead><tr><th>Código</th><th>Diseño</th><th>Iteración</th><th>f\'c</th>' +
     lista.map(function(e){ return '<th>'+e+' d</th>'; }).join('') + '</tr></thead><tbody>'+filas+'</tbody></table></div>' +
-    '<p class="nota-sm">A 28 días o más: verde si alcanza el f\'c especificado, rojo si queda por debajo.</p></div>';
+    '</div>';
 }
 function dibujarExpResultados(m){
   if(typeof Chart === 'undefined' || !document.getElementById('chart-exp-resultados')) return;
@@ -378,7 +376,7 @@ function renderComparativo(m){
         return '<tr><td><b>'+esc(r.iter)+'</b></td><td>'+r.n+'</td><td>'+r.cerrados+'</td><td>'+fmt(r.amc,2)+'</td><td>'+fmt(r.cemento,0)+'</td><td>'+fmt(r.costo,2)+'</td>' +
           edades.map(function(e){ var v = r.res[e]; var mejor = isFinite(v) && v === mejorPorEdad[e] && sel.length > 1; return '<td'+(mejor?' class="ok"':'')+'>'+(isFinite(v)?fmt(v,1):'-')+'</td>'; }).join('') + '</tr>';
       }).join('') +
-    '</tbody></table></div><p class="nota-sm">En verde, la iteración con mayor resistencia en cada edad.</p></div>';
+    '</tbody></table></div></div>';
   if(typeof Chart !== 'undefined'){
     proyCharts.cmp = new Chart(document.getElementById('chart-cmp'), {
       type:'line',
@@ -413,7 +411,7 @@ function expReportesHtml(m){
 function expArchivoHtml(ficha, r){
   var cerrados = r.disenos.filter(function(d){ return estadoCalculado(d) === 'Cerrado'; });
   return '<div class="card"><div class="section-num">Diseños cerrados</div>' + tablaDisenosHtml(cerrados, 'Todavía no hay diseños cerrados en este proyecto.') + '</div>' +
-    '<div class="card fase-card" style="margin-top:16px;"><div class="section-num">Documentos del proyecto <span class="fase-chip">Fase 7</span></div><p class="nota-sm">Procedimientos y archivos en Google Drive ligados al proyecto.</p></div>';
+    '<div class="card fase-card" style="margin-top:16px;"><div class="section-num">Documentos del proyecto <span class="fase-chip">Fase 7</span></div></div>';
 }
 
 function exportarExpediente(ficha){
