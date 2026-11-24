@@ -1,0 +1,98 @@
+/* Sistema I+D — ERP Fase 1: Personal, Ensayos y métodos, Planificación, historial con motivo, conexión al servidor.
+   Usa los tokens del tema (celeste, verde, negro) y el semáforo, que no cambian. */
+
+/* Roles Líder (antes Jefatura) */
+.sb-avatar.rol-lider{background:linear-gradient(120deg,var(--celeste-800),var(--celeste-500));}
+.tb-rol-chip.rol-lider{background:var(--celeste-50);color:var(--celeste-700);border-color:var(--celeste-100);}
+
+/* Chips comunes */
+.chip-falta{display:inline-flex;align-items:center;height:20px;padding:0 8px;border-radius:999px;font-size:.68rem;font-weight:700;background:#fef3c7;color:#92400e;}
+.chip-campo,.chip-edad{display:inline-flex;align-items:center;height:20px;padding:0 7px;margin:2px 4px 2px 0;border-radius:6px;font-size:.68rem;font-weight:600;
+  background:var(--surface-2);border:1px solid var(--line);color:var(--text);}
+.chip-edad{background:var(--celeste-50);border-color:var(--celeste-100);color:var(--celeste-700);}
+.chip-aut{display:inline-flex;gap:4px;align-items:center;padding:4px 9px;border-radius:8px;font-size:.76rem;background:var(--verde-50);color:var(--verde-700);border:1px solid var(--verde-100);}
+.chips-fila{display:flex;flex-wrap:wrap;gap:6px;}
+.fase-chip{display:inline-flex;align-items:center;height:24px;padding:0 10px;border-radius:999px;font-size:.7rem;font-weight:700;font-style:normal;
+  background:var(--surface-2);border:1px dashed var(--line);color:var(--text-muted);}
+.fila-inactiva td{opacity:.55;}
+.celda-larga{max-width:260px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;}
+.btn-ghost.chico{font-size:.72rem;padding:3px 9px;}
+
+/* Secciones de fases posteriores */
+.fase-card{max-width:760px;}
+.fase-lista{margin:0;padding-left:18px;line-height:1.8;font-size:.9rem;}
+
+/* Planificación: tres botones grandes */
+.plan-botones{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:14px;margin-bottom:18px;}
+.plan-boton{position:relative;display:flex;flex-direction:column;align-items:flex-start;gap:6px;text-align:left;padding:20px;border-radius:14px;
+  background:var(--surface);border:1px solid var(--line);color:var(--text);box-shadow:var(--sombra-suave);}
+.plan-boton b{font-family:var(--font-display);font-size:1.15rem;}
+.plan-boton span{font-size:.82rem;color:var(--text-muted);}
+.plan-boton .fase-chip{position:absolute;top:12px;right:12px;}
+.plan-boton:disabled{cursor:not-allowed;opacity:.75;}
+.plan-boton.activo{border-color:var(--celeste-300);}
+.plan-boton.activo:hover{background:var(--celeste-50);border-color:var(--celeste-600);}
+@media (max-width:760px){ .plan-botones{grid-template-columns:1fr;} }
+
+/* Personal: matriz de autorización */
+.matriz-aut th,.matriz-aut td{text-align:center;padding:6px 4px;}
+.matriz-aut .mat-persona{text-align:left;white-space:nowrap;position:sticky;left:0;background:var(--surface);z-index:1;padding-left:10px;}
+.matriz-aut .mat-etapa{font-size:.66rem;text-transform:uppercase;letter-spacing:.06em;color:var(--celeste-700);border-bottom:2px solid var(--celeste-100);}
+.matriz-aut .mat-ensayo{font-family:var(--font-mono, monospace);font-size:.72rem;}
+.mat-celda button{width:42px;height:34px;border-radius:8px;border:1px dashed var(--line);background:transparent;color:var(--verde-700);font-weight:800;
+  display:inline-flex;flex-direction:column;align-items:center;justify-content:center;line-height:1;}
+.mat-celda button small{font-size:.56rem;font-weight:600;color:var(--text-muted);margin-top:2px;}
+.mat-celda button:not(:disabled):hover{border-color:var(--celeste-600);background:var(--celeste-50);}
+.mat-celda.si button{border:1px solid var(--verde-500);background:var(--verde-50);}
+.mat-celda.futura button{border:1px solid var(--celeste-300);background:var(--celeste-50);color:var(--celeste-700);}
+.mat-leyenda .mat-celda button{width:26px;height:20px;vertical-align:middle;}
+.cap-nueva{display:grid;grid-template-columns:2fr 1fr .7fr 1.3fr auto;gap:8px;margin-top:10px;}
+@media (max-width:760px){ .cap-nueva{grid-template-columns:1fr 1fr;} }
+
+/* Ensayos y métodos */
+.flujos-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(340px,1fr));gap:14px;}
+.flujo-tipo .ft-head{display:flex;justify-content:space-between;gap:10px;align-items:flex-start;}
+.flujo-tipo h4{font-family:var(--font-display);font-size:1.05rem;}
+.ft-edades{margin:10px 0;font-size:.8rem;color:var(--text-muted);}
+.ft-pasos{margin:0;padding-left:20px;font-size:.84rem;}
+.ft-pasos li{margin-bottom:6px;}
+.ft-pasos li b{display:block;}
+.paso-edit{border:1px solid var(--line);border-radius:12px;padding:10px 12px;margin-bottom:10px;background:var(--surface-2);}
+.paso-cab{display:flex;align-items:center;gap:8px;margin-bottom:8px;}
+.paso-cab input{flex:1;}
+.paso-cab .fs-num{width:24px;height:24px;border-radius:50%;display:inline-flex;align-items:center;justify-content:center;font-weight:800;font-size:.75rem;background:var(--grad-marca);color:#fff;}
+.paso-ensayos{display:flex;flex-wrap:wrap;gap:10px 18px;}
+.pe-grupo{display:flex;flex-wrap:wrap;align-items:center;gap:6px;}
+.pe-grupo small{width:100%;font-size:.64rem;font-weight:700;text-transform:uppercase;letter-spacing:.06em;color:var(--text-muted);}
+.pe-check{display:inline-flex;align-items:center;gap:4px;font-size:.76rem;font-weight:600;padding:3px 8px;border-radius:6px;background:var(--surface);border:1px solid var(--line);cursor:pointer;}
+.campos-tabla input,.campos-tabla select{width:100%;}
+.em-2col{display:grid;grid-template-columns:1fr 1fr;gap:14px;}
+@media (max-width:980px){ .em-2col{grid-template-columns:1fr;} }
+#tol-tabla input{max-width:120px;}
+.ven-resultado{margin-top:10px;padding:12px 14px;border-radius:10px;background:var(--celeste-50);border:1px solid var(--celeste-100);font-size:.88rem;}
+
+/* Motivo del cambio */
+.motivo-resumen{margin-bottom:12px;}
+.motivo-tabla td,.motivo-tabla th{font-size:.8rem;}
+#motivo-texto{width:100%;}
+
+/* Historial de cambios */
+.his-valor{display:inline-block;max-width:220px;font-size:.76rem;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;vertical-align:middle;}
+
+/* Conexión con el servidor */
+.nube-pill{display:inline-flex;align-items:center;gap:6px;padding:4px 10px;border-radius:999px;font-size:.74rem;font-weight:700;}
+.nube-pill::before{content:"";width:8px;height:8px;border-radius:50%;background:currentColor;}
+.nube-pill.local{background:var(--surface-2);color:var(--text-muted);border:1px solid var(--line);}
+.nube-pill.ok{background:var(--verde-50);color:var(--verde-700);}
+.nube-pill.pend{background:#fef3c7;color:#92400e;}
+
+html[data-theme="dark"] .chip-falta,html[data-theme="dark"] .nube-pill.pend{background:rgba(245,158,11,.15);color:#fcd34d;}
+html[data-theme="dark"] .chip-edad,html[data-theme="dark"] .ven-resultado,html[data-theme="dark"] .mat-celda.futura button{background:rgba(31,176,224,.12);color:var(--celeste-300);border-color:transparent;}
+html[data-theme="dark"] .chip-aut,html[data-theme="dark"] .mat-celda.si button,html[data-theme="dark"] .nube-pill.ok{background:rgba(46,158,87,.15);color:var(--verde-300);}
+html[data-theme="dark"] .matriz-aut .mat-etapa{color:var(--celeste-300);}
+
+/* Menú: los nombres largos de Formatos pasan a dos líneas en vez de cortarse */
+.side-nav .nav-item{height:auto;min-height:2.3rem;padding-top:5px;padding-bottom:5px;}
+.side-nav .nav-item .label{white-space:normal;overflow:visible;text-overflow:clip;line-height:1.2;text-align:left;flex:1;}
+.side-nav .nav-kbd{display:none;}
+@media (min-width:981px){ body.sidebar-mini .side-nav .nav-item{min-height:42px;padding:0;} }

@@ -354,7 +354,7 @@ function expReportesHtml(m){
   // Los reportes del proyecto: los RR (paso 6) y sus indicadores (paso 7), todos ligados al mismo proyecto
   var barra = '<div class="ev-toolbar"><span class="nota-sm">Reportes de este proyecto: estudios RR e indicadores.</span>' +
     '<span class="ch-actions"><button class="btn-add ghost" data-ver-indicadores>'+CHART_ICON+' Ver indicadores</button>' +
-    '<button class="btn-add" data-paso="6" data-perm="rr:editar">+ Nuevo Reporte RR</button></span></div>';
+    '<button class="btn-add" data-goto="reporte-rr" data-perm="rr:editar">+ Nuevo Reporte RR</button></span></div>';
   if(!lista.length) return barra + '<div class="empty-note">Todavía no hay reportes RR de este proyecto.</div>';
   return barra + '<div class="proy-grid">' + lista.map(function(e){
     return '<article class="proy-card"><div class="pc-head"><h4>'+esc(e.nombre)+'</h4>'+(e.generado?'<span class="tag-pill tag-verde">Generado</span>':'<span class="tag-pill tag-gris">Borrador</span>')+'</div>' +

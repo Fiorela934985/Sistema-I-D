@@ -1,0 +1,11 @@
+name = "erp-laboratorio-id"
+main = "src/index.js"
+compatibility_date = "2025-09-01"
+
+[vars]
+ORIGENES_PERMITIDOS = "https://fiorela934985.github.io"
+
+[[d1_databases]]
+binding = "DB"
+database_name = "erp-laboratorio-id"
+database_id = "REEMPLAZAR_CON_EL_ID_QUE_DA_WRANGLER"

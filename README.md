@@ -1,69 +1,112 @@
-# Sistema I+D · Laboratorio I+D (I+D Nexus)
+# Sistema I+D · ERP de proyectos del Laboratorio I+D
 
-Aplicación web para la gestión de calidad del Laboratorio I+D: proyectos y su expediente, cálculo de diseños de mezcla (formato D-CC-F-148), roturas según NTP 339.034, resultados, Reporte RR, dashboard de KPIs, base histórica, predicción y asistente.
+ERP de proyectos para el Laboratorio I+D (NEW I+D - SSCC): proyectos con sus ensayos, diseños de mezcla (D-CC-F-148), estado fresco, roturas según NTP 339.034, Reporte RR, planificación, personal autorizado y calidad según ISO/IEC 17025:2017 como guía de buenas prácticas.
 
 **Sitio publicado:** https://fiorela934985.github.io/Sistema-I-D/
 
-Es una aplicación **100 % estática** (HTML + CSS + JavaScript, sin servidor). Los datos se guardan en el navegador (`localStorage` y, para las fotos, `IndexedDB`).
+- **Frontend:** HTML + CSS + JavaScript en GitHub Pages.
+- **Backend:** Cloudflare Workers + D1 (carpeta `worker/`). Sin servidor configurado, el sistema funciona en **modo local** (datos en el navegador).
 
-## Secciones
+## Avance por fases
 
-| Grupo | Sección | Qué hace |
+| Fase | Qué se construye | Estado |
 |---|---|---|
-| General | **Inicio** | Accesos rápidos según el rol, KPIs del día, semana de roturas, actividad reciente y favoritos |
-| Operación | **Proyectos** | Tarjetas con avance, **expediente** del proyecto (resumen por iteración, resultados, comparativo entre iteraciones, evidencias, reportes RR, historial) y **radar** de seguimiento |
-| | **Diseños** | Calculadora de dosificación, histórico, resultados de ensayo, informe con gráficas, etiquetas, duplicar |
-| | **Roturas** | Pendientes (con vencidas), registro de elaboración, registro de cargas con evidencia y tipo de fractura, formato de roturas |
-| | **Calendario de roturas** | Vista mensual y semanal; registrar la carga desde el día |
-| | **Registro** | Componentes (cemento, adición, agua, pigmento, piedra, arena, aditivo) y proyectos/iteraciones |
-| | **Reporte RR** (paso 6) | Estudios comparativos con visor (zoom − +), gráficos y exportación a Excel |
-| | **Indicadores** (paso 7) | KPIs y gráficos del **proyecto en curso** (o de todos con el selector): avance por iteración, resistencia a 28 d, cumplimiento de f'c, dispersión, roturas al día; cada KPI lleva al paso que lo resuelve y cada proyecto abre su expediente; reporte PDF/Excel del alcance elegido |
-| | **Archivo** (paso 8) | Diseños completados por proyecto |
-| Inteligencia | **Base histórica** | Dataset réplica × edad unido a los parámetros del diseño; Excel, CSV para Colab/XGBoost, respaldo y restauración |
-| | **Predicción** | Modelo entrenado con la base histórica real (gradient boosting y ridge, validados dejando un diseño afuera; se activa el más preciso), simulador de diseños nuevos, curva de madurez con prueba retrospectiva y seguimiento de cada predicción contra el resultado real |
-| | **Asistente I+D** | Agente con Claude (`claude-opus-5-5`) que responde consultando los datos con 14 herramientas; sin clave o sin internet usa el motor local |
-| Administración | **Usuarios y roles** | Alta/edición de usuarios y matriz de funciones por rol (editable) |
-| | **Historial** | Quién hizo qué y cuándo, con filtros y exportación |
-| | **Ajustes** | Modo oscuro, notificaciones, cambio de contraseña |
+| 1 | Login, usuarios, roles, Personal, Ensayos y métodos | **Lista** |
+| 2 | Proyectos con su asistente de 4 pasos y sus pestañas | Pendiente |
+| 3 | Flujo por diseño (5 pasos), estado fresco, Roturas y etiquetas QR | Pendiente |
+| 4 | Formatos, Informes y RR con aprobación | Pendiente |
+| 5 | Planificación (Gantt, actividades de la semana) y notificaciones por correo | Pendiente |
+| 6 | Inicio "Mi semana" y card de la poza de curado | Pendiente |
+| 7 | Calidad (documentos, trabajo no conforme), integración con inventario e Inteligencia | Pendiente |
+
+El esquema de base de datos (`worker/schema.sql`) ya incluye las tablas de todas las fases.
+
+## Menú
+
+| Grupo | Entrada | Estado |
+|---|---|---|
+| Inicio | Inicio | Actual (Mi semana en la Fase 6) |
+| Proyectos | Proyectos | Actual (asistente y pestañas en la Fase 2) |
+| Formatos | Formato de Diseños (D-CC-F-148) · Formato de Estado Fresco · Formato de Roturas I+D · Formato de Cargas y Promediados · Etiquetas | Calculadora, histórico, roturas y RR actuales; tablas unificadas en las fases 3 y 4 |
+| Planificación | Plan de trabajo · Asignar actividades · Calendario | Calendario actual; lo demás en la Fase 5 |
+| Recursos | Personal | **Fase 1:** fichas y matriz de autorización |
+| Calidad | Documentos · Trabajo no conforme · Historial de cambios | Historial con valor anterior, nuevo y motivo; lo demás en la Fase 7 |
+| Inteligencia | Indicadores · Base histórica · Predicción · Asistente I+D | Actual |
+| Administración | Usuarios y roles · Ensayos y métodos · Ajustes | **Fase 1** |
 
 ## Roles
 
-| Rol | Puede |
-|---|---|
-| **Administrador** | Todo, incluidos usuarios, permisos y respaldo/restauración |
-| **Jefatura** | Ver todo (reportes, métricas, expedientes, predicción, historial), editar proyectos y Reporte RR, exportar. No registra ensayos |
-| **Técnico** | Calcular y registrar diseños, roturas, resultados y evidencias; Reporte RR. No elimina ni administra |
+| Acción | Administrador | Líder | Técnico |
+|---|---|---|---|
+| Configurar usuarios, ensayos, métodos y flujos | Sí | No | No |
+| Fichas de personal y autorizaciones de ensayo | Sí | Sí | Solo lectura |
+| Crear proyectos y planes de trabajo | Sí | Sí | No |
+| Asignar y publicar actividades | Sí | Sí | No |
+| Crear diseños y asignarlos | Sí | Sí | Sí |
+| Registrar ensayos y roturas | Sí | Sí | Lo asignado y autorizado (Fase 3) |
+| Aprobar informes / cerrar trabajos no conformes | Sí | Sí | No (solo reportar) |
 
-El administrador puede ajustar las funciones de Jefatura y Técnico desde **Usuarios y roles**.
+Los usuarios con el rol anterior *Jefatura* pasan solos a *Líder*.
 
-Usuario inicial: `FSANTOS` (Administrador). Cambiá su contraseña desde **Ajustes** después del primer ingreso.
+## Reglas que ya se cumplen
+
+- **Nada se borra:** los usuarios se desactivan; los ensayos y flujos se desactivan; las capacitaciones se anulan; las autorizaciones se revocan. Siempre con motivo.
+- **Toda edición pide el motivo** y queda en *Calidad › Historial de cambios* con quién, cuándo, valor anterior y valor nuevo.
+- **Con servidor, los permisos se verifican en el servidor** (no en el navegador), las contraseñas usan PBKDF2 y las sesiones vencen a las 12 h.
+
+## Publicar el servidor (Cloudflare Workers + D1)
+
+Requisitos: Node.js 18 o superior y una cuenta de Cloudflare.
+
+1. Abrí una terminal en la carpeta `worker`:
+   ```bash
+   cd worker
+   npx wrangler login
+   ```
+2. Creá la base de datos:
+   ```bash
+   npx wrangler d1 create erp-laboratorio-id
+   ```
+3. Copiá el `database_id` que muestra el comando y pegalo en `worker/wrangler.toml`, en lugar de `REEMPLAZAR_CON_EL_ID_QUE_DA_WRANGLER`.
+4. Ejecutá el esquema y los datos iniciales:
+   ```bash
+   npx wrangler d1 execute erp-laboratorio-id --remote --file=schema.sql
+   npx wrangler d1 execute erp-laboratorio-id --remote --file=seed.sql
+   ```
+5. Publicá el Worker:
+   ```bash
+   npx wrangler deploy
+   ```
+   Copiá la URL que muestra (termina en `.workers.dev`).
+6. En el sistema, ingresá como administrador → **Ajustes › Servidor** → pegá la URL → **Probar y conectar**.
+7. Como el servidor está vacío, el sistema pide crear el primer administrador: escribí tu correo y una contraseña nueva (mínimo 8 caracteres) → **Crear administrador y conectar**.
+8. Volvé a ingresar con esa contraseña. Desde **Usuarios y roles** creá a los demás usuarios.
+
+Si el sitio se publica en otro dominio, agregalo en `ORIGENES_PERMITIDOS` de `wrangler.toml` (separado por comas) y repetí el paso 5.
 
 ## Estructura
 
 ```
-index.html                      Maquetación: barra lateral, paneles y modales
-css/styles.css                  Estilos base de los componentes
-css/tema.css                    Tema celeste + verde (claro/oscuro) y estructura con barra lateral
-css/modulos.css                 Estilos de los módulos (proyectos, calendario, predicción, asistente…)
+index.html                      Maquetación: menú lateral, secciones y ventanas
+css/                            Estilos (erp.css: secciones del ERP)
 js/core/
-  utils.js                      Almacenamiento, formato, fechas, modales, exportación
-  auth.js                       Usuarios, roles, permisos y sesión (contraseñas con SHA-256 + sal)
-  historial.js                  Registro de movimientos (auditoría)
-  ml.js                         Modelos de predicción, validación y seguimiento de predicciones
-  icons.js                      Íconos e imágenes institucionales
-  shell.js                      Tema, pantalla de carga y navegación
-  analitica.js                  Métricas compartidas por proyecto/diseño y base histórica
-js/modules/                     Una entidad o sección por archivo:
-  catalogos, proyectos, componentes, evidencias, roturas, disenos/*, archivador, reporte-rr,
-  proyectos-panel, calendario, etiquetas, base-historica, prediccion, asistente, usuarios,
-  historial-panel, dashboard, ajustes, inicio
-js/data/seed.js                 Datos de muestra y diseños reales (se siembran una sola vez)
-js/data/reparaciones.js         Correcciones de integridad que se aplican al iniciar
-js/main.js                      Arranque, inicio y cierre de sesión
-data/disenos-reales.js          Diseños reales importados (R-15 a R-34)
-assets/                         Logos, ícono y guía de tipos de fractura
-sw.js, manifest.webmanifest     App instalable y uso sin conexión
-.github/workflows/deploy.yml    Publicación automática en GitHub Pages
+  utils.js                      Almacenamiento, formato, fechas, ventanas, exportación
+  nube.js                       Conexión con el Worker, sesión y cola de reintentos
+  auth.js                       Usuarios, roles (Administrador, Líder, Técnico) y permisos
+  historial.js                  Historial de cambios (antes, después, motivo) y ventana de motivo
+  laboratorio.js                Ensayos, flujos, tolerancias, poza, personal y autorizaciones
+  shell.js, icons.js, analitica.js, ml.js
+js/modules/
+  navegacion.js                 Menú del prompt maestro, Planificación y atajos de teclado
+  personal.js                   Recursos › Personal
+  ensayos-metodos.js            Administración › Ensayos y métodos
+  usuarios.js, historial-panel.js, ajustes.js
+  proyectos, disenos/*, roturas, reporte-rr, calendario, dashboard, prediccion, asistente…
+worker/
+  src/index.js                  API (Cloudflare Workers)
+  schema.sql                    Esquema D1 de todas las fases
+  seed.sql                      Ensayos, flujos, tolerancias NTP 339.034, poza 23 ± 2 °C, permisos
+  wrangler.toml                 Configuración del Worker
 ```
 
 ## Ejecutar en local
@@ -73,12 +116,9 @@ npm start          # http://localhost:8080
 npm run check      # revisa la sintaxis de todos los scripts
 ```
 
-## Despliegue
+Cada `push` a `main` publica el sitio en GitHub Pages.
 
-Cada `push` a `main` publica el sitio en GitHub Pages (Settings → Pages → Source: GitHub Actions).
+## Otros
 
-## Importante
-
-- **Los datos viven en cada navegador.** Cada equipo tiene su propia información y los usuarios/roles son locales a ese navegador. Descargá respaldos desde *Base histórica*. Para que todo el equipo comparta la misma base y los permisos sean seguros, el siguiente paso es conectar un backend (por ejemplo Supabase o Firebase).
-- **Predicción:** el error que muestra el panel *Modelo y precisión* se mide prediciendo cada diseño con un modelo que no lo vio (validación dejando un diseño afuera). Los diseños de demostración no se usan para entrenar.
-- **Agente con IA:** se configura en *Ajustes → Asistente con IA* con una clave de la API de Anthropic (solo administración). La clave queda en ese navegador y las consultas, con los datos que el agente lee, se envían a Anthropic. Cada consulta tiene costo según el uso.
+- **Predicción:** el error del panel *Modelo y precisión* se mide prediciendo cada diseño con un modelo que no lo vio.
+- **Agente con IA:** se configura en *Ajustes → Asistente con IA* con una clave de la API de Anthropic. La clave queda en ese navegador; pasará al servidor en la Fase 7.

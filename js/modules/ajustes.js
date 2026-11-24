@@ -43,14 +43,21 @@ document.getElementById('cta-guardar').addEventListener('click', function(){
   var actual = document.getElementById('cta-actual').value;
   var nueva = document.getElementById('cta-nueva').value;
   var rep = document.getElementById('cta-repetir').value;
-  if(u.hash !== hashPassword(actual, u.sal)){ toast('La contraseña actual no es correcta'); return; }
-  if(nueva.length < 6){ toast('La nueva contraseña debe tener al menos 6 caracteres'); return; }
+  if(nueva.length < 8){ toast('La nueva contraseña debe tener al menos 8 caracteres'); return; }
   if(nueva !== rep){ toast('Las contraseñas nuevas no coinciden'); return; }
+  var limpiar = function(){ ['cta-actual','cta-nueva','cta-repetir'].forEach(function(id){ document.getElementById(id).value = ''; }); };
+  if(Nube.activa()){
+    Nube.pedir('PUT', '/api/yo/clave', {actual:actual, nueva:nueva}).then(function(){
+      limpiar(); registrarHistorial('Editó', 'Usuarios', u.usuario + ' · cambió su contraseña', {codigo:u.usuario, servidor:true}); toast('Contraseña actualizada');
+    }, function(e){ toast(e.mensaje); });
+    return;
+  }
+  if(u.hash !== hashPassword(actual, u.sal)){ toast('La contraseña actual no es correcta'); return; }
   u.sal = nuevaSal();
   u.hash = hashPassword(nueva, u.sal);
   saveUsuarios();
-  ['cta-actual','cta-nueva','cta-repetir'].forEach(function(id){ document.getElementById(id).value = ''; });
-  registrarHistorial('Editó', 'Usuario', u.usuario + ' · cambió su contraseña');
+  limpiar();
+  registrarHistorial('Editó', 'Usuarios', u.usuario + ' · cambió su contraseña', {codigo:u.usuario});
   toast('Contraseña actualizada');
 });
 /* ---- Asistente con IA ---- */
@@ -91,4 +98,43 @@ document.getElementById('ia-probar').addEventListener('click', function(){
     }, function(err){ estado.textContent = traducirErrorAgente(err, Anthropic).message; });
   }).catch(function(){ estado.textContent = 'No se pudo cargar la librería de Anthropic (¿sin internet?).'; });
 });
-PANEL_HOOKS.ajustes = function(){ renderAjustes(); if(can('ver:usuarios')) renderAjustesIA(); };
+/* ---- Servidor (Cloudflare Workers + D1) ---- */
+function renderAjustesNube(){
+  Nube.actualizarIndicador();
+  document.getElementById('nube-url').value = Nube.url();
+  document.getElementById('nube-desconectar').style.display = Nube.activa() ? '' : 'none';
+  document.getElementById('nube-instalar').style.display = 'none';
+  document.getElementById('nube-msg').textContent = '';
+}
+function conectarNube(url){
+  Nube.configurar(url);
+  document.getElementById('nube-msg').textContent = 'Conectado. Volvé a ingresar con tu usuario del servidor.';
+  registrarHistorial('Editó', 'Ajustes', 'Conectó el servidor ' + url, {local:true});
+  setTimeout(function(){ cerrarSesion(); location.reload(); }, 1800);
+}
+document.getElementById('nube-conectar').addEventListener('click', function(){
+  if(!exigir('config:laboratorio')) return;
+  var url = document.getElementById('nube-url').value.trim().replace(/\/+$/, '');
+  var msg = document.getElementById('nube-msg');
+  if(!/^https:\/\/[^\s]+$/.test(url)){ msg.textContent = 'Ingresá la URL https del Worker.'; return; }
+  msg.textContent = 'Probando conexión…';
+  Nube.estado(url).then(function(r){
+    if(r.instalado){ msg.textContent = 'Servidor v' + r.version + ' listo.'; conectarNube(url); return; }
+    msg.textContent = 'Servidor v' + r.version + ' sin usuarios todavía.';
+    document.getElementById('nube-inst-correo').value = usuarioActual.correo || '';
+    document.getElementById('nube-instalar').style.display = '';
+  }, function(e){ msg.textContent = 'No se pudo conectar: ' + e.mensaje + '. Revisá la URL y que ORIGENES_PERMITIDOS incluya ' + location.origin + '.'; });
+});
+document.getElementById('nube-inst-ok').addEventListener('click', function(){
+  var url = document.getElementById('nube-url').value.trim().replace(/\/+$/, '');
+  var clave = document.getElementById('nube-inst-clave').value;
+  if(clave.length < 8){ toast('La contraseña debe tener al menos 8 caracteres'); return; }
+  var u = usuarioActual;
+  Nube.pedir('POST', '/api/instalar', {id:u.id, usuario:u.usuario, nombre:u.nombre || u.usuario, iniciales:u.iniciales || '', correo:document.getElementById('nube-inst-correo').value.trim(), clave:clave}, {url:url, sinToken:true})
+    .then(function(){ conectarNube(url); }, function(e){ document.getElementById('nube-msg').textContent = e.mensaje; });
+});
+document.getElementById('nube-desconectar').addEventListener('click', function(){
+  if(!confirm('¿Volver a modo local? Los datos del servidor no se borran; este navegador deja de usarlos.')) return;
+  Nube.logout().then(function(){ Nube.configurar(''); cerrarSesion(); location.reload(); });
+});
+PANEL_HOOKS.ajustes = function(){ renderAjustes(); if(can('ver:usuarios')) renderAjustesIA(); if(can('config:laboratorio')) renderAjustesNube(); };

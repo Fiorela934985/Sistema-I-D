@@ -1,5 +1,5 @@
-/* Sistema I+D — Inicio: saludo, KPIs del día y semana de roturas. Los accesos a cada sección son los
-   siete pasos del flujo del ensayo (js/modules/flujo.js). */
+/* Sistema I+D — Inicio: saludo, KPIs del día y semana de roturas.
+   El Inicio "Mi semana" completo (Mis pendientes, poza, calendario semanal, actividades) llega en la Fase 6. */
 'use strict';
 
 var hookInicioOriginal = PANEL_HOOKS.inicio;

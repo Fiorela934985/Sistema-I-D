@@ -1,6 +1,6 @@
 /* Service worker — estrategia "red primero": siempre intenta la versión más reciente
    y solo usa la caché cuando no hay conexión. Así un nuevo despliegue se ve de inmediato. */
-const CACHE = 'sistema-id-v12';
+const CACHE = 'sistema-id-v13';
 const CORE = [
   './',
   './index.html',
@@ -11,10 +11,13 @@ const CORE = [
   './css/diseno.css',
   './css/pro.css',
   './css/flujo.css',
+  './css/erp.css',
   './data/disenos-reales.js',
   './js/core/utils.js',
+  './js/core/nube.js',
   './js/core/auth.js',
   './js/core/historial.js',
+  './js/core/laboratorio.js',
   './js/core/icons.js',
   './js/core/shell.js',
   './js/modules/catalogos.js',
@@ -45,7 +48,9 @@ const CORE = [
   './js/modules/dashboard.js',
   './js/modules/ajustes.js',
   './js/modules/inicio.js',
-  './js/modules/flujo.js',
+  './js/modules/navegacion.js',
+  './js/modules/personal.js',
+  './js/modules/ensayos-metodos.js',
   './js/data/seed.js',
   './js/data/reparaciones.js',
   './js/main.js',
@@ -58,7 +63,8 @@ const CORE = [
 ];
 
 self.addEventListener('install', (e) => {
-  e.waitUntil(caches.open(CACHE).then((c) => c.addAll(CORE)).then(() => self.skipWaiting()));
+  // cache: 'reload' → al instalar se baja todo del servidor, no de la caché HTTP (evita mezclar versiones)
+  e.waitUntil(caches.open(CACHE).then((c) => c.addAll(CORE.map((u) => new Request(u, {cache: 'reload'})))).then(() => self.skipWaiting()));
 });
 
 self.addEventListener('activate', (e) => {
@@ -71,8 +77,11 @@ self.addEventListener('activate', (e) => {
 
 self.addEventListener('fetch', (e) => {
   if (e.request.method !== 'GET') return;
+  const propio = new URL(e.request.url).origin === self.location.origin;
+  if (!propio && !/cdnjs|jsdelivr|unpkg|fonts\./.test(e.request.url)) return; // la API del servidor nunca pasa por la caché
+  // 'no-cache' obliga a preguntar si el archivo cambió: una publicación nueva se ve de inmediato
   e.respondWith(
-    fetch(e.request)
+    fetch(propio ? new Request(e.request, {cache: 'no-cache'}) : e.request)
       .then((res) => {
         if (res.ok && (res.type === 'basic' || res.type === 'cors')) {
           const copy = res.clone();

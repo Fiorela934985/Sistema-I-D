@@ -51,55 +51,91 @@ function hashPassword(pass, salt){ return sha256(unescape(encodeURIComponent(sal
 function nuevaSal(){ return Math.random().toString(36).slice(2) + Date.now().toString(36); }
 
 /* ================= PERMISOS Y ROLES ================= */
+/* Secciones del menú (prompt maestro, sección 4). Los paneles sin entrada propia en el menú (componentes,
+   calendario, archivador) se abren desde dentro de otra sección y conservan su permiso de "ver". */
 var PANELES = [
-  {id:'inicio', label:'Inicio', grupo:'General'},
-  {id:'proyectos', label:'Proyectos', grupo:'Flujo del ensayo'},
-  {id:'componentes', label:'Materiales (componentes)', grupo:'Flujo del ensayo'},
-  {id:'disenos', label:'Diseños y resultados', grupo:'Flujo del ensayo'},
-  {id:'roturas', label:'Probetas (roturas)', grupo:'Flujo del ensayo'},
-  {id:'calendario', label:'Calendario de roturas', grupo:'Flujo del ensayo'},
-  {id:'reporte-rr', label:'Reporte RR', grupo:'Flujo del ensayo'},
-  {id:'reportes', label:'Indicadores y KPIs', grupo:'Flujo del ensayo'},
-  {id:'archivador', label:'Archivador', grupo:'Flujo del ensayo'},
+  {id:'inicio', label:'Inicio', grupo:'Inicio'},
+  {id:'proyectos', label:'Proyectos', grupo:'Proyectos'},
+  {id:'disenos', label:'Formato de Diseños y Estado Fresco', grupo:'Formatos'},
+  {id:'roturas', label:'Formato de Roturas I+D', grupo:'Formatos'},
+  {id:'reporte-rr', label:'Formato de Cargas y Promediados', grupo:'Formatos'},
+  {id:'etiquetas', label:'Etiquetas', grupo:'Formatos'},
+  {id:'componentes', label:'Materiales de la calculadora', grupo:'Formatos'},
+  {id:'archivador', label:'Archivo de diseños', grupo:'Proyectos'},
+  {id:'planificacion', label:'Planificación', grupo:'Planificación'},
+  {id:'calendario', label:'Calendario', grupo:'Planificación'},
+  {id:'personal', label:'Personal', grupo:'Recursos'},
+  {id:'documentos', label:'Documentos', grupo:'Calidad'},
+  {id:'no-conforme', label:'Trabajo no conforme', grupo:'Calidad'},
+  {id:'historial', label:'Historial de cambios', grupo:'Calidad'},
+  {id:'reportes', label:'Indicadores', grupo:'Inteligencia'},
   {id:'base-historica', label:'Base histórica', grupo:'Inteligencia'},
   {id:'prediccion', label:'Predicción', grupo:'Inteligencia'},
   {id:'asistente', label:'Asistente I+D', grupo:'Inteligencia'},
   {id:'usuarios', label:'Usuarios y roles', grupo:'Administración'},
-  {id:'historial', label:'Historial', grupo:'Administración'},
+  {id:'ensayos-metodos', label:'Ensayos y métodos', grupo:'Administración'},
   {id:'ajustes', label:'Ajustes', grupo:'Administración'}
 ];
+/* Acciones (prompt maestro, sección 3). Los mismos identificadores usa el servidor. */
 var ACCIONES = [
-  {id:'disenos:crear', label:'Calcular, registrar y duplicar diseños'},
-  {id:'disenos:eliminar', label:'Eliminar diseños'},
-  {id:'resultados:registrar', label:'Registrar resultados de ensayo'},
-  {id:'roturas:registrar', label:'Registrar elaboración y cargas de rotura'},
-  {id:'roturas:eliminar', label:'Eliminar registros de rotura'},
-  {id:'componentes:editar', label:'Crear y editar componentes'},
-  {id:'proyectos:editar', label:'Crear y editar proyectos e iteraciones'},
+  {id:'config:laboratorio', label:'Configurar usuarios, ensayos, métodos y flujos'},
+  {id:'personal:autorizar', label:'Fichas de personal y autorizaciones de ensayo'},
+  {id:'proyectos:editar', label:'Crear proyectos y planes de trabajo'},
+  {id:'planes:gestionar', label:'Gestionar planes de trabajo'},
+  {id:'actividades:publicar', label:'Asignar y publicar actividades de la semana'},
+  {id:'disenos:crear', label:'Crear diseños y asignarlos'},
+  {id:'disenos:eliminar', label:'Anular diseños'},
+  {id:'resultados:registrar', label:'Registrar ensayos de estado fresco'},
+  {id:'roturas:registrar', label:'Registrar elaboración y roturas'},
+  {id:'roturas:eliminar', label:'Anular registros de rotura'},
+  {id:'informes:aprobar', label:'Aprobar informes'},
+  {id:'tnc:cerrar', label:'Cerrar trabajos no conformes'},
+  {id:'tnc:reportar', label:'Reportar trabajos no conformes'},
+  {id:'inicio:equipo', label:'Ver el Inicio de todo el equipo'},
+  {id:'componentes:editar', label:'Crear y editar materiales de la calculadora'},
   {id:'rr:editar', label:'Crear y editar reportes RR'},
-  {id:'evidencias:subir', label:'Subir y borrar evidencias fotográficas'},
+  {id:'evidencias:subir', label:'Subir evidencias fotográficas'},
   {id:'datos:exportar', label:'Exportar datos (Excel / CSV)'},
   {id:'datos:respaldo', label:'Respaldar y restaurar la base completa'}
 ];
 var TODOS_LOS_PERMISOS = PANELES.map(function(p){ return 'ver:' + p.id; }).concat(ACCIONES.map(function(a){ return a.id; }));
 
 var ROLES_DEF = {
-  admin: {label:'Administrador', desc:'Acceso total: usuarios, permisos, respaldo y todas las funciones.'},
-  jefatura: {label:'Jefatura', desc:'Supervisión: reportes, métricas, expedientes, predicción e historial. No registra ensayos.'},
-  tecnico: {label:'Técnico', desc:'Operación diaria: calcula diseños, registra roturas, resultados y evidencias.'}
+  admin: {label:'Administrador', desc:'Configura usuarios, ensayos, métodos y flujos. Puede hacer todo.'},
+  lider: {label:'Líder', desc:'Planifica y asigna: crea proyectos y planes, publica la semana, aprueba informes y cierra trabajos no conformes.'},
+  tecnico: {label:'Técnico', desc:'Ejecuta: crea diseños (para sí o para otro técnico) y registra los ensayos asignados para los que está autorizado.'}
 };
+var PERMISOS_VERSION = 2;
 var PERMISOS_POR_DEFECTO = {
   admin: TODOS_LOS_PERMISOS.slice(),
-  jefatura: ['ver:inicio','ver:reportes','ver:proyectos','ver:disenos','ver:roturas','ver:calendario','ver:componentes',
-    'ver:reporte-rr','ver:archivador','ver:base-historica','ver:prediccion','ver:asistente','ver:historial','ver:ajustes',
-    'proyectos:editar','rr:editar','datos:exportar'],
-  tecnico: ['ver:inicio','ver:proyectos','ver:disenos','ver:roturas','ver:calendario','ver:componentes','ver:reporte-rr',
-    'ver:archivador','ver:asistente','ver:ajustes',
-    'disenos:crear','resultados:registrar','roturas:registrar','componentes:editar','rr:editar','evidencias:subir']
+  lider: ['ver:inicio','ver:proyectos','ver:disenos','ver:roturas','ver:reporte-rr','ver:etiquetas','ver:componentes','ver:archivador',
+    'ver:planificacion','ver:calendario','ver:personal','ver:documentos','ver:no-conforme','ver:historial',
+    'ver:reportes','ver:base-historica','ver:prediccion','ver:asistente','ver:ajustes',
+    'personal:autorizar','proyectos:editar','planes:gestionar','actividades:publicar','disenos:crear','disenos:eliminar',
+    'resultados:registrar','roturas:registrar','roturas:eliminar','informes:aprobar','tnc:cerrar','tnc:reportar','inicio:equipo',
+    'componentes:editar','rr:editar','evidencias:subir','datos:exportar'],
+  tecnico: ['ver:inicio','ver:proyectos','ver:disenos','ver:roturas','ver:reporte-rr','ver:etiquetas','ver:componentes','ver:archivador',
+    'ver:planificacion','ver:calendario','ver:personal','ver:documentos','ver:no-conforme','ver:asistente','ver:ajustes',
+    'disenos:crear','resultados:registrar','roturas:registrar','tnc:reportar','componentes:editar','rr:editar','evidencias:subir']
 };
-var permisosPorRol = load('sid_roles_permisos', null) || JSON.parse(JSON.stringify(PERMISOS_POR_DEFECTO));
+/* Los permisos guardados de la versión anterior (Administrador / Jefatura / Técnico) se reemplazan por los del prompt maestro */
+var permisosPorRol = load('sid_roles_permisos', null);
+if(!permisosPorRol || load('sid_roles_version', 1) < PERMISOS_VERSION){
+  permisosPorRol = JSON.parse(JSON.stringify(PERMISOS_POR_DEFECTO));
+  save('sid_roles_permisos', permisosPorRol);
+  save('sid_roles_version', PERMISOS_VERSION);
+}
 permisosPorRol.admin = TODOS_LOS_PERMISOS.slice(); // el administrador siempre conserva todo
 function savePermisosPorRol(){ save('sid_roles_permisos', permisosPorRol); }
+/* Con servidor: las acciones las define el servidor (permisos_rol); la visibilidad de secciones sigue la tabla local */
+function aplicarPermisosServidor(filas){
+  ['lider','tecnico'].forEach(function(rol){
+    var ver = (permisosPorRol[rol] || []).filter(function(p){ return p.indexOf('ver:') === 0; });
+    var acciones = filas.filter(function(f){ return f.rol === rol; }).map(function(f){ return f.permiso; });
+    permisosPorRol[rol] = ver.concat(acciones);
+  });
+  savePermisosPorRol();
+}
 
 /* ================= USUARIOS ================= */
 var usuarios = load('sid_usuarios', null);
@@ -110,9 +146,9 @@ if(!usuarios){
     sal:salAdmin, hash:hashPassword('12345678', salAdmin), creado:Date.now(), ultimoAcceso:null}];
   save('sid_usuarios', usuarios);
 }
-/* Una versión de prueba guardó roles con otro formato (ADM, JEF, ANA, TEC, INV, CON): se devuelven a los de
-   este sistema para que nadie se quede sin acceso. */
-var ROL_EQUIVALENTE = {ADM:'admin', JEF:'jefatura', ANA:'tecnico', TEC:'tecnico', INV:'jefatura', CON:'jefatura'};
+/* Roles de versiones anteriores (Jefatura, y los de prueba ADM, JEF, ANA, TEC, INV, CON) pasan a los del prompt
+   maestro: Administrador, Líder y Técnico. Nadie se queda sin acceso. */
+var ROL_EQUIVALENTE = {jefatura:'lider', ADM:'admin', JEF:'lider', ANA:'tecnico', TEC:'tecnico', INV:'lider', CON:'lider'};
 var rolesCorregidos = false;
 usuarios.forEach(function(u){
   if(ROL_EQUIVALENTE[u.rol]){ u.rol = ROL_EQUIVALENTE[u.rol]; rolesCorregidos = true; }
