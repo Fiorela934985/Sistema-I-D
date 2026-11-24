@@ -1,6 +1,6 @@
 /* Service worker — estrategia "red primero": siempre intenta la versión más reciente
    y solo usa la caché cuando no hay conexión. Así un nuevo despliegue se ve de inmediato. */
-const CACHE = 'sistema-id-v19';
+const CACHE = 'sistema-id-v21';
 const CORE = [
   './',
   './index.html',
@@ -13,8 +13,10 @@ const CORE = [
   './css/flujo.css',
   './css/erp.css',
   './css/erp-compacto.css',
+  './css/marca.css',
   './data/disenos-reales.js',
   './js/core/utils.js',
+  './js/core/fechas.js',
   './js/core/nube.js',
   './js/core/sincronizacion.js',
   './js/core/auth.js',
@@ -88,6 +90,7 @@ self.addEventListener('activate', (e) => {
 self.addEventListener('fetch', (e) => {
   if (e.request.method !== 'GET') return;
   const propio = new URL(e.request.url).origin === self.location.origin;
+  if (propio && new URL(e.request.url).pathname.startsWith('/api/')) return; // la API nunca pasa por la caché
   if (!propio && !/cdnjs|jsdelivr|unpkg|fonts\./.test(e.request.url)) return; // la API del servidor nunca pasa por la caché
   // 'no-cache' obliga a preguntar si el archivo cambió: una publicación nueva se ve de inmediato
   e.respondWith(

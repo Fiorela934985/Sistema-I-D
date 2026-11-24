@@ -37,6 +37,7 @@ document.getElementById('pp-nueva-iter-confirmar').addEventListener('click', fun
   toast('Iteración registrada y seleccionada');
 });
 function showSubTab(name){
+  if(name === 'historico') name = 'tabla';
   subTabDisenos = name;
   document.querySelectorAll('#disenos-subtabs .subtab').forEach(function(b){ b.classList.toggle('active', b.dataset.dsub === name); });
   ['tabla','calcular','fresco','historico'].forEach(function(s){ document.getElementById('sub-' + s).style.display = name === s ? 'block' : 'none'; });

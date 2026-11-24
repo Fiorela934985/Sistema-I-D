@@ -5,7 +5,11 @@ compatibility_date = "2025-09-01"
 [vars]
 ORIGENES_PERMITIDOS = "https://fiorela934985.github.io"
 
+[assets]
+directory = "./sitio"
+binding = "ASSETS"
+
 [[d1_databases]]
 binding = "DB"
 database_name = "erp-laboratorio-id"
-database_id = "REEMPLAZAR_CON_EL_ID_QUE_DA_WRANGLER"
+database_id = "712b53b4-2b42-4472-acbd-25f1325f2e2c"

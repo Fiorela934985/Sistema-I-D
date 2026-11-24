@@ -5,6 +5,7 @@
   "description": "Sistema I+D — Laboratorio I+D · Gestión de Calidad",
   "scripts": {
     "start": "npx --yes http-server@14.1.1 . -p 8080 -c-1 -o",
-    "check": "node -e \"const{execSync}=require('child_process');const fs=require('fs');const path=require('path');function w(d){return fs.readdirSync(d,{withFileTypes:true}).flatMap(e=>e.isDirectory()?w(path.join(d,e.name)):e.name.endsWith('.js')?[path.join(d,e.name)]:[])}for(const f of [...w('js'),'sw.js','data/disenos-reales.js']){execSync('node --check '+JSON.stringify(f));}console.log('OK: sintaxis correcta')\""
+    "check": "node -e \"const{execSync}=require('child_process');const fs=require('fs');const path=require('path');function w(d){return fs.readdirSync(d,{withFileTypes:true}).flatMap(e=>e.isDirectory()?w(path.join(d,e.name)):e.name.endsWith('.js')?[path.join(d,e.name)]:[])}for(const f of [...w('js'),'sw.js','data/disenos-reales.js']){execSync('node --check '+JSON.stringify(f));}console.log('OK: sintaxis correcta')\"",
+    "desplegar": "node worker/desplegar.mjs"
   }
 }

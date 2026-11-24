@@ -106,18 +106,58 @@ function renderListaProyectos(){
   renderRadarEtapas(lista);
 }
 /* Radar: en qué etapa del flujo está cada proyecto */
-function renderRadarEtapas(lista){
-  var filas = lista.map(function(f){ return {f:f, e:etapaProyecto(f), r:resumenProyecto(f)}; })
-    .sort(function(a,b){ return (a.e.cerrado - b.e.cerrado) || (b.r.atrasadas - a.r.atrasadas) || a.f.nombre.localeCompare(b.f.nombre); });
-  document.getElementById('proy-radar').innerHTML = filas.length ? filas.map(function(x){
-    var actual = x.e.pasos[x.e.indice];
-    return '<div class="radar-fila" data-proy="'+esc(x.f.nombre)+'" title="Abrir el proyecto"><div class="rf-top"><b>'+esc(x.f.nombre)+'</b><span class="rf-etapa'+(x.e.cerrado?' ok':'')+'">'+(x.e.cerrado ? 'Cerrado' : esc(actual ? actual.nombre : '—'))+'</span></div>' +
-      '<ol class="rf-pasos">' + x.e.pasos.map(function(p, i){
-        var cls = x.e.cerrado || i < x.e.indice ? 'hecho' : (i === x.e.indice ? 'actual' + (x.r.atrasadas && p.id === 'endurecido' ? ' atrasado' : '') : '');
-        return '<li class="'+cls+'" title="'+esc(p.nombre)+'"></li>';
-      }).join('') + '</ol></div>';
-  }).join('') : '<p class="nota-sm">Sin proyectos.</p>';
+/* Radar de proyectos (gráfico con puntos): en qué etapa del flujo está cada proyecto, o sus indicadores */
+var radarSel = null, radarModo = 'etapas';
+var EJES_ETAPAS = ['Agregados', 'Diseño', 'Elaboración', 'Estado fresco', 'Estado endurecido', 'Informes'];
+function valoresEtapas(f){
+  var ds = resumenProyecto(f).disenos;
+  var pct = function(paso){
+    if(!ds.length) return 0;
+    return Math.round(ds.filter(function(d){ var e = estadoPaso(d, paso); return e === 'hecho' || e === 'no-aplica'; }).length / ds.length * 100);
+  };
+  var rr = rrEstudios.filter(function(e){ return (e.proyecto || proyectoNombre(e.proyectoId)) === f.nombre; });
+  return [pct('agregados'), pct('diseno'), pct('elaboracion'), pct('fresco'), pct('endurecido'), rr.length ? Math.round(rr.filter(function(e){ return e.estado === 'emitido'; }).length / rr.length * 100) : 0];
 }
+function renderRadarEtapas(lista){
+  var cont = document.getElementById('proy-radar');
+  var nombres = lista.map(function(f){ return f.nombre; });
+  if(!radarSel) radarSel = lista.slice().sort(function(a,b){ return resumenProyecto(b).disenos.length - resumenProyecto(a).disenos.length; }).slice(0, 4).map(function(f){ return f.nombre; });
+  var sel = radarSel.filter(function(n){ return nombres.indexOf(n) > -1; });
+  cont.innerHTML = '<div class="view-toggle radar-modo"><button class="view-toggle-btn' + (radarModo === 'etapas' ? ' active' : '') + '" data-radar-modo="etapas">Etapas</button>' +
+      '<button class="view-toggle-btn' + (radarModo === 'indicadores' ? ' active' : '') + '" data-radar-modo="indicadores">Indicadores</button></div>' +
+    '<div class="radar-graf"><canvas id="chart-radar-proyectos"></canvas></div>' +
+    '<div class="radar-picker">' + lista.map(function(f, k){
+      var on = sel.indexOf(f.nombre) > -1, col = PALETA[sel.indexOf(f.nombre) % PALETA.length];
+      return '<label class="radar-chip' + (on ? ' on' : '') + '"' + (on ? ' style="border-color:' + col + ';"' : '') + '><input type="checkbox" data-radar="' + esc(f.nombre) + '"' + (on ? ' checked' : '') + '>' +
+        (on ? '<i style="background:' + col + '"></i>' : '') + esc(f.nombre) + '</label>';
+    }).join('') + '</div>';
+  destruirProyChart('radar');
+  if(typeof Chart === 'undefined') return;
+  var datos;
+  if(radarModo === 'etapas') datos = sel.map(function(n){ return {nombre:n, valores:valoresEtapas(fichaDeProyecto(n))}; });
+  else datos = ejesRadar(sel.map(metricasProyecto));
+  proyCharts.radar = new Chart(document.getElementById('chart-radar-proyectos'), {
+    type:'radar',
+    data:{labels:radarModo === 'etapas' ? EJES_ETAPAS : EJES_RADAR, datasets:datos.map(function(x, i){
+      var col = PALETA[i % PALETA.length];
+      return {label:x.nombre, data:x.valores, borderColor:col, backgroundColor:col + '22', pointBackgroundColor:col, pointRadius:3.5, borderWidth:2};
+    })},
+    options:{responsive:true, maintainAspectRatio:false, animation:false,
+      scales:{r:{min:0, max:100, ticks:{stepSize:25, display:false}, pointLabels:{font:{size:11, weight:'600'}, color:'#14181a'}}},
+      plugins:{legend:{display:false}, tooltip:{callbacks:{label:function(c){ return c.dataset.label + ': ' + c.parsed.r + '%'; }}}}}
+  });
+}
+document.getElementById('proy-radar').addEventListener('click', function(e){
+  var m = e.target.closest('[data-radar-modo]');
+  if(m){ radarModo = m.dataset.radarModo; renderRadarEtapas(fichasFiltradas()); }
+});
+document.getElementById('proy-radar').addEventListener('change', function(e){
+  var n = e.target.dataset.radar;
+  if(!n) return;
+  if(e.target.checked){ if(radarSel.length >= 6){ toast('Máximo 6 proyectos en el radar'); e.target.checked = false; return; } radarSel.push(n); }
+  else radarSel = radarSel.filter(function(x){ return x !== n; });
+  renderRadarEtapas(fichasFiltradas());
+});
 ['proy-buscar','proy-f-responsable','proy-f-tipo','proy-f-anio','proy-agrupar'].forEach(function(id){
   document.getElementById(id).addEventListener(id === 'proy-buscar' ? 'input' : 'change', renderListaProyectos);
 });

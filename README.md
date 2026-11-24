@@ -2,7 +2,9 @@
 
 ERP de proyectos para el Laboratorio I+D (NEW I+D - SSCC): proyectos con sus ensayos, diseños de mezcla (D-CC-F-148), estado fresco, roturas según NTP 339.034, Reporte RR, planificación, personal autorizado y calidad según ISO/IEC 17025:2017 como guía de buenas prácticas.
 
-**Sitio publicado:** https://fiorela934985.github.io/Sistema-I-D/
+**Sistema en Cloudflare (sitio + servidor + base D1):** https://erp-laboratorio-id.santospillamangofiorelalizet.workers.dev
+
+**Copia en GitHub Pages:** https://fiorela934985.github.io/Sistema-I-D/
 
 - **Frontend:** HTML + CSS + JavaScript en GitHub Pages.
 - **Backend:** Cloudflare Workers + D1 (carpeta `worker/`). Sin servidor configurado, el sistema funciona en **modo local** (datos en el navegador).
@@ -75,41 +77,13 @@ Los usuarios con el rol anterior *Jefatura* pasan solos a *Líder*.
 - **Toda edición pide el motivo** y queda en *Calidad › Historial de cambios* con quién, cuándo, valor anterior y valor nuevo.
 - **Con servidor, los permisos se verifican en el servidor** (no en el navegador), las contraseñas usan PBKDF2 y las sesiones vencen a las 12 h.
 
-## Publicar el servidor (Cloudflare Workers + D1)
+## Cloudflare
 
-Requisitos: Node.js 18 o superior y una cuenta de Cloudflare.
+El Worker `erp-laboratorio-id` sirve el sitio y la API en la misma dirección, con la base D1 `erp-laboratorio-id`. Desde ese sitio el sistema se conecta solo al servidor.
 
-1. Abrí una terminal en la carpeta `worker`:
-   ```bash
-   cd worker
-   npx wrangler login
-   ```
-2. Creá la base de datos:
-   ```bash
-   npx wrangler d1 create erp-laboratorio-id
-   ```
-3. Copiá el `database_id` que muestra el comando y pegalo en `worker/wrangler.toml`, en lugar de `REEMPLAZAR_CON_EL_ID_QUE_DA_WRANGLER`.
-4. Ejecutá el esquema y los datos iniciales:
-   ```bash
-   npx wrangler d1 execute erp-laboratorio-id --remote --file=schema.sql
-   npx wrangler d1 execute erp-laboratorio-id --remote --file=seed.sql
-   ```
-5. Publicá el Worker:
-   ```bash
-   npx wrangler deploy
-   ```
-   Copiá la URL que muestra (termina en `.workers.dev`).
-6. En el sistema, ingresá como administrador → **Ajustes › Servidor** → pegá la URL → **Probar y conectar**.
-7. Como el servidor está vacío, el sistema pide crear el primer administrador: escribí tu correo y una contraseña nueva (mínimo 8 caracteres) → **Crear administrador y conectar**.
-8. Volvé a ingresar con esa contraseña. Desde **Usuarios y roles** creá a los demás usuarios.
-
-Si el sitio se publica en otro dominio, agregalo en `ORIGENES_PERMITIDOS` de `wrangler.toml` (separado por comas) y repetí el paso 5.
-
-**Si ya habías ejecutado `schema.sql` antes de la Fase 4**, ejecutá también (una sola vez) y volvé a publicar:
-```bash
-npx wrangler d1 execute erp-laboratorio-id --remote --file=migracion-fase4.sql
-npx wrangler deploy
-```
+- **Primer ingreso:** con el servidor vacío, la pantalla de ingreso pide crear el administrador (nombre, correo, usuario y contraseña).
+- **Publicar cambios:** `npm run desplegar` (arma `worker/sitio` y ejecuta `wrangler deploy`).
+- **Esquema nuevo de una fase:** `npx wrangler d1 execute erp-laboratorio-id --remote --file=worker/migracion-faseN.sql`.
 
 ## Estructura
 

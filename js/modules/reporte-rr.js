@@ -276,9 +276,11 @@ function renderRRCharts(estudio){
   wrap.innerHTML =
     rrChartCanvas('rr-chart-fragua', 'Tiempo de fragua (hh:mm)') +
     rrChartCanvas('rr-chart-resist', 'Resistencia vs Tiempo') +
-    rrChartCanvas('rr-chart-slump', 'Trabajabilidad (pérdida de asentamiento)');
+    rrChartCanvas('rr-chart-slump', 'Trabajabilidad (pérdida de asentamiento)') +
+    rrChartCanvas('rr-chart-edades', 'Resistencia por edad') +
+    rrChartCanvas('rr-chart-costo', 'Costo (CVD) y resistencia máxima');
 
-  var colores = ['#0396c8','#0b5f7a','#2e9e57','#38bdf8','#7cc96b'];
+  var colores = PALETA;
   function hmToMin(s){
     if(s === null || s === undefined || s === '' || s === '-') return null;
     s = String(s).trim();
@@ -307,8 +309,8 @@ function renderRRCharts(estudio){
     data:{
       labels:labelsFragua,
       datasets:[
-        {label:'Fragua Inicial', data:iniMin, backgroundColor:'#1688fe', hoverBackgroundColor:'#1273d8'},
-        {label:'Fragua Final', data:durMin, backgroundColor:'#0c2288', hoverBackgroundColor:'#091a6d'}
+        {label:'Fragua Inicial', data:iniMin, backgroundColor:'#0099cc', hoverBackgroundColor:'#007aa6'},
+        {label:'Fragua Final', data:durMin, backgroundColor:'#4caf3e', hoverBackgroundColor:'#3a9030'}
       ]
     },
     options:{
@@ -358,11 +360,19 @@ function renderRRCharts(estudio){
   // Resistencia vs Tiempo (línea) — usa la tabla de Edad
   var datasetsResist = estudio.tipos.map(function(t, ti){
     var pts = estudio.edades.map(function(e){ return {x:Number((e.edad||'0').replace(/[^\d.]/g,'')) || 0, y:Number(e.valores[t.id])||0}; }).sort(function(a,b){return a.x-b.x;});
-    return {label:t.nombre, data:pts, borderColor:colores[ti%5], backgroundColor:colores[ti%5], pointRadius:5, pointHoverRadius:7, borderWidth:2.5, tension:.3};
+    var col = colores[ti % colores.length];
+    return {label:t.nombre, data:pts, borderColor:col, backgroundColor:col + '1f', pointBackgroundColor:'#fff', pointBorderColor:col, pointRadius:4.5, pointHoverRadius:7, borderWidth:2.5, tension:.35, fill:estudio.tipos.length <= 3};
   });
+  var req = parseFloat(String((estudio.edades[0] || {}).requisito || estudio.requisito || '').replace(',', '.'));
+  if(isFinite(req) && req > 0){
+    var xs = []; datasetsResist.forEach(function(d){ d.data.forEach(function(p){ xs.push(p.x); }); });
+    if(xs.length) datasetsResist.push({label:'Requisito ' + req, data:[{x:Math.min.apply(null, xs), y:req}, {x:Math.max.apply(null, xs), y:req}], borderColor:'#e5484d', borderDash:[6, 5], borderWidth:1.5, pointRadius:0, fill:false});
+  }
   rrCharts.push(new Chart(document.getElementById('rr-chart-resist'), {
     type:'line', data:{datasets:datasetsResist},
-    options:{responsive:true, maintainAspectRatio:false, scales:{x:{type:'linear', title:{display:true,text:'Días'}}, y:{title:{display:true,text:'Resistencia (kg/cm²)'}}}}
+    options:{responsive:true, maintainAspectRatio:false, interaction:{mode:'nearest', intersect:false},
+      scales:{x:{type:'linear', title:{display:true,text:'Edad (días)'}}, y:{title:{display:true,text:'Resistencia (kg/cm²)'}, beginAtZero:true}},
+      plugins:{legend:{position:'bottom'}}}
   }));
 
   // Trabajabilidad — consistencia a 0/30/60/90 min por tipo
@@ -374,7 +384,27 @@ function renderRRCharts(estudio){
   });
   rrCharts.push(new Chart(document.getElementById('rr-chart-slump'), {
     type:'bar', data:{labels:labelsFragua, datasets:datasetsSlump},
-    options:{responsive:true, maintainAspectRatio:false, scales:{y:{title:{display:true,text:'Slump (pulgadas)'}}}}
+    options:{responsive:true, maintainAspectRatio:false, scales:{y:{title:{display:true,text:'Slump (pulgadas)'}, beginAtZero:true}}, plugins:{legend:{position:'bottom'}}}
+  }));
+
+  // Resistencia por edad: barras agrupadas por edad
+  var edadesLbl = estudio.edades.map(function(e){ return e.edad; });
+  rrCharts.push(new Chart(document.getElementById('rr-chart-edades'), {
+    type:'bar',
+    data:{labels:edadesLbl, datasets:estudio.tipos.map(function(t, ti){
+      return {label:t.nombre, data:estudio.edades.map(function(e){ var v = Number(e.valores[t.id]); return v || null; }), backgroundColor:colores[ti % colores.length]};
+    })},
+    options:{responsive:true, maintainAspectRatio:false, scales:{y:{beginAtZero:true, title:{display:true, text:'kg/cm²'}}}, plugins:{legend:{position:'bottom'}}}
+  }));
+
+  // Costo por m³ (barras) y resistencia máxima (línea) por diseño
+  var maxRes = estudio.tipos.map(function(t){ var v = estudio.edades.map(function(e){ return Number(e.valores[t.id]) || 0; }); return v.length ? Math.max.apply(null, v) || null : null; });
+  rrCharts.push(new Chart(document.getElementById('rr-chart-costo'), {
+    data:{labels:labelsFragua, datasets:[
+      {type:'bar', label:'CVD (S/. por m³)', data:estudio.tipos.map(function(t){ return Number(t.valores.cvd) || null; }), backgroundColor:'#0099cc', yAxisID:'y'},
+      {type:'line', label:'Resistencia máxima (kg/cm²)', data:maxRes, borderColor:'#4caf3e', pointBorderColor:'#4caf3e', pointBackgroundColor:'#fff', yAxisID:'y1', fill:false}
+    ]},
+    options:{responsive:true, maintainAspectRatio:false, scales:{y:{beginAtZero:true, position:'left', title:{display:true, text:'S/. por m³'}}, y1:{beginAtZero:true, position:'right', grid:{drawOnChartArea:false}, title:{display:true, text:'kg/cm²'}}}, plugins:{legend:{position:'bottom'}}}
   }));
 }
 

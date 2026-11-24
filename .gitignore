@@ -4,3 +4,5 @@ _site/
 Thumbs.db
 *.log
 .vscode/
+worker/sitio/
+worker/.wrangler/

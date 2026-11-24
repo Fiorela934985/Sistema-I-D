@@ -7,6 +7,8 @@
 
 var Nube = (function(){
   var cfg = load('sid_nube', {url:''});
+  // Publicado en Cloudflare: el sitio y la API están en la misma dirección
+  if(!cfg.url && /\.workers\.dev$/.test(location.hostname)){ cfg.url = location.origin; save('sid_nube', cfg); }
   var cola = load('sid_nube_cola', []);
   var token = sessionStorage.getItem('sid_nube_token') || '';
   var reintentoTimer = null;

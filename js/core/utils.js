@@ -7,7 +7,25 @@ if(typeof Chart !== 'undefined'){
   Chart.defaults.font.family = "'Inter', sans-serif";
   Chart.defaults.font.size = 12;
   Chart.defaults.plugins.legend.labels.color = '#14181a';
-  Chart.defaults.scale.grid.color = 'rgba(0,0,0,.08)';
+  Chart.defaults.scale.grid.color = 'rgba(20,24,26,.06)';
+  Chart.defaults.scale.border.display = false;
+  Chart.defaults.elements.bar.borderRadius = 6;
+  Chart.defaults.elements.bar.borderSkipped = false;
+  Chart.defaults.elements.line.borderWidth = 2.5;
+  Chart.defaults.elements.line.tension = .35;
+  Chart.defaults.elements.point.radius = 3.5;
+  Chart.defaults.elements.point.hoverRadius = 6;
+  Chart.defaults.elements.point.borderWidth = 2;
+  Chart.defaults.elements.point.backgroundColor = '#fff';
+  Chart.defaults.plugins.legend.labels.usePointStyle = true;
+  Chart.defaults.plugins.legend.labels.pointStyle = 'circle';
+  Chart.defaults.plugins.legend.labels.boxWidth = 8;
+  Chart.defaults.plugins.legend.labels.boxHeight = 8;
+  Chart.defaults.plugins.legend.labels.font = {weight:'600', size:11};
+  Chart.defaults.plugins.tooltip.backgroundColor = '#14181a';
+  Chart.defaults.plugins.tooltip.padding = 10;
+  Chart.defaults.plugins.tooltip.cornerRadius = 8;
+  Chart.defaults.plugins.tooltip.titleFont = {weight:'700'};
 }
 
 function load(key, fallback){ try{ var raw = localStorage.getItem(key); return raw ? JSON.parse(raw) : fallback; }catch(e){ return fallback; } }
@@ -68,5 +86,5 @@ document.addEventListener('click', function(e){
   if(e.target.classList && e.target.classList.contains('sid-modal')) e.target.classList.remove('show');
 });
 // Paleta del tema celeste + verde para gráficos
-var PALETA = ['#0396c8','#2e9e57','#0b5f7a','#7cc96b','#38bdf8','#15803d','#0ea5a4','#94a3b8'];
+var PALETA = ['#0099cc','#4caf3e','#0b6f96','#f59e0b','#5b6cf0','#14b8a6','#e5484d','#94a3b8'];
 var COLOR_PRIMARIO = '#0396c8', COLOR_VERDE = '#2e9e57', COLOR_ROJO = '#dc2626', COLOR_AMBAR = '#f59e0b';

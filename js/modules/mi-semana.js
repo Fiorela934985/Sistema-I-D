@@ -217,11 +217,7 @@ function renderMiSemana(){
   var dias = []; for(var i = 0; i < 7; i++) dias.push(addDaysISO(lunes, i));
   var roturasSem = roturasSemana(lunes);
   cont.innerHTML =
-    '<div class="ms-barra"><div class="ms-titulo"><h2>' + (esEquipo() ? 'Semana del equipo' : 'Mi semana') + '</h2>' +
-      '<button class="cal-nav" data-ms-sem="-7">‹</button><span class="ms-rango">' + rangoSemanaTexto(lunes) + '</span><button class="cal-nav" data-ms-sem="7">›</button>' + (lunes !== lunesDe(hoy) ? '<button class="btn-ghost" data-ms-sem="hoy">Hoy</button>' : '') + '</div>' +
-      '<div class="view-toggle"><button class="view-toggle-btn' + (!esEquipo() ? ' active' : '') + '" data-ms-alcance="mio">Mío</button><button class="view-toggle-btn' + (esEquipo() ? ' active' : '') + '" data-ms-alcance="equipo">Todo el equipo</button></div>' +
-      '<div class="ms-conteo"><b>' + pend.length + '</b> pendientes · <b>' + nHoy + '</b> hoy</div></div>' +
-    '<div class="ms-grid">' +
+    '<div class="ms-grid">' + heroInicioHtml(pend.length, nHoy, lunes) + kpisInicioHtml(pend, acts, lh) +
       '<section class="ms-bloque ms-pend"><div class="ms-cab"><h3>' + (esEquipo() ? 'Pendientes del equipo' : 'Mis pendientes') + ' <span class="ms-n">' + pend.length + '</span></h3>' + verTodoBtn('pend', pend.length) + '</div>' +
         (pend.length ? '<ul class="ms-lista' + (msExpandido.pend ? ' expandida' : '') + '">' + recortar('pend', pend).map(filaPendienteMs).join('') + '</ul>' : '<div class="empty-note">Sin pendientes.</div>') + '</section>' +
       '<section class="ms-bloque ms-poza" data-ms-acc="poza"><div class="ms-cab"><h3>Poza de curado</h3><button class="btn-add ghost" data-ms-acc="poza-registrar" data-perm="resultados:registrar">Registrar lectura</button></div>' +
@@ -294,4 +290,53 @@ document.addEventListener('change', function(e){
   if(a) marcarActividad(a, e.target.checked);
   renderMiSemana();
 });
+
+/* ================= PORTADA: saludo y fila de indicadores ================= */
+var ICO_MS = {
+  proy:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 7a2 2 0 0 1 2-2h4l2 2h8a2 2 0 0 1 2 2v9a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V7z"/></svg>',
+  dis:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="4" y="2" width="16" height="20" rx="2"/><path d="M8 7h8M8 12h8M8 17h4"/></svg>',
+  hoy:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 2l3 6-5 4 6 2-8 8 2-7-5-2 4-4-3-5z"/></svg>',
+  atr:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="9"/><path d="M12 7v5l3 2"/></svg>',
+  act:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M9 11l3 3 8-8"/><path d="M20 12v6a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2V6a2 2 0 0 1 2-2h9"/></svg>',
+  poza:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M14 14.76V3.5a2.5 2.5 0 0 0-5 0v11.26a4.5 4.5 0 1 0 5 0z"/></svg>'
+};
+function heroInicioHtml(nPend, nHoy, lunes){
+  var h = new Date().getHours();
+  var saludo = h < 12 ? 'Buenos días' : (h < 19 ? 'Buenas tardes' : 'Buenas noches');
+  var nombre = (usuarioActual.nombre || usuarioActual.usuario).split(' ')[0];
+  var d = new Date();
+  var fecha = DIA_NOMBRES[d.getDay()].charAt(0).toUpperCase() + DIA_NOMBRES[d.getDay()].slice(1) + ' ' + d.getDate() + ' de ' + MES_NOMBRES[d.getMonth()].toLowerCase() + ' de ' + d.getFullYear();
+  return '<div class="ms-hero ms-barra"><div><h2>' + saludo + ', ' + esc(nombre) + '</h2>' +
+      '<div class="ms-fecha">' + fecha + ' · <span class="ms-alcance-t">' + (esEquipo() ? 'Semana del equipo' : 'Mi semana') + '</span> · <b>' + nPend + '</b> pendientes · <b>' + nHoy + '</b> hoy</div></div>' +
+    '<span class="ms-vivo">En vivo</span>' +
+    '<div class="ms-semana"><button class="cal-nav" data-ms-sem="-7">‹</button><span class="ms-rango">' + rangoSemanaTexto(lunes) + '</span><button class="cal-nav" data-ms-sem="7">›</button>' +
+      (lunes !== lunesDe(todayISO()) ? '<button class="cal-nav" data-ms-sem="hoy">Hoy</button>' : '') +
+      '<div class="view-toggle"><button class="view-toggle-btn' + (!esEquipo() ? ' active' : '') + '" data-ms-alcance="mio">Mío</button><button class="view-toggle-btn' + (esEquipo() ? ' active' : '') + '" data-ms-alcance="equipo">Todo el equipo</button></div></div></div>';
+}
+function kpisInicioHtml(pend, acts, lh){
+  var abiertos = fichasProyecto.filter(function(f){ return !f.anulado && resumenProyecto(f).estado === 'Abierto'; }).length;
+  var disAb = disenos.filter(function(d){ return (esEquipo() || d.asignadoA === yoId()) && estadoCalculado(d) === 'Abierto'; }).length;
+  var hoyN = pend.filter(function(p){ return p.tipo === 'rotura' && p.hoy; }).length;
+  var atrN = pend.filter(function(p){ return p.tipo === 'rotura' && !p.hoy; }).length;
+  var hechas = acts.filter(actividadHecha).length;
+  var k = function(dest, tono, ico, valor, etiqueta){ return '<button class="ms-kpi" data-ms-kpi="' + dest + '"><i class="' + tono + '">' + ICO_MS[ico] + '</i><div><b>' + valor + '</b><span>' + etiqueta + '</span></div></button>'; };
+  return '<div class="ms-kpis">' +
+    k('proyectos', 't-celeste', 'proy', abiertos, 'Proyectos activos') +
+    k('disenos', 't-verde', 'dis', disAb, 'Diseños abiertos') +
+    k('roturas', 't-indigo', 'hoy', hoyN, 'Roturas de hoy') +
+    k('roturas', atrN ? 't-rojo' : 't-verde', 'atr', atrN, 'Roturas atrasadas') +
+    k('tablero', 't-ambar', 'act', hechas + '/' + acts.length, 'Actividades hechas') +
+    k('poza', lh ? (enRango(lh.temp) ? 't-verde' : 't-rojo') : 't-ambar', 'poza', lh ? lh.temp + ' °C' : '—', 'Poza de curado hoy') + '</div>';
+}
+document.addEventListener('click', function(e){
+  var k = e.target.closest('[data-ms-kpi]');
+  if(!k) return;
+  var d = k.dataset.msKpi;
+  if(d === 'proyectos') showPanel('proyectos');
+  else if(d === 'disenos'){ showPanel('disenos'); showSubTab('tabla'); }
+  else if(d === 'roturas'){ roturasSoloProyecto = false; showPanel('roturas'); showRoturasSub('pendientes'); }
+  else if(d === 'tablero'){ planVista = 'actividades'; semanaTablero = msLunes; showPanel('planificacion'); }
+  else if(d === 'poza') abrirPozaDetalle();
+});
+
 PANEL_HOOKS.inicio = function(){ renderUsuarioShell(); renderMiSemana(); };

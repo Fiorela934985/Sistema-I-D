@@ -93,6 +93,7 @@ function generarListaDiaria(forzar){
 var planVista = 'hub';
 function mostrarVistaPlan(v){
   planVista = v;
+  document.getElementById('panel-planificacion').classList.toggle('plan-subvista', v !== 'hub');
   document.getElementById('plan-hub').style.display = v === 'hub' ? '' : 'none';
   document.getElementById('plan-vista-plan').style.display = v === 'plan' ? '' : 'none';
   document.getElementById('plan-vista-actividades').style.display = v === 'actividades' ? '' : 'none';
@@ -222,7 +223,8 @@ function editorPlanHtml(p){
     return '<tr data-et="' + esc(e.id) + '" data-it="' + esc(it.id) + '">' +
       '<td><input class="fmt-in fmt-largo" data-pf="nombre" value="' + esc(it.nombre) + '" placeholder="Ítem"' + dis + '></td>' +
       '<td><input type="date" class="fmt-in fmt-fecha-in" data-pf="inicio" value="' + esc(it.inicio) + '"' + dis + '></td>' +
-      '<td><input type="date" class="fmt-in fmt-fecha-in" data-pf="fin" value="' + esc(it.fin) + '"' + dis + '></td>' +
+      '<td><input type="date" class="fmt-in fmt-fecha-in" data-pf="fin" value="' + esc(it.fin) + '" min="' + esc(it.inicio) + '"' + (it.mismo_dia ? ' disabled' : dis) + '>' +
+        '<label class="mismo-dia"><input type="checkbox" data-pf-mismo' + (it.mismo_dia ? ' checked' : '') + dis + '> Mismo día</label></td>' +
       '<td><select class="fmt-in" data-pf="marca"' + dis + '>' + Object.keys(MARCAS_PLAN).map(function(k){ return '<option value="' + k + '"' + (it.marca === k ? ' selected' : '') + '>' + MARCAS_PLAN[k] + '</option>'; }).join('') + '</select></td>' +
       '<td><select class="fmt-in" data-pf="responsable_id"' + dis + '>' + opcionesUsuariosHtml(it.responsable_id, '—') + '</select></td>' +
       '<td><select class="fmt-in" data-pf="ensayo_id"' + dis + '><option value="">—</option>' + ensayos.map(function(x){ return '<option value="' + x.id + '"' + (it.ensayo_id === x.id ? ' selected' : '') + '>' + esc(x.nombre) + '</option>'; }).join('') + '</select></td>' +
@@ -252,6 +254,14 @@ function editorPlanHtml(p){
       (p.origen !== 'archivo' ? '<button class="btn-add ghost" data-plan-acc="pdf">Descargar PDF</button><button class="btn-add ghost" data-plan-acc="pptx">Descargar PPTX</button>' : '') + '</div>' +
     (p.origen !== 'archivo' ? '<div class="card"><div class="section-num">Gantt</div><div class="gantt-leyenda"><span><i class="gl-ejec"></i>Ejecución</span><span><i class="gl-prel"></i>Preliminar</span><span><i class="gl-rep">R</i>Reporte</span><span><i class="gl-hito">◆</i>Hitos R7 · R28 · R56</span></div><div class="table-scroll" id="gantt-wrap"></div></div>' : '');
 }
+function diasEntre(a, b){ return Math.round((new Date(b + 'T00:00:00') - new Date(a + 'T00:00:00')) / DAY); }
+/* Posición de un tramo dentro de la celda de una semana: la celda representa sus días, la barra solo los días que dura */
+function tramoEnSemana(s, ini, fin){
+  var n = diasEntre(s.desde, s.hasta) + 1;
+  var oi = ini > s.desde ? ini : s.desde, of = fin < s.hasta ? fin : s.hasta;
+  return {left:diasEntre(s.desde, oi) / n * 100, width:(diasEntre(oi, of) + 1) / n * 100};
+}
+function posDia(s, iso){ var n = diasEntre(s.desde, s.hasta) + 1; return (diasEntre(s.desde, iso) + .5) / n * 100; }
 function renderGantt(){
   var wrap = document.getElementById('gantt-wrap');
   if(!wrap || !planEd) return;
@@ -270,10 +280,18 @@ function renderGantt(){
       return '<tr><td class="g-nombre">' + esc(it.nombre || '(sin nombre)') + '<div class="nota-sm">' + esc(nombreDe(it.responsable_id) || '') + '</div></td>' + sem.map(function(s, i){
         var en = it.inicio && it.fin && it.inicio <= s.hasta && it.fin >= s.desde;
         var hito = hitos.filter(function(h){ return h.fecha >= s.desde && h.fecha <= s.hasta; });
-        var cls = en ? (it.marca === 'preliminar' ? 'g-prel' : it.marca === 'reporte' ? (i === ultimo ? 'g-rep' : 'g-prel') : 'g-ejec') : '';
-        return '<td class="g-celda' + (hoy >= s.desde && hoy <= s.hasta ? ' g-hoy' : '') + '" data-g-sem="' + i + '" data-g-item="' + esc(it.id) + '">' +
-          (en ? '<span class="g-bar ' + cls + '" draggable="' + (can('planes:gestionar') ? 'true' : 'false') + '" data-g-drag="' + esc(it.id) + '" data-g-sem="' + i + '">' + (cls === 'g-rep' ? 'R' : '') + '</span>' : '') +
-          hito.map(function(h){ return '<span class="g-hito" title="' + h.etiqueta + ' · ' + isoToDMY(h.fecha) + '">◆' + h.etiqueta + '</span>'; }).join('') + '</td>';
+        var arr = can('planes:gestionar') ? 'true' : 'false';
+        var dur = diasEntre(it.inicio, it.fin) + 1;
+        var tip = esc(it.nombre) + ' · ' + isoToDMY(it.inicio) + (dur > 1 ? ' – ' + isoToDMY(it.fin) + ' (' + dur + ' días)' : ' (1 día)');
+        var barras = '';
+        if(en){
+          var t = tramoEnSemana(s, it.inicio, it.fin);
+          var cls = it.marca === 'ejecucion' ? 'g-ejec' : 'g-prel';
+          barras = '<span class="g-bar ' + cls + '" style="left:' + t.left.toFixed(2) + '%;width:' + t.width.toFixed(2) + '%" title="' + tip + '" draggable="' + arr + '" data-g-drag="' + esc(it.id) + '" data-g-sem="' + i + '"></span>';
+          if(it.marca === 'reporte' && i === ultimo) barras += '<span class="g-bar g-rep" style="left:' + posDia(s, it.fin).toFixed(2) + '%" title="' + tip + '" draggable="' + arr + '" data-g-drag="' + esc(it.id) + '" data-g-sem="' + i + '">R</span>';
+        }
+        return '<td class="g-celda' + (hoy >= s.desde && hoy <= s.hasta ? ' g-hoy' : '') + '" data-g-sem="' + i + '" data-g-item="' + esc(it.id) + '">' + barras +
+          hito.map(function(h){ return '<span class="g-hito" style="left:' + posDia(s, h.fecha).toFixed(2) + '%" title="' + h.etiqueta + ' · ' + isoToDMY(h.fecha) + '">◆' + h.etiqueta + '</span>'; }).join('') + '</td>';
       }).join('') + '</tr>';
     }).join('');
   }).join('');
@@ -397,7 +415,11 @@ function abrirActividad(a, base){
     document.body.insertAdjacentHTML('beforeend', '<div id="act-modal" class="sid-modal"><div class="modal-card wide"><div class="modal-header"><h3 id="act-titulo-modal">Actividad</h3><button class="modal-close" data-close="act-modal">×</button></div><div class="modal-body" id="act-body"></div>' +
       '<div class="modal-actions"><button class="btn-add verde" id="act-guardar">Guardar</button><button class="btn-add ghost" data-close="act-modal">Cancelar</button></div></div></div>');
     document.getElementById('act-guardar').addEventListener('click', guardarActividad);
-    document.getElementById('act-modal').addEventListener('change', function(e){ if(e.target.id === 'act-proyecto') document.getElementById('act-diseno').innerHTML = opcionesDisenoProyecto(e.target.value, ''); });
+    document.getElementById('act-modal').addEventListener('change', function(e){
+      if(e.target.id === 'act-proyecto') document.getElementById('act-diseno').innerHTML = opcionesDisenoProyecto(e.target.value, '');
+      var mismo = document.getElementById('act-mismo'), hasta = document.getElementById('act-hasta'), desde = document.getElementById('act-desde');
+      if(e.target.id === 'act-mismo' || e.target.id === 'act-desde'){ hasta.disabled = mismo.checked; if(mismo.checked) hasta.value = desde.value; }
+    });
   }
   document.getElementById('act-titulo-modal').textContent = a ? 'Editar actividad' : '+ Actividad';
   document.getElementById('act-body').innerHTML = '<div class="pred-form">' +
@@ -405,7 +427,8 @@ function abrirActividad(a, base){
     '<div class="pp-field"><label>Responsable</label><select id="act-responsable">' + opcionesUsuariosHtml(x.responsable_id, 'Elegí un usuario') + '</select></div>' +
     '<div class="pp-field"><label>Proyecto</label><select id="act-proyecto"><option value="">Elegí el proyecto</option>' + PROYECTO_CATALOGO.map(function(p){ return '<option' + (p === x.proyecto ? ' selected' : '') + '>' + esc(p) + '</option>'; }).join('') + '</select></div>' +
     '<div class="pp-field"><label>Desde</label><input type="date" id="act-desde" value="' + esc(x.desde) + '"></div>' +
-    '<div class="pp-field"><label>Hasta</label><input type="date" id="act-hasta" value="' + esc(x.hasta) + '"></div>' +
+    '<div class="pp-field"><label>Hasta</label><input type="date" id="act-hasta" value="' + esc(x.hasta) + '" min="' + esc(x.desde) + '"' + (x.desde === x.hasta ? ' disabled' : '') + '>' +
+      '<label class="mismo-dia"><input type="checkbox" id="act-mismo"' + (x.desde === x.hasta ? ' checked' : '') + '> Mismo día</label></div>' +
     '<div class="pp-field"><label>Prioridad</label><select id="act-prioridad">' + Object.keys(PRIORIDADES).map(function(k){ return '<option value="' + k + '"' + (x.prioridad === k ? ' selected' : '') + '>' + PRIORIDADES[k] + '</option>'; }).join('') + '</select></div>' +
     '<div class="pp-field"><label>Diseño ligado (opcional)</label><select id="act-diseno">' + opcionesDisenoProyecto(x.proyecto, x.diseno_codigo) + '</select></div>' +
     '<div class="pp-field"><label>Paso del diseño (se marca sola)</label><select id="act-paso">' + Object.keys(PASOS_ACTIVIDAD).map(function(k){ return '<option value="' + k + '"' + (x.paso === k ? ' selected' : '') + '>' + PASOS_ACTIVIDAD[k] + '</option>'; }).join('') + '</select></div>' +
@@ -549,7 +572,8 @@ document.getElementById('panel-planificacion').addEventListener('change', functi
   }
   if(e.target.name === 'pl-origen' || e.target.id === 'pl-proyecto' || e.target.id === 'pl-mes-ini' || e.target.id === 'pl-mes-fin'){ leerCabeceraPlan(); renderPlanes(); return; }
   var tr = e.target.closest('[data-it]');
-  if(tr && e.target.dataset.pf){ var r = buscarItem(tr.dataset.it); if(r){ r.item[e.target.dataset.pf] = e.target.value; if(e.target.dataset.pf === 'inicio' && r.item.fin < r.item.inicio) r.item.fin = r.item.inicio; leerCabeceraPlan(); renderPlanes(); } return; }
+  if(tr && e.target.hasAttribute('data-pf-mismo')){ var rm = buscarItem(tr.dataset.it); if(rm){ rm.item.mismo_dia = e.target.checked; if(rm.item.mismo_dia) rm.item.fin = rm.item.inicio; leerCabeceraPlan(); renderPlanes(); } return; }
+  if(tr && e.target.dataset.pf){ var r = buscarItem(tr.dataset.it); if(r){ r.item[e.target.dataset.pf] = e.target.value; if(e.target.dataset.pf === 'inicio' && (r.item.fin < r.item.inicio || r.item.mismo_dia)) r.item.fin = r.item.inicio; leerCabeceraPlan(); renderPlanes(); } return; }
   var et = e.target.closest('[data-et]');
   if(et && e.target.dataset.ef){ var etapa = planEd.etapas.filter(function(x){ return x.id === et.dataset.et; })[0]; if(etapa){ etapa.nombre = e.target.value; renderGantt(); } }
 });

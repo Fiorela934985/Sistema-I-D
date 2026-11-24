@@ -21,6 +21,7 @@
 <link rel="stylesheet" href="css/flujo.css">
 <link rel="stylesheet" href="css/erp.css">
 <link rel="stylesheet" href="css/erp-compacto.css">
+<link rel="stylesheet" href="css/marca.css">
 <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.4/dist/chart.umd.min.js"></script>
 <script>
@@ -36,6 +37,12 @@ if(typeof Chart === 'undefined'){
 
 <!-- ============ LOGIN ============ -->
 <div id="login-view">
+  <aside class="login-marca">
+    <div class="lm-logo"><img src="assets/logo-nexus.png" alt="">Sistema I+D</div>
+    <div><h2>ERP de proyectos del Laboratorio I+D</h2>
+      <div class="lm-mods"><span>Proyectos</span><span>Formatos</span><span>Roturas NTP 339.034</span><span>Planificación</span><span>Calidad ISO/IEC 17025</span></div></div>
+    <div class="lm-pie">Cementos Pacasmayo · NEW I+D - SSCC</div>
+  </aside>
   <div class="login-bg-shapes">
     <span class="lbs s1"></span><span class="lbs s2"></span><span class="lbs s3"></span><span class="lbs s4"></span>
   </div>
@@ -241,6 +248,17 @@ if(typeof Chart === 'undefined'){
         <div class="tb-search-res" id="tb-search-res"></div>
       </div>
       <div class="tb-actions">
+        <div class="tb-crear-wrap" style="position:relative;">
+          <button class="tb-crear" id="tb-crear" type="button"><span class="tb-crear-mas">+</span>Crear</button>
+          <div class="tb-crear-menu" id="tb-crear-menu">
+            <button data-crear="proyecto" data-perm="proyectos:editar"><i class="t-celeste"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 7a2 2 0 0 1 2-2h4l2 2h8a2 2 0 0 1 2 2v9a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V7z"/></svg></i>Proyecto</button>
+            <button data-crear="diseno" data-perm="disenos:crear"><i class="t-verde"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="4" y="2" width="16" height="20" rx="2"/><path d="M8 7h8M8 12h8M8 17h4"/></svg></i>Diseño de mezcla</button>
+            <button data-crear="rotura" data-perm="roturas:registrar"><i class="t-ambar"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 2l3 6-5 4 6 2-8 8 2-7-5-2 4-4-3-5z"/></svg></i>Registro manual de roturas</button>
+            <button data-crear="plan" data-perm="planes:gestionar"><i class="t-indigo"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 6h10M3 12h16M3 18h7"/></svg></i>Plan de trabajo</button>
+            <button data-crear="actividad" data-perm="actividades:publicar"><i class="t-celeste"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M9 11l3 3 8-8"/><path d="M20 12v6a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2V6a2 2 0 0 1 2-2h9"/></svg></i>Actividad</button>
+            <button data-crear="poza" data-perm="resultados:registrar"><i class="t-verde"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M14 14.76V3.5a2.5 2.5 0 0 0-5 0v11.26a4.5 4.5 0 1 0 5 0z"/></svg></i>Lectura de la poza</button>
+          </div>
+        </div>
         <button class="tb-btn" data-atajos title="Atajos de teclado (?)" aria-label="Atajos de teclado">
           <svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="2" y="6" width="20" height="12" rx="2"/><path d="M6 10h.01M10 10h.01M14 10h.01M18 10h.01M7 14h10"/></svg>
         </button>
@@ -359,7 +377,6 @@ if(typeof Chart === 'undefined'){
         <button class="subtab" data-dsub="tabla">Formato de Diseños</button>
         <button class="subtab active" data-dsub="calcular" data-perm="disenos:crear">Calcular diseño</button>
         <button class="subtab" data-dsub="fresco">Formato de Estado Fresco</button>
-        <button class="subtab" data-dsub="historico">Galería de diseños</button>
       </div>
 
       <!-- ===== CALCULAR DISEÑO — réplica de la hoja real ===== -->
@@ -718,6 +735,7 @@ if(typeof Chart === 'undefined'){
           <div class="rr-toolbar">
             <h4 id="rr-current-title">—</h4>
             <div class="rr-toolbar-actions">
+              <button class="btn-add ghost" id="rr-solo-graficos" title="Ocultar el visor y ver solo los gráficos">Solo gráficos</button>
               <div class="informe-zoom-bar rr-zoom-bar">
                 <button id="rr-zoom-out" title="Alejar">−</button>
                 <span id="rr-zoom-pct">100%</span>
@@ -1516,6 +1534,7 @@ if(typeof Chart === 'undefined'){
 
 <script src="data/disenos-reales.js"></script>
 <script src="js/core/utils.js"></script>
+<script src="js/core/fechas.js"></script>
 <script src="js/core/nube.js"></script>
 <script src="js/core/sincronizacion.js"></script>
 <script src="js/core/auth.js"></script>

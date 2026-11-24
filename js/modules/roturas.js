@@ -382,7 +382,7 @@ function openRoturaCargaModal(id){
   document.getElementById('rotura-carga-body').innerHTML =
     '<div id="mc-ventana" class="mc-ventana"></div>' +
     '<div class="form-row">' +
-      '<div class="field-mini"><label>Fecha de ensayo</label><input type="date" id="mc-fechaEnsayoReal" value="'+esc(c.fechaEnsayoReal || todayISO())+'"></div>' +
+      '<div class="field-mini"><label>Fecha de ensayo</label><input type="date" id="mc-fechaEnsayoReal" min="'+esc(c.fechaElaboracion || '')+'" value="'+esc(c.fechaEnsayoReal || todayISO())+'"></div>' +
       '<div class="field-mini"><label>Hora de ensayo</label><div class="hora-celda"><input type="time" id="mc-horaEnsayo" value="'+esc(c.horaEnsayo)+'"><button type="button" class="btn-ahora" id="mc-ahora">Ahora</button></div></div>' +
       '<div class="field-mini" style="flex:1;"><label>Equipo usado</label><input type="text" id="mc-equipo" value="'+esc(c.equipo || '')+'" placeholder="Código del equipo (inventario)"></div>' +
     '</div>' +

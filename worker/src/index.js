@@ -550,6 +550,8 @@ ruta('POST', '/api/registros', async (req, env, s) => {
 export default {
   async fetch(req, env) {
     const cors = cabecerasCors(req, env);
+    // El sitio se sirve desde la misma dirección: todo lo que no es /api/ son archivos del sitio
+    if (env.ASSETS && !new URL(req.url).pathname.startsWith('/api/')) return env.ASSETS.fetch(req);
     if (req.method === 'OPTIONS') return new Response(null, { status: 204, headers: cors });
     const partes = new URL(req.url).pathname.split('/').filter(Boolean);
     try {

@@ -129,3 +129,25 @@ table.roturas-table.fmt-tabla td.ro-locked{color:var(--text);font-weight:500;fon
 .proy-card h4{font-size:.95rem;}
 .pendiente-row{padding:8px 10px;border-radius:8px;}
 .tb-crumb:empty,.tb-crumb:empty + .tb-sep{display:none;}
+
+.login-inst{font-size:.8rem;font-weight:700;text-transform:uppercase;letter-spacing:.05em;color:var(--celeste-700,#0b5f7a);margin-bottom:8px;}
+
+/* ---- Gantt: barras del largo de sus días; vistas a pantalla completa ---- */
+.gantt .g-sem{min-width:58px;}
+.g-bar{right:auto;}
+.g-bar.g-ejec,.g-bar.g-prel{left:0;}
+.g-bar.g-rep{width:16px;height:16px;top:7px;margin-left:-8px;}
+.g-hito{right:auto;bottom:0;transform:translateX(-50%);white-space:nowrap;}
+.mismo-dia{display:flex;align-items:center;gap:4px;font-size:.68rem;color:var(--text-muted);margin-top:2px;white-space:nowrap;}
+#panel-planificacion.plan-subvista > .content-header,#panel-planificacion.plan-subvista > .plan-botones{display:none;}
+#panel-planificacion.plan-subvista .plan-cab{margin-top:0;}
+.plan-layout{grid-template-columns:200px minmax(0,1fr);}
+
+/* ---- Radar de proyectos ---- */
+.radar-modo{margin-bottom:6px;}
+.radar-graf{height:300px;position:relative;}
+.radar-picker{display:flex;flex-wrap:wrap;gap:4px;margin-top:8px;max-height:160px;overflow:auto;}
+.radar-chip{display:inline-flex;align-items:center;gap:5px;padding:3px 8px;border:1px solid var(--line);border-radius:999px;font-size:.7rem;cursor:pointer;background:var(--surface);}
+.radar-chip input{display:none;}
+.radar-chip.on{font-weight:700;background:var(--surface-2);}
+.radar-chip i{width:8px;height:8px;border-radius:50%;display:inline-block;}

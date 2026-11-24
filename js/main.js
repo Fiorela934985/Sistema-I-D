@@ -48,6 +48,19 @@ if((!Nube.activa() || Nube.tieneToken()) && restaurarSesion()){
 } else {
   document.getElementById('login-user').focus();
 }
+/* Servidor recién publicado y sin usuarios: el ingreso crea el primer administrador */
+var instalandoServidor = false;
+if(Nube.activa() && !Nube.tieneToken()){
+  Nube.estado().then(function(r){
+    if(r.instalado) return;
+    instalandoServidor = true;
+    var campo = function(id, tipo, ph){ return '<div class="login-field login-inst-campo"><input type="' + tipo + '" id="' + id + '" placeholder="' + ph + '" autocomplete="off"></div>'; };
+    var form = document.getElementById('login-form');
+    form.insertAdjacentHTML('afterbegin', '<div class="login-inst login-inst-campo">Primer ingreso · administrador</div>' + campo('inst-nombre', 'text', 'Nombre completo') + campo('inst-correo', 'email', 'Correo'));
+    document.getElementById('login-pass').closest('.login-field').insertAdjacentHTML('afterend', campo('inst-clave2', 'password', 'Repetir contraseña'));
+    document.querySelector('#login-btn span').textContent = 'Crear administrador e ingresar';
+  }).catch(function(){});
+}
 document.getElementById('login-eye').addEventListener('click', function(){
   var inp = document.getElementById('login-pass');
   inp.type = inp.type === 'password' ? 'text' : 'password';
@@ -57,6 +70,23 @@ document.getElementById('login-form').addEventListener('submit', function(e){
   var user = document.getElementById('login-user').value.trim();
   var pass = document.getElementById('login-pass').value;
   var errEl = document.getElementById('login-error');
+  if(instalandoServidor){
+    var nombre = document.getElementById('inst-nombre').value.trim();
+    if(!nombre){ errEl.textContent = 'Escribe tu nombre completo'; return; }
+    if(!/^[A-Za-z0-9._-]{3,30}$/.test(user)){ errEl.textContent = 'Usuario: 3 a 30 caracteres, sin espacios'; return; }
+    if(pass.length < 8){ errEl.textContent = 'La contraseña debe tener al menos 8 caracteres'; return; }
+    if(pass !== document.getElementById('inst-clave2').value){ errEl.textContent = 'Las contraseñas no coinciden'; return; }
+    document.getElementById('login-btn').disabled = true;
+    Nube.pedir('POST', '/api/instalar', {usuario:user, nombre:nombre, iniciales:nombre.split(/\s+/).map(function(x){ return x.charAt(0); }).join('').slice(0, 4).toUpperCase(),
+      correo:document.getElementById('inst-correo').value.trim(), clave:pass}, {sinToken:true}).then(function(){
+      instalandoServidor = false;
+      document.querySelectorAll('.login-inst-campo').forEach(function(x){ x.remove(); });
+      document.querySelector('#login-btn span').textContent = 'Ingresar';
+      document.getElementById('login-btn').disabled = false;
+      document.getElementById('login-form').requestSubmit();
+    }, function(e3){ document.getElementById('login-btn').disabled = false; errEl.textContent = e3.mensaje; });
+    return;
+  }
   if(Nube.activa()){
     // Con servidor: el usuario y la contraseña se validan allá (PBKDF2); acá queda solo la sesión
     document.getElementById('login-btn').disabled = true;

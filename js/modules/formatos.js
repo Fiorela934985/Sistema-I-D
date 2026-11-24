@@ -143,7 +143,10 @@ function renderFormatoDisenos(){
         '<td class="fmt-mat">' + materialesResumen(d) + '</td><td>' + (d.cvdTotal ? fmt(d.cvdTotal, 2) : '—') + '</td>' +
         '<td class="mono">' + ((d.replicaObjs || []).map(function(r){ return 'R' + r.n + ' ' + (r.codigo || '—'); }).join('<br>') || '—') + '</td>' +
         '<td>' + estadoDisenoHtml(d) + '</td>' +
-        '<td class="acciones-fila"><button class="btn-icon" data-fdis="flujo" data-codigo="' + esc(d.codigo) + '" title="Flujo del diseño">' + FLUJO_ICON + '</button><button class="btn-icon" data-fdis="ver" data-codigo="' + esc(d.codigo) + '" title="Ver diseño">' + EYE_ICON + '</button></td></tr>';
+        '<td class="acciones-fila"><button class="btn-icon" data-fdis="flujo" data-codigo="' + esc(d.codigo) + '" title="Flujo del diseño">' + FLUJO_ICON + '</button><button class="btn-icon" data-fdis="ver" data-codigo="' + esc(d.codigo) + '" title="Ver diseño">' + EYE_ICON + '</button>' +
+          '<button class="btn-icon" data-fdis="informe" data-codigo="' + esc(d.codigo) + '" title="Informe">' + CHART_ICON + '</button>' +
+          '<button class="btn-icon" data-fdis="dup" data-codigo="' + esc(d.codigo) + '" data-perm="disenos:crear" title="Duplicar">' + DUP_ICON + '</button>' +
+          '<button class="btn-icon danger" data-fdis="anular" data-codigo="' + esc(d.codigo) + '" data-perm="disenos:eliminar" title="Anular">×</button></td></tr>';
     }).join('') : '<tr><td colspan="16" class="nota-sm">Sin registros.</td></tr>') + '</tbody>';
 }
 document.getElementById('sub-tabla').addEventListener('click', function(e){
@@ -159,6 +162,9 @@ document.getElementById('sub-tabla').addEventListener('click', function(e){
   }
   else if(acc === 'flujo' && d) abrirFlujoDiseno(d);
   else if(acc === 'ver' && d) openDesignModal(d);
+  else if(acc === 'informe' && d) openInformeModal(d);
+  else if(acc === 'dup' && d){ if(exigir('disenos:crear')) askConfirmDuplicate(d); }
+  else if(acc === 'anular' && d){ if(exigir('disenos:eliminar')) anularDiseno(d); }
 });
 document.getElementById('sub-tabla').addEventListener('change', function(e){
   var asig = e.target.dataset.fdisAsignar;

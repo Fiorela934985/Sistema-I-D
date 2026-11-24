@@ -152,3 +152,33 @@ document.addEventListener('keydown', function(e){
 
 crearSeccionesPorFase();
 armarMenuPorSecciones();
+
+/* ================= + CREAR (barra superior) ================= */
+document.getElementById('tb-crear').addEventListener('click', function(e){
+  e.stopPropagation();
+  document.getElementById('tb-crear-menu').classList.toggle('show');
+});
+document.addEventListener('click', function(e){
+  if(!e.target.closest('.tb-crear-wrap')) document.getElementById('tb-crear-menu').classList.remove('show');
+});
+document.getElementById('tb-crear-menu').addEventListener('click', function(e){
+  var b = e.target.closest('[data-crear]');
+  if(!b) return;
+  document.getElementById('tb-crear-menu').classList.remove('show');
+  var q = b.dataset.crear;
+  if(q === 'proyecto'){ if(exigir('proyectos:editar')){ showPanel('proyectos'); abrirAsistenteProyecto(null); } }
+  else if(q === 'diseno'){ if(exigir('disenos:crear')){ showPanel('disenos'); showSubTab('calcular'); } }
+  else if(q === 'rotura') abrirRegistroManual();
+  else if(q === 'plan'){ if(exigir('planes:gestionar')){ planVista = 'plan'; planEd = nuevoPlan(proyectoFlujo); planSelId = planEd.id; showPanel('planificacion'); } }
+  else if(q === 'actividad'){ if(exigir('actividades:publicar')){ planVista = 'actividades'; showPanel('planificacion'); abrirActividad(null); } }
+  else if(q === 'poza') abrirRegistroPoza();
+});
+
+/* ================= Reporte RR: ver solo los gráficos ================= */
+document.getElementById('rr-solo-graficos').addEventListener('click', function(){
+  var panel = document.getElementById('panel-reporte-rr');
+  var solo = panel.classList.toggle('rr-solo-graficos');
+  this.textContent = solo ? 'Mostrar visor' : 'Solo gráficos';
+  this.classList.toggle('verde', solo);
+  setTimeout(function(){ rrCharts.forEach(function(c){ c.resize(); }); }, 60);
+});
