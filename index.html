@@ -860,9 +860,10 @@ if(typeof Chart === 'undefined'){
     <!-- ============ CALENDARIO DE ROTURAS ============ -->
     <section id="panel-calendario" class="panel">
       <div class="content-header">
-        <div><h2>Calendario de roturas</h2><p>Roturas programadas, por edad de ensayo.</p></div>
+        <div><h2>Calendario</h2><p>Actividades, roturas programadas e hitos de los planes.</p></div>
         <div class="ch-actions">
           <select id="cal-proyecto"><option value="">Todos los proyectos</option></select>
+          <select id="cal-usuario"><option value="">Todos los usuarios</option></select>
           <select id="cal-tipo"><option value="">Probetas y cubos</option><option value="Probetas">Solo probetas</option><option value="Cubos">Solo cubos</option></select>
           <div class="view-toggle" id="cal-vista">
             <button class="view-toggle-btn active" data-vista="mes">Mes</button>
@@ -1012,13 +1013,18 @@ if(typeof Chart === 'undefined'){
 </section>
 
 <section id="panel-planificacion" class="panel">
-      <div class="content-header"><div><h2>Planificación</h2></div></div>
+      <div class="content-header"><div><h2>Planificación</h2><p>Plan de trabajo por proyecto, actividades de la semana y calendario del laboratorio.</p></div></div>
       <div class="plan-botones">
-        <button class="plan-boton" disabled><b>Plan de trabajo</b><span>Generador de Gantt por proyecto · exporta a PPTX y PDF</span><em class="fase-chip">Fase 5</em></button>
-        <button class="plan-boton" disabled><b>Asignar actividades</b><span>Tablero lun–dom por usuario · publicar la semana</span><em class="fase-chip">Fase 5</em></button>
-        <button class="plan-boton activo" data-goto="calendario"><b>Calendario</b><span>Vista mensual y semanal de roturas programadas</span></button>
+        <button class="plan-boton" data-plan-vista="plan"><b>Plan de trabajo</b><span>Gantt por proyecto · semanas partidas por mes · PDF y PPTX</span></button>
+        <button class="plan-boton" data-plan-vista="actividades"><b>Asignar actividades</b><span>Tablero lun–dom por usuario · publicar la semana</span></button>
+        <button class="plan-boton" data-goto="calendario"><b>Calendario</b><span>Actividades, roturas e hitos · mes y semana</span></button>
       </div>
-      <div class="kpi-grid" id="plan-resumen"></div>
+      <div id="plan-hub">
+        <div class="kpi-grid" id="plan-resumen"></div>
+        <div class="plan-hub-grid"><div class="card" id="plan-hitos"></div><div class="card" id="plan-correos"></div></div>
+      </div>
+      <div id="plan-vista-plan" style="display:none;"></div>
+      <div id="plan-vista-actividades" style="display:none;"></div>
     </section>
 
     <!-- ============ RECURSOS › PERSONAL (17025, 6.2) ============ -->
@@ -1513,6 +1519,7 @@ if(typeof Chart === 'undefined'){
 <script src="js/core/laboratorio.js"></script>
 <script src="js/core/icons.js"></script>
 <script src="js/core/shell.js"></script>
+<script src="js/core/menu.js"></script>
 <script src="js/modules/catalogos.js"></script>
 <script src="js/modules/proyectos.js"></script>
 <script src="js/modules/componentes.js"></script>
@@ -1547,6 +1554,7 @@ if(typeof Chart === 'undefined'){
 <script src="js/modules/ajustes.js"></script>
 <script src="js/modules/inicio.js"></script>
 <script src="js/modules/navegacion.js"></script>
+<script src="js/modules/planificacion.js"></script>
 <script src="js/modules/personal.js"></script>
 <script src="js/modules/ensayos-metodos.js"></script>
 <script src="js/data/seed.js"></script>

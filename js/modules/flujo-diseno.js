@@ -324,6 +324,7 @@ function asignarDiseno(d, usuarioId){
     registrarHistorial(antes ? 'Editó' : 'Asignó', 'Diseño', d.codigo + ' · asignado a ' + (nombreDe(usuarioId) || 'nadie'), {codigo:d.codigo, proyecto:proyectoNombre(d.proyectoId), ref:d.codigo,
       antes:antes ? {asignado:antes} : undefined, despues:{asignado:nombreDe(usuarioId) || ''}, motivo:motivo || ''});
     toast(usuarioId ? 'Diseño asignado a ' + nombreDe(usuarioId) : 'Diseño sin asignar');
+    if(usuarioId && typeof avisarDisenoAsignado === 'function') avisarDisenoAsignado(d);
     refrescarTodoFlujo(d);
   };
   if(antes) pedirMotivo('Cambiar la asignación del diseño', resumenCambioHtml({antes:{asignado:antes}, despues:{asignado:nombreDe(usuarioId) || 'Sin asignar'}}, {asignado:'Asignado a'}), aplicar);

@@ -553,6 +553,7 @@ function updateNavBadges(){
   var badge = document.getElementById('nav-roturas-badge');
   badge.style.display = countBacklog ? 'inline-block' : 'none';
   badge.textContent = countBacklog;
+  if(typeof actualizarMenuSecciones === 'function') actualizarMenuSecciones();
   var listaHoy = roturaCargas.filter(function(c){ return c.estado==='pendiente' && c.fechaEnsayo === todayStr; });
   var vencidas = roturaCargas.filter(function(c){ return c.estado==='pendiente' && c.fechaEnsayo < todayStr; });
   var notifOn = typeof settings === 'undefined' || settings.notif !== false;

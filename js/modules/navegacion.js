@@ -66,6 +66,7 @@ function actualizarFlujo(){
   var etiqueta = panelActual === 'disenos' ? ((subTabDisenos === 'historico' || subTabDisenos === 'fresco') ? 'Formato de Estado Fresco' : 'Formato de Diseños (D-CC-F-148)') : info.label;
   document.getElementById('tb-panel-title').textContent = etiqueta;
   document.getElementById('tb-crumb').textContent = info.grupo;
+  actualizarMenuSecciones();
 }
 
 /* ================= SECCIONES DE FASES POSTERIORES ================= */
@@ -152,3 +153,4 @@ document.addEventListener('keydown', function(e){
 });
 
 crearSeccionesPorFase();
+armarMenuPorSecciones();

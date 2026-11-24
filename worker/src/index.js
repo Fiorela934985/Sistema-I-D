@@ -463,13 +463,18 @@ const COLECCIONES = {
   lotes: ['resultados:registrar', 'disenos:crear'],
   informes: ['rr:editar', 'informes:aprobar'],
   tnc: ['roturas:registrar', 'tnc:reportar', 'tnc:cerrar'],
-  contadores: ['roturas:registrar', 'disenos:crear']
+  contadores: ['roturas:registrar', 'disenos:crear'],
+  planes: ['planes:gestionar'],
+  actividades: ['actividades:publicar', 'resultados:registrar', 'roturas:registrar'],
+  correos: ['actividades:publicar', 'disenos:crear', 'resultados:registrar', 'roturas:registrar'],
+  semanas: ['actividades:publicar']
 };
+const sesion_esTecnico = (s) => s && s.rol !== 'admin' && !s.permisos.includes('actividades:publicar');
 function exigirAlguno(sesion, permisos) {
   if (!sesion) falla(401, 'Sesión vencida o inválida');
   if (sesion.rol !== 'admin' && !permisos.some((p) => sesion.permisos.includes(p))) falla(403, 'Tu rol no tiene permiso para esta acción');
 }
-const MODULO_COLECCION = { disenos: 'Diseño', roturas: 'Rotura', lotes: 'Lote de agregado', informes: 'Informes', tnc: 'Trabajo no conforme', contadores: 'Códigos' };
+const MODULO_COLECCION = { disenos: 'Diseño', roturas: 'Rotura', lotes: 'Lote de agregado', informes: 'Informes', tnc: 'Trabajo no conforme', contadores: 'Códigos', planes: 'Planificación', actividades: 'Actividades', correos: 'Correos', semanas: 'Actividades' };
 
 ruta('GET', '/api/registros', async (req, env, s) => {
   exigir(s);
@@ -514,6 +519,11 @@ ruta('POST', '/api/registros', async (req, env, s) => {
           if (datos.elaborado_por === s.id && s.rol !== 'admin') falla(403, 'Quien elaboró el informe no puede aprobarlo');
         }
       }
+    }
+    if (col === 'actividades' && sesion_esTecnico(s)) {
+      const antesA = antes || {};
+      const soloMarca = antes && Object.keys(datos).every((k) => ['hecha', 'hecha_en', 'hecha_por'].includes(k) || JSON.stringify(datos[k]) === JSON.stringify(antesA[k]));
+      if (!soloMarca || antesA.responsable_id !== s.id) falla(403, 'El técnico solo marca como hechas sus propias actividades');
     }
     if (anulado && !(previa && previa.anulado) && !texto(datos.motivo_anulacion)) falla(400, 'Indicá el motivo de la anulación');
     sentencias.push(env.DB.prepare(

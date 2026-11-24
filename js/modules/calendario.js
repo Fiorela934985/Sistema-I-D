@@ -9,8 +9,10 @@ var DIAS_SEMANA_CORTOS = ['Lun','Mar','Mié','Jue','Vie','Sáb','Dom'];
 function cargasFiltradasCalendario(){
   var proy = document.getElementById('cal-proyecto').value;
   var tipo = document.getElementById('cal-tipo').value;
+  var usr = (document.getElementById('cal-usuario') || {}).value || '';
   return roturaCargas.filter(function(c){
     if(proy && c.proyecto !== proy) return false;
+    if(usr && c.aCargoDeId !== usr) return false;
     if(tipo && (c.tipo || 'Probetas') !== tipo) return false;
     return !!c.fechaEnsayo;
   });
@@ -40,6 +42,8 @@ function rebuildCalProyectoSelect(){
   sel.innerHTML = '<option value="">Todos los proyectos</option>' + nombresDeProyectos().sort().map(function(p){
     return '<option value="'+esc(p)+'"'+(p===actual?' selected':'')+'>'+esc(p)+'</option>';
   }).join('');
+  var su = document.getElementById('cal-usuario'), uAct = su.value;
+  su.innerHTML = '<option value="">Todos los usuarios</option>' + usuariosActivos().map(function(u){ return '<option value="'+esc(u.id)+'"'+(u.id===uAct?' selected':'')+'>'+esc(u.nombre || u.usuario)+'</option>'; }).join('');
 }
 
 function renderCalendario(){
@@ -91,7 +95,7 @@ function renderCalendario(){
             return porEdad[e.cls] ? '<i class="cal-chip '+e.cls+'" title="'+e.lbl+': '+porEdad[e.cls]+' por registrar">'+porEdad[e.cls]+'</i>' : '';
           }).join('') + '</span>'
           : (!pendientes && registradas ? '<span class="cal-ok" title="Todas registradas">✓</span>' : '')) +
-        detalle + '</button>';
+        (typeof chipsPlanDia === 'function' ? '<span class="cal-plan-wrap">' + chipsPlanDia(iso) + '</span>' : '') + detalle + '</button>';
     }).join('');
   renderCalDia(porDia);
 }
@@ -119,7 +123,8 @@ function renderCalDia(porDia){
     '<div class="cd-head"><div><span class="cd-dow">'+DIA_NOMBRES[d.getDay()]+(iso === todayISO() ? ' · hoy' : '')+'</span>' +
       '<h4>'+d.getDate()+' de '+MES_NOMBRES[d.getMonth()].toLowerCase()+'</h4></div>' +
       (lista.length ? '<span class="cd-count"><b>'+pend+'</b> / '+lista.length+'<small>por registrar</small></span>' : '') + '</div>' +
-    (lista.length ? '<div class="cal-dia-lista">'+grupos+'</div>' : '<div class="cd-vacio">Sin roturas este día</div>');
+    (lista.length ? '<div class="cal-dia-lista">'+grupos+'</div>' : '<div class="cd-vacio">Sin roturas este día</div>') +
+    (typeof detallePlanDia === 'function' ? '<div class="cal-dia-lista">' + detallePlanDia(iso) + '</div>' : '');
 }
 document.getElementById('cal-grid').addEventListener('click', function(e){
   var celda = e.target.closest('[data-cal-dia]');
@@ -152,7 +157,7 @@ document.getElementById('cal-vista').addEventListener('click', function(e){
   document.querySelectorAll('#cal-vista .view-toggle-btn').forEach(function(b){ b.classList.toggle('active', b === btn); });
   renderCalendario();
 });
-['cal-proyecto','cal-tipo'].forEach(function(id){ document.getElementById(id).addEventListener('change', renderCalendario); });
+['cal-proyecto','cal-tipo','cal-usuario'].forEach(function(id){ document.getElementById(id).addEventListener('change', renderCalendario); });
 // Al guardar una carga desde el calendario, se refresca.
 document.getElementById('rotura-carga-save').addEventListener('click', function(){ if(panelActual === 'calendario') setTimeout(renderCalendario, 0); });
 PANEL_HOOKS.calendario = function(){ rebuildCalProyectoSelect(); renderCalendario(); };

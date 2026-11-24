@@ -540,8 +540,10 @@ function askReplicasThenPrint(d){
       nuevas.push(previa && previa.codigo ? previa : {n:i, nombre:diseñoTitulo(d)+'-R'+i, codigo:''});
     }
     d.replicaObjs = nuevas;
+    var cambioAsignado = d.asignadoA !== asignado;
     d.asignadoA = asignado;
     save('sid10_disenos', disenos);
+    if(cambioAsignado && typeof avisarDisenoAsignado === 'function') avisarDisenoAsignado(d);
     registrarHistorial('Registró', 'Réplicas', d.codigo + ' · ' + cantidadElegida + ' réplica(s) · edades ' + diasElegidos.join(', ') + ' · asignado a ' + nombreDe(asignado), {codigo:d.codigo, proyecto: proyectoNombre(d.proyectoId), ref: d.codigo,
       despues:{replicas:nuevas.map(function(r){ return r.nombre; }), edades:diasElegidos, asignado:nombreDe(asignado)}});
     document.getElementById('replicas-modal').classList.remove('show');

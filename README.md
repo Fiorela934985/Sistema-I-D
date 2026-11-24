@@ -15,7 +15,7 @@ ERP de proyectos para el Laboratorio I+D (NEW I+D - SSCC): proyectos con sus ens
 | 2 | Proyectos con su asistente de 4 pasos y sus pestañas | **Lista** |
 | 3 | Flujo por diseño (5 pasos), estado fresco, Roturas y etiquetas QR | **Lista** |
 | 4 | Formatos, Informes y RR con aprobación | **Lista** |
-| 5 | Planificación (Gantt, actividades de la semana) y notificaciones por correo | Pendiente |
+| 5 | Planificación (Gantt, actividades de la semana) y notificaciones por correo | **Lista** |
 | 6 | Inicio "Mi semana" y card de la poza de curado | Pendiente |
 | 7 | Calidad (documentos, trabajo no conforme), integración con inventario e Inteligencia | Pendiente |
 
@@ -23,12 +23,15 @@ El esquema de base de datos (`worker/schema.sql`) incluye las tablas de todas la
 
 ## Menú
 
+El menú sigue la secuencia del prompt maestro. Inicio, Proyectos y Planificación son entradas únicas; Formatos, Recursos, Calidad, Inteligencia y Administración son secciones que se despliegan con sus subsecciones (queda abierta la de la pantalla actual).
+
+
 | Grupo | Entrada | Estado |
 |---|---|---|
 | Inicio | Inicio | Actual (Mi semana en la Fase 6) |
 | Proyectos | Proyectos | **Fase 2:** lista con filtros y radar de etapas, asistente de 4 pasos y pestañas Resumen · Muestras · Diseños · Ensayos · Informes · Plan de trabajo · Archivo |
 | Formatos | Formato de Diseños (D-CC-F-148) · Formato de Estado Fresco · Formato de Roturas I+D · Formato de Cargas y Promediados · Etiquetas | **Fase 4:** tablas unificadas editables en la celda, con filtros (proyecto, iteración, código, responsable, fechas), semáforo y chips, motivo en cada edición y Excel. Registro manual de roturas. Etiquetas QR (Fase 3) |
-| Planificación | Plan de trabajo · Asignar actividades · Calendario | Calendario actual; lo demás en la Fase 5 |
+| Planificación | Una sola entrada con tres botones: Plan de trabajo · Asignar actividades · Calendario | **Fase 5:** Gantt por proyecto con semanas partidas por mes, actividades de la semana con publicación, calendario con actividades, roturas e hitos, y bandeja de correos |
 | Recursos | Personal | **Fase 1:** fichas y matriz de autorización |
 | Calidad | Documentos · Trabajo no conforme · Historial de cambios | Historial con valor anterior, nuevo y motivo; trabajos no conformes automáticos (Fase 3); evaluar y cerrar en la Fase 7 |
 | Inteligencia | Indicadores · Base histórica · Predicción · Asistente I+D | Actual |
@@ -58,6 +61,9 @@ Los usuarios con el rol anterior *Jefatura* pasan solos a *Líder*.
 - **Trabajo no conforme automático:** rotura fuera de la ventana y CV alto entre M1, M2 y M3 (alerta).
 - **Solo registra quien está autorizado:** el técnico registra solo lo asignado y los ensayos para los que tiene autorización en *Recursos › Personal*.
 - **Cada rotura guarda su contexto:** analista, método y versión, fecha y hora, equipo y lote de agregado.
+- **Semanas del plan partidas por mes:** lunes a domingo, cortadas en el cambio de mes. El lunes 30/11/2026 es W5 de noviembre (solo ese día) y 01–06/12 es W1 de diciembre; una barra que cruza el mes se pinta en las dos semanas. Si el mes empieza en domingo, ese día se suma a W1.
+- **Actividades de la semana:** la semana queda en Borrador hasta *Publicar semana*, que deja un solo correo por usuario. Lo que se agrega después sale como correo corto solo con lo nuevo. Una actividad ligada a un paso de un diseño se marca sola cuando el diseño completa ese paso.
+- **Correos:** cada evento (semana publicada, diseño asignado, lista diaria con roturas de hoy y atrasadas, trabajo no conforme) deja su correo en *Planificación › Correos por enviar*, con el enlace a la pantalla exacta. Hoy se envían con «Enviar con Gmail»; el envío automático desde el servidor queda para las integraciones (Fase 7).
 - **Etiquetas:** 3 iguales por edad, en blanco y negro, con QR; al escanearla se abre el registro de esa rotura.
 - **Nada se borra:** los usuarios se desactivan; los ensayos y flujos se desactivan; las capacitaciones se anulan; las autorizaciones se revocan; los diseños y las roturas se **anulan**. Siempre con motivo.
 - **Formatos = proyecto:** lo que se llena en un Formato aparece dentro del proyecto y viceversa (es el mismo registro). Cambiar un valor que ya existía pide el motivo.
@@ -110,6 +116,7 @@ index.html                      Maquetación: menú lateral, secciones y ventana
 css/                            Estilos (erp.css: secciones del ERP)
 js/core/
   utils.js                      Almacenamiento, formato, fechas, ventanas, exportación
+  menu.js                       Menú lateral por secciones con subsecciones desplegables
   nube.js                       Conexión con el Worker, sesión y cola de reintentos
   sincronizacion.js             Diseños, roturas, lotes, informes y no conformes en el servidor (envía solo lo que cambió)
   auth.js                       Usuarios, roles (Administrador, Líder, Técnico) y permisos
@@ -117,7 +124,8 @@ js/core/
   laboratorio.js                Ensayos, flujos, tolerancias, poza, personal y autorizaciones
   shell.js, icons.js, analitica.js, ml.js
 js/modules/
-  navegacion.js                 Menú del prompt maestro, Planificación y atajos de teclado
+  navegacion.js                 Menú del prompt maestro y atajos de teclado
+  planificacion.js              Plan de trabajo (Gantt), actividades de la semana, calendario y bandeja de correos
   proyecto-ficha.js             Ficha del proyecto y estados calculados (Abierto/Cerrado, Falta, semáforo)
   proyectos-panel.js            Lista de proyectos, radar de etapas y pestañas del proyecto
   proyecto-asistente.js         Asistente de Nuevo proyecto (4 pasos)
